@@ -40,6 +40,7 @@ def analize_nodes():
 """ function that checks all the shaders in the scene and measaures if they are assigned to an object. Also deals with shading engine nodes"""
 
 def check_shaders():
+    render_layers = cmds.ls(type = "renderLayer")
     analize_list = analize_nodes()
     selected_objects = cmds.ls(sl = True)
     unassigned_mtl_list = []
@@ -58,104 +59,44 @@ def check_shaders():
     vray_blend_materials = analize_list[9]
     vray_bump_materials = analize_list[10]
     vray_VRayFresnel_materials = analize_list[12]
-    mtl_master_list = [VRayMtl_list,phong_list,blinn_list,lambert_list,surfaceShader_list,vray_VRayFresnel_materials]
-    
-    cmds.select(clear = True)  
-    for bumpMtl in vray_bump_materials:
-        cmds.select(clear = True)
-        cmds.hyperShade(o = bumpMtl)
-        objects_assigned_to_shader = cmds.ls(sl = True) or []
-        objects_assigned_to_shader_len = len(objects_assigned_to_shader)
-        if objects_assigned_to_shader_len == 0:
-            connected = 0
-            connections = cmds.listConnections(bumpMtl, destination = True)      
-            for connection in connections:
-                connection_type = cmds.nodeType(connection)
-                if connection_type == "VRayBumpMtl":
-                    cmds.select(clear = True)       
-                    cmds.hyperShade(o = connection)
-                    objects_assigned_to_shader = cmds.ls(sl = True) or []
-                    objects_assigned_to_shader_len = len(objects_assigned_to_shader)
-                    if objects_assigned_to_shader_len > 0:                          
-                        connected = 1
-                        if bumpMtl not in assigned_vray_bump_materials_list:
-                            assigned_vray_bump_materials_list.append(bumpMtl)                        
-            if connected == 0:
-                if bumpMtl not in unassigned_mtl_list:
-                    unassigned_mtl_list.append(bumpMtl)
-        else:
-            assigned_vray_bump_materials_list.append(bumpMtl)     
-    cmds.select(clear = True)
-    for blendMtl in vray_blend_materials:
-        cmds.select(clear = True)
-        cmds.hyperShade(o = blendMtl)
-        objects_assigned_to_shader = cmds.ls(sl = True) or []
-        objects_assigned_to_shader_len = len(objects_assigned_to_shader)
-        num_of_bump_connections = len(assigned_vray_bump_materials_list)
-        num_of_blend_connections = len(assigned_blend_mtl_list)
-        connections = cmds.listConnections(blendMtl, destination = True)
-        connected = 0
-        if objects_assigned_to_shader_len != 0:
-            connected = 1  
-        if objects_assigned_to_shader_len == 0:
-            if num_of_bump_connections > 0:
-                for connection in connections:
-                    for assigned_vray_bump_materials in assigned_vray_bump_materials_list:
-                        if assigned_vray_bump_materials == connection:
-                            connected = 1
-            if num_of_blend_connections > 0:
-                for connection in connections:
-                    for assigned_blend_mtl in assigned_blend_mtl_list:
-                        if assigned_blend_mtl == connection:
-                            connected = 1              
-        if connected == 0:
-            if blendMtl not in unassigned_mtl_list:
-                unassigned_mtl_list.append(blendMtl)
-        if connected == 1:
-            if blendMtl not in assigned_blend_mtl_list:
-                assigned_blend_mtl_list.append(blendMtl)                  
-    cmds.select(clear = True)
-    
-    for VRayMtl in VRayMtl_list:
-        cmds.select(clear = True)
-        cmds.hyperShade(o = VRayMtl)
-        objects_assigned_to_shader = cmds.ls(sl = True) or []
-        objects_assigned_to_shader_len = len(objects_assigned_to_shader)
-        num_of_bump_connections = len(assigned_vray_bump_materials_list)
-        num_of_blend_connections = len(assigned_blend_mtl_list)
-        connections = cmds.listConnections(VRayMtl, destination = True)
-        connected = 0
-        if objects_assigned_to_shader_len != 0:
-            connected = 1  
-        if objects_assigned_to_shader_len == 0:
-            if num_of_bump_connections > 0:
-                for connection in connections:
-                    for assigned_vray_bump_materials in assigned_vray_bump_materials_list:
-                        if assigned_vray_bump_materials == connection:
-                            connected = 1
-            if num_of_blend_connections > 0:
-                for connection in connections:
-                    for assigned_blend_mtl in assigned_blend_mtl_list:
-                        if assigned_blend_mtl == connection:
-                            connected = 1              
-        if connected == 0:
-            if VRayMtl not in unassigned_mtl_list:
-                unassigned_mtl_list.append(VRayMtl)
-        if connected == 1:
-            if VRayMtl not in assigned_VRayMtl_mtl_list:
-                assigned_VRayMtl_mtl_list.append(VRayMtl)                  
-    cmds.select(clear = True)    
-
-    for mtl_list in mtl_master_list:
-        for mtl in mtl_list:
+    mtl_master_list = [VRayMtl_list,phong_list,blinn_list,lambert_list,surfaceShader_list,vray_VRayFresnel_materials]    
+    for render_layer in render_layers:
+        cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)        
+        cmds.select(clear = True)  
+        for bumpMtl in vray_bump_materials:
             cmds.select(clear = True)
-            cmds.hyperShade(o = mtl)
+            cmds.hyperShade(o = bumpMtl)
+            objects_assigned_to_shader = cmds.ls(sl = True) or []
+            objects_assigned_to_shader_len = len(objects_assigned_to_shader)
+            if objects_assigned_to_shader_len == 0:
+                connected = 0
+                connections = cmds.listConnections(bumpMtl, destination = True)      
+                for connection in connections:
+                    connection_type = cmds.nodeType(connection)
+                    if connection_type == "VRayBumpMtl":
+                        cmds.select(clear = True)       
+                        cmds.hyperShade(o = connection)
+                        objects_assigned_to_shader = cmds.ls(sl = True) or []
+                        objects_assigned_to_shader_len = len(objects_assigned_to_shader)
+                        if objects_assigned_to_shader_len > 0:                          
+                            connected = 1
+                            if bumpMtl not in assigned_vray_bump_materials_list:
+                                assigned_vray_bump_materials_list.append(bumpMtl)                        
+                if connected == 0:
+                    if bumpMtl not in assigned_vray_bump_materials_list:
+                        if bumpMtl not in unassigned_mtl_list:
+                            unassigned_mtl_list.append(bumpMtl)
+            else:
+                assigned_vray_bump_materials_list.append(bumpMtl)     
+        cmds.select(clear = True)
+        for blendMtl in vray_blend_materials:
+            cmds.select(clear = True)
+            cmds.hyperShade(o = blendMtl)
             objects_assigned_to_shader = cmds.ls(sl = True) or []
             objects_assigned_to_shader_len = len(objects_assigned_to_shader)
             num_of_bump_connections = len(assigned_vray_bump_materials_list)
             num_of_blend_connections = len(assigned_blend_mtl_list)
-            num_of_VRayMtl_connections = len(assigned_VRayMtl_mtl_list)            
-            connections = cmds.listConnections(mtl, destination = True)
+            connections = cmds.listConnections(blendMtl, destination = True)
             connected = 0
             if objects_assigned_to_shader_len != 0:
                 connected = 1  
@@ -169,44 +110,110 @@ def check_shaders():
                     for connection in connections:
                         for assigned_blend_mtl in assigned_blend_mtl_list:
                             if assigned_blend_mtl == connection:
-                                connected = 1
-                if num_of_VRayMtl_connections > 0:
-                    for connection in connections:
-                        for assigned_VRayMtl_mtl in assigned_VRayMtl_mtl_list:
-                            if assigned_VRayMtl_mtl == connection:
-                                connected = 1                                                 
+                                connected = 1              
             if connected == 0:
-                if mtl not in unassigned_mtl_list:
-                    unassigned_mtl_list.append(mtl)
+                if blendMtl not in assigned_blend_mtl_list:
+                    if blendMtl not in unassigned_mtl_list:
+                        unassigned_mtl_list.append(blendMtl)
             if connected == 1:
-                if mtl not in assigned_mtl_list:
-                    assigned_mtl_list.append(mtl)                  
-        cmds.select(clear = True)  
-        for assigned_mtl in assigned_mtl_list:
-            if assigned_mtl in unassigned_mtl_list:
-                unassigned_mtl_list.remove(assigned_mtl)  
-        for unassigned_mtl in unassigned_mtl_list:
-                connections = cmds.listConnections(unassigned_mtl, source = False, destination = True)
-                for connection in connections:
-                    node_type = cmds.nodeType(connection)
-                    if node_type == "shadingEngine":
-                        if connection not in unassigned_shading_engine_list:
-                            unassigned_shading_engine_list.append(connection)
-        cmds.select(clear = True)
-        for unassigned_mtl in unassigned_mtl_list:
-                connections = cmds.listConnections(unassigned_mtl, source = False, destination = True)
-                for connection in connections:
-                    node_type = cmds.nodeType(connection)
-                    if node_type == "shadingEngine":
-                        if connection not in unassigned_shading_engine_list:
-                            unassigned_shading_engine_list.append(connection)
-        cmds.select(clear = True)          
+                if blendMtl not in assigned_blend_mtl_list:
+                    assigned_blend_mtl_list.append(blendMtl)                  
+        cmds.select(clear = True)        
+        for VRayMtl in VRayMtl_list:
+            cmds.select(clear = True)
+            cmds.hyperShade(o = VRayMtl)
+            objects_assigned_to_shader = cmds.ls(sl = True) or []
+            objects_assigned_to_shader_len = len(objects_assigned_to_shader)
+            num_of_bump_connections = len(assigned_vray_bump_materials_list)
+            num_of_blend_connections = len(assigned_blend_mtl_list)
+            connections = cmds.listConnections(VRayMtl, destination = True)
+            connected = 0
+            if objects_assigned_to_shader_len != 0:
+                connected = 1  
+            if objects_assigned_to_shader_len == 0:
+                if num_of_bump_connections > 0:
+                    for connection in connections:
+                        for assigned_vray_bump_materials in assigned_vray_bump_materials_list:
+                            if assigned_vray_bump_materials == connection:
+                                connected = 1
+                if num_of_blend_connections > 0:
+                    for connection in connections:
+                        for assigned_blend_mtl in assigned_blend_mtl_list:
+                            if assigned_blend_mtl == connection:
+                                connected = 1              
+            if connected == 0:
+                if VRayMtl not in assigned_VRayMtl_mtl_list:
+                    if VRayMtl not in unassigned_mtl_list:
+                        unassigned_mtl_list.append(VRayMtl)
+            if connected == 1:
+                if VRayMtl not in assigned_VRayMtl_mtl_list:
+                    assigned_VRayMtl_mtl_list.append(VRayMtl)                  
+        cmds.select(clear = True)    
+        for mtl_list in mtl_master_list:
+            for mtl in mtl_list:
+                cmds.select(clear = True)
+                cmds.hyperShade(o = mtl)
+                objects_assigned_to_shader = cmds.ls(sl = True) or []
+                objects_assigned_to_shader_len = len(objects_assigned_to_shader)
+                num_of_bump_connections = len(assigned_vray_bump_materials_list)
+                num_of_blend_connections = len(assigned_blend_mtl_list)
+                num_of_VRayMtl_connections = len(assigned_VRayMtl_mtl_list)            
+                connections = cmds.listConnections(mtl, destination = True)
+                connected = 0
+                if objects_assigned_to_shader_len != 0:
+                    connected = 1  
+                if objects_assigned_to_shader_len == 0:
+                    if num_of_bump_connections > 0:
+                        for connection in connections:
+                            for assigned_vray_bump_materials in assigned_vray_bump_materials_list:
+                                if assigned_vray_bump_materials == connection:
+                                    connected = 1
+                    if num_of_blend_connections > 0:
+                        for connection in connections:
+                            for assigned_blend_mtl in assigned_blend_mtl_list:
+                                if assigned_blend_mtl == connection:
+                                    connected = 1
+                    if num_of_VRayMtl_connections > 0:
+                        for connection in connections:
+                            for assigned_VRayMtl_mtl in assigned_VRayMtl_mtl_list:
+                                if assigned_VRayMtl_mtl == connection:
+                                    connected = 1                                                 
+                if connected == 0:
+                    if mtl not in unassigned_mtl_list:
+                        unassigned_mtl_list.append(mtl)
+                if connected == 1:
+                    if mtl not in assigned_mtl_list:
+                        assigned_mtl_list.append(mtl)                  
+            cmds.select(clear = True)  
+            for assigned_mtl in assigned_mtl_list:
+                if assigned_mtl in unassigned_mtl_list:
+                    unassigned_mtl_list.remove(assigned_mtl)  
+            for unassigned_mtl in unassigned_mtl_list:
+                    connections = cmds.listConnections(unassigned_mtl, source = False, destination = True)
+                    for connection in connections:
+                        node_type = cmds.nodeType(connection)
+                        if node_type == "shadingEngine":
+                            if connection not in unassigned_shading_engine_list:
+                                unassigned_shading_engine_list.append(connection)
+            cmds.select(clear = True)
+            for unassigned_mtl in unassigned_mtl_list:
+                    connections = cmds.listConnections(unassigned_mtl, source = False, destination = True)
+                    for connection in connections:
+                        node_type = cmds.nodeType(connection)
+                        if node_type == "shadingEngine":
+                            if connection not in unassigned_shading_engine_list:
+                                unassigned_shading_engine_list.append(connection)
+            cmds.select(clear = True)          
+        for mtl in unassigned_mtl_list:
+            if mtl in assigned_mtl_list:
+                unassigned_mtl_list.remove(mtl)
         shaders_for_deletion_list = unassigned_mtl_list + unassigned_shading_engine_list
         return(shaders_for_deletion_list)
 
 """ function that checks all the textures in the scene and measaures if they are connected to a used shader. Also deals with place2dTexture nodes"""
 
 def check_textures():
+    render_layers = cmds.ls(type = "renderLayer")  
     analize_list = analize_nodes()
     selected_objects = cmds.ls(sl = True)
     used_tx_nodes = []
@@ -217,36 +224,42 @@ def check_textures():
     check_connections_list = analize_list[3]
     gammaCorrect_materials = analize_list[13]
     reverse_materials = analize_list[14]
-    tx_master_list = [file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials]
-      
-    for tx_list in tx_master_list:
-        for tx in tx_list:
-            tx_connections = cmds.listConnections(tx,source = False,destination = True) or []
-            for tx_connection in tx_connections:
-                for check_connections_item in check_connections_list:
-                    if tx_connection == check_connections_item:
-                        if tx not in used_tx_nodes:
-                            used_tx_nodes.append(tx)
-        for tx in tx_list:
-            if tx not in used_tx_nodes:
-                if tx not in unused_tx_nodes:
-                    unused_tx_nodes.append(tx)
-        unused_nodes = unused_tx_nodes
-        unused_place2dTexture_nodes = []
-        analize_list = analize_nodes()
-        place2dTexture_nodes = analize_list[2]
-        check_connections_list = analize_list[3]
-        for place2dTexture_node in place2dTexture_nodes:
-            place2dTexture_node_connections = cmds.listConnections(place2dTexture_node,source = False,destination = True) or []
-            for place2dTexture_node_connection in place2dTexture_node_connections:
-                for check_connections_item in check_connections_list:
-                    if place2dTexture_node_connection == check_connections_item:
-                        if place2dTexture_node_connection not in used_place2dTexture_nodes:
-                            used_place2dTexture_nodes.append(place2dTexture_node)
-        for place2dTexture_node in place2dTexture_nodes:
-            if place2dTexture_node not in used_place2dTexture_nodes:    
-                unused_place2dTexture_nodes.append(place2dTexture_node)
-        tx_for_deletion_list = unused_tx_nodes + unused_place2dTexture_nodes
+    tx_master_list = [file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials]          
+    for render_layer in render_layers:
+        cmds.editRenderLayerGlobals(currentRenderLayer = render_layer) 
+        for tx_list in tx_master_list:
+            for tx in tx_list:
+                tx_connections = cmds.listConnections(tx,source = False,destination = True) or []
+                for tx_connection in tx_connections:
+                    for check_connections_item in check_connections_list:
+                        if tx_connection == check_connections_item:
+                            if tx not in used_tx_nodes:
+                                used_tx_nodes.append(tx)
+            for tx in tx_list:
+                if tx not in used_tx_nodes:
+                    if tx not in used_tx_nodes:
+                        if tx not in unused_tx_nodes:
+                            unused_tx_nodes.append(tx)
+            unused_nodes = unused_tx_nodes
+            unused_place2dTexture_nodes = []
+            analize_list = analize_nodes()
+            place2dTexture_nodes = analize_list[2]
+            check_connections_list = analize_list[3]
+            for place2dTexture_node in place2dTexture_nodes:
+                place2dTexture_node_connections = cmds.listConnections(place2dTexture_node,source = False,destination = True) or []
+                for place2dTexture_node_connection in place2dTexture_node_connections:
+                    for check_connections_item in check_connections_list:
+                        if place2dTexture_node_connection == check_connections_item:
+                            if place2dTexture_node_connection not in used_place2dTexture_nodes:
+                                used_place2dTexture_nodes.append(place2dTexture_node)
+            for place2dTexture_node in place2dTexture_nodes:
+                if place2dTexture_node not in used_place2dTexture_nodes:
+                    if place2dTexture_node not in used_place2dTexture_nodes:    
+                        unused_place2dTexture_nodes.append(place2dTexture_node)
+    for tx in unused_tx_nodes:
+        if tx in used_tx_nodes:
+            unused_tx_nodes.remove(tx)
+    tx_for_deletion_list = unused_tx_nodes + unused_place2dTexture_nodes
     return(tx_for_deletion_list)
 
 cycle = 5
