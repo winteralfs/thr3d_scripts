@@ -2,6 +2,8 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
+print "chris"
+
 def objectChooseWin():
     name = "object_replace"
     windowSize = (300,100)
