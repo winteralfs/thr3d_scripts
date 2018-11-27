@@ -1,3 +1,4 @@
+#---
 import maya.cmds as cmds
 import maya.mel as mel
 import os
@@ -17,8 +18,6 @@ class cleaner():
         phong_list = cmds.ls(type = "phong")
         blinn_list = cmds.ls(type = "blinn")
         lambert_list = cmds.ls(type = "lambert")
-        #print "lambert_list = ",lambert_list
-        #lambert_list = []
         surfaceShader_list = cmds.ls(type = "surfaceShader")
         vray_layered_textures = cmds.ls(type = "layeredTexture")
         vray_bump_materials = cmds.ls(type = "VRayBumpMtl")
@@ -44,7 +43,6 @@ class cleaner():
         ramp_nodes = cmds.ls(type = "ramp")
         reverse_materials = cmds.ls(type = "reverse")   
         displacement_materials = cmds.ls(type = "VRayDisplacement")
-        print "displacement_materials = ",displacement_materials
         place2dTexture_nodes = cmds.ls(type = "place2dTexture")
         check_connections_list = VRayMtl_list + noise_materials + phong_list + blinn_list + lambert_list + surfaceShader_list + vray_dirt_materials + vray_light_mtls + vray_render_elements + vray_layered_textures + vray_rect_lights_transforms + vray_dome_lights_transforms + file_texture_nodes + ramp_nodes + vray_bump_materials + vray_blend_materials + vray_remapHsv_materials + vray_VRayFresnel_materials + gammaCorrect_materials + reverse_materials + displacement_materials
         check_connections_list.append("vraySettings")
@@ -196,9 +194,8 @@ class cleaner():
         gammaCorrect_materials = analize_list[13]
         reverse_materials = analize_list[14]
         layered_texture_nodes = analize_list[15]
-        noise_materials = analize_list[17]
-        print "noise_materials = ",noise_materials        
-        tx_master_list = file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials + layered_texture_nodes + vray_VRayFresnel_materials + noise_materials        
+        noise_materials = analize_list[17]      
+        tx_master_list = file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials + layered_texture_nodes + noise_materials        
         unused_tx_nodes = tx_master_list
         unused_place2dTexture_nodes = []
         for render_layer in render_layers:
