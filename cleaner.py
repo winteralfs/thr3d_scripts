@@ -7,7 +7,7 @@ from functools import partial
 from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 
-class cleaner():
+class Cleaner():
     def __init__(self):    
         dummy = "chris"
 
@@ -276,7 +276,7 @@ class cleaner():
         print " "
 
 def main():        
-    cleaner = cleaner()
+    cleaner = Cleaner()
     cleaner.run_cleaner()
     
     
