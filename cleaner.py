@@ -274,6 +274,9 @@ class cleaner():
         print "finished deleting nodes"
         print "---"
         print " "
-        
-cleaner = cleaner()
-cleaner.run_cleaner()
+
+def main():        
+    cleaner = cleaner()
+    cleaner.run_cleaner()
+    
+    
