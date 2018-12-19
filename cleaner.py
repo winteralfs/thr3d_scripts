@@ -282,5 +282,7 @@ class Cleaner():
 def main():        
     cleaner = Cleaner()
     cleaner.run_cleaner()
+
+main()
     
     
