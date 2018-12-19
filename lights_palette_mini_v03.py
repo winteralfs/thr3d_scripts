@@ -469,5 +469,6 @@ class lightsPalette():
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         window.show()
         
-ltv = lightsPalette()
-ltv.lightsTextureView()
+def main():
+    ltv = lightsPalette()
+    ltv.lightsTextureView()
