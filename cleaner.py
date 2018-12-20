@@ -44,9 +44,11 @@ class Cleaner():
         reverse_materials = cmds.ls(type = "reverse")   
         displacement_materials = cmds.ls(type = "VRayDisplacement")
         place2dTexture_nodes = cmds.ls(type = "place2dTexture")
-        check_connections_list = VRayMtl_list + noise_materials + phong_list + blinn_list + lambert_list + surfaceShader_list + vray_dirt_materials + vray_light_mtls + vray_render_elements + vray_layered_textures + vray_rect_lights_transforms + vray_dome_lights_transforms + file_texture_nodes + ramp_nodes + vray_bump_materials + vray_blend_materials + vray_remapHsv_materials + vray_VRayFresnel_materials + gammaCorrect_materials + reverse_materials + displacement_materials
+        blend_colors = cmds.ls(type = "blendColors")
+        VRayTriplanar_nodes = cmds.ls(type = "VRayTriplanar")         
+        check_connections_list = VRayMtl_list + noise_materials + phong_list + blinn_list + lambert_list + surfaceShader_list + vray_dirt_materials + vray_light_mtls + vray_render_elements + vray_layered_textures + vray_rect_lights_transforms + vray_dome_lights_transforms + file_texture_nodes + ramp_nodes + vray_bump_materials + vray_blend_materials + vray_remapHsv_materials + vray_VRayFresnel_materials + gammaCorrect_materials + reverse_materials + displacement_materials + blend_colors + VRayTriplanar_nodes
         check_connections_list.append("vraySettings")
-        return(file_texture_nodes, ramp_nodes, place2dTexture_nodes, check_connections_list, VRayMtl_list, phong_list, blinn_list, lambert_list, surfaceShader_list, vray_blend_materials, vray_bump_materials, vray_remapHsv_materials, vray_VRayFresnel_materials, gammaCorrect_materials, reverse_materials, vray_layered_textures, displacement_materials, noise_materials)
+        return(file_texture_nodes, ramp_nodes, place2dTexture_nodes, check_connections_list, VRayMtl_list, phong_list, blinn_list, lambert_list, surfaceShader_list, vray_blend_materials, vray_bump_materials, vray_remapHsv_materials, vray_VRayFresnel_materials, gammaCorrect_materials, reverse_materials, vray_layered_textures, displacement_materials, noise_materials, blend_colors, VRayTriplanar_nodes)
 
     """ function that checks all the shaders in the scene and measaures if they are assigned to an object. Also deals with shading engine nodes"""
     def check_shaders(self):
@@ -194,8 +196,10 @@ class Cleaner():
         gammaCorrect_materials = analize_list[13]
         reverse_materials = analize_list[14]
         layered_texture_nodes = analize_list[15]
-        noise_materials = analize_list[17]      
-        tx_master_list = file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials + layered_texture_nodes + noise_materials        
+        noise_materials = analize_list[17]
+        blend_colors = analize_list[18]
+        VRayTriplanar_nodes = analize_list[19]                        
+        tx_master_list = file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials + layered_texture_nodes + noise_materials + blend_colors + VRayTriplanar_nodes        
         unused_tx_nodes = tx_master_list
         unused_place2dTexture_nodes = []
         for render_layer in render_layers:
@@ -278,5 +282,7 @@ class Cleaner():
 def main():        
     cleaner = Cleaner()
     cleaner.run_cleaner()
+
+main()
     
     
