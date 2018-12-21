@@ -278,7 +278,7 @@ class cleaner():
         return(self.tx_for_deletion_list)
 
     def run_cleaner(self):
-        cycle = 1
+        cycle = 4
         it = 0
         complete_deletion_list = []
         while it < cycle:
