@@ -305,11 +305,11 @@ class cleaner():
                     if shader != "lambert1" and shader != "initialParticleSE" and shader != "initialShadingGroup":
                         name = "shader " + shader
                         complete_deletion_list.append(name)
-                        #cmds.delete(shader)
+                        cmds.delete(shader)
                 for tx in self.tx_for_deletion_list:
                     name = "texture " + tx
                     complete_deletion_list.append(name)
-                    #cmds.delete(tx)
+                    cmds.delete(tx)
                 it = it + 1
             print " "
             print "---"
