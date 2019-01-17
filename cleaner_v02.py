@@ -278,36 +278,53 @@ class cleaner():
         return(self.tx_for_deletion_list)
 
     def run_cleaner(self):
-        cycle = 4
-        it = 0
-        complete_deletion_list = []
-        while it < cycle:
-            self.check_shaders()
-            self.check_textures()
-            for shader in self.shaders_for_deletion_list:
-                if shader != "lambert1" and shader != "initialParticleSE" and shader != "initialShadingGroup":
-                    name = "shader " + shader
+        
+        dupes_found = 0
+        clashingNames = []
+        mayaResolvedName = []
+        allDagNodes = cmds.ls(dag = 1)
+        for node in allDagNodes:
+            if len(node.split("|")) > 1:
+                mayaResolvedName.append(node)
+                clashingNames.append(node.split("|")[-1])
+        dup_nodes_size = len(clashingNames)
+        if dup_nodes_size > 0:
+            print "NAME CLASH FOUND****CHECK LIGHT SHAPE NODES****"
+            print clashingNames
+            dupes_found = 1
+        else:
+            print "no dupe nodes found"        
+        if dupes_found != 1:            
+            cycle = 1
+            it = 0
+            complete_deletion_list = []
+            while it < cycle:
+                self.check_shaders()
+                self.check_textures()
+                for shader in self.shaders_for_deletion_list:
+                    if shader != "lambert1" and shader != "initialParticleSE" and shader != "initialShadingGroup":
+                        name = "shader " + shader
+                        complete_deletion_list.append(name)
+                        #cmds.delete(shader)
+                for tx in self.tx_for_deletion_list:
+                    name = "texture " + tx
                     complete_deletion_list.append(name)
-                    cmds.delete(shader)
-            for tx in self.tx_for_deletion_list:
-                name = "texture " + tx
-                complete_deletion_list.append(name)
-                cmds.delete(tx)
-            it = it + 1
-        print " "
-        print "---"
-        complete_deletion_list_len = len(complete_deletion_list)
-        if complete_deletion_list_len == 0:
-            print "nothing deleted"
-        for item in complete_deletion_list:
-            print "deleted ",item
-        #for obj in selected_objects:
-            #if cmds.objExists(obj):
-                #cmds.select(obj)
-        print "---"
-        print "finished deleting nodes"
-        print "---"
-        print " "
+                    #cmds.delete(tx)
+                it = it + 1
+            print " "
+            print "---"
+            complete_deletion_list_len = len(complete_deletion_list)
+            if complete_deletion_list_len == 0:
+                print "nothing deleted"
+            for item in complete_deletion_list:
+                print "deleted ",item
+            #for obj in selected_objects:
+                #if cmds.objExists(obj):
+                    #cmds.select(obj)
+            print "---"
+            print "finished deleting nodes"
+            print "---"
+            print " "
 
 cleaner = cleaner()
 cleaner.run_cleaner()
