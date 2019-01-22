@@ -89,7 +89,8 @@ class cleaner():
                     connected = 1
                     if objects_assigned_to_shader_len == 0:
                         connected = 0
-                        connections_one = cmds.listConnections(mtl, destination = True)
+                        print mtl
+                        connections_one = cmds.listConnections(mtl, destination = True) or []
                         for connection in connections_one:
                             if connection in self.used_tx_nodes:
                                 if mtl not in self.assigned_mtl_list:
