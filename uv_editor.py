@@ -558,4 +558,6 @@ def UVeditWin():
         
     cmds.showWindow()
 
-UVeditWin()
+def main():
+    UVeditWin()
+main()

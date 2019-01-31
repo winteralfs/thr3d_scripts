@@ -2211,4 +2211,7 @@ def layer_switcher():
     rl = initialLayer    
     cmds.showWindow()                                                                                                                                                                                                                                                                                                                                                                               
 
-layer_switcher()                             
+def main():
+    layer_switcher()   
+
+main()                          

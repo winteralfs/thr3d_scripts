@@ -2276,4 +2276,7 @@ def objectChooseWin():
         print " "
         print " "
 
-objectChooseWin()
+def main():
+    objectChooseWin()
+
+main()

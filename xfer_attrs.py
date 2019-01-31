@@ -389,4 +389,6 @@ def objectChooseWin():
     cmds.button(label = "xfer attrs", command = partial(xferNode,pathMatchObject,pathChildObject))    
     cmds.showWindow()
     
-objectChooseWin() 
+def main():
+    objectChooseWin() 
+main()

@@ -213,4 +213,7 @@ def renthumbsWin():
     cmds.button(renderButton,command = partial(renderThumbs,checkBoxLow,checkBoxMid,checkBoxHigh,checkBoxRenderRegion,intField_res,floatField_thrhld),edit = True)           
     cmds.showWindow()
     
-renthumbsWin()
+def main():
+    renthumbsWin()
+
+main()

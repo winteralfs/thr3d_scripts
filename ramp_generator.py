@@ -8200,5 +8200,7 @@ def buildSoftBOXrampNodeDiag(intp,cutout,blurAmount,lightGenFieldValue):
         pm.connectAttr((layerTexHubName + ".outColor"), (rectLightName + ".rectTex"), force=True)
         pm.setAttr((rectLightName + ".showTex"), 1)                                                                                              
                                                                                      
+def main():
+    rampGenWin()
 
-rampGenWin()
+main()

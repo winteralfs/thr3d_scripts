@@ -279,7 +279,7 @@ class cleaner():
         return(self.tx_for_deletion_list)
 
     def run_cleaner(self):
-        
+
         dupes_found = 0
         clashingNames = []
         mayaResolvedName = []
@@ -294,8 +294,8 @@ class cleaner():
             print clashingNames
             dupes_found = 1
         else:
-            print "no dupe nodes found"        
-        if dupes_found != 1:            
+            print "no dupe nodes found"
+        if dupes_found != 1:
             cycle = 1
             it = 0
             complete_deletion_list = []
@@ -328,4 +328,8 @@ class cleaner():
             print " "
 
 cleaner = cleaner()
-cleaner.run_cleaner()
+
+def main():
+    cleaner.run_cleaner()
+
+main()

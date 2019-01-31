@@ -761,6 +761,10 @@ class texture_replacer():
         self.textures_populate()
         cmds.select(clear = True)        
         #self.refreshHyper()
-                                        
+
 tr = texture_replacer()
-tr.texture_linker_UI()
+
+def main():                                       
+    tr.texture_linker_UI()
+
+main()
