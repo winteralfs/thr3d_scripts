@@ -1,101 +1,93 @@
+print " "
+print "lighting_tools_shelf loaded (python_git_hub_pub)"
+print " "
 import sys
+import maya.mel as mel
 import maya.cmds as cmds
-#sys.path.append('/Users/alfredwinters/Desktop/')
-sys.path.append('C:/Users/Chris.Winters/Desktop/python_git_hub/')
+from functools import partial
 
-def _null(*args):
-    pass
+def lights_palette():
+    print "lights_palette function"
+    import lights_palette_v07
+    reload(lights_palette_v07)
+    lights_palette_v07.main()
 
 def batch_review():
-    print "object_replacer"
+    print "batch_review function"
     import batch_review
     reload(batch_review)
     batch_review.main()
 
 def object_replacer():
-    print "object_replacer"
+    print "object replacer function"
     import objectReplacer_v02
     reload(objectReplacer_v02)
     objectReplacer_v02.main()
-    
-def texture_swapper():
-    print "texture_swapper"
+
+def textures_swapper():
+    print "textures_swapper function"
     import textures_swapper
     reload(textures_swapper)
     textures_swapper.main()
-    
+
+def attributes_swapper():
+    print "attributes_swapper function"
+    import xfer_attrs
+    reload(xfer_attrs)
+    xfer_attrs.main()
+
 def cleaner():
-    print "cleaner_v02"
+    print "cleaner function"
     import cleaner_v02
     reload(cleaner_v02)
     cleaner_v02.main()
 
-def lights_palette():
-    print "lights_palette_v07"
-    import lights_palette_v07
-    reload(lights_palette_v07)
-    lights_palette_v07.main()        
-    
 def ramp_generator():
-    print "ramp_generator"
+    print "ramp_generator function"
     import ramp_generator
     reload(ramp_generator)
     ramp_generator.main()
-    
-def uv_editor():
-    print "uv_editor"
-    import uv_editor
-    reload(uv_editor)
-    uv_editor.main()
-    
+
 def layers_tool():
-    print "layers_tool"
+    print "layers_tool function"
     import layers_tool
     reload(layers_tool)
     layers_tool.main()
-    
-def xfer_attrs():
-    print "xfer_attrs"
-    import xfer_attrs
-    reload(xfer_attrs)
-    xfer_attrs.main()           
-    
-class custom_shelf():
-    def __init__(self, name="lighting_shelf"):
-        self.name = name
-        self.labelBackground = (0, 0, 0, 0)
-        self.labelColour = (.9, .9, .9)        
-        self._cleanOldShelf()
-        cmds.setParent(self.name)
-        self.build()
 
-    def _cleanOldShelf(self):
-        if cmds.shelfLayout(self.name, ex=1):
-            print "deleting ",self.name
-            if cmds.shelfLayout(self.name, q=1, ca=1):
-                for each in cmds.shelfLayout(self.name, q=1, ca=1):
-                   print "deleting ", each
-                   cmds.deleteUI(each)
-        else:
-            cmds.shelfLayout(self.name, p="ShelfLayout")
+def uv_editor():
+    print "uv_editor function"
+    import uv_editor
+    reload(uv_editor)
+    uv_editor.main()
 
-    def build(self):
-        self.addButon('batch_review','U:/cwinters/thumbnails/pubTHUMBthumb.jpg','batch_review()','-null')
-        self.addButon('object_replacer','U:/cwinters/thumbnails/objectReplacerTHUMB.jpg','object_replacer()','-null')
-        self.addButon('texture_swapper','U:/cwinters/thumbnails/textureConnectorTHUMB.jpg','texture_swapper()','-null')
-        self.addButon('cleaner','U:/cwinters/thumbnails/textureConnectorTHUMB.jpg','cleaner()','-null')
-        self.addButon('lights_palette','U:/cwinters/thumbnails/rampGeneratorTHUMB.jpg','lights_palette()','-null')        
-        self.addButon('ramp_generator','U:/cwinters/thumbnails/rampGeneratorTHUMB.jpg','ramp_generator()','-null')        
-        self.addButon('uv_editor','U:/cwinters/thumbnails/UVadjTHUMB.jpg','uv_editor()','-null')  
-        self.addButon('layers_tool','U:/cwinters/thumbnails/UVadjTHUMB.jpg','layers_tool()','-null')  
-        self.addButon('xfer_attrs','U:/cwinters/thumbnails/UVadjTHUMB.jpg','xfer_attrs()','-null')  
-
-    def addButon(self, label, icon, command, doubleCommand):
-        cmds.setParent(self.name)
-        cmds.shelfButton(width=37, height=37, image=icon, l=label, command=command, dcc=doubleCommand, imageOverlayLabel=label, olb=self.labelBackground, olc=self.labelColour)
-
-lighting_tools_shelf = custom_shelf
-def main():
-    print "!!! SCRIPT IS LOADING !!!"
-    lighting_tools_shelf() 
-main()
+def build_custom_shelf():
+    main_shelf = mel.eval('$tempMelVar=$gShelfTopLevel')
+    name = "Lighting_Tools"
+    #name.labelBackground = (0, 0, 0, 0)
+    #name.labelColour = (.9, .9, .9)
+    if cmds.shelfLayout(name, ex=1):
+        print "deleting ",name
+        if cmds.shelfLayout(name, q=1, ca=1):
+            for each in cmds.shelfLayout(name, q=1, ca=1):
+               print "deleting ", each
+               cmds.deleteUI(each)
+    else:
+        print "creating custom Lighting Tools shelf"
+        cmds.shelfLayout(name, p=main_shelf)
+    cmds.setParent(name)
+    annotation = 'Lights Palette: Creates a palette to display and hide light textures, toggle the visibility of lights, and set and delete render layer overrides for light transforms and light intensity.'
+    cmds.shelfButton(annotation = annotation,image = 'U:/cwinters/thumbnails/lights_palette_Logo_small.jpg',command = partial(lights_palette))
+    annotation = 'Batch Review: Launches an interactive render for each render layer'
+    cmds.shelfButton(annotation = annotation,image = 'U:/cwinters/thumbnails/batchReview_Logo_small.jpg',command = partial(batch_review))
+    annotation = 'Object Replace: Replaces one object with another, transfering most attributes settings and shader assignments'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/objectReplacer_Logo_small.jpg', command = partial(object_replacer))
+    annotation = 'Texture Swap: Transfers the connections and settings from one set of textures to another'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/texture_swapper_Logo_small.jpg', command = partial(textures_swapper))
+    annotation = 'Render Layer Tool: Many useful tools for render layer management'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/layer_tool_Logo_small.jpg', command = partial(layers_tool))
+    annotation = 'Hypershade Cleaner: Deletes unused shaders and textures from the hypershade'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/cleaner_Logo_small.jpg', command = partial(cleaner))
+    annotation = 'Ramp Generator: generates a variety of ramp texures'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/ramp_generator_Logo_small.jpg', command = partial(ramp_generator))
+    annotation = 'UV set editor: Allows the manipulation of selected UV shells with number inputs'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/UV_editor_Logo_small.jpg', command = partial(uv_editor))

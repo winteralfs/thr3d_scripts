@@ -8203,4 +8203,4 @@ def buildSoftBOXrampNodeDiag(intp,cutout,blurAmount,lightGenFieldValue):
 def main():
     rampGenWin()
 
-main()
+#main()

@@ -2279,4 +2279,4 @@ def objectChooseWin():
 def main():
     objectChooseWin()
 
-main()
+#main()

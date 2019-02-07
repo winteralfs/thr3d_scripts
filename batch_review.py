@@ -216,4 +216,4 @@ def renthumbsWin():
 def main():
     renthumbsWin()
 
-main()
+#main()

@@ -388,4 +388,4 @@ def main():
     ltv = lightsPalette()
     ltv.lights_palette_window()
 
-main()
+#main()

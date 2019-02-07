@@ -2,8 +2,12 @@ import maya.cmds as cmds
 from functools import partial
 import random
 
-sel = cmds.ls(sl = 1) 
-print sel
+sel = cmds.ls(sl = 1)
+siz = len(sel)
+if siz == 0:
+	print "**NOTHING SELECTED**"
+else:
+	print sel
 
 Pu = .5
 Pv = .5
@@ -473,50 +477,36 @@ def F_MyA(mffaVal, mffuVal, mffvVal, locSelFunc, selo):
 
 
 def UVeditWin():
-    
-    name = sel[0]
-    
-    windowName = ("UVeditor_" + name)
-    locSel = name
-    selo = cmds.ls(sl = True)
-    
-    windowSize = (300,100)
-    
-    if (cmds.window(windowName, exists = True)):
-        cmds.deleteUI(windowName)
-        
-    window = cmds.window(windowName, title=windowName, widthHeight=(windowSize[0],windowSize[1]))
-    
-    nameB = name.replace("[","a")
-    nameB = nameB.replace("]","a")
-    nameB = nameB.replace(".","a")
-    
-    cmds.columnLayout("mainColumn", adjustableColumn = True)
-    cmds.rowLayout("nameRowLayout01", numberOfColumns = 3, parent = "mainColumn")
-    
-    cmds.text("translate ")    
-
-    myFloatField_U_path = cmds.floatField((nameB + "mFFu"), value = 0,ec = lambda x:mFFu_func(x), parent = "nameRowLayout01")
-    
-    myFloatField_V_path = cmds.floatField((nameB + "mFFv"), value = 0,ec = lambda x:mFFv_func(x), parent = "nameRowLayout01")
-    
-    myFloatField_V_path
-    
-    cmds.rowLayout("nameRowLayout02", numberOfColumns = 3, parent = "mainColumn")
-
-    cmds.text("scale       ")
-    
-    myFloatField_SU_path = cmds.floatField((nameB + "mFFsu"), value = 1,ec = lambda x:mFFsu_func(x), parent = "nameRowLayout02")
-    
-    myFloatField_SV_path = cmds.floatField((nameB + "mFFsv"), value = 1,ec = lambda x:mFFsv_func(x), parent = "nameRowLayout02")    
-    
-    cmds.rowLayout("nameRowLayout03", numberOfColumns = 2, parent = "mainColumn")
-
-    cmds.text("rotate     ")
-    
-    myFloatField_A_path = cmds.floatField((nameB + "mFFa"), value = 0,ec = lambda x:mFFa_func(x), parent = "nameRowLayout03")
-        
-    cmds.rowLayout("nameRowLayout04", numberOfColumns = 5, parent = "mainColumn")
+    if siz > 0:
+        name = sel[0]    
+        windowName = "UVeditor"
+	if cmds.window(windowName,exists = True):
+	    print windowName + " exists, deleting " + windowName
+	    cmds.deleteUI(windowName)
+        locSel = name
+        selo = cmds.ls(sl = True)    
+        windowSize = (300,100)    
+        if (cmds.window(windowName, exists = True)):
+            cmds.deleteUI(windowName)        
+        window = cmds.window(windowName, title = sel[0], widthHeight=(windowSize[0],windowSize[1]))    
+        nameB = name.replace("[","a")
+        nameB = nameB.replace("]","a")
+        nameB = nameB.replace(".","a")  
+        cmds.columnLayout("mainColumn", adjustableColumn = True)
+        cmds.rowLayout("nameRowLayout01", numberOfColumns = 3, parent = "mainColumn")    
+        cmds.text("translate ")    
+        myFloatField_U_path = cmds.floatField((nameB + "mFFu"), value = 0,ec = lambda x:mFFu_func(x), parent = "nameRowLayout01")    
+        myFloatField_V_path = cmds.floatField((nameB + "mFFv"), value = 0,ec = lambda x:mFFv_func(x), parent = "nameRowLayout01")    
+        myFloatField_V_path    
+        cmds.rowLayout("nameRowLayout02", numberOfColumns = 3, parent = "mainColumn")
+        cmds.text("scale       ")    
+        myFloatField_SU_path = cmds.floatField((nameB + "mFFsu"), value = 1,ec = lambda x:mFFsu_func(x), parent = "nameRowLayout02")    
+        myFloatField_SV_path = cmds.floatField((nameB + "mFFsv"), value = 1,ec = lambda x:mFFsv_func(x), parent = "nameRowLayout02")        
+        cmds.rowLayout("nameRowLayout03", numberOfColumns = 2, parent = "mainColumn")
+        cmds.text("rotate     ")    
+        myFloatField_A_path = cmds.floatField((nameB + "mFFa"), value = 0,ec = lambda x:mFFa_func(x), parent = "nameRowLayout03")        
+        cmds.rowLayout("nameRowLayout04", numberOfColumns = 5, parent = "mainColumn")
+	cmds.showWindow()
     
     def mFFu_func(myFloatField_U_path):              
         locSelFunc = locSel                
@@ -555,9 +545,6 @@ def UVeditWin():
         mffvVal = cmds.floatField((nameB + "mFFv"), q = 1, v = 1)                
         print "mffa = ", mffaVal
         F_MyA(mffaVal, mffuVal, mffvVal, locSelFunc, selo)                
-        
-    cmds.showWindow()
 
 def main():
     UVeditWin()
-main()

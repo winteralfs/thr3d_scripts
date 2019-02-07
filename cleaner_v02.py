@@ -1,4 +1,5 @@
 #---
+print 'cleaner_v02'
 import maya.cmds as cmds
 import maya.mel as mel
 import os
@@ -327,9 +328,40 @@ class cleaner():
             print "---"
             print " "
 
-cleaner = cleaner()
+    def save_scene(self):
+        print 'save scene'
+        cmds.file( save=True, type='mayaBinary' )
+
+    def exit_cleaner(self):
+        cmds.deleteUI(self.window_name)
+
+    def cleaner_window(self):
+        print "cleaner_window"
+        print 'cleaner_window'
+        self.window_name = 'cleaner'
+        if cmds.window(self.window_name,exists = True):
+            cmds.deleteUI(self.window_name)
+        pointer = mui.MQtUtil.mainWindow()
+        parent = shiboken2.wrapInstance(long(pointer),QtWidgets.QWidget)
+        window = QtWidgets.QMainWindow(parent)
+        window.setObjectName(self.window_name)
+        window.setWindowTitle(self.window_name)
+        mainWidget = QtWidgets.QWidget()
+        window.setCentralWidget(mainWidget)
+        window.setFixedSize(250,50)
+        self.horizontal_layout = QtWidgets.QHBoxLayout(mainWidget)
+        self.save_scene_button = QtWidgets.QPushButton("save")
+        self.save_scene_button.pressed.connect(partial(self.save_scene))
+        self.horizontal_layout.addWidget(self.save_scene_button)
+        self.exit_button = QtWidgets.QPushButton("exit")
+        self.exit_button.pressed.connect(partial(self.exit_cleaner))
+        self.horizontal_layout.addWidget(self.exit_button)
+        self.cleaner_button = QtWidgets.QPushButton("clean")
+        self.cleaner_button.pressed.connect(partial(self.run_cleaner))
+        self.horizontal_layout.addWidget(self.cleaner_button)
+        window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        window.show()
 
 def main():
-    cleaner.run_cleaner()
-
-main()
+    clean = cleaner()
+    clean.cleaner_window()
