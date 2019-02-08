@@ -26,7 +26,7 @@ class lightsPalette():
                 if widget is not None:
                     widget.setParent(None)
                 else:
-                    self.clearLayout(item.layout())                  
+                    self.clearLayout(item.layout())
 
 # methods to turn all the rect light textures off and on
 
@@ -53,7 +53,7 @@ class lightsPalette():
                         cmds.setAttr(kid + ".showTex", 1)
 
 # methods to turn the selected rect light textures off and on
-     
+
     def selected_toggle_texture_off(self):
         selected_nodes = cmds.ls(sl = True)
         for selected_node in selected_nodes:
@@ -64,7 +64,7 @@ class lightsPalette():
                     type = cmds.nodeType(kid)
                     if type == "VRayLightRectShape":
                         cmds.setAttr(kid + ".showTex", 0)
-     
+
     def selected_toggle_texture_on(self):
         selected_nodes = cmds.ls(sl = True)
         for selected_node in selected_nodes:
@@ -75,7 +75,7 @@ class lightsPalette():
                     type = cmds.nodeType(kid)
                     if type == "VRayLightRectShape":
                         cmds.setAttr(kid + ".showTex", 1)
-     
+
 # a method to toggle all the rect light textutes off and on
 
     def all_toggle_texture(self):
@@ -92,9 +92,9 @@ class lightsPalette():
                             cmds.setAttr(kid + ".showTex", 1)
                         if get_toggle == 1:
                             cmds.setAttr(kid + ".showTex", 0)
- 
+
 # a method to toggle selected rect lights textures off and on
-    
+
     def selected_toggle_texture(self):
         selected_nodes = cmds.ls(sl = True)
         for selected_node in selected_nodes:
@@ -114,10 +114,10 @@ class lightsPalette():
 
     def sel_toggle_overrides(self,checked):
         if self.current_render_layer == "defaultRenderLayer":
-            self.sel_button_toggle_override.setEnabled(False)   
-        else:   
+            self.sel_button_toggle_override.setEnabled(False)
+        else:
             override_attrs = [".intensityMult",".translate",".rotate",".scale"]
-            for selected_node in self.selected_nodes:                   
+            for selected_node in self.selected_nodes:
                 for attr in override_attrs:
                     light_shape_found = 0
                     type = cmds.nodeType(selected_node)
@@ -135,71 +135,71 @@ class lightsPalette():
                                 valid_selection = 1
                                 light_shape_found = 1
                     if type == "VRayLightRectShape" or type == "transform":
-                        selecton_name = selected_node     
+                        selecton_name = selected_node
                         valid_selection = 1
                     if type == "VRayLightRectShape":
                         if attr == ".intensityMult":
-                            selection_attr = selection_name + attr           
+                            selection_attr = selection_name + attr
                             if checked == True and valid_selection == 1:
                                 cmds.editRenderLayerAdjustment(selection_attr)
-                                self.sel_button_toggle_override.setText("overrides set")        
+                                self.sel_button_toggle_override.setText("overrides set")
                                 self.sel_button_toggle_override.setFixedHeight(20)
                                 self.sel_button_toggle_override.setStyleSheet("QPushButton::checked{background-color: rgb(200, 100, 0);""border:2px solid rgb(200, 100, 0)};")
                             if checked == False and valid_selection == 1:
                                 cmds.editRenderLayerAdjustment(selection_attr,remove = True)
-                                self.sel_button_toggle_override.setText("no overrides")   
-                                self.sel_button_toggle_override.setStyleSheet("QPushButton {background:rgb(100,100,100);} QPushButton::checked{background-color: rgb(100, 100, 100);""border:0px solid rgb(80, 170, 20)};")               
-                        if attr == ".translate" or attr == ".rotate" or attr == ".scale":
-                            selection_attr = selected_node + attr           
-                            if checked == True and valid_selection == 1:
-                                cmds.editRenderLayerAdjustment(selection_attr)
-                                self.sel_button_toggle_override.setText("overrides set")        
-                                self.sel_button_toggle_override.setFixedHeight(20)
-                                self.sel_button_toggle_override.setStyleSheet("QPushButton::checked{background-color: rgb(200, 100, 0);""border:2px solid rgb(200, 100, 0)};")
-                            if checked == False and valid_selection == 1:
-                                cmds.editRenderLayerAdjustment(selection_attr,remove = True)
-                                self.sel_button_toggle_override.setText("no overrides")   
+                                self.sel_button_toggle_override.setText("no overrides")
                                 self.sel_button_toggle_override.setStyleSheet("QPushButton {background:rgb(100,100,100);} QPushButton::checked{background-color: rgb(100, 100, 100);""border:0px solid rgb(80, 170, 20)};")
-                                self.sel_button_toggle_override.setFixedHeight(20)                 
+                        if attr == ".translate" or attr == ".rotate" or attr == ".scale":
+                            selection_attr = selected_node + attr
+                            if checked == True and valid_selection == 1:
+                                cmds.editRenderLayerAdjustment(selection_attr)
+                                self.sel_button_toggle_override.setText("overrides set")
+                                self.sel_button_toggle_override.setFixedHeight(20)
+                                self.sel_button_toggle_override.setStyleSheet("QPushButton::checked{background-color: rgb(200, 100, 0);""border:2px solid rgb(200, 100, 0)};")
+                            if checked == False and valid_selection == 1:
+                                cmds.editRenderLayerAdjustment(selection_attr,remove = True)
+                                self.sel_button_toggle_override.setText("no overrides")
+                                self.sel_button_toggle_override.setStyleSheet("QPushButton {background:rgb(100,100,100);} QPushButton::checked{background-color: rgb(100, 100, 100);""border:0px solid rgb(80, 170, 20)};")
+                                self.sel_button_toggle_override.setFixedHeight(20)
                     if type == "transform" and light_shape_found == 1:
                         if attr == ".intensityMult":
-                            selection_attr = selection_name + attr           
+                            selection_attr = selection_name + attr
                             if checked == True and valid_selection == 1:
                                 cmds.editRenderLayerAdjustment(selection_attr)
-                                self.sel_button_toggle_override.setText("overrides set")        
+                                self.sel_button_toggle_override.setText("overrides set")
                                 self.sel_button_toggle_override.setFixedHeight(20)
                                 self.sel_button_toggle_override.setStyleSheet("QPushButton::checked{background-color: rgb(200, 100, 0);""border:2px solid rgb(200, 100, 0)};")
                             if checked == False and valid_selection == 1:
                                 cmds.editRenderLayerAdjustment(selection_attr,remove = True)
-                                self.sel_button_toggle_override.setText("no overrides")   
+                                self.sel_button_toggle_override.setText("no overrides")
                                 self.sel_button_toggle_override.setStyleSheet("QPushButton {background:rgb(100,100,100);} QPushButton::checked{background-color: rgb(100, 100, 100);""border:0px solid rgb(80, 170, 20)};")
-                                self.sel_button_toggle_override.setFixedHeight(20)                  
+                                self.sel_button_toggle_override.setFixedHeight(20)
                         if attr == ".translate" or attr == ".rotate" or attr == ".scale":
-                            selection_attr = selected_node + attr           
+                            selection_attr = selected_node + attr
                             if checked == True and valid_selection == 1:
                                 cmds.editRenderLayerAdjustment(selection_attr)
-                                self.sel_button_toggle_override.setText("overrides set")        
+                                self.sel_button_toggle_override.setText("overrides set")
                                 self.sel_button_toggle_override.setFixedHeight(20)
                                 self.sel_button_toggle_override.setStyleSheet("QPushButton::checked{background-color: rgb(200, 100, 0);""border:2px solid rgb(200, 100, 0)};")
                             if checked == False and valid_selection == 1:
                                 cmds.editRenderLayerAdjustment(selection_attr,remove = True)
-                                self.sel_button_toggle_override.setText("no overrides")   
+                                self.sel_button_toggle_override.setText("no overrides")
                                 self.sel_button_toggle_override.setStyleSheet("QPushButton {background:rgb(100,100,100);} QPushButton::checked{background-color: rgb(100, 100, 100);""border:0px solid rgb(80, 170, 20)};")
-                                self.sel_button_toggle_override.setFixedHeight(20)                 
+                                self.sel_button_toggle_override.setFixedHeight(20)
                     if type == "transform" and light_shape_found == 0:
                         if attr == ".translate" or attr == ".rotate" or attr == ".scale":
-                            selection_attr = selected_node + attr           
+                            selection_attr = selected_node + attr
                             if checked == True and valid_selection == 1:
                                 cmds.editRenderLayerAdjustment(selection_attr)
-                                self.sel_button_toggle_override.setText("overrides set")        
+                                self.sel_button_toggle_override.setText("overrides set")
                                 self.sel_button_toggle_override.setFixedHeight(20)
                                 self.sel_button_toggle_override.setStyleSheet("QPushButton::checked{background-color: rgb(200, 100, 0);""border:2px solid rgb(200, 100, 0)};")
                             if checked == False and valid_selection == 1:
                                 cmds.editRenderLayerAdjustment(selection_attr,remove = True)
-                                self.sel_button_toggle_override.setText("no overrides")   
+                                self.sel_button_toggle_override.setText("no overrides")
                                 self.sel_button_toggle_override.setStyleSheet("QPushButton {background:rgb(100,100,100);} QPushButton::checked{background-color: rgb(100, 100, 100);""border:0px solid rgb(80, 170, 20)};")
                                 self.sel_button_toggle_override.setFixedHeight(20)
-        print self.sel_button_toggle_override.isChecked()    
+        print self.sel_button_toggle_override.isChecked()
 
 # a method to to hide all the lights in the scene
 
@@ -220,7 +220,7 @@ class lightsPalette():
 
     def render_layers_scan(self):
         self.render_layers = cmds.ls(type = "renderLayer")
-        self.current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)  
+        self.current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
         render_layer_order_dict = {}
         self.render_layers_in_order = []
         for layer in self.render_layers:
@@ -267,21 +267,21 @@ class lightsPalette():
                 self.current_render_layer_pointer = item
             i += 1
         render_layer_QListWidget.setCurrentItem(self.current_render_layer_pointer)
-        self.render_layer_QListWidget = render_layer_QListWidget        
+        self.render_layer_QListWidget = render_layer_QListWidget
         render_layer_QListWidget.itemClicked.connect(self.layer_change)
 
 # a method that populates the palette window with the tool's buttons
-     
+
     def populate_window(self):
         self.render_layers_scan()
         self.selected_nodes = cmds.ls(sl = True)
         self.clear_layout(self.grid_layout_top)
         self.lights = cmds.ls(type = "VRayLightRectShape")
         label_all = QtWidgets.QLabel("all")
-        label_all.setAlignment(QtCore.Qt.AlignCenter)    
+        label_all.setAlignment(QtCore.Qt.AlignCenter)
         self.grid_layout_top.addWidget(label_all,0,0)
         label_selected = QtWidgets.QLabel("selected")
-        label_selected.setAlignment(QtCore.Qt.AlignCenter)  
+        label_selected.setAlignment(QtCore.Qt.AlignCenter)
         self.grid_layout_top.addWidget(label_selected,0,1)
         button_all_off = QtWidgets.QPushButton("off")
         button_all_off.pressed.connect(partial(self.all_toggle_texture_off))
@@ -293,29 +293,29 @@ class lightsPalette():
         self.grid_layout_top.addWidget(button_all_toggle,3,0)
         button_all_toggle.pressed.connect(partial(self.all_toggle_texture))
         button_sel_off = QtWidgets.QPushButton("off")
-        button_sel_off.pressed.connect(partial(self.selected_toggle_texture_off))         
+        button_sel_off.pressed.connect(partial(self.selected_toggle_texture_off))
         self.grid_layout_top.addWidget(button_sel_off,1,1)
         button_sel_on = QtWidgets.QPushButton("on")
-        button_sel_on.pressed.connect(partial(self.selected_toggle_texture_on))       
+        button_sel_on.pressed.connect(partial(self.selected_toggle_texture_on))
         self.grid_layout_top.addWidget(button_sel_on,2,1)
         button_sel_toggle = QtWidgets.QPushButton("toggle")
-        button_sel_toggle.pressed.connect(partial(self.selected_toggle_texture))     
+        button_sel_toggle.pressed.connect(partial(self.selected_toggle_texture))
         self.grid_layout_top.addWidget(button_sel_toggle,3,1)
         self.sel_button_toggle_override = QtWidgets.QPushButton("no overrides")
         self.sel_button_toggle_override.setCheckable(True)
         self.sel_button_toggle_override.setEnabled(False)
-        self.grid_layout_top.addWidget(self.sel_button_toggle_override,4,0,1,2)  
+        self.grid_layout_top.addWidget(self.sel_button_toggle_override,4,0,1,2)
         self.button_show_lights = QtWidgets.QPushButton("hide_lights")
         self.button_show_lights.setFixedHeight(20)
         self.button_show_lights.setCheckable(True)
         self.button_show_lights.toggled.connect(partial(self.hide_lights))
         self.button_show_lights.setStyleSheet("QPushButton::checked{color: rgb(249, 0, 0);""border:1px solid rgb(249, 0, 0)};")
-        self.grid_layout_top.addWidget(self.button_show_lights,5,0,1,2)      
+        self.grid_layout_top.addWidget(self.button_show_lights,5,0,1,2)
         render_layers_label = QtWidgets.QLabel("render layers")
-        self.grid_layout_top.addWidget(render_layers_label,7,0)          
+        self.grid_layout_top.addWidget(render_layers_label,7,0)
         self.render_layer_QListWidget = QtWidgets.QListWidget()
         self.render_layer_QListWidget.setMinimumHeight(170)
-        self.grid_layout_bottom.addWidget(self.render_layer_QListWidget,1,0)       
+        self.grid_layout_bottom.addWidget(self.render_layer_QListWidget,1,0)
         self.render_layer_state()
         self.populate_attrs()
 
@@ -331,33 +331,33 @@ class lightsPalette():
             for selected_node in selected_nodes:
                 self.selected_node = selected_node
                 type = cmds.nodeType(selected_node)
-                if type == "VRayLightRectShape":                                                   
+                if type == "VRayLightRectShape":
                     self.sel_button_toggle_override.setEnabled(True)
-                    self.sel_button_toggle_override.setFixedHeight(20)   
+                    self.sel_button_toggle_override.setFixedHeight(20)
                     for override in self.render_layer_overrides:
                         if selected_node in override:
                             if "intensityMult" in override or "translate" in override or "rotate" in override or "scale" in override:
-                                master_override_found = 1                      
-                if type == "transform":                                                    
-                    self.sel_button_toggle_override.setEnabled(True)                                               
-                    self.sel_button_toggle_override.setFixedHeight(20)  
+                                master_override_found = 1
+                if type == "transform":
+                    self.sel_button_toggle_override.setEnabled(True)
+                    self.sel_button_toggle_override.setFixedHeight(20)
                     for override in self.render_layer_overrides:
                         if selected_node in override:
                             if "translate" in override or "rotate" in override or "scale" in override:
-                                master_override_found = 1              
+                                master_override_found = 1
         if master_override_found == 0:
             self.sel_button_toggle_override.setChecked(False)
             self.sel_button_toggle_override.setStyleSheet("QPushButton {background:rgb(100,100,100);} QPushButton::checked{background-color: rgb(200, 200, 200);""border:0px solid rgb(80, 170, 20)};")
-            self.sel_button_toggle_override.setText("no overrides")   
-            self.sel_button_toggle_override.setFixedHeight(20)  
+            self.sel_button_toggle_override.setText("no overrides")
+            self.sel_button_toggle_override.setFixedHeight(20)
         if master_override_found == 1:
             self.sel_button_toggle_override.setStyleSheet("QPushButton{background-color: rgb(200, 100, 0);""border:2px solid rgb(200, 100, 0)};")
-            self.sel_button_toggle_override.setText("overrides set")    
+            self.sel_button_toggle_override.setText("overrides set")
             self.sel_button_toggle_override.setChecked(True)
         self.sel_button_toggle_override.toggled.connect(partial(self.sel_toggle_overrides))
 
 # a method that builds the light pallete window and creates the layouts
-        
+
     def lights_palette_window(self):
         windowName = "lights palatte"
         if cmds.window(windowName,exists = True):
@@ -370,19 +370,19 @@ class lightsPalette():
         mainWidget = QtWidgets.QWidget()
         window.setCentralWidget(mainWidget)
         window.setFixedSize(250,390)
-        self.vertical_layout = QtWidgets.QVBoxLayout(mainWidget)        
+        self.vertical_layout = QtWidgets.QVBoxLayout(mainWidget)
         self.grid_layout_top = QtWidgets.QGridLayout()
         self.vertical_layout.addLayout(self.grid_layout_top)
         self.grid_layout_bottom = QtWidgets.QGridLayout()
         self.vertical_layout.addLayout(self.grid_layout_bottom)
-        self.myScriptJobID = cmds.scriptJob(p = windowName, event=["NameChanged", self.populate_window])        
+        self.myScriptJobID = cmds.scriptJob(p = windowName, event=["NameChanged", self.populate_window])
         self.myScriptJobID = cmds.scriptJob(p = windowName, event=["renderLayerManagerChange", self.populate_window])
         self.myScriptJobID = cmds.scriptJob(p = windowName, event=["renderLayerChange", self.populate_window])
         self.myScriptJobID = cmds.scriptJob(p = windowName, event=["SelectionChanged", self.populate_window])
         self.myScriptJobID = cmds.scriptJob(p = windowName, event=["SceneOpened", self.populate_window])
         self.populate_window()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        window.show()    
+        window.show()
 
 def main():
     ltv = lightsPalette()

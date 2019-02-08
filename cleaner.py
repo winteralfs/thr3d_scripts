@@ -307,7 +307,7 @@ class Cleaner():
 
         def cleaner_window(self):
             window_name = 'cleaner'
-            if cmds.window(window_name,exists = true):
+            if cmds.window(window_name,exists = true, sizable = False):
                 cmds.uiDelete(window_name)
             pointer = mui.MQtUtil.mainWindow()
             parent = shiboken2.wrapInstance(long(pointer),QtWidgets.QWidget)

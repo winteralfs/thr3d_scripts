@@ -7,7 +7,7 @@ def objectChooseWin():
     windowSize = (300,100)
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
-    window = cmds.window(name, title = name, width = 100, height = 50)
+    window = cmds.window(name, title = name, width = 100, height = 50, sizeable = True)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "object_Old  ")
@@ -843,23 +843,23 @@ def objectChooseWin():
             print "---"
             print "Master object displacement node"
             print "---"
-            print " "           
+            print " "
             if "Shape" in object_Old:
                 pass
             else:
                 chil = cmds.listRelatives(object_Old, children = True)
-                object_Old = chil[0]            
+                object_Old = chil[0]
             displacement_extra_attr_dic = {}
             displacement_extra_attributes = ['displayMapBorders','vraySeparator_vray_subquality','vrayOverrideGlobalSubQual','vrayViewDep','vrayEdgeLength','vrayMaxSubdivs','vraySeparator_vray_displacement','vrayDisplacementNone','vrayDisplacementStatic','vrayDisplacementType','vrayDisplacementAmount','vrayDisplacementShift','vrayDisplacementKeepContinuity','vrayEnableWaterLevel','vrayWaterLevel','vrayDisplacementCacheNormals','vray2dDisplacementResolution','vray2dDisplacementPrecision','vray2dDisplacementTightBounds','vray2dDisplacementMultiTile','vray2dDisplacementFilterTexture','vray2dDisplacementFilterBlur','vrayDisplacementUseBounds','vrayDisplacementMinValue','vrayDisplacementMaxValue','vrayOverrideGlobalSubQual','vrayViewDep','vrayEdgeLength','vrayMaxSubdivs','vrayDisplacementNone','vrayDisplacementStatic','vrayDisplacementType','vrayDisplacementAmount','vrayDisplacementShift','vrayDisplacementKeepContinuity','vrayEnableWaterLevel','vrayWaterLevel','vrayDisplacementCacheNormals','vray2dDisplacementResolution','vray2dDisplacementPrecision','vray2dDisplacementTightBounds','vray2dDisplacementMultiTile','vray2dDisplacementFilterTexture','vrayDisplacementUseBounds','vrayDisplacementMinValue','vrayDisplacementMaxValue']
             for displacement_extra_attribute in displacement_extra_attributes:
                 print displacement_extra_attribute
                 disp_attr_full = object_Old + '.' + displacement_extra_attribute
-                disp_attr_exists = cmds.attributeQuery(displacement_extra_attribute,node = object_Old,exists = True)                
+                disp_attr_exists = cmds.attributeQuery(displacement_extra_attribute,node = object_Old,exists = True)
                 print disp_attr_exists
                 if disp_attr_exists == 1:
                     print 'exists!'
                     disp_attr_value = cmds.getAttr(disp_attr_full)
-                    displacement_extra_attr_dic[displacement_extra_attribute] = disp_attr_value  
+                    displacement_extra_attr_dic[displacement_extra_attribute] = disp_attr_value
             print "displacement_extra_attr_dic = ", displacement_extra_attr_dic
             vrayDisplacement_filePath = ""
             object_Old_DispNodeList = []
@@ -2111,20 +2111,20 @@ def objectChooseWin():
                 object_New_shape = object_New
             else:
                 object_New_shape = cmds.listRelatives(object_New, children = True)
-                object_New_parent = object_New    
+                object_New_parent = object_New
             if extra_disp_attr_exists > 1:
                 cmds.vray("addAttributesFromGroup", object_New_shape, "vray_subquality", 1)
-                cmds.vray("addAttributesFromGroup", object_New_shape, "vray_displacement", 1) 
+                cmds.vray("addAttributesFromGroup", object_New_shape, "vray_displacement", 1)
                 for displacement_extra_attribute in displacement_extra_attributes:
                     if displacement_extra_attribute == 'vraySeparator_vray_subquality' or displacement_extra_attribute == 'vraySeparator_vray_displacement':
                         cmds.setAttr((object_New_parent + "." + displacement_extra_attribute),displacement_extra_attr_dic[displacement_extra_attribute], type = 'string')
                     else:
-                        if displacement_extra_attribute != 'vrayDisplacementMinValue' and displacement_extra_attribute != 'vrayDisplacementMaxValue' and displacement_extra_attribute != 'vrayDisplacementMinValue' and displacement_extra_attribute != 'vrayDisplacementMaxValue':                        
+                        if displacement_extra_attribute != 'vrayDisplacementMinValue' and displacement_extra_attribute != 'vrayDisplacementMaxValue' and displacement_extra_attribute != 'vrayDisplacementMinValue' and displacement_extra_attribute != 'vrayDisplacementMaxValue':
                             cmds.setAttr((object_New_parent + "." + displacement_extra_attribute),displacement_extra_attr_dic[displacement_extra_attribute])
                     if displacement_extra_attribute == 'vrayDisplacementMinValue' or displacement_extra_attribute == 'vrayDisplacementMaxValue' or displacement_extra_attribute == 'vrayDisplacementMinValue' or displacement_extra_attribute == 'vrayDisplacementMaxValue':
                         val = displacement_extra_attr_dic[displacement_extra_attribute]
                         val = val[0]
-                        cmds.setAttr((object_New_parent + "." + displacement_extra_attribute),val[0],val[1],val[2])                        
+                        cmds.setAttr((object_New_parent + "." + displacement_extra_attribute),val[0],val[1],val[2])
             if object_Old_DispNode != "None":
                 vrayDisplacement_filePath = OBJ_1_displacementNodes[0]
                 def_vrayDisplacementAmount = OBJ_1_displacementNodes[1]
