@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 
-print 'changes'
+print 'changes two'
 
 class rigClass():
     def __init__(self,obj,renLays,lightRigName,lightType,numLights,lights,transform,rotates,scales,lightColor,intensityMultiplier,Usize,Vsize,directional,directionalPreviewLength,usRectTex,rectTexColor,noDecay,doubleSided,invisible,affectDiffuse,affectSpecular,affectReflections,diffuseContrib,specularContrib,scaler,rampNames,ramps,rampAssigns,overides,obsNotInLay,vizaNotInLay,lightLinks):
