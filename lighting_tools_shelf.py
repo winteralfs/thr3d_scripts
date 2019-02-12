@@ -60,6 +60,12 @@ def uv_editor():
     reload(uv_editor)
     uv_editor.main()
 
+def quick_link():
+    print "quick_link function"
+    import quick_link
+    reload(quick_link)
+    quick_link.main()
+
 def build_custom_shelf():
     main_shelf = mel.eval('$tempMelVar=$gShelfTopLevel')
     name = "Lighting_Tools"
@@ -91,3 +97,5 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/ramp_generator_Logo_small.jpg', command = partial(ramp_generator))
     annotation = 'UV set editor: Allows the manipulation of selected UV shells with number inputs'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/UV_editor_Logo_small.jpg', command = partial(uv_editor))
+    annotation = '18 quick link: Opens up the 2018 link in shotgun for the chosen brand'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/shotgun_links_tool_Logo_small.jpg', command = partial(quick_link))
