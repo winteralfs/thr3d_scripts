@@ -238,8 +238,6 @@ class RENAME(object):
         empty_field_test = len(self.postfix)
         if empty_field_test == 0:
             self.postfix = 'EMPTY FIELD'
-        print self.postfix
-        print self.postfix_master_list
         for material in self.postfix_master_list:
             material_name_split = material.split('_')
             len_split = len(material_name_split)
@@ -252,9 +250,10 @@ class RENAME(object):
                 cmds.rename(material,new_material_name)
         self.shader_list()
         print self.postfix_master_list
+        print self.postfix
         for material in self.postfix_master_list:
             print material
-            cmds.rename(material,(material + '_' + self.rename_suffix))
+            cmds.rename(material,(material + '_' + self.postfix))
             self.shader_list()
 
     def renamer_window(self):
