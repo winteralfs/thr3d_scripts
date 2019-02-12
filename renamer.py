@@ -1,3 +1,4 @@
+print 'renamer new one'
 import maya.cmds as cmds
 print 'renamer!'
 import os
