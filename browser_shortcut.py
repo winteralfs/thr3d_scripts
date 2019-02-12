@@ -41,7 +41,7 @@ def website_picker(website_shortcut_combobox):
         cmds.launch(web="https://thr3dcgi.shotgunstudio.com/page/project_overview?project_id=197")
 
 def browser_link_gui():
-    links = ['CAVENDISHFARMS','CLIFBAR','DANONE','DANNON','DANNONWAVE','GSK','KRAFTHEINZCO','Kroger','LEGO','NESTLE','PG','PHILLIPS','POST','PURINA','STONYFIELD','UNILEVER','Wrigley']
+    links = ['CAVENDISHFARMS','CLIFBAR','DANONE','DANNON','DANNONWAVE','GSK','KRAFTHEINZCO','KROGER','LEGO','NESTLE','PG','PHILLIPS','POST','PURINA','STONYFIELD','UNILEVER','WRIGLEY']
     windowName = "link_shortcuts"
     if cmds.window(windowName,exists = True):
         cmds.deleteUI(windowName, wnd = True)

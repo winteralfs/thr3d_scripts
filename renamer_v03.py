@@ -16,7 +16,7 @@ class RENAME(object):
         base_material_dic = {}
         self.shading_engines = cmds.ls(type = 'shadingEngine')
         self.shading_engines.remove('initialParticleSE')
-        self.shading_engines.remove('initialShadingGroup')        
+        self.shading_engines.remove('initialShadingGroup')
         for shading_engine in self.shading_engines:
             base_material = ''
             connection_check = []
@@ -177,5 +177,37 @@ class RENAME(object):
             print 'renaming ' + shading_engine + ' to ' + base_material_dic[shading_engine]
             cmds.rename(shading_engine, (base_material_dic[shading_engine] + '_SE'))
 
+    def set_postfix(self):
+        print 'set_postfix'
+        self.postfix = self.postfix_line_edit.displayText() or []
+        print self.postfix
+
+
+    def renamer_window(self):
+        windowName = "renamer"
+        if cmds.window(windowName,exists = True):
+            cmds.deleteUI(windowName, wnd = True)
+        pointer = mui.MQtUtil.mainWindow()
+        parent = shiboken2.wrapInstance(long(pointer),QtWidgets.QWidget)
+        window = QtWidgets.QMainWindow(parent)
+        window.setObjectName(windowName)
+        window.setWindowTitle(windowName)
+        window.setFixedSize(200,100)
+        mainWidget = QtWidgets.QWidget()
+        window.setCentralWidget(mainWidget)
+        vertical_layout_main = QtWidgets.QVBoxLayout(mainWidget)
+        horiz_layout_main = QtWidgets.QHBoxLayout(mainWidget)
+        renamer_button = QtWidgets.QPushButton('rename shading engine nodes')
+        renamer_button.pressed.connect(partial(self.find_shading_engines))
+        vertical_layout_main.addWidget(renamer_button)
+        self.postfix_line_edit = QtWidgets.QLineEdit()
+        self.postfix_line_edit.setFixedSize(50,30)
+        horiz_layout_main.addWidget(self.postfix_line_edit)
+        vertical_layout_main.addLayout(horiz_layout_main)
+        postfix_button = QtWidgets.QPushButton('set postfix on shaders')
+        postfix_button.pressed.connect(partial(self.set_postfix))
+        horiz_layout_main.addWidget(postfix_button)
+        window.show()
+
 rename = RENAME('chris')
-rename.find_shading_engines()
+rename.renamer_window()

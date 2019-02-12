@@ -90,5 +90,23 @@ class RENAME(object):
             print 'renaming ' + shading_engine + ' to ' + self.base_material_dic[shading_engine]
             cmds.rename(shading_engine, (self.base_material_dic[shading_engine] + '_SE'))
 
+
+    def renamer_window(self):
+        windowName = "renamer"
+        if cmds.window(windowName,exists = True):
+            cmds.deleteUI(windowName, wnd = True)
+        pointer = mui.MQtUtil.mainWindow()
+        parent = shiboken2.wrapInstance(long(pointer),QtWidgets.QWidget)
+        window = QtWidgets.QMainWindow(parent)
+        window.setObjectName(windowName)
+        window.setWindowTitle(windowName)
+        window.setFixedSize(200,50)
+        mainWidget = QtWidgets.QWidget()
+        window.setCentralWidget(mainWidget)
+        vertical_layout_main = QtWidgets.QVBoxLayout(mainWidget)
+        renamer_button = QtWidgets.QPushButton('rename_shading_engine_nodes')
+        vertical_layout_main.addWidget(renamer_button)
+        window.show()
+
 rename = RENAME('chris')
-rename.find_shading_engines()
+rename.renamer_window()
