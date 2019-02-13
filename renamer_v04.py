@@ -1,4 +1,4 @@
-print 'renamer_v03'
+print 'renamer_v04'
 import maya.cmds as cmds
 import os
 import maya.OpenMayaUI as mui
@@ -220,18 +220,29 @@ class RENAME(object):
                 cmds.rename(shading_engine, (base_material_dic[shading_engine] + '_SE'))
 
     def shader_list(self):
+        locked_shaders = ['lambert1']
         VRayMtl_list = cmds.ls(type = 'VRayMtl')
+        print 'VRayMtl_list = ',VRayMtl_list
         phong_list = cmds.ls(type = 'phong')
+        print 'phong_list = ',phong_list
         blinn_list = cmds.ls(type = 'blinn')
-        lambert_list = cmds.ls(type = 'lambert')
+        print 'blinn_list =',blinn_list
+        lambert_blinn_list = cmds.ls(type = 'lambert')
+        print 'lambert_blinn_list = ',lambert_blinn_list
         surface_shader_list = cmds.ls(type = 'surfaceShader')
+        print 'surface_shader_list = ',surface_shader_list
         blend_material_list = cmds.ls(type = 'VRayBlendMtl')
+        print 'blend_material_list = ',blend_material_list
         bump_material_list = cmds.ls(type = 'VRayBumpMtl')
-        displacement_list = cmds.ls(type = 'Ridges_Displacement')
-        self.postfix_master_list = VRayMtl_list + phong_list + blinn_list + lambert_list + surface_shader_list + surface_shader_list + blend_material_list + bump_material_list + displacement_list
+        print 'bump_material_list = ',bump_material_list
+        displacement_list = cmds.ls(type = 'displacementShader')
+        self.postfix_master_list = VRayMtl_list + phong_list + lambert_blinn_list + surface_shader_list + surface_shader_list + blend_material_list + bump_material_list + displacement_list
+        for shader in locked_shaders:
+            self.postfix_master_list.remove(shader)
+        print 'xx ',self.postfix_master_list
 
     def set_postfix(self):
-        end_split_check_list = ['MTL','MAT']
+        end_split_check_list = ['MTL','MAT','MATERIAL','SHADER','mtl','mat','material','shader']
         print 'set_postfix'
         self.shader_list()
         self.postfix = self.postfix_line_edit.displayText() or []
@@ -250,11 +261,9 @@ class RENAME(object):
                 cmds.rename(material,new_material_name)
         self.shader_list()
         print self.postfix_master_list
-        print self.postfix
         for material in self.postfix_master_list:
             print material
             cmds.rename(material,(material + '_' + self.postfix))
-            self.shader_list()
 
     def renamer_window(self):
         windowName = "renamer"
