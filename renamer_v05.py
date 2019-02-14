@@ -211,20 +211,15 @@ class RENAME(object):
         for shading_engine in self.shading_engines:
             selectable = 'True'
             if selectable == 'True':
-                shading_engine = cmds.rename(shading_engine, (base_material_dic[shading_engine]))
+                shading_engine = cmds.rename(shading_engine, (base_material_dic[shading_engine] + '_SG'))
                 if self.postfix in shading_engine:
-                    print 'found postfix'
                     shading_engine_no_postfix = shading_engine.replace(('_' + self.postfix),'')
-                    cmds.rename(shading_engine,shading_engine_no_postfix)
-                    shading_engine = shading_engine_no_postfix
+                    shading_engine = cmds.rename(shading_engine,shading_engine_no_postfix)
                 for end_split_check in self.end_split_check_list:
                     if end_split_check in shading_engine:
-                        print 'found end_split_check'
                         shading_engine_no_end_split_check = shading_engine.replace(('_' + end_split_check),'')
-                        cmds.rename(shading_engine,shading_engine_no_end_split_check)
-                        shading_engine = shading_engine_no_end_split_check
+                        shading_engine = cmds.rename(shading_engine,shading_engine_no_end_split_check)
                 print 'shading_engine = ',shading_engine
-                shading_engine = cmds.rename(shading_engine,(shading_engine + '_SG'))
 
     def shader_list(self):
         locked_shaders = ['lambert1']
