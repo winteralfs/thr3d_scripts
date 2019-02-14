@@ -9,7 +9,7 @@ import shiboken2
 class RENAME(object):
     def __init__(self,rename_suffix):
         self.rename_suffix = rename_suffix
-        self.end_split_check_list = ['MTL','MAT','MATERIAL','SHADER','mtl','mat','material','Material','shader','Shader','material1','MATERIAL1','Material1','mat1','MAT1','MTL1','mtl1','Mat1','Mat']
+        self.end_split_check_list = ['MTL','MAT','MATERIAL','SHADER','mtl','mat','material','Material','shader','Shader','material1','MATERIAL1','Material1','mat1','MAT1','MTL1','mtl1','Mat1','Mat','mt','MT']
 
     def find_shading_engines(self):
         self.postfix = self.postfix_line_edit.displayText() or ''
@@ -237,7 +237,8 @@ class RENAME(object):
         blend_material_list = cmds.ls(type = 'VRayBlendMtl')
         bump_material_list = cmds.ls(type = 'VRayBumpMtl')
         displacement_list = cmds.ls(type = 'displacementShader')
-        self.postfix_master_list = VRayMtl_list + phong_list + lambert_blinn_list + surface_shader_list + blend_material_list + bump_material_list + displacement_list
+        light_material_list = cmds.ls(type = 'VRayLightMtl')
+        self.postfix_master_list = VRayMtl_list + phong_list + lambert_blinn_list + surface_shader_list + blend_material_list + bump_material_list + displacement_list + light_material_list
         for shader in locked_shaders:
             self.postfix_master_list.remove(shader)
 
