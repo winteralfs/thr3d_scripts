@@ -66,6 +66,12 @@ def quick_link():
     reload(quick_link)
     quick_link.main()
 
+def rename_shading_groups():
+    print "rename_shading_groups function"
+    import rename_shading_groups
+    reload(rename_shading_groups)
+    rename_shading_groups.main()
+
 def build_custom_shelf():
     main_shelf = mel.eval('$tempMelVar=$gShelfTopLevel')
     name = "Lighting_Tools"
@@ -99,3 +105,5 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/UV_editor_Logo_small.jpg', command = partial(uv_editor))
     annotation = '18 quick link: Opens up the 2018 link in shotgun for the chosen brand'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/shotgun_links_tool_Logo_small.jpg', command = partial(quick_link))
+    annotation = 'rename shading groups, add/delete a postfix to materials nodes'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(rename_shading_groups))

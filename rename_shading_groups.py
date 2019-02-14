@@ -290,4 +290,7 @@ class RENAME(object):
         window.show()
 
 rename = RENAME('chris')
-rename.renamer_window()
+
+def main():
+    rename.renamer_window()
+    
