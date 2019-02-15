@@ -24,7 +24,7 @@ def website_picker(website_shortcut_combobox):
         webbrowser.open("https://thr3dcgi.shotgunstudio.com/page/project_overview?project_id=190")
     if chosen_link == 'KRAFTHEINZCO':
         webbrowser.open("https://thr3dcgi.shotgunstudio.com/page/project_overview?project_id=189")
-    if chosen_link == 'Kroger':
+    if chosen_link == 'KROGER':
         webbrowser.open("https://thr3dcgi.shotgunstudio.com/page/project_overview?project_id=186")
     if chosen_link == 'LEGO':
         webbrowser.open("https://thr3dcgi.shotgunstudio.com/page/project_overview?project_id=307")
@@ -42,7 +42,7 @@ def website_picker(website_shortcut_combobox):
         webbrowser.open("https://thr3dcgi.shotgunstudio.com/page/project_overview?project_id=204")
     if chosen_link == 'UNILEVER':
         webbrowser.open("https://thr3dcgi.shotgunstudio.com/page/project_overview?project_id=188")
-    if chosen_link == 'Wrigley':
+    if chosen_link == 'WRIGLEY':
         webbrowser.open("https://thr3dcgi.shotgunstudio.com/page/project_overview?project_id=197")
 
 def browser_link_gui():

@@ -60,11 +60,11 @@ def uv_editor():
     reload(uv_editor)
     uv_editor.main()
 
-def quick_link():
-    print "quick_link function"
-    import quick_link
-    reload(quick_link)
-    quick_link.main()
+def quick_links():
+    print "quick_links function"
+    import quick_links
+    reload(quick_links)
+    quick_links.main()
 
 def rename_shading_groups():
     print "rename_shading_groups function"
@@ -104,6 +104,6 @@ def build_custom_shelf():
     annotation = 'UV set editor: Allows the manipulation of selected UV shells with number inputs'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/UV_editor_Logo_small.jpg', command = partial(uv_editor))
     annotation = '18 quick link: Opens up the 2018 link in shotgun for the chosen brand'
-    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/shotgun_links_tool_Logo_small.jpg', command = partial(quick_link))
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/shotgun_links_tool_Logo_small.jpg', command = partial(quick_links))
     annotation = 'rename shading groups, add/delete a postfix to materials nodes'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(rename_shading_groups))
