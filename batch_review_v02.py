@@ -14,10 +14,8 @@ def no_cam_window_popup(no_cam_set_list):
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 15, parent = "mainColumn")
     cmds.text(label = ("no cam set for layers:"))
-    i = 0
     for layer in no_cam_set_list:
-        cmds.text(label = ('' + no_cam_set_list[i] + ', '),font = 'boldLabelFont')
-        i = i + 1
+        cmds.text(label = ('' + layer + ', '),font = 'boldLabelFont')
     cmds.showWindow()
 
 def renderThumbs(checkBoxLow,checkBoxMid,checkBoxHigh,checkBoxRenderRegion,intField_res,floatField_thrhld,*args):
