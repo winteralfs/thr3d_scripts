@@ -731,7 +731,7 @@ class texture_replacer():
             old_file_texture_attr_dic = {}
             new_file_texture_attr_dic = {}
             old_file_texture_attrs = cmds.listAttr(old_fileTex,k = True)
-            attrAppend = ["filter","filterOffset"]
+            attrAppend = ["filter","filterOffset","filterType"]
             attrRemove = ["aiUserOptions","defaultColorMgtGlobals.cmEnabled","defaultColorMgtGlobals.configFileEnabled","defaultColorMgtGlobals.configFilePath","workingSpaceName"]
             for attr in attrAppend:
                 old_file_texture_attrs.append(attr)

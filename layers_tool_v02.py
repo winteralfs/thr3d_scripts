@@ -1163,9 +1163,10 @@ def copyLayers(renderLayers,copyAllLay,*args):
                                         cmds.disconnectAttr(dest_cons[1],dest_cons[0])
                                         a = a + 1
                                 cmds.connectAttr((val + ".outColor"),vrsFull, force = True)
+        print 'rebuil layer', rlll
         cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
-        fixCams()
-        layer_switcher()
+    fixCams()
+    layer_switcher()
 
 def checkRenderLayers(renLayOverCompare1,renLayOverCompare2,checkLayerFieldResult,txtFieldList,*args):
     menu1 = cmds.optionMenu(renLayOverCompare1,value = True,query = True)
