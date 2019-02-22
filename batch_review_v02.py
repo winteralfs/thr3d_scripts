@@ -5,7 +5,7 @@ from functools import partial
 import sys
 from datetime import datetime
 
-#junk
+#testing
 
 global cancel
 cancel = 0
