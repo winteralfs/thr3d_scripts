@@ -8,6 +8,8 @@ from functools import partial
 from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 
+# 'maaaaac'
+
 class cleaner():
     def __init__(self):
         self.assigned_mtl_list = []
