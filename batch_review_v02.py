@@ -5,8 +5,6 @@ from functools import partial
 import sys
 from datetime import datetime
 
-#testing MAC
-
 global cancel
 cancel = 0
 
