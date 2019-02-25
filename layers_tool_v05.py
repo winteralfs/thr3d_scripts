@@ -3,6 +3,7 @@ print 'layers_tool_v05'
 import maya.cmds as cmds
 from functools import partial
 import re
+#git hub test
 
 render_layers = cmds.ls(type = "renderLayer")
 light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
