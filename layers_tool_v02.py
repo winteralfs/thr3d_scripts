@@ -1,3 +1,6 @@
+print 'rebuilding render layers'
+print  '---'
+
 import maya.cmds as cmds
 from functools import partial
 import re
@@ -36,8 +39,6 @@ def overideInfoFunc(renderLayers):
             self.objLabel = objLabel
             self.renderLayers = renderLayers
             self.objType = objType
-            print " "
-            print " "
             print "self.objType = ",self.objType
             objList = objectsCheck
             if self.objType == "camera" or self.objType == "VRayLightRectShape" or self.objType == "spotLight" or self.objType == "ambientLight" or self.objType == "directionalLight" or self.objType == "pointLight" or self.objType == "VRayMtl" or self.objType == "blinn" or self.objType == "phong" or self.objType == "lambert" or self.objType == "surfaceShader" or self.objType == "displacementShader" or self.objType == "VRayDisplacement" or self.objType == "place2dTexture" or self.objType == "file" or self.objType == "gammaCorrect" or self.objType == "layeredTexture" or self.objType == "VRayBlendMtl":
@@ -444,6 +445,7 @@ def overideInfoFunc(renderLayers):
         ,"outTemperatureColorG","outTemperatureColorB","emitDiffuse","emitSpecular","decayRate","attributeAliasList","pickTexture"]
         attrCheck = ["lightColor","intensityMult","shapeType","uSize","vSize","directional","useRectTex","rectTex","noDecay","doubleSided","invisible","skylightPortal","simpleSkylightPortal","affectDiffuse","affectSpecular","affectReflections","shadows","shadowColor","shadowBias","visibility","colorR","colorG","colorB","emitDiffuse","emitSpecular",
         "decayRate","attributeAliasList","diffuseContrib","specularContrib","enabled"]
+        attrCheck = ["lightColor","intensityMult","shapeType","uSize","vSize","directional"]
         for attr in attrCheck:
             remAttrList.remove(attr)
         lightOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
@@ -673,6 +675,7 @@ def setRenCam(rl,camList,renCamMenu,renderLayers,*args):
     camColorCheck(renCamMenu,setCam)
 
 def fixCams(*args):
+    print " "
     print 'fixCams running'
     global initialLayer
     intialLayer = cmds.editRenderLayerGlobals(currentRenderLayer = True, query = True)
@@ -740,7 +743,7 @@ def fixCams(*args):
                 camLayCompareSPb = camLayCompareSPb[0]
                 if camLayCompare == rll or (camLayCompareSPb + "_BTY") == rll or (camLayCompareSPb + "_REF") == rll or (camLayCompareSPb + "_SHD") == rll or (camLayCompareSPb + "_REF_MATTE") == rll or ("BTY_" + camLayCompareSPb) == rll:
                     cmds.editRenderLayerAdjustment(cam + ".renderable")
-                    print 'setting ' + cam + ' for ' + rll + ' to 1 '
+                    #print 'setting ' + cam + ' for ' + rll + ' to 1 '
                     cmds.setAttr(cam + ".renderable",1)
                 else:
                     cmds.editRenderLayerAdjustment(cam + ".renderable")
@@ -839,6 +842,7 @@ def copyAllLayers(renderLayers,*args):
     copyLayers(renderLayers,copyAllLay)
 
 def copyLayers(renderLayers,copyAllLay,*args):
+    print " "
     activeLayers = []
     unlockNodes()
     panels = cmds.getPanel( type = "modelPanel" )
@@ -880,9 +884,10 @@ def copyLayers(renderLayers,copyAllLay,*args):
                     obsVizDic[strKey] = visState
             cmds.createRenderLayer(obsInLay, name = (rlll + "_copy"))
             cmds.editRenderLayerGlobals(currentRenderLayer = (rlll + "_copy"))
-            cmds.rename(rlll,("**_" + rlll + "_old"))
+            cmds.rename(rlll,("_" + rlll + "_old"))
             cmds.rename((rlll + "_copy"),rlll)
-            cmds.delete(("**_" + rlll + "_old"))
+            #print 'deleting old layer = ',rlll
+            cmds.delete(("_" + rlll + "_old"))
             for objL in obsInLay:
                 cmds.editRenderLayerMembers((rlll),objL)
             for ob in objectsCheck:
@@ -1163,7 +1168,8 @@ def copyLayers(renderLayers,copyAllLay,*args):
                                         cmds.disconnectAttr(dest_cons[1],dest_cons[0])
                                         a = a + 1
                                 cmds.connectAttr((val + ".outColor"),vrsFull, force = True)
-        print 'rebuil layer', rlll
+        if rlll != 'defaultRenderLayer':
+            print 'rebuilt layer', rlll
         cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
     fixCams()
     layer_switcher()
