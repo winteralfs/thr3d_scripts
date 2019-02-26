@@ -36,7 +36,7 @@ class texture_replacer():
         self.oldTexBox.setCurrentIndex(QtCore.QModelIndex())
 
     def textures_populate(self):
-        self.arrowPath = QtGui.QPixmap("U:/cwinters/_arrow.jpg")
+        self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow.jpg")
         #self.arrowPath = QtGui.QPixmap("/Users/alfredwinters/Desktop/rArrow.png")
         self.textureConversionList = []
         self.texturePointerDic = {}
