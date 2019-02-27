@@ -50,7 +50,6 @@ def overideInfoFunc(renderLayers):
 
         def attrOverideDetect(self):
             for obj in self.objList:
-                #print "obj = ",obj
                 defRamp = "none"
                 oRamp = "none"
                 cns_count = 1
@@ -60,63 +59,40 @@ def overideInfoFunc(renderLayers):
                 if nt == self.objType:
                     attrs = cmds.listAttr(obj)
                     for rem in self.remAttrList:
-                        ###print "rem = ",rem
                         attrs.remove(rem)
-                    ###print "attrs = ",attrs
                     if self.objType == "layeredTexture":
                         cns = cmds.listConnections(obj, source = True,destination = False) or []
-                        #print "cns = ",cns
                         cns_count = len(cns)
                         for cn in cns:
-                            #print "cn = ",cn
                             cn_string = cn + ".outColor"
-                            #print "cn_string = ",cn_string
                             conInfo = cmds.connectionInfo(cn_string,destinationFromSource = True) or []
-                            #print "conInfo = ",conInfo
                             for ci in conInfo:
                                 if obj in ci:
                                     it_num_split_A = ci.split("[")
-                                    #print "it_num_split_A = ",it_num_split_A
                                     it_num_split_B = it_num_split_A[1].split("]")
-                                    #print "it_num_split_B = ",it_num_split_B
                                     it_num = it_num_split_B[0]
-                                    #print "it_num = ",it_num
                                     it_list.append(it_num)
                                     it_list_count = len(it_list)
-                                    #print "it_list_count = ",it_list_count
                     it = 0
-                    #print "it_list = ",it_list
-                    #print "it_list_count = ",it_list_count
                     while it < it_list_count:
                         for attr in attrs:
-                            ###print "attr = ",attr
                             attrString = obj + "." + attr
                             if attr == "inputs.isVisible" or attr == "inputs.alpha" or attr == "inputs.color" or attr == "inputs.blendMode":
-                                #print "attr = ",attr
-                                #print "it = ",it
                                 it_list_2 = len(it_list)
                                 if it_list_2 != 0:
                                     it_list_n = it_list[it]
-                                    #print "found input exception"
                                     attr = attr.replace("inputs.","")
                                     attrString = obj + "." + "inputs[" + str(it_list_n) + "]." + attr
-                                    ##print "attrString = ",attrString
                                     attr = ("inputs[" + str(it_list_n) + "]." + attr)
-                            #print "attrString = ",attrString
                             cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
                             defAttrVal = cmds.getAttr(attrString)
-                            ###print "defAttrVal = ",defAttrVal
                             attrConns = cmds.listConnections(attrString,destination = False) or []
-                            ###print "attrConns = ",attrConns
-                            ###print "cns_count = ",cns_count
                             defRampFound = 0
                             for conn in attrConns:
                                 connType = cmds.nodeType(conn)
-                                ###print "connType found ",connType
                                 if connType == "ramp" or connType == "fractal" or connType == "noise" or connType == "file" or connType == "checker" or connType == "cloud" or connType == "brownian" or connType == "bulge" or connType == "VRayMtl" or connType == "blinn" or connType == "phong" or connType == "lambert" or connType == "surfaceShader":
                                     defRampFound = 1
                                     defRamp = conn
-                                    ###print "defRamp found = ",defRamp
                             for rl in renderLayers:
                                 if rl != "defaultRenderLayer":
                                     cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
@@ -129,31 +105,23 @@ def overideInfoFunc(renderLayers):
                                             oRampFound = 1
                                             oRamp = attrConn
                                     oAttrVal = cmds.getAttr(attrString)
-                                    ###print rl
-                                    ###print "oAttrVal = ",oAttrVal
                                     if defRampFound == 0 and oRampFound == 0:
                                         if defAttrVal != oAttrVal:
-                                            ###print "overide found"
                                             attrDICstring = self.objLabel + "_overide*" + obj + "." + attr + "**" + rl + "_"
                                             self.attrOveridesDIC[attrDICstring] = oAttrVal
                                     if defRampFound == 0 and oRampFound == 1:
-                                        ###print "defRamp = 0, oRamp = 1"
                                         attrDICstring = self.objLabel + "_overide_rampAdded*" + obj + "." + attr + "**" + rl + "_"
                                         self.attrOveridesDIC[attrDICstring] = oRamp
                                     if defRampFound == 1 and oRampFound == 0:
-                                        ###print "defRamp = 1, oRamp = 0"
                                         oAttrVal = cmds.getAttr(attrString)
                                         attrDICstring = self.objLabel + "_overide_rampRemoved*" + obj + "." + attr + "**" + rl + "_"
                                         self.attrOveridesDIC[attrDICstring] = oAttrVal
                                     if defRampFound == 1 and oRampFound == 1:
                                         oRamp = attrConn
-                                        ###print "defRamp = 1, oRamp = 1"
                                         if oRamp != defRamp:
-                                            ###print "ramps dont match"
                                             attrDICstring = self.objLabel + "_overide_rampMismatch*" + obj + "." + attr + "**" + rl + "_"
                                             self.attrOveridesDIC[attrDICstring] = oRamp
                                         if oRamp == defRamp:
-                                            ###print "ramps match"
                                             rllOverides = cmds.listConnections(rl + ".adjustments", p = True, c = True) or []
                                             rllRampOverides = []
                                             for cn in rllOverides:
@@ -171,7 +139,6 @@ def overideInfoFunc(renderLayers):
                                                     if attrDICstring not in self.attrOveridesDIC and oRamp in ovrAttr:
                                                         self.attrOveridesDIC[attrDICstring] = ovrVal
                         it = it + 1
-            ###print "self.attrOveridesDIC",self.attrOveridesDIC
             return(self.attrOveridesDIC)
 
 
@@ -1610,8 +1577,6 @@ def copyLayers(renderLayers,materials,copyAllLay,*args):
                                 cmds.editRenderLayerAdjustment(ob + ".scale")
                                 cmds.setAttr((ob + "." + tfoSP[3]),val)
             for lo in lightO:
-                ###print "objectsCheck = ",objectsCheck
-                ###print "lo = ",lo
                 rr_found = 0
                 if "rampRemoved" in lo or "rampMismatch" in lo:
                     rr_found = 1
@@ -1627,8 +1592,6 @@ def copyLayers(renderLayers,materials,copyAllLay,*args):
                     if "spotLight" in ob or "ambientLight" in ob or "directionalLight" in ob or "pointLight" in ob:
                         kid = cmds.listRelatives(ob,children = True)
                         ob = kid[0]
-                    ###print "ob = ",ob
-                    ###print "loOBsp[0] = ",loOBsp[0]
                     if ob == loOBsp[0]:
                         if layer == rlll:
                             val = lightO[loOrig]
@@ -1958,25 +1921,6 @@ def layer_switcher():
     buttSize_del_Obj_adj = 0
     renCheckBo = []
     cmds.rowLayout("titles", numberOfColumns = 20, parent = "mainColumn")
-    #cmds.text( label = "    " )
-    #cmds.text( label = "    state " )
-    #cmds.text( label = "                      " )
-    #cmds.text( label = " layer  " )
-    #cmds.text( label = "                  " )
-    #cmds.text( label = "     render cam  " )
-    #cmds.text( label = "          " )
-    #O_but = cmds.button( label = "overides",bgc = (1,.4,.4))
-    #cmds.text( label = " " )
-    #vraySetBut = cmds.checkBox(label = "vraySettings",v = 1)
-    #transformObut = cmds.checkBox(label = "transform",v = 1)
-    #materialsObut = cmds.checkBox(label = "material",v = 1)
-    #cameraObut = cmds.checkBox(label = "cameras",v = 0)
-    #lightObut = cmds.checkBox(label = "light",v = 1)
-    #renderStatsObut = cmds.checkBox(label = "renderStats",v = 1)
-    #vrayObjectPropertiesObut = cmds.checkBox(label = "vrayObjProps",v = 1)
-    #cmds.text( label = "              " )
-    #rmALLObut = cmds.checkBox(label = "all_layers",v = 0)
-    #cmds.text( label = "              " )
     for rl in renderLays:
         VScount = "on"
         Tcount = "on"
@@ -1992,7 +1936,6 @@ def layer_switcher():
         cmds.rowLayout(rl, numberOfColumns = 15,parent = 'mainColumn')
         if "defaultRenderLayer" in rl:
             rl = "defaultRenderLayer"
-        #renCheckBoP = cmds.checkBox(label = "renderable",v = renderState)
         but_OIL = cmds.button(label = "OIL",bgc = (.3,.3,.3))
         but_SOL = cmds.button(label = "OVL",bgc = (.3,.3,.3))
         but = cmds.button( label = rl,bgc = (.25,.25,.25))
@@ -2001,16 +1944,6 @@ def layer_switcher():
         layerBut = activeLayerKids[0]
         layerBut = cmds.button(layerBut,label = True,query = True)
         rmALL = 0
-        #if rl != "defaultRenderLayer":
-            #txtField = cmds.textField(ed = False, width = 550)
-            #txtFieldList.append(txtField)
-            #cmds.text( label = " " )
-            #removeOverideTxtField = cmds.textField(ed = True, width = 100)
-            #removeOverideTxtBUT = cmds.button( label = "RemoveOveride",bgc = (.45,.45,.45))
-            #overButts.append(removeOverideTxtBUT)
-            #cmds.checkBox(rmALLObut,onCommand = partial(buttonChangeColorOn,removeOverideTxtBUT,overButts),edit = True)
-            #cmds.checkBox(rmALLObut,offCommand = partial(buttonChangeColorOff,removeOverideTxtBUT,overButts),edit = True)
-            #cmds.button(removeOverideTxtBUT,command = partial(removeOverideBUT,rl,removeOverideTxtField,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,removeOverideTxtBUT,layerBut,rmALL,rmALLObut),edit = True)
         renCams = []
         camList = cmds.ls(type = "camera")
 
@@ -2135,17 +2068,14 @@ def layer_switcher():
                             break
                         else:
                             cmds.optionMenu(renCamMenu, bgc = (1,0,0),edit = True)
-        #cmds.button(O_but,command = partial(OBpress,O_but,renderLayers,txtFieldList,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut),edit = True)
         butts.append(but)
         OILall.append(but_OIL)
         SOLall.append(but_SOL)
-        #renCheckBo.append(renCheckBoP)
         buttSize = len(butts)
         renCheckBoSize = len(renCheckBo)
         ButtSizeAdj = (buttSize -1)
         renCheckBoSiz_ADJ = (renCheckBoSize -1)
         buttonActive = cmds.button(but, command = partial(activeBut,rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,butts_addOBJ_ALL,butts_delOBJ_ALL),w = 150, edit = True)
-        #renCheckBoP = cmds.checkBox(renCheckBoP, onc = partial(checkBoxRenderON,rl),ofc = partial(checkBoxRenderOFF,rl), edit = True)
         renCamMenuPath = cmds.optionMenu(renCamMenu,cc = partial(setRenCam,rl,camList,renCamMenu,renderLayers), edit = True)
         if rl == initialLayer:
             cmds.button(but,bgc = (.5,.8,1), edit = True)
@@ -2153,14 +2083,12 @@ def layer_switcher():
     cmds.rowLayout(("1"), numberOfColumns = 2, parent = "mainColumn")
     but_adOBJ = cmds.button(label = "add selection", width = button_width)
     but_adOBJ_ALL = cmds.button(label = "add selection -all layers",width = button_width)
-    #but_ObjinLayers = cmds.button(label = "ObjinLayers(OIL)",bgc = (.4,.4,.4))
     cmds.rowLayout(("2"), numberOfColumns = 2, parent = "mainColumn")
     but_delOBJ = cmds.button(label = " remove selection",width = button_width)
     but_delOBJ_ALL = cmds.button(label = "remove selection -all layers",width = button_width)
     cmds.rowLayout(("3"), numberOfColumns = 2, parent = "mainColumn")
     but_showSelection = cmds.button(label = "show_selection",width = button_width)
     but_showSelection_ALL = cmds.button(label = "show_selection -all layers",width = button_width)
-    #but_showObjOnLayers = cmds.button(label = "showObjonLayers(OVL)",bgc = (.4,.4,.4))
     cmds.rowLayout(("4"), numberOfColumns = 2, parent = "mainColumn")
     but_hideSelection = cmds.button(label = "hide_selection",width = button_width)
     but_hideSelection_ALL = cmds.button(label = "hide_selection -all layers",width = button_width)
@@ -2168,15 +2096,8 @@ def layer_switcher():
     but_fixCams = cmds.button(label = "fixCamAssignments",width = button_width)
     but_ReNameLayers = cmds.button(label = "fixLayerNames",width = button_width)
     cmds.rowLayout(("6"), numberOfColumns = 2, parent = "mainColumn")
-    #but_lightRigOverides = cmds.button(label = "light rig rot layer overides",bgc = (.4,.4,.4), width = 150)
     but_lockUnlocks = cmds.button(label = "unlock cams",width = button_width)
-    #cmds.rowLayout(("objects7"), numberOfColumns = 4, parent = "mainColumn")
-    #cmds.text(label = "")
-    #cmds.text(label = "")
-    #cmds.rowLayout(("objects8"), numberOfColumns = 4, parent = "mainColumn")
-    #but_copyLayer = cmds.button(label = "copyLayer",bgc = (.4,.4,.4), width = 150)
     but_copyALL_Layers = cmds.button(label = "copyALL_Layers",width = button_width)
-    #cmds.rowLayout(("objectsXfer"), numberOfColumns = 8, parent = "mainColumn")
     butts_addOBJ.append(but_adOBJ)
     butts_delOBJ.append(but_delOBJ)
     butts_addOBJ_ALL.append(but_adOBJ_ALL)
@@ -2199,10 +2120,6 @@ def layer_switcher():
     buttonShowObj_ALL = cmds.button(but_showSelection_ALL, command = partial(showSel_ALL,butts,SOLall), edit = True)
     buttonHideObj = cmds.button(but_hideSelection, command = partial(hideSel,butts,SOLall), edit = True)
     buttonHideObj_ALL = cmds.button(but_hideSelection_ALL, command = partial(hideSel_ALL,butts,SOLall), edit = True)
-    #cmds.button(but_ObjinLayers, command = partial(OIL,butts,but_ObjinLayers,OILall), edit = True)
-    #cmds.button(but_showObjOnLayers, command = partial(OVL,butts,but_showObjOnLayers,SOLall), edit = True)
-    #cmds.button(but_lightRigOverides, command = partial(lightRigOverides), edit = True)
-    #cmds.button(but_copyLayer, command = partial(copyOneLayer,renderLayers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials), edit = True)
     cmds.button(but_lockUnlocks, command = partial(unlockNodes), edit = True)
     cmds.button(but_copyALL_Layers, command = partial(copyAllLayers,renderLayers,materials), edit = True)
     cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
