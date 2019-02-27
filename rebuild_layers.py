@@ -806,46 +806,6 @@ def OBpress(O_but,renderLayers,txtFieldList,vraySetBut,transformObut,materialsOb
                     oddStrCombo = oddStrCombo + " " + odc
                 cmds.textField(txtF, text = oddStrCombo, edit = True)
 
-def addActObj(rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,but_showObjOnLayers,OILall,*args):
-    global initialLayer
-    if initialLayer == "defaultRenderLayer":
-        initialLayer = "defaultRenderLayer"
-    activeSel = cmds.ls(sl = True)
-    for A in activeSel:
-        if "defaultRenderLayer" != initialLayer:
-            A = A
-            cmds.editRenderLayerMembers(initialLayer, A)
-    OIL(butts,but_showObjOnLayers,OILall)
-
-def addActObj_ALL(renderLayers,rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,but_showObjOnLayers,OILall,*args):
-    global initialLayer
-    activeSel = cmds.ls(sl = True)
-    for A in activeSel:
-            for rll in renderLayers:
-                if "defaultRenderLayer" != rll:
-                    cmds.editRenderLayerMembers(rll, A)
-    OIL(butts,but_showObjOnLayers,OILall)
-
-def delActObj(rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,but_showObjOnLayers,OILall,*args):
-    global initialLayer
-    if initialLayer == "defaultRenderLayer":
-        initialLayer = "defaultRenderLayer"
-    activeSel = cmds.ls(sl = True)
-    for A in activeSel:
-        if "defaultRenderLayer" != initialLayer:
-            A = A
-            cmds.editRenderLayerMembers(initialLayer, A, remove = True)
-    OIL(butts,but_showObjOnLayers,OILall)
-
-def delActObj_ALL(renderLayers,rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,but_showObjOnLayers,OILall,*args):
-    global initialLayer
-    activeSel = cmds.ls(sl = True)
-    for A in activeSel:
-            for rll in renderLayers:
-                if "defaultRenderLayer" != rll:
-                    cmds.editRenderLayerMembers(rll, A,remove = True)
-    OIL(butts,but_showObjOnLayers,OILall)
-
 def checkBoxRenderON(rl,*args):
     if rl == "defaultRenderLayer":
         rl = "defaultRenderLayer"
@@ -1368,99 +1328,127 @@ def ReNameLayers(rl,renderLayers,camList,renCamMenu,*args):
             cmds.rename("C9N1","Bt")
     layer_switcher()
 
-def showSel(butts,but_showObjOnLayers,SOLall,*args):
+def addActObj(OILall,*args):
+    print 'addActObj'
+    print 'OILall = ',OILall
+    current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+    activeSel = cmds.ls(sl = True)
+    for active_selection in activeSel:
+        if "defaultRenderLayer" != current_render_layer:
+            cmds.editRenderLayerMembers(current_render_layer, active_selection)
+    print 'finished'
+    OIL(OILall)
+
+def addActObj_ALL(OILall,*args):
+    print 'addActObj_ALL'
+    print 'addActObj_ALL OILall = ', OILall
+    renderLayers = cmds.ls(type = "renderLayer")
+    current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+    activeSel = cmds.ls(sl = True)
+    for active_selection in activeSel:
+        print '1'
+        for layer in renderLayers:
+            print 'layer = ',layer
+            print 'ac = ',active_selection
+            print '2'
+            if "defaultRenderLayer" != layer:
+                print '3'
+                cmds.editRenderLayerMembers(layer, active_selection)
+    print 'finished'
+    OIL(OILall)
+
+def delActObj(OILall,*args):
+    current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+    activeSel = cmds.ls(sl = True)
+    for active_selection in activeSel:
+        if "defaultRenderLayer" != current_render_layer:
+            cmds.editRenderLayerMembers(current_render_layer, active_selection, remove = True)
+    OIL(OILall)
+
+def delActObj_ALL(OILall,*args):
+    activeSel = cmds.ls(sl = True)
+    for active_selection in activeSel:
+        for layer in renderLayers:
+            if "defaultRenderLayer" != layer:
+                cmds.editRenderLayerMembers(layer, active_selection, remove = True)
+    OIL(OILall)
+
+def showSel(SOLall,*args):
     selObjs = cmds.ls(sl = True)
     curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
     for selOb in selObjs:
         cmds.setAttr(selOb + ".visibility", 1)
-    OVL(butts,but_showObjOnLayers,SOLall)
+    OVL(SOLall)
 
-def showSel_ALL(butts,but_showObjOnLayers,SOLall,*args):
+def showSel_ALL(SOLall,*args):
     renderLayers = cmds.ls(type = "renderLayer")
     selObjs = cmds.ls(sl = True)
     curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
     for rl in renderLayers:
         cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-        for selOb in selObjs:
-            cmds.setAttr(selOb + ".visibility", 1)
+        if rl != 'defaultRenderLayer':
+            for selOb in selObjs:
+                cmds.setAttr(selOb + ".visibility", 1)
+    OVL(SOLall)
 
-    cmds.editRenderLayerGlobals(currentRenderLayer = curRenlay)
-    OVL(butts,but_showObjOnLayers,SOLall)
-
-def hideSel(butts,but_showObjOnLayers,SOLall,*args):
+def hideSel(SOLall,*args):
     selObjs = cmds.ls(sl = True)
     curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
     for selOb in selObjs:
         cmds.setAttr(selOb + ".visibility", 0)
-    OVL(butts,but_showObjOnLayers,SOLall)
+    OVL(SOLall)
 
-def hideSel_ALL(butts,but_showObjOnLayers,SOLall,*args):
+def hideSel_ALL(SOLall,*args):
     renderLayers = cmds.ls(type = "renderLayer")
     selObjs = cmds.ls(sl = True)
     curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
     for rl in renderLayers:
         cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-        for selOb in selObjs:
-            cmds.setAttr(selOb + ".visibility", 0)
+        if rl != 'defaultRenderLayer':
+            for selOb in selObjs:
+                cmds.setAttr(selOb + ".visibility", 0)
+    OVL(SOLall)
 
-    cmds.editRenderLayerGlobals(currentRenderLayer = curRenlay)
-    OVL(butts,but_showObjOnLayers,SOLall)
-
-def OIL(butts,OILall,*args):
+def OIL(OILall,*args):
+    print 'OIL'
+    print OILall
     renderLayers = cmds.ls(type = "renderLayer")
-    selObjs = cmds.ls(sl = True)
-    curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
-    butRenLayDic = {}
-    for but in OILall:
-        butLay = but.split("|")
-        butLay = butLay[2]
-        butRenLayDic[but + "&" + butLay] = butLay
+    selected_objects = cmds.ls(sl = True)
+    print OILall
+    for render_layer in renderLayers:
+        print OILall
+        objects_in_layer = cmds.editRenderLayerMembers(render_layer, query=True ) or []
+        for button in OILall:
+            print 'OILall = ',OILall
+            button_layer_split = button.split("|")
+            print 'button_layer_split = ',button_layer_split
+            button_layer = button_layer_split[2]
+            if button_layer == render_layer:
+                for object in selected_objects:
+                    if object in objects_in_layer:
+                        cmds.button(button,bgc = (.5,.1,.2),edit = True)
+                    else:
+                        cmds.button(button,bgc = (.3,.3,.3),edit = True)
+    cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
 
-    for rl in renderLayers:
-        for selO in selObjs:
-            cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-            obsInLay = cmds.editRenderLayerMembers( rl, query=True ) or []
-            INCstate = 0
-            for ob in obsInLay:
-                if ob == selO:
-                    INCstate = 1
-            if INCstate == 1:
-                for butRLD in butRenLayDic:
-                    butRLDsp = butRLD.split("&")
-                    if butRLDsp[1] == rl:
-                        cmds.button(butRLDsp[0],bgc = (0,.2,.5),edit = True)
-            else:
-                for butRLD in butRenLayDic:
-                    butRLDsp = butRLD.split("&")
-                    if butRLDsp[1] == rl:
-                        cmds.button(butRLDsp[0],bgc = (.3,.3,.3),edit = True)
-    cmds.editRenderLayerGlobals(currentRenderLayer = curRenlay)
-
-def OVL(butts,SOLall,*args):
+def OVL(SOLall):
+    print 'OVL'
+    print SOLall
     renderLayers = cmds.ls(type = "renderLayer")
-    selObjs = cmds.ls(sl = True)
-    curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
-    butRenLayDic = {}
-    for but in SOLall:
-        butLay = but.split("|")
-        butLay = butLay[2]
-        butRenLayDic[but + "&" + butLay] = butLay
-    for rl in renderLayers:
-        for selO in selObjs:
-            cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-            Vstate = cmds.getAttr(selO + ".visibility")
-            if Vstate == 1:
-                for butRLD in butRenLayDic:
-                    butRLDsp = butRLD.split("&")
-                    if butRLDsp[1] == rl:
-                        cmds.button(butRLDsp[0],bgc = (0,.5,.2),edit = True)
-            else:
-                for butRLD in butRenLayDic:
-                    butRLDsp = butRLD.split("&")
-                    if butRLDsp[1] == rl:
-                        cmds.button(butRLDsp[0],bgc = (.3,.3,.3),edit = True)
-
-    cmds.editRenderLayerGlobals(currentRenderLayer = curRenlay)
+    selected_objects = cmds.ls(sl = True)
+    for render_layer in renderLayers:
+        cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+        for button in SOLall:
+            button_layer_split = button.split("|")
+            button_layer = button_layer_split[2]
+            if button_layer == render_layer:
+                for object in selected_objects:
+                    object_visibility = cmds.getAttr(object + '.visibility')
+                    if object_visibility == 1:
+                        cmds.button(button,bgc = (0,.5,.2),edit = True)
+                    else:
+                        cmds.button(button,bgc = (.3,.3,.3),edit = True)
+    cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
 
 def lightRigOverides(*args):
     lightRig = cmds.ls(sl = True)
@@ -2110,16 +2098,17 @@ def layer_switcher():
     buttSize_del_Obj_adj = (buttSize_del_OBJ -1)
     buttSize_Add_Obj_adj_ALL = (buttSize_Add_Obj_ALL -1)
     buttSize_del_Obj_adj_ALL = (buttSize_del_OBJ_ALL -1)
-    buttonActiveAdObj = cmds.button(but_adOBJ, command = partial(addActObj,rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,OILall), edit = True)
-    buttonActiveDelObj = cmds.button(but_delOBJ, command = partial(delActObj,rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,OILall), edit = True)
-    buttonActiveAdObj_ALL = cmds.button(but_adOBJ_ALL, command = partial(addActObj_ALL,renderLayers,rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,OILall), edit = True)
-    buttonActiveDelObj_ALL = cmds.button(but_delOBJ_ALL, command = partial(delActObj_ALL,renderLayers,rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,OILall), edit = True)
+    buttonActiveAdObj = cmds.button(but_adOBJ, command = partial(addActObj,OILall), edit = True)
+    buttonActiveDelObj = cmds.button(but_delOBJ, command = partial(delActObj,OILall), edit = True)
+    print 'master OILall = ',OILall
+    buttonActiveAdObj_ALL = cmds.button(but_adOBJ_ALL, command = partial(addActObj_ALL,OILall), edit = True)
+    buttonActiveDelObj_ALL = cmds.button(but_delOBJ_ALL, command = partial(delActObj_ALL,OILall), edit = True)
     buttonfixCams = cmds.button(but_fixCams, command = partial(fixCams,rl,renderLayers,camList,renCamMenu), edit = True)
     buttonReNameLayers = cmds.button(but_ReNameLayers, command = partial(ReNameLayers,rl,renderLayers,camList,renCamMenu), edit = True)
-    buttonShowObj = cmds.button(but_showSelection, command = partial(showSel,butts,SOLall), edit = True)
-    buttonShowObj_ALL = cmds.button(but_showSelection_ALL, command = partial(showSel_ALL,butts,SOLall), edit = True)
-    buttonHideObj = cmds.button(but_hideSelection, command = partial(hideSel,butts,SOLall), edit = True)
-    buttonHideObj_ALL = cmds.button(but_hideSelection_ALL, command = partial(hideSel_ALL,butts,SOLall), edit = True)
+    buttonShowObj = cmds.button(but_showSelection, command = partial(showSel,SOLall), edit = True)
+    buttonShowObj_ALL = cmds.button(but_showSelection_ALL, command = partial(showSel_ALL,SOLall), edit = True)
+    buttonHideObj = cmds.button(but_hideSelection, command = partial(hideSel,SOLall), edit = True)
+    buttonHideObj_ALL = cmds.button(but_hideSelection_ALL, command = partial(hideSel_ALL,SOLall), edit = True)
     cmds.button(but_lockUnlocks, command = partial(unlockNodes), edit = True)
     cmds.button(but_copyALL_Layers, command = partial(copyAllLayers,renderLayers,materials), edit = True)
     cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
