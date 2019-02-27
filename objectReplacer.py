@@ -1,3 +1,5 @@
+print 'mod3 c'
+
 import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
@@ -7,7 +9,7 @@ def objectChooseWin():
     windowSize = (300,100)
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
-    window = cmds.window(name, title = name, width = 100, height = 50)
+    window = cmds.window(name, title = name, width = 100, height = 50, sizeable = True)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "object_Old  ")
@@ -751,6 +753,8 @@ def objectChooseWin():
             print "potential material layer overide detected in layers:",RlayerOlist
             print " "
             cmds.select(clear = True)
+            print "mats_dict = ", mats_dict
+            print "",
             return mats_dict,LayerMats_dic,layerOverM2,object_Old,object_New,RLM,matAssignsExist
 
         def UVsetLinking(object_Old,object_New,renderLayers):
@@ -842,6 +846,23 @@ def objectChooseWin():
             print "Master object displacement node"
             print "---"
             print " "
+            if "Shape" in object_Old:
+                pass
+            else:
+                chil = cmds.listRelatives(object_Old, children = True)
+                object_Old = chil[0]
+            displacement_extra_attr_dic = {}
+            displacement_extra_attributes = ['displayMapBorders','vraySeparator_vray_subquality','vrayOverrideGlobalSubQual','vrayViewDep','vrayEdgeLength','vrayMaxSubdivs','vraySeparator_vray_displacement','vrayDisplacementNone','vrayDisplacementStatic','vrayDisplacementType','vrayDisplacementAmount','vrayDisplacementShift','vrayDisplacementKeepContinuity','vrayEnableWaterLevel','vrayWaterLevel','vrayDisplacementCacheNormals','vray2dDisplacementResolution','vray2dDisplacementPrecision','vray2dDisplacementTightBounds','vray2dDisplacementMultiTile','vray2dDisplacementFilterTexture','vray2dDisplacementFilterBlur','vrayDisplacementUseBounds','vrayDisplacementMinValue','vrayDisplacementMaxValue','vrayOverrideGlobalSubQual','vrayViewDep','vrayEdgeLength','vrayMaxSubdivs','vrayDisplacementNone','vrayDisplacementStatic','vrayDisplacementType','vrayDisplacementAmount','vrayDisplacementShift','vrayDisplacementKeepContinuity','vrayEnableWaterLevel','vrayWaterLevel','vrayDisplacementCacheNormals','vray2dDisplacementResolution','vray2dDisplacementPrecision','vray2dDisplacementTightBounds','vray2dDisplacementMultiTile','vray2dDisplacementFilterTexture','vrayDisplacementUseBounds','vrayDisplacementMinValue','vrayDisplacementMaxValue']
+            for displacement_extra_attribute in displacement_extra_attributes:
+                print displacement_extra_attribute
+                disp_attr_full = object_Old + '.' + displacement_extra_attribute
+                disp_attr_exists = cmds.attributeQuery(displacement_extra_attribute,node = object_Old,exists = True)
+                print disp_attr_exists
+                if disp_attr_exists == 1:
+                    print 'exists!'
+                    disp_attr_value = cmds.getAttr(disp_attr_full)
+                    displacement_extra_attr_dic[displacement_extra_attribute] = disp_attr_value
+            print "displacement_extra_attr_dic = ", displacement_extra_attr_dic
             vrayDisplacement_filePath = ""
             object_Old_DispNodeList = []
             vrayDispNode = []
@@ -905,6 +926,7 @@ def objectChooseWin():
                     print "****"
                     cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                     dispNodeConnections = cmds.listConnections(object_Old_DispNode, s = True, d = True) or []
+                    print dispNodeConnections
                     for dnc in dispNodeConnections:
                         NT = cmds.nodeType(dnc)
                         if NT == "file":
@@ -1131,6 +1153,7 @@ def objectChooseWin():
             else:
                 print "No vray displacement nodes detected for", object_Old
             if object_Old_DispNode != "None":
+                print "object_Old_DispNode is not None",object_Old_DispNode
                 if layerTexDetect != 1 and rampDetect != 1:
                     cmds.select(clear = True)
                     shadEx = cmds.objExists("tempShader")
@@ -1151,27 +1174,42 @@ def objectChooseWin():
                     secConList = []
                     thirdConList = []
                     fourthConList = []
+                    print 'filename = ',fileName
                     firstCon = cmds.listConnections(fileName, destination = False)
+                    print 'firstCon = ',firstCon
                     for f in firstCon:
                         if f not in firstConList:
-                            firstConList.append(f)
-                    first = firstConList[0]
-                    fType = cmds.nodeType(first)
-                    if fType == "uvChooser":
-                        firstConList = cmds.listConnections(first, destination = False, plugs = True) or []
-                    else:
-                        firstConList = cmds.listConnections(first, destination = False) or []
+                            if f not in firstConList:
+                                firstConList.append(f)
+                    print 'firstConList = ',firstConList
+                    for first_connection in firstConList:
+                        first = first_connection
+                        print 'first = ',first
+                        fType = cmds.nodeType(first)
+                        print 'fType = ',fType
+                        if fType == "uvChooser":
+                            firstConList = cmds.listConnections(first, destination = False, plugs = True) or []
+                        if fType != "uvChooser":
+                            firstConList = cmds.listConnections(first, destination = False) or []
                     siz = len(firstConList)
+                    print ' '
+                    print '*** firstConList = ***',firstConList
+                    print ' '
+                    print 'siz =',siz
                     if siz > 0:
+                        print 'size > 0'
+                        print 'firstConList = ',firstConList
                         second = firstConList[0]
-                    fType = cmds.nodeType(second)
+                        print 'second =',second
+                        fType = cmds.nodeType(second)
+
                     if fType == "uvChooser":
                         secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
                         UVmapAddressOLD = secondConList[0]
                         UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
-                        print " "
-                        print "linking " + fileName + " to " + UVmapAddressNEW
-                        print " "
+                        #print " "
+                        #print "linking " + fileName + " to " + UVmapAddressNEW
+                        #print " "
                         cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
                     else:
                         secondConList = cmds.listConnections(second, destination = False) or []
@@ -1194,15 +1232,15 @@ def objectChooseWin():
                     object_Old_child = object_Old_children[0]
                     object_New_children = cmds.listRelatives(object_New, children = True)
                     object_New_child = object_New_children[0]
-                    print " "
-                    print "linking " + rampNode + " to " + rampUVset
-                    print " "
+                    #print " "
+                    #print "linking " + rampNode + " to " + rampUVset
+                    #print " "
                     cmds.uvLink( uvSet = rampUVset, texture = rampNode)
                     shadEx2 = cmds.objExists("tempShader")
                     if shadEx2 == 1:
                         cmds.delete("tempShader")
                 if layerTexDetect == 1:
-                    print "layerTextures UV calculating"
+                    #print "layerTextures UV calculating"
                     for dft in layerTexFiles:
                         cmds.select(clear = True)
                         shadEx = cmds.objExists("tempShader")
@@ -1236,19 +1274,36 @@ def objectChooseWin():
                             firstConList = cmds.listConnections(first, destination = False) or []
                         siz = len(firstConList)
                         if siz > 0:
+                            print 'firstConList = ',firstConList
                             second = firstConList[0]
                         fType = cmds.nodeType(second)
                         if fType == "uvChooser":
                             secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
                             UVmapAddressOLD = secondConList[0]
                             UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
-                            print " "
-                            print "linking " + fileName + " to " + UVmapAddressNEW
-                            print " "
+                            #print " "
+                            #print "linking " + fileName + " to " + UVmapAddressNEW
+                            #print " "
                             cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
                         else:
                             secondConList = cmds.listConnections(second, destination = False) or []
-            return vrayDisplacement_filePath,def_vrayDisplacementAmount,def_dispShift,def_vrayEdgeLength,def_dispMaxSubdivs,dispValDic,object_Old,object_New,object_Old_DispNode,displacement_map_con,disp_fileConnection,displacementBlackBox,displacement_keepContinuity,overrideGlobalDisplacement,dispLayerOR,overide_dispValDic,renderLayers,conNodeDic,UVdic_texSet,UVdic_label,displacement_map_connection,disp_fileConnect
+            print 'vrayDisplacement_filePath =',vrayDisplacement_filePath
+            print 'def_vrayDisplacementAmount =',def_vrayDisplacementAmount
+            print 'def_dispShift = ',def_dispShift
+            print 'def_vrayEdgeLength = ',def_vrayEdgeLength
+            print 'def_dispMaxSubdivs = ',def_dispMaxSubdivs
+            print 'dispValDic = ',dispValDic
+            print 'object_Old_DispNode = ',object_Old_DispNode
+            print 'displacement_map_con = ',displacement_map_con
+            print 'disp_fileConnection = ',disp_fileConnection
+            print 'displacementBlackBox = ',displacementBlackBox
+            print 'displacement_keepContinuity = ',displacement_keepContinuity
+            print 'overrideGlobalDisplacement = ',overrideGlobalDisplacement
+            return vrayDisplacement_filePath,def_vrayDisplacementAmount,def_dispShift,def_vrayEdgeLength,def_dispMaxSubdivs,dispValDic,object_Old,object_New,object_Old_DispNode,displacement_map_con,disp_fileConnection,displacementBlackBox,displacement_keepContinuity,overrideGlobalDisplacement,dispLayerOR,overide_dispValDic,renderLayers,conNodeDic,UVdic_texSet,UVdic_label,displacement_map_connection,disp_fileConnect,displacement_extra_attributes,displacement_extra_attr_dic
+
+
+
+
 
         def oldObjectCenter(object_Old,object_New,renderLayers):
             chris = "me"
@@ -1301,6 +1356,10 @@ def objectChooseWin():
                 cmds.hide(OBJ_1_Path[1])
                 if "defaultRenderLayer" in L:
                     cmds.editRenderLayerGlobals( currentRenderLayer = L )
+
+
+
+
         def object_New_Path(OBJ_1_Path):
             print " "
             print "---"
@@ -1349,6 +1408,9 @@ def objectChooseWin():
                         print "adding " + OBJ_1_renderLayer[2] + " to " + L
             else:
                 print OBJ_1_renderLayer[2] + " is being added to the default render layer only, " + OBJ_1_renderLayer[1] + " not detected in the other layers."
+
+
+
         def object_New_translations(OBJ_1_TX):
             print " "
             print "---"
@@ -2054,7 +2116,31 @@ def objectChooseWin():
             print "New object displacement node"
             print "---"
             print " "
+            object_Old = OBJ_1_displacementNodes[6]
+            object_New = OBJ_1_displacementNodes[7]
             object_Old_DispNode = OBJ_1_displacementNodes[8]
+            displacement_extra_attributes = OBJ_1_displacementNodes[22]
+            displacement_extra_attr_dic = OBJ_1_displacementNodes[23]
+            extra_disp_attr_exists = len(displacement_extra_attr_dic)
+            if "Shape" in object_New:
+                object_New_parent = cmds.listRelatives(object_New, parent = True)
+                object_New_shape = object_New
+            else:
+                object_New_shape = cmds.listRelatives(object_New, children = True)
+                object_New_parent = object_New
+            if extra_disp_attr_exists > 1:
+                cmds.vray("addAttributesFromGroup", object_New_shape, "vray_subquality", 1)
+                cmds.vray("addAttributesFromGroup", object_New_shape, "vray_displacement", 1)
+                for displacement_extra_attribute in displacement_extra_attributes:
+                    if displacement_extra_attribute == 'vraySeparator_vray_subquality' or displacement_extra_attribute == 'vraySeparator_vray_displacement':
+                        cmds.setAttr((object_New_parent + "." + displacement_extra_attribute),displacement_extra_attr_dic[displacement_extra_attribute], type = 'string')
+                    else:
+                        if displacement_extra_attribute != 'vrayDisplacementMinValue' and displacement_extra_attribute != 'vrayDisplacementMaxValue' and displacement_extra_attribute != 'vrayDisplacementMinValue' and displacement_extra_attribute != 'vrayDisplacementMaxValue':
+                            cmds.setAttr((object_New_parent + "." + displacement_extra_attribute),displacement_extra_attr_dic[displacement_extra_attribute])
+                    if displacement_extra_attribute == 'vrayDisplacementMinValue' or displacement_extra_attribute == 'vrayDisplacementMaxValue' or displacement_extra_attribute == 'vrayDisplacementMinValue' or displacement_extra_attribute == 'vrayDisplacementMaxValue':
+                        val = displacement_extra_attr_dic[displacement_extra_attribute]
+                        val = val[0]
+                        cmds.setAttr((object_New_parent + "." + displacement_extra_attribute),val[0],val[1],val[2])
             if object_Old_DispNode != "None":
                 vrayDisplacement_filePath = OBJ_1_displacementNodes[0]
                 def_vrayDisplacementAmount = OBJ_1_displacementNodes[1]
@@ -2206,4 +2292,7 @@ def objectChooseWin():
         print " "
         print " "
 
-objectChooseWin()
+def main():
+    objectChooseWin()
+
+#main()
