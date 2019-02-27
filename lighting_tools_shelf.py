@@ -8,9 +8,9 @@ from functools import partial
 
 def lights_palette():
     print "lights_palette function"
-    import lights_palette_v07
-    reload(lights_palette_v07)
-    lights_palette_v07.main()
+    import lights_palette
+    reload(lights_palette)
+    lights_palette.main()
 
 def batch_review():
     print "batch_review function"
@@ -18,17 +18,17 @@ def batch_review():
     reload(batch_review)
     batch_review.main()
 
-def object_replacer():
-    print "object replacer function"
-    import objectReplacer_v02
-    reload(objectReplacer_v02)
-    objectReplacer_v02.main()
+def object_replace():
+    print "object replace function"
+    import object_replace
+    reload(object_replace)
+    object_replace.main()
 
-def textures_swapper():
-    print "textures_swapper function"
-    import textures_swapper
-    reload(textures_swapper)
-    textures_swapper.main()
+def textures_swap():
+    print "textures_swap function"
+    import textures_swap
+    reload(textures_swap)
+    textures_swap.main()
 
 def attributes_swapper():
     print "attributes_swapper function"
@@ -38,9 +38,9 @@ def attributes_swapper():
 
 def cleaner():
     print "cleaner function"
-    import cleaner_v02
-    reload(cleaner_v02)
-    cleaner_v02.main()
+    import cleaner
+    reload(cleaner)
+    cleaner.main()
 
 def ramp_generator():
     print "ramp_generator function"
@@ -92,9 +92,9 @@ def build_custom_shelf():
     annotation = 'Batch Review: Launches an interactive render for each render layer'
     cmds.shelfButton(annotation = annotation,image = 'U:/cwinters/thumbnails/batchReview_Logo_small.jpg',command = partial(batch_review))
     annotation = 'Object Replace: Replaces one object with another, transfering most attributes settings and shader assignments'
-    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/objectReplacer_Logo_small.jpg', command = partial(object_replacer))
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/objectReplacer_Logo_small.jpg', command = partial(object_replace))
     annotation = 'Texture Swap: Transfers the connections and settings from one set of textures to another'
-    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/texture_swapper_Logo_small.jpg', command = partial(textures_swapper))
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/texture_swapper_Logo_small.jpg', command = partial(textures_swap))
     annotation = 'Render Layer Tool: Many useful tools for render layer management'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/layer_tool_Logo_small.jpg', command = partial(layers_tool))
     annotation = 'Hypershade Cleaner: Deletes unused shaders and textures from the hypershade'
