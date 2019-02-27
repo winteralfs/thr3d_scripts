@@ -1439,7 +1439,7 @@ def hideSel_ALL(butts,but_showObjOnLayers,SOLall,*args):
     cmds.editRenderLayerGlobals(currentRenderLayer = curRenlay)
     OVL(butts,but_showObjOnLayers,SOLall)
 
-def OIL(butts,but_showObjOnLayers,OILall,*args):
+def OIL(butts,OILall,*args):
     renderLayers = cmds.ls(type = "renderLayer")
     selObjs = cmds.ls(sl = True)
     curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
@@ -1469,7 +1469,7 @@ def OIL(butts,but_showObjOnLayers,OILall,*args):
                         cmds.button(butRLDsp[0],bgc = (.3,.3,.3),edit = True)
     cmds.editRenderLayerGlobals(currentRenderLayer = curRenlay)
 
-def OVL(butts,but_showObjOnLayers,SOLall,*args):
+def OVL(butts,SOLall,*args):
     renderLayers = cmds.ls(type = "renderLayer")
     selObjs = cmds.ls(sl = True)
     curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
@@ -1923,6 +1923,7 @@ def unlockNodes(*args):
         if vizEx == 1:
             cmds.setAttr(dad + ".visibility", lock = 0)
         cmds.setAttr(dad + ".renderable", lock = 0)
+    print 'nodes unlocked'
 
 def layer_switcher():
     global initialLayer
@@ -1938,7 +1939,7 @@ def layer_switcher():
     name = "layer_manager"
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
-    window = cmds.window(name, title = name, sizeable = True)
+    window = cmds.window(name, title = name, sizeable = False)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     renderLays = cmds.ls(type = "renderLayer")
     if "defaultRenderLayer" == renderLays[0]:
@@ -1988,7 +1989,7 @@ def layer_switcher():
         renderState = cmds.getAttr(rl + ".renderable")
         cmds.editRenderLayerGlobals(currentRenderLayer = rl)
         check = 0
-        cmds.rowLayout(rl, numberOfColumns = 15, parent = "mainColumn")
+        cmds.rowLayout(rl, numberOfColumns = 15,parent = 'mainColumn')
         if "defaultRenderLayer" in rl:
             rl = "defaultRenderLayer"
         #renCheckBoP = cmds.checkBox(label = "renderable",v = renderState)
