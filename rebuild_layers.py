@@ -2,71 +2,71 @@ import maya.cmds as cmds
 from functools import partial
 import re
 
-renderLayers = cmds.ls(type = "renderLayer")
-lightTypes = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
-mats_VRayMtl = cmds.ls(type = "VRayMtl")
-mats_phong = cmds.ls(type = "phong")
-mats_blinn = cmds.ls(type = "blinn")
-mats_lambert = cmds.ls(type = "lambert")
-mats_surface = cmds.ls(type = "surfaceShader")
-mats_disp = cmds.ls(type = "displacementShader")
-dispNodes = cmds.ls(type = "VRayDisplacement")
-placeNodes = cmds.ls(type = "place2dTexture")
-fileNodes = cmds.ls(type = "file")
-layeredTexture = cmds.ls(type = "layeredTexture")
+render_layers = cmds.ls(type = "renderLayer")
+light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
+materials_VRayMtl = cmds.ls(type = "VRayMtl")
+materials_phong = cmds.ls(type = "phong")
+materials_blinn = cmds.ls(type = "blinn")
+materials_lambert = cmds.ls(type = "lambert")
+materials_surface_shader = cmds.ls(type = "surfaceShader")
+materials_displacement = cmds.ls(type = "displacementShader")
+displacement_nodes = cmds.ls(type = "VRayDisplacement")
+placement_nodes = cmds.ls(type = "place2dTexture")
+file_nodes = cmds.ls(type = "file")
+layered_textures = cmds.ls(type = "layered_textures")
 VRayBlendMtls = cmds.ls(type = "VRayBlendMtl")
-materials = mats_VRayMtl + mats_phong + mats_blinn + mats_lambert + mats_surface + placeNodes + fileNodes + mats_disp + dispNodes + layeredTexture + VRayBlendMtls
-objectsCheck_g = cmds.ls(g = True)
-objectsCheck_t = cmds.ls(type = "transform")
-objectsCheck_cam = cmds.ls(type = "camera")
-objectsCheck = objectsCheck_g + objectsCheck_t + materials + objectsCheck_cam
+materials = materials_VRayMtl + materials_phong + materials_blinn + materials_lambert + materials_surface_shader + placement_nodes + file_nodes + materials_displacement + displacement_nodes + layered_textures + VRayBlendMtls
+object_check_g = cmds.ls(g = True)
+object_check_t = cmds.ls(type = "transform")
+object_check_cam = cmds.ls(type = "camera")
+object_check = object_check_g + object_check_t + materials + object_check_cam
 lites = cmds.ls(lt = True)
-vrayLites = []
-for o in objectsCheck:
+vray_lights = []
+for o in object_check:
     nt = cmds.nodeType(o)
-    for lt in lightTypes:
+    for lt in light_types:
         if nt == lt:
-            vrayLites.append(o)
-objectsCheck.append("vraySettings")
+            vray_lights.append(o)
+object_check.append("vraySettings")
 
-def overideInfoFunc(renderLayers):
-    class attrOverideClass:
-        def __init__(self,renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck):
-            rllRampOverides = {}
-            self.objLabel = objLabel
-            self.renderLayers = renderLayers
-            self.objType = objType
+def overides_information_function(render_layers):
+    class ATTR_OVERRIDES_CLASS:
+        def __init__(self,render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check):
+            rll_ramp_overrides = {}
+            self.object_label = object_label
+            self.render_layers = render_layers
+            self.object_type = object_type
             print " "
             print " "
-            print "self.objType = ",self.objType
-            objList = objectsCheck
-            if self.objType == "camera" or self.objType == "VRayLightRectShape" or self.objType == "spotLight" or self.objType == "ambientLight" or self.objType == "directionalLight" or self.objType == "pointLight" or self.objType == "VRayMtl" or self.objType == "blinn" or self.objType == "phong" or self.objType == "lambert" or self.objType == "surfaceShader" or self.objType == "displacementShader" or self.objType == "VRayDisplacement" or self.objType == "place2dTexture" or self.objType == "file" or self.objType == "layeredTexture" or self.objType == "VRayBlendMtl":
-                self.objList = cmds.ls(type = self.objType)
-            if self.objType == "VRaySettingsNode":
-                self.objList = []
-                self.objList.append("vraySettings")
-            self.attrOveridesDIC = attrOveridesDIC
-            self.remAttrList = remAttrList
+            print "self.object_type = ",self.object_type
+            object_list = object_check
+            if self.object_type == "camera" or self.object_type == "VRayLightRectShape" or self.object_type == "spotLight" or self.object_type == "ambientLight" or self.object_type == "directionalLight" or self.object_type == "pointLight" or self.object_type == "VRayMtl" or self.object_type == "blinn" or self.object_type == "phong" or self.object_type == "lambert" or self.object_type == "surfaceShader" or self.object_type == "displacementShader" or self.object_type == "VRayDisplacement" or self.object_type == "place2dTexture" or self.object_type == "file" or self.object_type == "layered_textures" or self.object_type == "VRayBlendMtl":
+                self.object_list = cmds.ls(type = self.object_type)
+            if self.object_type == "VRaySettingsNode":
+                self.object_list = []
+                self.object_list.append("vraySettings")
+            self.attr_overrides_DIC = attr_overrides_DIC
+            self.remove_attr_List = remove_attr_List
 
-        def attrOverideDetect(self):
-            for obj in self.objList:
-                defRamp = "none"
-                oRamp = "none"
+        def attr_override_detect(self):
+            for obj in self.object_list:
+                default_ramp = "none"
+                override_ramp = "none"
                 cns_count = 1
                 it_list_count = 1
                 it_list = []
                 nt = cmds.nodeType(obj)
-                if nt == self.objType:
+                if nt == self.object_type:
                     attrs = cmds.listAttr(obj)
-                    for rem in self.remAttrList:
+                    for rem in self.remove_attr_List:
                         attrs.remove(rem)
-                    if self.objType == "layeredTexture":
+                    if self.object_type == "layered_textures":
                         cns = cmds.listConnections(obj, source = True,destination = False) or []
                         cns_count = len(cns)
                         for cn in cns:
                             cn_string = cn + ".outColor"
-                            conInfo = cmds.connectionInfo(cn_string,destinationFromSource = True) or []
-                            for ci in conInfo:
+                            connection_info = cmds.connectionInfo(cn_string,destinationFromSource = True) or []
+                            for ci in connection_info:
                                 if obj in ci:
                                     it_num_split_A = ci.split("[")
                                     it_num_split_B = it_num_split_A[1].split("]")
@@ -76,227 +76,227 @@ def overideInfoFunc(renderLayers):
                     it = 0
                     while it < it_list_count:
                         for attr in attrs:
-                            attrString = obj + "." + attr
+                            attr_string = obj + "." + attr
                             if attr == "inputs.isVisible" or attr == "inputs.alpha" or attr == "inputs.color" or attr == "inputs.blendMode":
                                 it_list_2 = len(it_list)
                                 if it_list_2 != 0:
                                     it_list_n = it_list[it]
                                     attr = attr.replace("inputs.","")
-                                    attrString = obj + "." + "inputs[" + str(it_list_n) + "]." + attr
+                                    attr_string = obj + "." + "inputs[" + str(it_list_n) + "]." + attr
                                     attr = ("inputs[" + str(it_list_n) + "]." + attr)
                             cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
-                            defAttrVal = cmds.getAttr(attrString)
-                            attrConns = cmds.listConnections(attrString,destination = False) or []
-                            defRampFound = 0
-                            for conn in attrConns:
-                                connType = cmds.nodeType(conn)
-                                if connType == "ramp" or connType == "fractal" or connType == "noise" or connType == "file" or connType == "checker" or connType == "cloud" or connType == "brownian" or connType == "bulge" or connType == "VRayMtl" or connType == "blinn" or connType == "phong" or connType == "lambert" or connType == "surfaceShader":
-                                    defRampFound = 1
-                                    defRamp = conn
-                            for rl in renderLayers:
+                            default_attr_value = cmds.getAttr(attr_string)
+                            attr_connections = cmds.listConnections(attr_string,destination = False) or []
+                            default_ramp_found = 0
+                            for conn in attr_connections:
+                                connection_type = cmds.nodeType(conn)
+                                if connection_type == "ramp" or connection_type == "fractal" or connection_type == "noise" or connection_type == "file" or connection_type == "checker" or connection_type == "cloud" or connection_type == "brownian" or connection_type == "bulge" or connection_type == "VRayMtl" or connection_type == "blinn" or connection_type == "phong" or connection_type == "lambert" or connection_type == "surfaceShader":
+                                    default_ramp_found = 1
+                                    default_ramp = conn
+                            for rl in render_layers:
                                 if rl != "defaultRenderLayer":
                                     cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
                                     cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-                                    attrConns = cmds.listConnections(attrString,destination = False) or []
-                                    oRampFound = 0
-                                    for attrConn in attrConns:
+                                    attr_connections = cmds.listConnections(attr_string,destination = False) or []
+                                    override_ramp_found = 0
+                                    for attrConn in attr_connections:
                                         attrType = cmds.nodeType(attrConn)
                                         if attrType == "ramp" or attrType == "fractal" or attrType == "noise" or attrType == "file" or attrType == "checker" or attrType == "cloud" or attrType == "brownian" or attrType == "bulge" or attrType == "VRayMtl" or attrType == "blinn" or attrType == "phong" or attrType == "lambert" or attrType == "surfaceShader":
-                                            oRampFound = 1
-                                            oRamp = attrConn
-                                    oAttrVal = cmds.getAttr(attrString)
-                                    if defRampFound == 0 and oRampFound == 0:
-                                        if defAttrVal != oAttrVal:
-                                            attrDICstring = self.objLabel + "_overide*" + obj + "." + attr + "**" + rl + "_"
-                                            self.attrOveridesDIC[attrDICstring] = oAttrVal
-                                    if defRampFound == 0 and oRampFound == 1:
-                                        attrDICstring = self.objLabel + "_overide_rampAdded*" + obj + "." + attr + "**" + rl + "_"
-                                        self.attrOveridesDIC[attrDICstring] = oRamp
-                                    if defRampFound == 1 and oRampFound == 0:
-                                        oAttrVal = cmds.getAttr(attrString)
-                                        attrDICstring = self.objLabel + "_overide_rampRemoved*" + obj + "." + attr + "**" + rl + "_"
-                                        self.attrOveridesDIC[attrDICstring] = oAttrVal
-                                    if defRampFound == 1 and oRampFound == 1:
-                                        oRamp = attrConn
-                                        if oRamp != defRamp:
-                                            attrDICstring = self.objLabel + "_overide_rampMismatch*" + obj + "." + attr + "**" + rl + "_"
-                                            self.attrOveridesDIC[attrDICstring] = oRamp
-                                        if oRamp == defRamp:
-                                            rllOverides = cmds.listConnections(rl + ".adjustments", p = True, c = True) or []
-                                            rllRampOverides = []
-                                            for cn in rllOverides:
+                                            override_ramp_found = 1
+                                            override_ramp = attrConn
+                                    override_attr_value = cmds.getAttr(attr_string)
+                                    if default_ramp_found == 0 and override_ramp_found == 0:
+                                        if default_attr_value != override_attr_value:
+                                            attr_DIC_string = self.object_label + "_overide*" + obj + "." + attr + "**" + rl + "_"
+                                            self.attr_overrides_DIC[attr_DIC_string] = override_attr_value
+                                    if default_ramp_found == 0 and override_ramp_found == 1:
+                                        attr_DIC_string = self.object_label + "_overide_rampAdded*" + obj + "." + attr + "**" + rl + "_"
+                                        self.attr_overrides_DIC[attr_DIC_string] = override_ramp
+                                    if default_ramp_found == 1 and override_ramp_found == 0:
+                                        override_attr_value = cmds.getAttr(attr_string)
+                                        attr_DIC_string = self.object_label + "_overide_rampRemoved*" + obj + "." + attr + "**" + rl + "_"
+                                        self.attr_overrides_DIC[attr_DIC_string] = override_attr_value
+                                    if default_ramp_found == 1 and override_ramp_found == 1:
+                                        override_ramp = attrConn
+                                        if override_ramp != default_ramp:
+                                            attr_DIC_string = self.object_label + "_overide_rampMismatch*" + obj + "." + attr + "**" + rl + "_"
+                                            self.attr_overrides_DIC[attr_DIC_string] = override_ramp
+                                        if override_ramp == default_ramp:
+                                            rll_overrides = cmds.listConnections(rl + ".adjustments", p = True, c = True) or []
+                                            rll_ramp_overrides = []
+                                            for cn in rll_overrides:
                                                 t = cmds.nodeType(cn)
                                                 if t == "ramp":
-                                                    if cn not in rllRampOverides:
-                                                        rllRampOverides.append(cn)
-                                                for i in range(0, len(rllOverides), 2):
-                                                    rlConn = rllOverides[i]
-                                                    ovrAttr = rllOverides[i+1]
-                                                    ovrIndex = rlConn.split("]")[0]
-                                                    ovrIndex = ovrIndex.split("[")[-1]
-                                                    ovrVal = cmds.getAttr(rl + ".adjustments[%s].value" %ovrIndex)
-                                                    attrDICstring =  self.objLabel + "_" + attr + "_rampOveride" + "*" + ovrAttr + "**" + rl
-                                                    if attrDICstring not in self.attrOveridesDIC and oRamp in ovrAttr:
-                                                        self.attrOveridesDIC[attrDICstring] = ovrVal
+                                                    if cn not in rll_ramp_overrides:
+                                                        rll_ramp_overrides.append(cn)
+                                                for i in range(0, len(rll_overrides), 2):
+                                                    rl_connection = rll_overrides[i]
+                                                    override_Attr = rll_overrides[i+1]
+                                                    override_index = rl_connection.split("]")[0]
+                                                    override_index = override_index.split("[")[-1]
+                                                    override_value = cmds.getAttr(rl + ".adjustments[%s].value" %override_index)
+                                                    attr_DIC_string =  self.object_label + "_" + attr + "_rampOveride" + "*" + override_Attr + "**" + rl
+                                                    if attr_DIC_string not in self.attr_overrides_DIC and override_ramp in override_Attr:
+                                                        self.attr_overrides_DIC[attr_DIC_string] = override_value
                         it = it + 1
-            return(self.attrOveridesDIC)
+            return(self.attr_overrides_DIC)
 
 
-    def translations(objectsCheck, renderLayers):
-        transValuesDictDEF = {}
-        objInLayers = []
-        transLayOverides = []
-        transValuesDictOTH = {}
-        translayDict = {}
+    def translations(object_check, render_layers):
+        transform_default_values_DIC = {}
+        object_in_layers = []
+        transform_layer_overrides = []
+        transform_override_values_DIC = {}
+        transform_layer_DIC = {}
         cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
         lay = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
-        for ob in objectsCheck_t:
-            strtranslateX = ob + ".translateX"
-            translateX = cmds.getAttr(strtranslateX)
+        for ob in object_check_t:
+            string_translateX = ob + ".translateX"
+            translateX = cmds.getAttr(string_translateX)
             var = ob + "$" + lay + "$translateX"
-            transValuesDictDEF[var] = translateX
-            strtranslateY = ob + ".translateY"
-            translateY = cmds.getAttr(strtranslateY)
+            transform_default_values_DIC[var] = translateX
+            string_translateY = ob + ".translateY"
+            translateY = cmds.getAttr(string_translateY)
             var = ob + "$" + lay + "$translateY"
-            transValuesDictDEF[var] = translateY
-            strtranslateZ = ob + ".translateZ"
-            translateZ = cmds.getAttr(strtranslateZ)
+            transform_default_values_DIC[var] = translateY
+            string_translateZ = ob + ".translateZ"
+            translateZ = cmds.getAttr(string_translateZ)
             var = ob + "$" + lay + "$translateZ"
-            transValuesDictDEF[var] = translateZ
+            transform_default_values_DIC[var] = translateZ
             strrotateX = ob + ".rotateX"
             rotateX = cmds.getAttr(strrotateX)
             var = ob + "$" + lay + "$rotateX"
-            transValuesDictDEF[var] = rotateX
-            strrotateY = ob + ".rotateY"
-            rotateY = cmds.getAttr(strrotateY)
+            transform_default_values_DIC[var] = rotateX
+            string_rotateY = ob + ".rotateY"
+            rotateY = cmds.getAttr(string_rotateY)
             var = ob + "$" + lay + "$rotateY"
-            transValuesDictDEF[var] = rotateY
-            strrotateZ = ob + ".rotateZ"
-            rotateZ = cmds.getAttr(strrotateZ)
+            transform_default_values_DIC[var] = rotateY
+            string_rotateZ = ob + ".rotateZ"
+            rotateZ = cmds.getAttr(string_rotateZ)
             var = ob + "$" + lay + "$rotateZ"
-            transValuesDictDEF[var] = rotateZ
-            strScaleX = ob + ".scaleX"
-            scaleX = cmds.getAttr(strScaleX)
+            transform_default_values_DIC[var] = rotateZ
+            string_scaleX = ob + ".scaleX"
+            scaleX = cmds.getAttr(string_scaleX)
             var = ob + "$" + lay + "$scaleX"
-            transValuesDictDEF[var] = scaleX
-            strScaleY = ob + ".scaleY"
-            scaleY = cmds.getAttr(strScaleY)
+            transform_default_values_DIC[var] = scaleX
+            string_scaleY = ob + ".scaleY"
+            scaleY = cmds.getAttr(string_scaleY)
             var = ob + "$" + lay + "$scaleY"
-            transValuesDictDEF[var] = scaleY
-            strScaleZ = ob + ".scaleZ"
-            scaleZ = cmds.getAttr(strScaleZ)
+            transform_default_values_DIC[var] = scaleY
+            string_scaleZ = ob + ".scaleZ"
+            scaleZ = cmds.getAttr(string_scaleZ)
             var = ob + "$" + lay + "$scaleZ"
-            transValuesDictDEF[var] = scaleZ
-        for ob in objectsCheck_t:
-            for lay in renderLayers:
+            transform_default_values_DIC[var] = scaleZ
+        for ob in object_check_t:
+            for lay in render_layers:
                 cmds.editRenderLayerGlobals( currentRenderLayer = lay )
                 lay = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
                 if "defaultRenderLayer" != lay:
-                    strtranslateX = ob + ".translateX"
-                    translateX = cmds.getAttr(strtranslateX)
+                    string_translateX = ob + ".translateX"
+                    translateX = cmds.getAttr(string_translateX)
                     var = ob + "$" + lay + "$translateX"
-                    transValuesDictOTH[var] = translateX
-                    strtranslateY = ob + ".translateY"
-                    translateY = cmds.getAttr(strtranslateY)
+                    transform_override_values_DIC[var] = translateX
+                    string_translateY = ob + ".translateY"
+                    translateY = cmds.getAttr(string_translateY)
                     var = ob + "$" + lay + "$translateY"
-                    transValuesDictOTH[var] = translateY
-                    strtranslateZ = ob + ".translateZ"
-                    translateZ = cmds.getAttr(strtranslateZ)
+                    transform_override_values_DIC[var] = translateY
+                    string_translateZ = ob + ".translateZ"
+                    translateZ = cmds.getAttr(string_translateZ)
                     var = ob + "$" + lay + "$translateZ"
-                    transValuesDictOTH[var] = translateZ
+                    transform_override_values_DIC[var] = translateZ
                     strrotateX = ob + ".rotateX"
                     rotateX = cmds.getAttr(strrotateX)
                     var = ob + "$" + lay + "$rotateX"
-                    transValuesDictOTH[var] = rotateX
-                    strrotateY = ob + ".rotateY"
-                    rotateY = cmds.getAttr(strrotateY)
+                    transform_override_values_DIC[var] = rotateX
+                    string_rotateY = ob + ".rotateY"
+                    rotateY = cmds.getAttr(string_rotateY)
                     var = ob + "$" + lay + "$rotateY"
-                    transValuesDictOTH[var] = rotateY
-                    strrotateZ = ob + ".rotateZ"
-                    rotateZ = cmds.getAttr(strrotateZ)
+                    transform_override_values_DIC[var] = rotateY
+                    string_rotateZ = ob + ".rotateZ"
+                    rotateZ = cmds.getAttr(string_rotateZ)
                     var = ob + "$" + lay + "$rotateZ"
-                    transValuesDictOTH[var] = rotateZ
-                    strScaleX = ob + ".scaleX"
-                    scaleX = cmds.getAttr(strScaleX)
+                    transform_override_values_DIC[var] = rotateZ
+                    string_scaleX = ob + ".scaleX"
+                    scaleX = cmds.getAttr(string_scaleX)
                     var = ob + "$" + lay + "$scaleX"
-                    transValuesDictOTH[var] = scaleX
-                    strScaleY = ob + ".scaleY"
-                    scaleY = cmds.getAttr(strScaleY)
+                    transform_override_values_DIC[var] = scaleX
+                    string_scaleY = ob + ".scaleY"
+                    scaleY = cmds.getAttr(string_scaleY)
                     var = ob + "$" + lay + "$scaleY"
-                    transValuesDictOTH[var] = scaleY
-                    strScaleZ = ob + ".scaleZ"
-                    scaleZ = cmds.getAttr(strScaleZ)
+                    transform_override_values_DIC[var] = scaleY
+                    string_scaleZ = ob + ".scaleZ"
+                    scaleZ = cmds.getAttr(string_scaleZ)
                     var = ob + "$" + lay + "$scaleZ"
-                    transValuesDictOTH[var] = scaleZ
-        for transVal in transValuesDictOTH:
-            transValSplit = transVal.split("$")
-            for transValDef in transValuesDictDEF:
-                transValDefSplit = transValDef.split("$")
-                if transValSplit[0] == transValDefSplit[0] and transValSplit[2] == transValDefSplit[2]:
-                    valu = transValuesDictOTH[transVal]
-                    valuDef = transValuesDictDEF[transValDef]
+                    transform_override_values_DIC[var] = scaleZ
+        for transform_value in transform_override_values_DIC:
+            transform_values_split = transform_value.split("$")
+            for transform_defualt_value in transform_default_values_DIC:
+                transform_defualt_value_split = transform_defualt_value.split("$")
+                if transform_values_split[0] == transform_defualt_value_split[0] and transform_values_split[2] == transform_defualt_value_split[2]:
+                    valu = transform_override_values_DIC[transform_value]
+                    valuDef = transform_default_values_DIC[transform_defualt_value]
                     if valu != valuDef:
-                        transLayOverides.append(transVal)
-                        translayDict["transO$" + transVal] = valu
-        return transValuesDictDEF,transValuesDictOTH,transLayOverides,objectsCheck,renderLayers,translayDict
+                        transform_layer_overrides.append(transform_value)
+                        transform_layer_DIC["transO$" + transform_value] = valu
+        return transform_default_values_DIC,transform_override_values_DIC,transform_layer_overrides,object_check,render_layers,transform_layer_DIC
 
-    def materialAssignments(objectsCheck, renderLayers):
-        mats_list = []
-        mats_list_OVR = []
-        matLayOverides = []
-        materialsDictDEF = {}
-        materialsDictOTH = {}
-        matsLayDict = {}
-        for ob in objectsCheck:
+    def material_assignments(object_check, render_layers):
+        materials_list = []
+        materials_list_overrides = []
+        material_layer_overrides = []
+        materials_defualt_DIC = {}
+        materials_override_DIC = {}
+        materials_layer_DIC = {}
+        for ob in object_check:
             cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
             lay = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
-            for L in renderLayers:
+            for L in render_layers:
                 cmds.editRenderLayerGlobals( currentRenderLayer = L )
                 if L == "defaultRenderLayer":
                     cmds.select(clear = True)
                     cmds.select(ob)
                     cmds.hyperShade(smn = True)
-                    mats_list = cmds.ls(sl = True)
-                    for MM in mats_list:
+                    materials_list = cmds.ls(sl = True)
+                    for MM in materials_list:
                         NT = cmds.nodeType(MM)
                         if NT != "renderLayer":
-                            if MM not in mats_list_OVR:
-                                mats_list_OVR.append(MM)
-                            dictKeyOTH = ob + "$" + L + "$"
-                            materialsDictDEF[dictKeyOTH] = MM
+                            if MM not in materials_list_overrides:
+                                materials_list_overrides.append(MM)
+                            override_DIC_key = ob + "$" + L + "$"
+                            materials_defualt_DIC[override_DIC_key] = MM
                 else:
                     cmds.select(clear = True)
                     cmds.select(ob)
                     cmds.hyperShade(smn = True)
-                    mats_list = cmds.ls(sl = True)
-                    for MM in mats_list:
+                    materials_list = cmds.ls(sl = True)
+                    for MM in materials_list:
                         NT = cmds.nodeType(MM)
                         if NT != "renderLayer":
-                            if MM not in mats_list_OVR:
-                                mats_list_OVR.append(MM)
-                            dictKeyOTH = ob + "$" + L + "$"
-                            materialsDictOTH[dictKeyOTH] = MM
-        for matsDictOth in materialsDictOTH:
-           matsValSplit = matsDictOth.split("$")
-           for matsDictDEF in materialsDictDEF:
-               matsValDEFSplit = matsDictDEF.split("$")
-               if matsValSplit[0] == matsValDEFSplit[0]:
-                    matOth = materialsDictOTH[matsDictOth]
-                    matDef = materialsDictDEF[matsDictDEF]
-                    if matOth != matDef:
-                        matLayOverides.append(matsDictOth)
-                        matsDictString = matsDictOth + ".materialAssignment"
-                        if matsDictString not in matsLayDict and "Shape" not in matsDictString:
-                            matsLayDict[matsDictString] = matOth
-        return(mats_list_OVR,mats_list_OVR,materialsDictOTH,matLayOverides,matsLayDict)
+                            if MM not in materials_list_overrides:
+                                materials_list_overrides.append(MM)
+                            override_DIC_key = ob + "$" + L + "$"
+                            materials_override_DIC[override_DIC_key] = MM
+        for material_override_DIC in materials_override_DIC:
+           material_value_split = material_override_DIC.split("$")
+           for material_defualt_DIC in materials_defualt_DIC:
+               material_defualt_value_split = material_defualt_DIC.split("$")
+               if material_value_split[0] == material_defualt_value_split[0]:
+                    mat_oth = materials_override_DIC[material_override_DIC]
+                    mat_def = materials_defualt_DIC[material_defualt_DIC]
+                    if mat_oth != mat_def:
+                        material_layer_overrides.append(material_override_DIC)
+                        material_DIC_string = material_override_DIC + ".materialAssignment"
+                        if material_DIC_string not in materials_layer_DIC and "Shape" not in material_DIC_string:
+                            materials_layer_DIC[material_DIC_string] = mat_oth
+        return(materials_list_overrides,materials_list_overrides,materials_override_DIC,material_layer_overrides,materials_layer_DIC)
 
-    def materialOverides(objectsCheck,renderLayers):
+    def material_overrides(object_check,render_layers):
         materialsOverideDIC = {}
-        attrOveridesDIC = materialsOverideDIC
-        objLabel = "mtlOveride"
+        attr_overrides_DIC = materialsOverideDIC
+        object_label = "mtlOveride"
 
-        objType = "VRayMtl"
-        remAttrList = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","outColor","outColorR","outColorG","outColorB","outApiType","outApiClassification","outTransparency",
+        object_type = "VRayMtl"
+        remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","outColor","outColorR","outColorG","outColorB","outApiType","outApiClassification","outTransparency",
         "outTransparencyR","outTransparencyG","outTransparencyB","reflectionsMaxDepth","refractionsMaxDepth","swatchAutoUpdate","swatchAlwaysRender","swatchExplicitUpdate","swatchMaxRes","color","diffuseColorR"
         ,"diffuseColorG","diffuseColorB","diffuseColorAmount","roughnessAmount","illumColor","illumColorR","illumColorG","illumColorB","illumGI","compensateExposure","reflectionColor","reflectionColorR","reflectionColorG"
         ,"reflectionColorB","reflectionColorAmount","reflectionExitColor","reflectionExitColorR","reflectionExitColorG","reflectionExitColorB","hilightGlossinessLock","hilightGlossiness","reflectionGlossiness","reflectionSubdivs"
@@ -312,115 +312,115 @@ def overideInfoFunc(renderLayers):
         "refractionExitColorOn","refractionsMaxDepth","affectAlpha","refrDispersionOn","refrDispersionAbbe","bumpMapType","bumpMap","bumpMult","bumpShadows","bumpDeltaScale","cutoffThreshold",
         "doubleSided","useIrradianceMap","fixDarkEdges","caching","nodeState","reflMapMinRate","reflMapMaxRate","reflMapColorThreshold","reflMapNormalThreshold","reflMapSamples"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "blinn"
-        remAttrList = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB", "reflectionLimit", "specularColor", "specularColorR", "specularColorG", "specularColorB", "reflectivity", "reflectedColor", "reflectedColorR", "reflectedColorG", "reflectedColorB", "triangleNormalCamera", "triangleNormalCameraX", "triangleNormalCameraY", "triangleNormalCameraZ", "reflectionSpecularity", "eccentricity", "specularRollOff", "reflectionRolloff"]
+        object_type = "blinn"
+        remove_attr_List = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB", "reflectionLimit", "specularColor", "specularColorR", "specularColorG", "specularColorB", "reflectivity", "reflectedColor", "reflectedColorR", "reflectedColorG", "reflectedColorB", "triangleNormalCamera", "triangleNormalCameraX", "triangleNormalCameraY", "triangleNormalCameraZ", "reflectionSpecularity", "eccentricity", "specularRollOff", "reflectionRolloff"]
         attrCheck = ["color","transparency","ambientColor","normalCamera","diffuse","translucence","translucenceDepth","translucenceFocus","eccentricity","specularRollOff","specularColor","reflectivity","reflectedColor"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "phong"
-        remAttrList = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB", "reflectionLimit", "specularColor", "specularColorR", "specularColorG", "specularColorB", "reflectivity", "reflectedColor", "reflectedColorR", "reflectedColorG", "reflectedColorB", "triangleNormalCamera", "triangleNormalCameraX", "triangleNormalCameraY", "triangleNormalCameraZ", "reflectionSpecularity", "cosinePower"]
+        object_type = "phong"
+        remove_attr_List = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB", "reflectionLimit", "specularColor", "specularColorR", "specularColorG", "specularColorB", "reflectivity", "reflectedColor", "reflectedColorR", "reflectedColorG", "reflectedColorB", "triangleNormalCamera", "triangleNormalCameraX", "triangleNormalCameraY", "triangleNormalCameraZ", "reflectionSpecularity", "cosinePower"]
         attrCheck = ["color","transparency","ambientColor","normalCamera","diffuse","translucence","translucenceDepth","translucenceFocus","cosinePower","specularColor","reflectivity","reflectedColor"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "lambert"
-        remAttrList = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB"]
+        object_type = "lambert"
+        remove_attr_List = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB"]
         attrCheck = ["color","transparency","ambientColor","incandescence","diffuse","translucence","translucenceDepth","translucenceFocus"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "surfaceShader"
-        remAttrList = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","outColor","outColorR","outColorG","outColorB","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","outMatteOpacity","outMatteOpacityR","outMatteOpacityG","outMatteOpacityB","outGlowColor","outGlowColorR","outGlowColorG","outGlowColorB","materialAlphaGain"]
+        object_type = "surfaceShader"
+        remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","outColor","outColorR","outColorG","outColorB","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","outMatteOpacity","outMatteOpacityR","outMatteOpacityG","outMatteOpacityB","outGlowColor","outGlowColorR","outGlowColorG","outGlowColorB","materialAlphaGain"]
         attrCheck = ["outColor","outTransparency","outGlowColor","outMatteOpacity"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "place2dTexture"
-        remAttrList = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","uvCoord","uCoord","vCoord","vertexUvOne","vertexUvOneU","vertexUvOneV","vertexUvTwo","vertexUvTwoU","vertexUvTwoV","vertexUvThree","vertexUvThreeU","vertexUvThreeV","vertexCameraOne","vertexCameraOneX","vertexCameraOneY","vertexCameraOneZ","uvFilterSize","uvFilterSizeX","uvFilterSizeY","coverage","coverageU","coverageV","translateFrame","translateFrameU","translateFrameV","rotateFrame","mirrorU","mirrorV","stagger","wrapU","wrapV","repeatUV","repeatU","repeatV","offset","offsetU","offsetV","rotateUV","noiseUV","noiseU","noiseV","fast","outUV","outU","outV","outUvFilterSize","outUvFilterSizeX","outUvFilterSizeY","doTransform"]
+        object_type = "place2dTexture"
+        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","uvCoord","uCoord","vCoord","vertexUvOne","vertexUvOneU","vertexUvOneV","vertexUvTwo","vertexUvTwoU","vertexUvTwoV","vertexUvThree","vertexUvThreeU","vertexUvThreeV","vertexCameraOne","vertexCameraOneX","vertexCameraOneY","vertexCameraOneZ","uvFilterSize","uvFilterSizeX","uvFilterSizeY","coverage","coverageU","coverageV","translateFrame","translateFrameU","translateFrameV","rotateFrame","mirrorU","mirrorV","stagger","wrapU","wrapV","repeatUV","repeatU","repeatV","offset","offsetU","offsetV","rotateUV","noiseUV","noiseU","noiseV","fast","outUV","outU","outV","outUvFilterSize","outUvFilterSizeX","outUvFilterSizeY","doTransform"]
         attrCheck = ["coverageU","coverageV","translateFrameU","translateFrameV","rotateFrame","mirrorU","mirrorV","wrapU","wrapV","stagger","repeatU","repeatV","offsetU","offsetV","rotateUV","noiseU","noiseV","fast"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "file"
-        remAttrList = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","filter","filterOffset","invert","alphaIsLuminance","colorGain","colorGainR","colorGainG","colorGainB","colorOffset","colorOffsetR","colorOffsetG","colorOffsetB","alphaGain","alphaOffset","defaultColor","defaultColorR","defaultColorG","defaultColorB","outColor","outColorR","outColorG","outColorB","outAlpha","fileTextureName","fileTextureNamePattern","computedFileTextureNamePattern","disableFileLoad","useFrameExtension","frameExtension","frameOffset","useHardwareTextureCycling","startCycleExtension","endCycleExtension","byCycleIncrement","forceSwatchGen","filterType","filterWidth","preFilter","preFilterRadius","useCache","useMaximumRes","uvTilingMode","explicitUvTiles","explicitUvTiles.explicitUvTileName","explicitUvTiles.explicitUvTilePosition","explicitUvTiles.explicitUvTilePositionU","explicitUvTiles.explicitUvTilePositionV","baseExplicitUvTilePosition","baseExplicitUvTilePositionU","baseExplicitUvTilePositionV","uvTileProxyDirty","uvTileProxyGenerate","uvTileProxyQuality","coverage","coverageU","coverageV","translateFrame","translateFrameU","translateFrameV","rotateFrame","doTransform","mirrorU","mirrorV","stagger","wrapU","wrapV","repeatUV","repeatU","repeatV","offset","offsetU","offsetV","rotateUV","noiseUV","noiseU","noiseV","blurPixelation","vertexCameraOne","vertexCameraOneX","vertexCameraOneY","vertexCameraOneZ","vertexCameraTwo","vertexCameraTwoX","vertexCameraTwoY","vertexCameraTwoZ","vertexCameraThree","vertexCameraThreeX","vertexCameraThreeY","vertexCameraThreeZ","vertexUvOne","vertexUvOneU","vertexUvOneV","vertexUvTwo","vertexUvTwoU","vertexUvTwoV","vertexUvThree","vertexUvThreeU","vertexUvThreeV","objectType","rayDepth","primitiveId","pixelCenter","pixelCenterX","pixelCenterY","exposure","hdrMapping","hdrExposure","dirtyPixelRegion","ptexFilterType","ptexFilterWidth","ptexFilterBlur","ptexFilterSharpness","ptexFilterInterpolateLevels","colorProfile","colorSpace","ignoreColorSpaceFileRules","workingSpace","colorManagementEnabled","colorManagementConfigFileEnabled","colorManagementConfigFilePath","outSize","outSizeX","outSizeY","fileHasAlpha","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","infoBits"]
+        object_type = "file"
+        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","filter","filterOffset","invert","alphaIsLuminance","colorGain","colorGainR","colorGainG","colorGainB","colorOffset","colorOffsetR","colorOffsetG","colorOffsetB","alphaGain","alphaOffset","defaultColor","defaultColorR","defaultColorG","defaultColorB","outColor","outColorR","outColorG","outColorB","outAlpha","fileTextureName","fileTextureNamePattern","computedFileTextureNamePattern","disableFileLoad","useFrameExtension","frameExtension","frameOffset","useHardwareTextureCycling","startCycleExtension","endCycleExtension","byCycleIncrement","forceSwatchGen","filterType","filterWidth","preFilter","preFilterRadius","useCache","useMaximumRes","uvTilingMode","explicitUvTiles","explicitUvTiles.explicitUvTileName","explicitUvTiles.explicitUvTilePosition","explicitUvTiles.explicitUvTilePositionU","explicitUvTiles.explicitUvTilePositionV","baseExplicitUvTilePosition","baseExplicitUvTilePositionU","baseExplicitUvTilePositionV","uvTileProxyDirty","uvTileProxyGenerate","uvTileProxyQuality","coverage","coverageU","coverageV","translateFrame","translateFrameU","translateFrameV","rotateFrame","doTransform","mirrorU","mirrorV","stagger","wrapU","wrapV","repeatUV","repeatU","repeatV","offset","offsetU","offsetV","rotateUV","noiseUV","noiseU","noiseV","blurPixelation","vertexCameraOne","vertexCameraOneX","vertexCameraOneY","vertexCameraOneZ","vertexCameraTwo","vertexCameraTwoX","vertexCameraTwoY","vertexCameraTwoZ","vertexCameraThree","vertexCameraThreeX","vertexCameraThreeY","vertexCameraThreeZ","vertexUvOne","vertexUvOneU","vertexUvOneV","vertexUvTwo","vertexUvTwoU","vertexUvTwoV","vertexUvThree","vertexUvThreeU","vertexUvThreeV","objectType","rayDepth","primitiveId","pixelCenter","pixelCenterX","pixelCenterY","exposure","hdrMapping","hdrExposure","dirtyPixelRegion","ptexFilterType","ptexFilterWidth","ptexFilterBlur","ptexFilterSharpness","ptexFilterInterpolateLevels","colorProfile","colorSpace","ignoreColorSpaceFileRules","workingSpace","colorManagementEnabled","colorManagementConfigFileEnabled","colorManagementConfigFilePath","outSize","outSizeX","outSizeY","fileHasAlpha","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","infoBits"]
         attrCheck = ["exposure","defaultColor","colorGain","colorOffset","alphaGain","alphaOffset","alphaIsLuminance","invert"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "layeredTexture"
-        remAttrList = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","inputs","inputs.color","inputs.colorR","inputs.colorG","inputs.colorB","inputs.alpha","inputs.blendMode","inputs.isVisible","outColor","outColorR","outColorG","outColorB","outAlpha","hardwareColor","hardwareColorR","hardwareColorG","hardwareColorB","alphaIsLuminance","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB"]
+        object_type = "layered_textures"
+        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","inputs","inputs.color","inputs.colorR","inputs.colorG","inputs.colorB","inputs.alpha","inputs.blendMode","inputs.isVisible","outColor","outColorR","outColorG","outColorB","outAlpha","hardwareColor","hardwareColorR","hardwareColorG","hardwareColorB","alphaIsLuminance","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB"]
         attrCheck = ["alphaIsLuminance","inputs.isVisible","inputs.alpha","inputs.color","inputs.blendMode"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "VRayBlendMtl"
-        remAttrList = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","swatchAutoUpdate","swatchAlwaysRender","swatchExplicitUpdate","swatchMaxRes","base_material","base_materialR","base_materialG","base_materialB","color","colorR","colorG","colorB","viewportColor","viewportColorR","viewportColorG","viewportColorB","coat_material_0","coat_material_0R","coat_material_0G","coat_material_0B","blend_amount_0","blend_amount_0R","blend_amount_0G","blend_amount_0B","coat_material_1","coat_material_1R","coat_material_1G","coat_material_1B","blend_amount_1","blend_amount_1R","blend_amount_1G","blend_amount_1B","coat_material_2","coat_material_2R","coat_material_2G","coat_material_2B","blend_amount_2","blend_amount_2R","blend_amount_2G","blend_amount_2B","coat_material_3","coat_material_3R","coat_material_3G","coat_material_3B","blend_amount_3","blend_amount_3R","blend_amount_3G","blend_amount_3B","coat_material_4","coat_material_4R","coat_material_4G","coat_material_4B","blend_amount_4","blend_amount_4R","blend_amount_4G","blend_amount_4B","coat_material_5","coat_material_5R","coat_material_5G","coat_material_5B","blend_amount_5","blend_amount_5R","blend_amount_5G","blend_amount_5B","coat_material_6","coat_material_6R","coat_material_6G","coat_material_6B","blend_amount_6","blend_amount_6R","blend_amount_6G","blend_amount_6B","coat_material_7","coat_material_7R","coat_material_7G","coat_material_7B","blend_amount_7","blend_amount_7R","blend_amount_7G","blend_amount_7B","coat_material_8","coat_material_8R","coat_material_8G","coat_material_8B","blend_amount_8","blend_amount_8R","blend_amount_8G","blend_amount_8B","additive_mode","outColor","outColorR","outColorG","outColorB","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","outApiType","outApiClassification"]
+        object_type = "VRayBlendMtl"
+        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","swatchAutoUpdate","swatchAlwaysRender","swatchExplicitUpdate","swatchMaxRes","base_material","base_materialR","base_materialG","base_materialB","color","colorR","colorG","colorB","viewportColor","viewportColorR","viewportColorG","viewportColorB","coat_material_0","coat_material_0R","coat_material_0G","coat_material_0B","blend_amount_0","blend_amount_0R","blend_amount_0G","blend_amount_0B","coat_material_1","coat_material_1R","coat_material_1G","coat_material_1B","blend_amount_1","blend_amount_1R","blend_amount_1G","blend_amount_1B","coat_material_2","coat_material_2R","coat_material_2G","coat_material_2B","blend_amount_2","blend_amount_2R","blend_amount_2G","blend_amount_2B","coat_material_3","coat_material_3R","coat_material_3G","coat_material_3B","blend_amount_3","blend_amount_3R","blend_amount_3G","blend_amount_3B","coat_material_4","coat_material_4R","coat_material_4G","coat_material_4B","blend_amount_4","blend_amount_4R","blend_amount_4G","blend_amount_4B","coat_material_5","coat_material_5R","coat_material_5G","coat_material_5B","blend_amount_5","blend_amount_5R","blend_amount_5G","blend_amount_5B","coat_material_6","coat_material_6R","coat_material_6G","coat_material_6B","blend_amount_6","blend_amount_6R","blend_amount_6G","blend_amount_6B","coat_material_7","coat_material_7R","coat_material_7G","coat_material_7B","blend_amount_7","blend_amount_7R","blend_amount_7G","blend_amount_7B","coat_material_8","coat_material_8R","coat_material_8G","coat_material_8B","blend_amount_8","blend_amount_8R","blend_amount_8G","blend_amount_8B","additive_mode","outColor","outColorR","outColorG","outColorB","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","outApiType","outApiClassification"]
         attrCheck = ["base_material","additive_mode","coat_material_0","blend_amount_0","coat_material_1","blend_amount_1","coat_material_2","blend_amount_2","coat_material_3","blend_amount_3","coat_material_4","blend_amount_4","coat_material_5","blend_amount_5","coat_material_6","blend_amount_6","coat_material_7","blend_amount_7","coat_material_8","blend_amount_8"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "displacementShader"
-        remAttrList = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","displacementMode","displacement","vectorDisplacement","vectorDisplacementX","vectorDisplacementY","vectorDisplacementZ","scale","vectorEncoding","vectorSpace","yIsUp","tangent","tangentX","tangentY","tangentZ"]
+        object_type = "displacementShader"
+        remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","displacementMode","displacement","vectorDisplacement","vectorDisplacementX","vectorDisplacementY","vectorDisplacementZ","scale","vectorEncoding","vectorSpace","yIsUp","tangent","tangentX","tangentY","tangentZ"]
         attrCheck = ["displacement","vectorDisplacementX","vectorDisplacementY","vectorDisplacementZ","scale","vectorEncoding","vectorSpace","tangentX","tangentY","tangentZ","nodeState","caching","displacementMode"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
-        objType = "VRayDisplacement"
-        remAttrList = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","dagSetMembers","dnSetMembers","memberWireframeColor","annotation","isLayer","verticesOnlySet","edgesOnlySet","facetsOnlySet","editPointsOnlySet","renderableOnlySet","partition","groupNodes","usedBy","displacement","overrideGlobalDisplacement","outApiType","outApiClassification","vraySeparator_vray_displacement","vrayDisplacementNone","vrayDisplacementStatic","vrayDisplacementType","vrayDisplacementAmount","vrayDisplacementShift","vrayDisplacementKeepContinuity","vrayEnableWaterLevel","vrayWaterLevel","vrayDisplacementCacheNormals","vray2dDisplacementResolution","vray2dDisplacementPrecision","vray2dDisplacementTightBounds","vray2dDisplacementMultiTile","vray2dDisplacementFilterTexture","vray2dDisplacementFilterBlur","vrayDisplacementUseBounds","vrayDisplacementMinValue","vrayDisplacementMinValueR","vrayDisplacementMinValueG","vrayDisplacementMinValueB","vrayDisplacementMaxValue","vrayDisplacementMaxValueR","vrayDisplacementMaxValueG","vrayDisplacementMaxValueB","vraySeparator_vray_subquality","vrayOverrideGlobalSubQual","vrayViewDep","vrayEdgeLength","vrayMaxSubdivs"]
+        object_type = "VRayDisplacement"
+        remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","dagSetMembers","dnSetMembers","memberWireframeColor","annotation","isLayer","verticesOnlySet","edgesOnlySet","facetsOnlySet","editPointsOnlySet","renderableOnlySet","partition","groupNodes","usedBy","displacement","overrideGlobalDisplacement","outApiType","outApiClassification","vraySeparator_vray_displacement","vrayDisplacementNone","vrayDisplacementStatic","vrayDisplacementType","vrayDisplacementAmount","vrayDisplacementShift","vrayDisplacementKeepContinuity","vrayEnableWaterLevel","vrayWaterLevel","vrayDisplacementCacheNormals","vray2dDisplacementResolution","vray2dDisplacementPrecision","vray2dDisplacementTightBounds","vray2dDisplacementMultiTile","vray2dDisplacementFilterTexture","vray2dDisplacementFilterBlur","vrayDisplacementUseBounds","vrayDisplacementMinValue","vrayDisplacementMinValueR","vrayDisplacementMinValueG","vrayDisplacementMinValueB","vrayDisplacementMaxValue","vrayDisplacementMaxValueR","vrayDisplacementMaxValueG","vrayDisplacementMaxValueB","vraySeparator_vray_subquality","vrayOverrideGlobalSubQual","vrayViewDep","vrayEdgeLength","vrayMaxSubdivs"]
         attrCheck = ["overrideGlobalDisplacement","displacement","caching","nodeState","blackBox","vrayDisplacementNone","vrayDisplacementStatic","vrayDisplacementType","vrayDisplacementAmount","vrayDisplacementShift","vrayEdgeLength","vrayMaxSubdivs","vrayDisplacementUseBounds"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        matOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        materialsOverideDIC = matOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        materialsOverideDIC = matOverides.attr_override_detect()
 
         return(materialsOverideDIC)
 
-    def cameraOverides(objectsCheck,renderLayers):
+    def cameraOverides(object_check,render_layers):
         cameraOveridesDIC = {}
-        attrOveridesDIC = cameraOveridesDIC
-        objLabel = "camera_overide"
-        objType = "camera"
-        remAttrList =  ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "hyperLayout", "isCollapsed", "blackBox", "borderConnections", "isHierarchicalConnection", "publishedNodeInfo", "publishedNodeInfo.publishedNode", "publishedNodeInfo.isHierarchicalNode", "publishedNodeInfo.publishedNodeType", "rmbCommand", "templateName", "templatePath", "viewName", "iconName", "viewMode", "templateVersion", "uiTreatment", "customTreatment", "creator", "creationDate", "containerType", "boundingBox", "boundingBoxMin", "boundingBoxMinX", "boundingBoxMinY", "boundingBoxMinZ", "boundingBoxMax", "boundingBoxMaxX", "boundingBoxMaxY", "boundingBoxMaxZ", "boundingBoxSize", "boundingBoxSizeX", "boundingBoxSizeY", "boundingBoxSizeZ", "center", "boundingBoxCenterX", "boundingBoxCenterY", "boundingBoxCenterZ", "matrix", "inverseMatrix", "worldMatrix", "worldInverseMatrix", "parentMatrix", "parentInverseMatrix", "visibility", "intermediateObject", "template", "ghosting", "instObjGroups", "instObjGroups.objectGroups", "instObjGroups.objectGroups.objectGrpCompList", "instObjGroups.objectGroups.objectGroupId", "instObjGroups.objectGroups.objectGrpColor", "objectColorRGB", "objectColorR", "objectColorG", "objectColorB", "useObjectColor", "objectColor", "drawOverride", "overrideDisplayType", "overrideLevelOfDetail", "overrideShading", "overrideTexturing", "overridePlayback", "overrideEnabled", "overrideVisibility", "overrideColor", "lodVisibility", "selectionChildHighlighting", "renderInfo", "identification", "layerRenderable", "layerOverrideColor", "renderLayerInfo", "renderLayerInfo.renderLayerId", "renderLayerInfo.renderLayerRenderable", "renderLayerInfo.renderLayerColor", "ghostingControl", "ghostCustomSteps", "ghostPreSteps", "ghostPostSteps", "ghostStepSize", "ghostFrames", "ghostColorPreA", "ghostColorPre", "ghostColorPreR", "ghostColorPreG", "ghostColorPreB", "ghostColorPostA", "ghostColorPost", "ghostColorPostR", "ghostColorPostG", "ghostColorPostB", "ghostRangeStart", "ghostRangeEnd", "ghostDriver", "hiddenInOutliner", "renderable", "cameraAperture", "horizontalFilmAperture", "verticalFilmAperture", "shakeOverscan", "shakeOverscanEnabled", "filmOffset", "horizontalFilmOffset", "verticalFilmOffset", "shakeEnabled", "shake", "horizontalShake", "verticalShake", "stereoHorizontalImageTranslateEnabled", "stereoHorizontalImageTranslate", "postProjection", "preScale", "filmTranslate", "filmTranslateH", "filmTranslateV", "filmRollControl", "filmRollPivot", "horizontalRollPivot", "verticalRollPivot", "filmRollValue", "filmRollOrder", "postScale", "filmFit", "filmFitOffset", "overscan", "panZoomEnabled", "renderPanZoom", "pan", "horizontalPan", "verticalPan", "zoom", "focalLength", "lensSqueezeRatio", "cameraScale", "triggerUpdate", "nearClipPlane", "farClipPlane", "fStop", "focusDistance", "shutterAngle", "centerOfInterest", "orthographicWidth", "imageName", "depthName", "maskName", "tumblePivot", "tumblePivotX", "tumblePivotY", "tumblePivotZ", "usePivotAsLocalSpace", "imagePlane", "homeCommand", "bookmarks", "locatorScale", "displayGateMaskOpacity", "displayGateMask", "displayFilmGate", "displayResolution", "displaySafeAction", "displaySafeTitle", "displayFieldChart", "displayFilmPivot", "displayFilmOrigin", "clippingPlanes", "bestFitClippingPlanes", "depthOfField", "motionBlur", "orthographic", "journalCommand", "image", "depth", "transparencyBasedDepth", "threshold", "depthType", "useExploreDepthFormat", "mask", "displayGateMaskColor", "displayGateMaskColorR", "displayGateMaskColorG", "displayGateMaskColorB", "backgroundColor", "backgroundColorR", "backgroundColorG", "backgroundColorB", "focusRegionScale", "displayCameraNearClip", "displayCameraFarClip", "displayCameraFrustum", "cameraPrecompTemplate", "vraySeparator_vray_cameraPhysical", "vrayCameraPhysicalOn", "vrayCameraPhysicalType", "vrayCameraPhysicalFilmWidth", "vrayCameraPhysicalFocalLength", "vrayCameraPhysicalSpecifyFOV", "vrayCameraPhysicalFOV", "vrayCameraPhysicalZoomFactor", "vrayCameraPhysicalDistortionType", "vrayCameraPhysicalDistortion", "vrayCameraPhysicalLensFile", "vrayCameraPhysicalDistortionMap", "vrayCameraPhysicalDistortionMapR", "vrayCameraPhysicalDistortionMapG", "vrayCameraPhysicalDistortionMapB", "vrayCameraPhysicalFNumber", "vrayCameraPhysicalHorizLensShift", "vrayCameraPhysicalLensShift", "vrayCameraPhysicalLensAutoVShift", "vrayCameraPhysicalShutterSpeed", "vrayCameraPhysicalShutterAngle", "vrayCameraPhysicalShutterOffset", "vrayCameraPhysicalLatency", "vrayCameraPhysicalISO", "vrayCameraPhysicalSpecifyFocus", "vrayCameraPhysicalFocusDistance", "vrayCameraPhysicalExposure", "vrayCameraPhysicalWhiteBalance", "vrayCameraPhysicalWhiteBalanceR", "vrayCameraPhysicalWhiteBalanceG", "vrayCameraPhysicalWhiteBalanceB", "vrayCameraPhysicalVignetting", "vrayCameraPhysicalVignettingAmount", "vrayCameraPhysicalBladesEnable", "vrayCameraPhysicalBladesNum", "vrayCameraPhysicalBladesRotation", "vrayCameraPhysicalCenterBias", "vrayCameraPhysicalAnisotropy", "vrayCameraPhysicalUseDof", "vrayCameraPhysicalUseMoBlur", "vrayCameraPhysicalApertureMap", "vrayCameraPhysicalApertureMapR", "vrayCameraPhysicalApertureMapG", "vrayCameraPhysicalApertureMapB", "vrayCameraPhysicalApertureMapAffectsExposure", "vrayCameraPhysicalOpticalVignetting", "vraySeparator_vray_cameraOverrides", "vrayCameraOverridesOn", "vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist", "vrayCameraCurve",]
+        attr_overrides_DIC = cameraOveridesDIC
+        object_label = "camera_overide"
+        object_type = "camera"
+        remove_attr_List =  ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "hyperLayout", "isCollapsed", "blackBox", "borderConnections", "isHierarchicalConnection", "publishedNodeInfo", "publishedNodeInfo.publishedNode", "publishedNodeInfo.isHierarchicalNode", "publishedNodeInfo.publishedNodeType", "rmbCommand", "templateName", "templatePath", "viewName", "iconName", "viewMode", "templateVersion", "uiTreatment", "customTreatment", "creator", "creationDate", "containerType", "boundingBox", "boundingBoxMin", "boundingBoxMinX", "boundingBoxMinY", "boundingBoxMinZ", "boundingBoxMax", "boundingBoxMaxX", "boundingBoxMaxY", "boundingBoxMaxZ", "boundingBoxSize", "boundingBoxSizeX", "boundingBoxSizeY", "boundingBoxSizeZ", "center", "boundingBoxCenterX", "boundingBoxCenterY", "boundingBoxCenterZ", "matrix", "inverseMatrix", "worldMatrix", "worldInverseMatrix", "parentMatrix", "parentInverseMatrix", "visibility", "intermediateObject", "template", "ghosting", "instObjGroups", "instObjGroups.objectGroups", "instObjGroups.objectGroups.objectGrpCompList", "instObjGroups.objectGroups.objectGroupId", "instObjGroups.objectGroups.objectGrpColor", "objectColorRGB", "objectColorR", "objectColorG", "objectColorB", "useObjectColor", "objectColor", "drawOverride", "overrideDisplayType", "overrideLevelOfDetail", "overrideShading", "overrideTexturing", "overridePlayback", "overrideEnabled", "overrideVisibility", "overrideColor", "lodVisibility", "selectionChildHighlighting", "renderInfo", "identification", "layerRenderable", "layerOverrideColor", "renderLayerInfo", "renderLayerInfo.renderLayerId", "renderLayerInfo.renderLayerRenderable", "renderLayerInfo.renderLayerColor", "ghostingControl", "ghostCustomSteps", "ghostPreSteps", "ghostPostSteps", "ghostStepSize", "ghostFrames", "ghostColorPreA", "ghostColorPre", "ghostColorPreR", "ghostColorPreG", "ghostColorPreB", "ghostColorPostA", "ghostColorPost", "ghostColorPostR", "ghostColorPostG", "ghostColorPostB", "ghostRangeStart", "ghostRangeEnd", "ghostDriver", "hiddenInOutliner", "renderable", "cameraAperture", "horizontalFilmAperture", "verticalFilmAperture", "shakeOverscan", "shakeOverscanEnabled", "filmOffset", "horizontalFilmOffset", "verticalFilmOffset", "shakeEnabled", "shake", "horizontalShake", "verticalShake", "stereoHorizontalImageTranslateEnabled", "stereoHorizontalImageTranslate", "postProjection", "preScale", "filmTranslate", "filmTranslateH", "filmTranslateV", "filmRollControl", "filmRollPivot", "horizontalRollPivot", "verticalRollPivot", "filmRollValue", "filmRollOrder", "postScale", "filmFit", "filmFitOffset", "overscan", "panZoomEnabled", "renderPanZoom", "pan", "horizontalPan", "verticalPan", "zoom", "focalLength", "lensSqueezeRatio", "cameraScale", "triggerUpdate", "nearClipPlane", "farClipPlane", "fStop", "focusDistance", "shutterAngle", "centerOfInterest", "orthographicWidth", "imageName", "depthName", "maskName", "tumblePivot", "tumblePivotX", "tumblePivotY", "tumblePivotZ", "usePivotAsLocalSpace", "imagePlane", "homeCommand", "bookmarks", "locatorScale", "displayGateMaskOpacity", "displayGateMask", "displayFilmGate", "displayResolution", "displaySafeAction", "displaySafeTitle", "displayFieldChart", "displayFilmPivot", "displayFilmOrigin", "clippingPlanes", "bestFitClippingPlanes", "depthOfField", "motionBlur", "orthographic", "journalCommand", "image", "depth", "transparencyBasedDepth", "threshold", "depthType", "useExploreDepthFormat", "mask", "displayGateMaskColor", "displayGateMaskColorR", "displayGateMaskColorG", "displayGateMaskColorB", "backgroundColor", "backgroundColorR", "backgroundColorG", "backgroundColorB", "focusRegionScale", "displayCameraNearClip", "displayCameraFarClip", "displayCameraFrustum", "cameraPrecompTemplate", "vraySeparator_vray_cameraPhysical", "vrayCameraPhysicalOn", "vrayCameraPhysicalType", "vrayCameraPhysicalFilmWidth", "vrayCameraPhysicalFocalLength", "vrayCameraPhysicalSpecifyFOV", "vrayCameraPhysicalFOV", "vrayCameraPhysicalZoomFactor", "vrayCameraPhysicalDistortionType", "vrayCameraPhysicalDistortion", "vrayCameraPhysicalLensFile", "vrayCameraPhysicalDistortionMap", "vrayCameraPhysicalDistortionMapR", "vrayCameraPhysicalDistortionMapG", "vrayCameraPhysicalDistortionMapB", "vrayCameraPhysicalFNumber", "vrayCameraPhysicalHorizLensShift", "vrayCameraPhysicalLensShift", "vrayCameraPhysicalLensAutoVShift", "vrayCameraPhysicalShutterSpeed", "vrayCameraPhysicalShutterAngle", "vrayCameraPhysicalShutterOffset", "vrayCameraPhysicalLatency", "vrayCameraPhysicalISO", "vrayCameraPhysicalSpecifyFocus", "vrayCameraPhysicalFocusDistance", "vrayCameraPhysicalExposure", "vrayCameraPhysicalWhiteBalance", "vrayCameraPhysicalWhiteBalanceR", "vrayCameraPhysicalWhiteBalanceG", "vrayCameraPhysicalWhiteBalanceB", "vrayCameraPhysicalVignetting", "vrayCameraPhysicalVignettingAmount", "vrayCameraPhysicalBladesEnable", "vrayCameraPhysicalBladesNum", "vrayCameraPhysicalBladesRotation", "vrayCameraPhysicalCenterBias", "vrayCameraPhysicalAnisotropy", "vrayCameraPhysicalUseDof", "vrayCameraPhysicalUseMoBlur", "vrayCameraPhysicalApertureMap", "vrayCameraPhysicalApertureMapR", "vrayCameraPhysicalApertureMapG", "vrayCameraPhysicalApertureMapB", "vrayCameraPhysicalApertureMapAffectsExposure", "vrayCameraPhysicalOpticalVignetting", "vraySeparator_vray_cameraOverrides", "vrayCameraOverridesOn", "vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist", "vrayCameraCurve",]
         attrCheck = ["vraySeparator_vray_cameraPhysical","vrayCameraPhysicalOn","vrayCameraPhysicalType","vrayCameraPhysicalFilmWidth","vrayCameraPhysicalFocalLength","vrayCameraPhysicalSpecifyFOV","vrayCameraPhysicalFOV","vrayCameraPhysicalZoomFactor","vrayCameraPhysicalDistortionType","vrayCameraPhysicalDistortion","vrayCameraPhysicalLensFile","vrayCameraPhysicalDistortionMap","vrayCameraPhysicalDistortionMapR",
         "vrayCameraPhysicalDistortionMapG","vrayCameraPhysicalDistortionMapB","vrayCameraPhysicalFNumber","vrayCameraPhysicalHorizLensShift","vrayCameraPhysicalLensShift","vrayCameraPhysicalLensAutoVShift","vrayCameraPhysicalShutterSpeed","vrayCameraPhysicalShutterAngle","vrayCameraPhysicalShutterOffset","vrayCameraPhysicalLatency","vrayCameraPhysicalISO","vrayCameraPhysicalSpecifyFocus","vrayCameraPhysicalFocusDistance",
         "vrayCameraPhysicalExposure","vrayCameraPhysicalWhiteBalance","vrayCameraPhysicalWhiteBalanceR","vrayCameraPhysicalWhiteBalanceG","vrayCameraPhysicalWhiteBalanceB","vrayCameraPhysicalVignetting","vrayCameraPhysicalVignettingAmount","vrayCameraPhysicalBladesEnable","vrayCameraPhysicalBladesNum","vrayCameraPhysicalBladesRotation","vrayCameraPhysicalCenterBias","vrayCameraPhysicalAnisotropy","vrayCameraPhysicalUseDof","vrayCameraPhysicalUseMoBlur"
         ,"vrayCameraPhysicalApertureMap","vrayCameraPhysicalApertureMapR","vrayCameraPhysicalApertureMapG","vrayCameraPhysicalApertureMapB","vrayCameraPhysicalApertureMapAffectsExposure","vrayCameraPhysicalOpticalVignetting","vraySeparator_vray_cameraOverrides","vrayCameraOverridesOn","vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist", "vrayCameraCurve","renderable"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        cameraOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        cameraOveridesDIC = cameraOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        cameraOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        cameraOveridesDIC = cameraOverides.attr_override_detect()
 
         return(cameraOveridesDIC)
 
-    def lightOverides(objectsCheck,renderLayers):
+    def lightOverides(object_check,render_layers):
         lightOveridesDIC = {}
-        attrOveridesDIC = lightOveridesDIC
-        objLabel = "light_overide"
-        objType = "VRayLightRectShape"
-        remAttrList = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType"
+        attr_overrides_DIC = lightOveridesDIC
+        object_label = "light_overide"
+        object_type = "VRayLightRectShape"
+        remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType"
         ,"rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY",
         "boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template"
         ,"ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","useObjectColor","objectColor","drawOverride",
@@ -437,71 +437,71 @@ def overideInfoFunc(renderLayers):
         attrCheck = ["lightColor","intensityMult","shapeType","uSize","vSize","directional","useRectTex","rectTex","noDecay","doubleSided","invisible","skylightPortal","simpleSkylightPortal","affectDiffuse","affectSpecular","affectReflections","shadows","shadowColor","shadowBias","visibility","colorR","colorG","colorB","emitDiffuse","emitSpecular",
         "decayRate","attributeAliasList","diffuseContrib","specularContrib","enabled"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        lightOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        lightOveridesDIC = lightOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        lightOveridesDIC = lightOverides.attr_override_detect()
 
-        objType = "spotLight"
-        remAttrList = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","coneAngle","penumbraAngle","dropoff","barnDoors","leftBarnDoor","rightBarnDoor","topBarnDoor","bottomBarnDoor","useDecayRegions","startDistance1","endDistance1","startDistance2","endDistance2","startDistance3","endDistance3","fogSpread","fogIntensity","objectType","pointWorld","pointWorldX","pointWorldY","pointWorldZ","farPointWorld","farPointWorldX","farPointWorldY","farPointWorldZ","rayDirection","rayDirectionX","rayDirectionY","rayDirectionZ","fogGeometry","lightGlow","psIllumSamples"]
+        object_type = "spotLight"
+        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","coneAngle","penumbraAngle","dropoff","barnDoors","leftBarnDoor","rightBarnDoor","topBarnDoor","bottomBarnDoor","useDecayRegions","startDistance1","endDistance1","startDistance2","endDistance2","startDistance3","endDistance3","fogSpread","fogIntensity","objectType","pointWorld","pointWorldX","pointWorldY","pointWorldZ","farPointWorld","farPointWorldX","farPointWorldY","farPointWorldZ","rayDirection","rayDirectionX","rayDirectionY","rayDirectionZ","fogGeometry","lightGlow","psIllumSamples"]
         attrCheck = ["color","intensity","emitDiffuse","emitSpecular","decayRate","coneAngle","penumbraAngle","dropoff","shadowColor","useRayTraceShadows","lightRadius","shadowRays","rayDepthLimit","useDepthMapShadows","dmapResolution","useMidDistDmap","useDmapAutoFocus","dmapFocus","dmapFilterSize","dmapBias","fogShadowIntensity","volumeShadowSamples"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        lightOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        lightOveridesDIC = lightOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        lightOveridesDIC = lightOverides.attr_override_detect()
 
-        objType = "ambientLight"
-        remAttrList = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","ambientShade","objectType","shadowRadius","castSoftShadows","normalCamera","normalCameraX","normalCameraY","normalCameraZ","receiveShadows"]
+        object_type = "ambientLight"
+        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","ambientShade","objectType","shadowRadius","castSoftShadows","normalCamera","normalCameraX","normalCameraY","normalCameraZ","receiveShadows"]
         attrCheck = ["color","intensity","ambientShade"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        lightOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        lightOveridesDIC = lightOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        lightOveridesDIC = lightOverides.attr_override_detect()
 
-        objType = "directionalLight"
-        remAttrList = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","useLightPosition","objectType","lightAngle","pointWorld","pointWorldX","pointWorldY","pointWorldZ"]
+        object_type = "directionalLight"
+        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","useLightPosition","objectType","lightAngle","pointWorld","pointWorldX","pointWorldY","pointWorldZ"]
         attrCheck = ["color","intensity","emitDiffuse","emitSpecular"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        lightOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        lightOveridesDIC = lightOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        lightOveridesDIC = lightOverides.attr_override_detect()
 
-        objType = "pointLight"
-        remAttrList = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","fogGeometry","fogRadius","lightGlow","objectType","fogType","pointWorld","pointWorldX","pointWorldY","pointWorldZ","farPointWorld","farPointWorldX","farPointWorldY","farPointWorldZ","fogIntensity"]
+        object_type = "pointLight"
+        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","fogGeometry","fogRadius","lightGlow","objectType","fogType","pointWorld","pointWorldX","pointWorldY","pointWorldZ","farPointWorld","farPointWorldX","farPointWorldY","farPointWorldZ","fogIntensity"]
         attrCheck = ["color","intensity","emitDiffuse","emitSpecular","decayRate"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        lightOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        lightOveridesDIC = lightOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        lightOveridesDIC = lightOverides.attr_override_detect()
 
         return(lightOveridesDIC)
 
-    def vraySettingsOverides(objectsCheck,renderLayers):
+    def vraySettingsOverides(object_check,render_layers):
         vraySettingsOverrideDic = {}
-        attrOveridesDIC = vraySettingsOverrideDic
-        objLabel = "vs"
+        attr_overrides_DIC = vraySettingsOverrideDic
+        object_label = "vs"
         cmds.loadPlugin('vrayformaya', quiet=True)
         cmds.pluginInfo('vrayformaya', edit=True, autoload=True)
         cmds.setAttr("defaultRenderGlobals.ren", "vray", type = "string")
 
-        objType = "VRaySettingsNode"
-        remAttrList =  cmds.listAttr("vraySettings")
+        object_type = "VRaySettingsNode"
+        remove_attr_List =  cmds.listAttr("vraySettings")
         attrCheck = ["cam_envtexBg","cam_envtexGi","cam_envtexReflect","cam_envtexRefract","cam_envtexSecondaryMatte","globopt_geom_displacement","globopt_light_doLights","globopt_light_doHiddenLights","globopt_light_doDefaultLights",
         "globopt_light_doShadows","globopt_light_ignoreLightLinking","globopt_light_disableSelfIllumination","photometricScale","globopt_mtl_reflectionRefraction","globopt_mtl_glossy","globopt_mtl_transpMaxLevels","globopt_mtl_transpCutoff"
         ,"globopt_mtl_doMaps","globopt_mtl_filterMaps","bumpMultiplier","texFilterScaleMultiplier","globopt_ray_bias","globopt_ray_maxIntens_on","gi_texFilteringMultiplier","cam_overrideEnvtex","cam_overrideEnvtexSecondaryMatte",
         "ddisplac_amount","ddisplac_edgeLength","ddisplac_maxSubdivs","giOn","reflectiveCaustics","refractiveCaustics","secondaryMultiplier","secondaryEngine","saturation","contrast","contrastBase","aoOn","aoAmount","aoRadius","aoSubdivs",
         "giRayDistOn","giRayDist","causticsOn","causticsMultiplier","causticsSearchDistance","causticsMaxPhotons","causticsMaxDensity","minShadeRate"]
         for attr in attrCheck:
-            remAttrList.remove(attr)
-        vraySettingsOverides = attrOverideClass(renderLayers,objType,remAttrList,attrOveridesDIC,objLabel,objectsCheck)
-        vraySettingsOverrideDic = vraySettingsOverides.attrOverideDetect()
+            remove_attr_List.remove(attr)
+        vraySettingsOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
+        vraySettingsOverrideDic = vraySettingsOverides.attr_override_detect()
 
         return(vraySettingsOverrideDic)
 
-    def objsInRenderLayer(objectsCheck,renderLayer):
+    def objsInRenderLayer(object_check,renderLayer):
         obsInLayerDic = {}
-        for rl in renderLayers:
+        for rl in render_layers:
             obsInLayer = cmds.editRenderLayerMembers(rl, query = True) or []
-            for obj in objectsCheck:
+            for obj in object_check:
                 for obs in obsInLayer:
                     if obj == obs:
                         obsIlaySTRING = obj + "_" + rl
@@ -509,36 +509,36 @@ def overideInfoFunc(renderLayers):
 
         return(obsInLayerDic)
 
-    def Render_stat_Overides(objectsCheck_g, renderLayers):
+    def Render_stat_Overides(object_check_g, render_layers):
         RenderStatOverrideDic = {}
         excludeList = ["camera","ambientLight","directionalLight","pointLight","spotLight","areaLight","volumeLight","VRayLightSphereShape","VRayLightRectShape","VRayLightDomeShape","VRayLightIESShape"]
-        siz = len(objectsCheck_g)
+        siz = len(object_check_g)
         l = 0
         while l < siz:
-            for object in objectsCheck_g:
+            for object in object_check_g:
                 objectT = cmds.objectType(object)
                 for excld in excludeList:
                     if excld == objectT:
-                        objectsCheck_g.remove(object)
+                        object_check_g.remove(object)
             l = l + 1
-        for object in objectsCheck_g:
-            objType = cmds.objectType(object)
-            if objType != "locator":
+        for object in object_check_g:
+            object_type = cmds.objectType(object)
+            if object_type != "locator":
                 Render_Stat_List = ["castsShadows","receiveShadows","motionBlur","primaryVisibility","smoothShading","visibleInReflections","visibleInRefractions","doubleSided"]
                 for rsl in Render_Stat_List:
-                    attrString = object + "." + rsl
+                    attr_string = object + "." + rsl
                     cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
-                    defValue = cmds.getAttr(attrString)
-                    for rl in renderLayers:
+                    defValue = cmds.getAttr(attr_string)
+                    for rl in render_layers:
                         if rl != "defaultRenderLayer":
                             cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-                            layValue = cmds.getAttr(attrString)
+                            layValue = cmds.getAttr(attr_string)
                             if layValue != defValue:
                                 dicString = object + "**" + "renderStats" + "**" +  rsl + "**" + rl
                                 RenderStatOverrideDic[dicString] = layValue
             return(RenderStatOverrideDic)
 
-    def vrayObjectPropO(renderLayers):
+    def vrayObjectPropO(render_layers):
         VrayObjectProps = cmds.ls(type = "VRayObjectProperties")
         vrayObjectPropertyOvrideDIC = {}
         Object_Props = ["overrideMBSamples","mbSamples","objectIDEnabled","objectID","skipExportEnabled","skipExport","ignore",
@@ -552,7 +552,7 @@ def overideInfoFunc(renderLayers):
                 cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
                 valString = vop + "." + op
                 defVal = cmds.getAttr(valString)
-                for rl in renderLayers:
+                for rl in render_layers:
                     if rl != "defaultRenderLayer":
                         cmds.editRenderLayerGlobals(currentRenderLayer = rl)
                         oVal = cmds.getAttr(valString)
@@ -562,7 +562,7 @@ def overideInfoFunc(renderLayers):
         return(vrayObjectPropertyOvrideDIC)
 
     vraySettingsOverrideDic = {}
-    transLayOverides = {}
+    transform_layer_overrides = {}
     matAssignmentLayOveridesmatAssignmentLayOverides = {}
     materialsOverideDIC = {}
     cameraOveridesDIC = {}
@@ -579,28 +579,28 @@ def overideInfoFunc(renderLayers):
     VPcount = 1
 
     if VScount == 1:
-        vraySettingsOverrideDic = vraySettingsOverides(objectsCheck,renderLayers)
+        vraySettingsOverrideDic = vraySettingsOverides(object_check,render_layers)
     if Tcount == 1:
-        OBJ_1_translations = translations(objectsCheck, renderLayers)
-        transLayOverides = OBJ_1_translations[5]
+        OBJ_1_translations = translations(object_check, render_layers)
+        transform_layer_overrides = OBJ_1_translations[5]
     if Mcount == 1:
-        OBJ_1_materialsAssignments = materialAssignments(objectsCheck, renderLayers)
+        OBJ_1_materialsAssignments = material_assignments(object_check, render_layers)
         matAssignmentLayOverides = OBJ_1_materialsAssignments[4]
 
-        materialsOverideDIC = materialOverides(objectsCheck,renderLayers)
+        materialsOverideDIC = material_overrides(object_check,render_layers)
         materialsOverideDIC.update(matAssignmentLayOverides)
     if Ccount == 1:
-        cameraOveridesDIC = cameraOverides(objectsCheck,renderLayers)
+        cameraOveridesDIC = cameraOverides(object_check,render_layers)
     if Lcount == 1:
-        lightOveridesDIC = lightOverides(objectsCheck,renderLayers)
+        lightOveridesDIC = lightOverides(object_check,render_layers)
     if Rcount == 1:
-        OBJ_1_Render_Stats = Render_stat_Overides(objectsCheck_g, renderLayers)
+        OBJ_1_Render_Stats = Render_stat_Overides(object_check_g, render_layers)
         Render_Stats_Overides = OBJ_1_Render_Stats
     if VPcount == 1:
-        OBJ_1_VrayObjectProps = vrayObjectPropO(renderLayers)
+        OBJ_1_VrayObjectProps = vrayObjectPropO(render_layers)
         vrayObjectPropertyOverides = OBJ_1_VrayObjectProps
 
-    return(vraySettingsOverrideDic,transLayOverides,materialsOverideDIC,lightOveridesDIC,Render_Stats_Overides,vrayObjectPropertyOverides,cameraOveridesDIC)
+    return(vraySettingsOverrideDic,transform_layer_overrides,materialsOverideDIC,lightOveridesDIC,Render_Stats_Overides,vrayObjectPropertyOverides,cameraOveridesDIC)
 
 
 #--- overide section over ----
@@ -648,9 +648,9 @@ def activeBut(rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_
             cmds.button(but,bgc = (.2,.2,.2),label = "can not remove",edit = True)
 
 
-def OBpress(O_but,renderLayers,txtFieldList,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,*args):
+def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,*args):
 
-    overidesDic = overideInfoFunc(renderLayers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut)
+    overidesDic = overides_information_function(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut)
     vraySettingOVeride = overidesDic[0] or []
     transformsOVeride = overidesDic[1] or []
     materialsOVeride = overidesDic[2] or []
@@ -679,7 +679,7 @@ def OBpress(O_but,renderLayers,txtFieldList,vraySetBut,transformObut,materialsOb
         renderStatsOVeride = ""
     if VPcount == 0:
         vrayObjectPropertiesOVeride = ""
-    for RLL in renderLayers:
+    for RLL in render_layers:
         vraySettingOVerideL = []
         vraySettingOVerideLstr = ""
         transformsOVerideL = []
@@ -819,8 +819,8 @@ def checkBoxRenderOFF(rl,*args):
     mel.eval(evalTx)
 
 def removeOverideBUT(rl,removeOverideTxtField,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,removeOverideTxtBUT,layerBut,rmAllcount,rmALLObut,*args):
-    renderLayers = cmds.ls(type = "renderLayer")
-    overidesDicO = overideInfoFunc(renderLayers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut)
+    render_layers = cmds.ls(type = "renderLayer")
+    overidesDicO = overides_information_function(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut)
     vraySettingOVeride = overidesDicO[0] or []
     transformsOVeride = overidesDicO[1] or []
     materialsOVeride = overidesDicO[2] or []
@@ -889,7 +889,7 @@ def removeOverideBUT(rl,removeOverideTxtField,vraySetBut,transformObut,materials
             pass
 
     if valueUser == "none":
-        for RLL in renderLayers:
+        for RLL in render_layers:
             vraySettingOVerideL = []
             vraySettingOVerideLstr = ""
             transformsOVerideL = []
@@ -985,7 +985,7 @@ def removeOverideBUT(rl,removeOverideTxtField,vraySetBut,transformObut,materials
                         oce = oceSP[0]
                     if oceSPmes > 2:
                         oce = oceSP[0] + "." + oceSP[2]
-                    for renLay in renderLayers:
+                    for renLay in render_layers:
                         if renLay != "defaultRenderLayer":
                             cmds.editRenderLayerGlobals(currentRenderLayer = renLay)
                             result = cmds.editRenderLayerAdjustment(oce, remove = True)
@@ -998,7 +998,7 @@ def removeOverideBUT(rl,removeOverideTxtField,vraySetBut,transformObut,materials
                     cmds.editRenderLayerGlobals(currentRenderLayer = layerBut)
                     result = cmds.editRenderLayerAdjustment(oce, remove = True )
                 if rmAllcount == 1:
-                    for renLay in renderLayers:
+                    for renLay in render_layers:
                         if renLay != "defaultRenderLayer":
                             cmds.editRenderLayerGlobals(currentRenderLayer = renLay)
                             result = cmds.editRenderLayerAdjustment(oce, remove = True)
@@ -1011,7 +1011,7 @@ def removeOverideBUT(rl,removeOverideTxtField,vraySetBut,transformObut,materials
                     cmds.editRenderLayerGlobals(currentRenderLayer = layerBut)
                     result = cmds.editRenderLayerAdjustment(oce, remove = True )
                 if rmAllcount == 1:
-                    for renLay in renderLayers:
+                    for renLay in render_layers:
                         if renLay != "defaultRenderLayer":
                             cmds.editRenderLayerGlobals(currentRenderLayer = renLay)
                             result = cmds.editRenderLayerAdjustment(oce, remove = True)
@@ -1024,7 +1024,7 @@ def removeOverideBUT(rl,removeOverideTxtField,vraySetBut,transformObut,materials
                     cmds.editRenderLayerGlobals(currentRenderLayer = layerBut)
                     result = cmds.editRenderLayerAdjustment(oce, remove = True )
                 if rmAllcount == 1:
-                    for renLay in renderLayers:
+                    for renLay in render_layers:
                         if renLay != "defaultRenderLayer":
                             cmds.editRenderLayerGlobals(currentRenderLayer = renLay)
                             result = cmds.editRenderLayerAdjustment(oce, remove = True)
@@ -1040,7 +1040,7 @@ def removeOverideBUT(rl,removeOverideTxtField,vraySetBut,transformObut,materials
                     cmds.editRenderLayerGlobals(currentRenderLayer = layerBut)
                     result = cmds.editRenderLayerAdjustment(oce, remove = True )
                 if rmAllcount == 1:
-                    for renLay in renderLayers:
+                    for renLay in render_layers:
                         if renLay != "defaultRenderLayer":
                             cmds.editRenderLayerGlobals(currentRenderLayer = renLay)
                             result = cmds.editRenderLayerAdjustment(oce, remove = True)
@@ -1056,7 +1056,7 @@ def removeOverideBUT(rl,removeOverideTxtField,vraySetBut,transformObut,materials
                     cmds.editRenderLayerGlobals(currentRenderLayer = layerBut)
                     result = cmds.editRenderLayerAdjustment(oce, remove = True )
                 if rmAllcount == 1:
-                    for renLay in renderLayers:
+                    for renLay in render_layers:
                         if renLay != "defaultRenderLayer":
                             cmds.editRenderLayerGlobals(currentRenderLayer = renLay)
                             result = cmds.editRenderLayerAdjustment(oce, remove = True)
@@ -1094,7 +1094,7 @@ def removeOverideBUT(rl,removeOverideTxtField,vraySetBut,transformObut,materials
                     cmds.editRenderLayerGlobals(currentRenderLayer = layerBut)
                     result = cmds.editRenderLayerAdjustment(oce, remove = True )
                 if rmAllcount == 1:
-                    for renLay in renderLayers:
+                    for renLay in render_layers:
                         if renLay != "defaultRenderLayer":
                             cmds.editRenderLayerGlobals(currentRenderLayer = renLay)
                             result = cmds.editRenderLayerAdjustment(oce, remove = True)
@@ -1109,12 +1109,12 @@ def buttonChangeColorOff(removeOverideTxtBUT,overButts,*args):
 
 def camAnalize():
     camRenDic = {}
-    renderLayers = cmds.ls(type = "renderLayer")
+    render_layers = cmds.ls(type = "renderLayer")
     camList = cmds.ls(type = "camera")
     camList.append("none")
     camListOn = []
 
-    for rl in renderLayers:
+    for rl in render_layers:
         cmds.editRenderLayerGlobals(currentRenderLayer = rl)
         for camm in camList:
             if camm != "none":
@@ -1126,7 +1126,7 @@ def camAnalize():
                     camRenDic[camRenDicSTR] = (camm + "_" + rl)
     return(camRenDic,camList)
 
-def setRenCam(rl,camList,renCamMenu,renderLayers,*args):
+def setRenCam(rl,camList,renCamMenu,render_layers,*args):
     global initialLayer
     laySP = renCamMenu.split("|")
     lay = laySP[2]
@@ -1139,7 +1139,7 @@ def setRenCam(rl,camList,renCamMenu,renderLayers,*args):
     camListMod.append("topShape")
     camListMod.append("frontShape")
     camListMod.append("sideShape")
-    for rll in renderLayers:
+    for rll in render_layers:
         cmds.editRenderLayerGlobals(currentRenderLayer = rll)
         for camm in camListMod:
             renState = cmds.getAttr(camm + ".renderable")
@@ -1166,16 +1166,16 @@ def setRenCam(rl,camList,renCamMenu,renderLayers,*args):
     cmds.editRenderLayerGlobals( currentRenderLayer = initialLayer)
     camColorCheck(renCamMenu,setCam)
 
-def fixCams(rl,renderLayers,camList,renCamMenu,*args):
+def fixCams(rl,render_layers,camList,renCamMenu,*args):
     global initialLayer
     intialLayer = cmds.editRenderLayerGlobals(currentRenderLayer = True, query = True)
-    renderLayers = cmds.ls(type = "renderLayer")
+    render_layers = cmds.ls(type = "renderLayer")
     camListMod = cmds.ls(type = "camera")
     camListMod.append("perspShape")
     camListMod.append("topShape")
     camListMod.append("frontShape")
     camListMod.append("sideShape")
-    for rll in renderLayers:
+    for rll in render_layers:
         if rll == "defaultRenderLayer":
             cmds.editRenderLayerGlobals(currentRenderLayer = rll)
             for cam in camListMod:
@@ -1306,8 +1306,8 @@ def camColorCheck(renCamMenu,setCam):
         else:
             cmds.optionMenu(renCamMenu, v = cam, bgc = (.5,.5,.5),edit = True)
 
-def ReNameLayers(rl,renderLayers,camList,renCamMenu,*args):
-    for rl in renderLayers:
+def ReNameLayers(rl,render_layers,camList,renCamMenu,*args):
+    for rl in render_layers:
         if rl == "C1N1":
             cmds.rename("C1N1","Ft")
         if rl == "C7N1":
@@ -1342,12 +1342,12 @@ def addActObj(OILall,*args):
 def addActObj_ALL(OILall,*args):
     print 'addActObj_ALL'
     print 'addActObj_ALL OILall = ', OILall
-    renderLayers = cmds.ls(type = "renderLayer")
+    render_layers = cmds.ls(type = "renderLayer")
     current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
     activeSel = cmds.ls(sl = True)
     for active_selection in activeSel:
         print '1'
-        for layer in renderLayers:
+        for layer in render_layers:
             print 'layer = ',layer
             print 'ac = ',active_selection
             print '2'
@@ -1368,7 +1368,7 @@ def delActObj(OILall,*args):
 def delActObj_ALL(OILall,*args):
     activeSel = cmds.ls(sl = True)
     for active_selection in activeSel:
-        for layer in renderLayers:
+        for layer in render_layers:
             if "defaultRenderLayer" != layer:
                 cmds.editRenderLayerMembers(layer, active_selection, remove = True)
     OIL(OILall)
@@ -1381,10 +1381,10 @@ def showSel(SOLall,*args):
     OVL(SOLall)
 
 def showSel_ALL(SOLall,*args):
-    renderLayers = cmds.ls(type = "renderLayer")
+    render_layers = cmds.ls(type = "renderLayer")
     selObjs = cmds.ls(sl = True)
     curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
-    for rl in renderLayers:
+    for rl in render_layers:
         cmds.editRenderLayerGlobals(currentRenderLayer = rl)
         if rl != 'defaultRenderLayer':
             for selOb in selObjs:
@@ -1399,10 +1399,10 @@ def hideSel(SOLall,*args):
     OVL(SOLall)
 
 def hideSel_ALL(SOLall,*args):
-    renderLayers = cmds.ls(type = "renderLayer")
+    render_layers = cmds.ls(type = "renderLayer")
     selObjs = cmds.ls(sl = True)
     curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
-    for rl in renderLayers:
+    for rl in render_layers:
         cmds.editRenderLayerGlobals(currentRenderLayer = rl)
         if rl != 'defaultRenderLayer':
             for selOb in selObjs:
@@ -1412,10 +1412,10 @@ def hideSel_ALL(SOLall,*args):
 def OIL(OILall,*args):
     print 'OIL'
     print OILall
-    renderLayers = cmds.ls(type = "renderLayer")
+    render_layers = cmds.ls(type = "renderLayer")
     selected_objects = cmds.ls(sl = True)
     print OILall
-    for render_layer in renderLayers:
+    for render_layer in render_layers:
         print OILall
         objects_in_layer = cmds.editRenderLayerMembers(render_layer, query=True ) or []
         for button in OILall:
@@ -1434,9 +1434,9 @@ def OIL(OILall,*args):
 def OVL(SOLall):
     print 'OVL'
     print SOLall
-    renderLayers = cmds.ls(type = "renderLayer")
+    render_layers = cmds.ls(type = "renderLayer")
     selected_objects = cmds.ls(sl = True)
-    for render_layer in renderLayers:
+    for render_layer in render_layers:
         cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
         for button in SOLall:
             button_layer_split = button.split("|")
@@ -1454,8 +1454,8 @@ def lightRigOverides(*args):
     lightRig = cmds.ls(sl = True)
     lightRig = lightRig[0]
     initialLayer = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
-    renderLayers = cmds.ls(type = "renderLayer")
-    for rl in renderLayers:
+    render_layers = cmds.ls(type = "renderLayer")
+    for rl in render_layers:
         cmds.editRenderLayerGlobals(currentRenderLayer = rl)
         if rl == "Bk" or rl == "C7N1":
             cmds.editRenderLayerAdjustment(lightRig + ".rotate")
@@ -1480,15 +1480,15 @@ def lightRigOverides(*args):
             cmds.setAttr(lightRig + ".rotateY",-15)
     cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
 
-def copyOneLayer(renderLayers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,*args):
+def copyOneLayer(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,*args):
     copyAllLay = "A"
-    copyLayers(renderLayers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,copyAllLay)
+    copyLayers(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,copyAllLay)
 
-def copyAllLayers(renderLayers,materials,*args):
+def copyAllLayers(render_layers,materials,*args):
     copyAllLay = "B"
-    copyLayers(renderLayers,materials,copyAllLay)
+    copyLayers(render_layers,materials,copyAllLay)
 
-def copyLayers(renderLayers,materials,copyAllLay,*args):
+def copyLayers(render_layers,materials,copyAllLay,*args):
     activeLayers = []
     unlockNodes()
     panels = cmds.getPanel( type = "modelPanel" )
@@ -1499,13 +1499,13 @@ def copyLayers(renderLayers,materials,copyAllLay,*args):
     if copyAllLay == "A":
         activeLayers.append(startLayer)
     if copyAllLay == "B":
-        activeLayers = renderLayers
-    objectsCheckCL_g = cmds.ls(g = True)
-    objectsCheckCL_t = cmds.ls(type = "transform")
-    objectsCheckCL_cam = cmds.ls(type = "camera")
-    objectsCheckCL = objectsCheck_g + objectsCheck_t + objectsCheck_cam
-    lightTypes = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
-    overides = overideInfoFunc(renderLayers)
+        activeLayers = render_layers
+    object_checkCL_g = cmds.ls(g = True)
+    object_checkCL_t = cmds.ls(type = "transform")
+    object_checkCL_cam = cmds.ls(type = "camera")
+    object_checkCL = object_check_g + object_check_t + object_check_cam
+    light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
+    overides = overides_information_function(render_layers)
     VrayObjectProps = cmds.ls(type = "VRayObjectProperties")
     renderStats = ["castsShadows","receiveShadows","motionBlur","primaryVisibility","smoothShading","visibleInReflections","visibleInRefractions"]
     vraySettings = cmds.listAttr("vraySettings")
@@ -1520,7 +1520,7 @@ def copyLayers(renderLayers,materials,copyAllLay,*args):
         if rlll != "defaultRenderLayer":
             obsInLay = cmds.editRenderLayerMembers( rlll, fn = True,query=True ) or []
             obsVizDic = {}
-            for obCL in objectsCheckCL:
+            for obCL in object_checkCL:
                 vizEx = cmds.attributeQuery("visibility",node = obCL,exists = True)
                 if vizEx == 1:
                     cmds.editRenderLayerGlobals(currentRenderLayer = rlll)
@@ -1534,7 +1534,7 @@ def copyLayers(renderLayers,materials,copyAllLay,*args):
             cmds.rename((rlll + "_copy"),rlll)
             for objL in obsInLay:
                 cmds.editRenderLayerMembers((rlll),objL)
-            for ob in objectsCheck:
+            for ob in object_check:
                 for obvd in obsVizDic:
                      obvdSP = obvd.split("%")
                      if obvdSP[0] == ob:
@@ -1551,7 +1551,7 @@ def copyLayers(renderLayers,materials,copyAllLay,*args):
             for tfo in transformO:
                 tfoSP = tfo.split("$")
                 layer = tfoSP[2]
-                for ob in objectsCheck:
+                for ob in object_check:
                     if ob == tfoSP[1]:
                         if layer == rlll:
                             val = transformO[tfo]
@@ -1576,7 +1576,7 @@ def copyLayers(renderLayers,materials,copyAllLay,*args):
                 loSP = lo.split("*")
                 lo = loSP[1]
                 loOBsp = lo.split(".")
-                for ob in objectsCheck:
+                for ob in object_check:
                     if "spotLight" in ob or "ambientLight" in ob or "directionalLight" in ob or "pointLight" in ob:
                         kid = cmds.listRelatives(ob,children = True)
                         ob = kid[0]
@@ -1815,7 +1815,7 @@ def copyLayers(renderLayers,materials,copyAllLay,*args):
         cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
         layer_switcher()
 
-def checkRenderLayers(renLayOverCompare1,renLayOverCompare2,checkLayerFieldResult,txtFieldList,*args):
+def checkrender_layers(renLayOverCompare1,renLayOverCompare2,checkLayerFieldResult,txtFieldList,*args):
     menu1 = cmds.optionMenu(renLayOverCompare1,value = True,query = True)
     menu2 = cmds.optionMenu(renLayOverCompare2,value = True,query = True)
     oversMenu1 = ""
@@ -1879,7 +1879,7 @@ def unlockNodes(*args):
 def layer_switcher():
     global initialLayer
     setCam = ""
-    renderLayers = cmds.ls(type = "renderLayer")
+    render_layers = cmds.ls(type = "renderLayer")
     initialLayer = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
     txtFieldList = []
     valLayerList1 = []
@@ -1968,7 +1968,7 @@ def layer_switcher():
                     if "HeroShape" in cam or "HeroShape1" in cam or "heroShape" in cam or "heroShape1" in cam or "Hero1" in cam or "hero" in cam or "Hero" in cam or "Hero1" in cam:
                         var = 4
                     camRegExA = ""
-                    for r in renderLayers:
+                    for r in render_layers:
                         if r != "defaultRenderLayer":
                             if "_BTY" in r:
                                 if var == 0:
@@ -2064,7 +2064,7 @@ def layer_switcher():
         ButtSizeAdj = (buttSize -1)
         renCheckBoSiz_ADJ = (renCheckBoSize -1)
         buttonActive = cmds.button(but, command = partial(activeBut,rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,butts_addOBJ_ALL,butts_delOBJ_ALL),w = 150, edit = True)
-        renCamMenuPath = cmds.optionMenu(renCamMenu,cc = partial(setRenCam,rl,camList,renCamMenu,renderLayers), edit = True)
+        renCamMenuPath = cmds.optionMenu(renCamMenu,cc = partial(setRenCam,rl,camList,renCamMenu,render_layers), edit = True)
         if rl == initialLayer:
             cmds.button(but,bgc = (.5,.8,1), edit = True)
     button_width = 183
@@ -2103,14 +2103,14 @@ def layer_switcher():
     print 'master OILall = ',OILall
     buttonActiveAdObj_ALL = cmds.button(but_adOBJ_ALL, command = partial(addActObj_ALL,OILall), edit = True)
     buttonActiveDelObj_ALL = cmds.button(but_delOBJ_ALL, command = partial(delActObj_ALL,OILall), edit = True)
-    buttonfixCams = cmds.button(but_fixCams, command = partial(fixCams,rl,renderLayers,camList,renCamMenu), edit = True)
-    buttonReNameLayers = cmds.button(but_ReNameLayers, command = partial(ReNameLayers,rl,renderLayers,camList,renCamMenu), edit = True)
+    buttonfixCams = cmds.button(but_fixCams, command = partial(fixCams,rl,render_layers,camList,renCamMenu), edit = True)
+    buttonReNameLayers = cmds.button(but_ReNameLayers, command = partial(ReNameLayers,rl,render_layers,camList,renCamMenu), edit = True)
     buttonShowObj = cmds.button(but_showSelection, command = partial(showSel,SOLall), edit = True)
     buttonShowObj_ALL = cmds.button(but_showSelection_ALL, command = partial(showSel_ALL,SOLall), edit = True)
     buttonHideObj = cmds.button(but_hideSelection, command = partial(hideSel,SOLall), edit = True)
     buttonHideObj_ALL = cmds.button(but_hideSelection_ALL, command = partial(hideSel_ALL,SOLall), edit = True)
     cmds.button(but_lockUnlocks, command = partial(unlockNodes), edit = True)
-    cmds.button(but_copyALL_Layers, command = partial(copyAllLayers,renderLayers,materials), edit = True)
+    cmds.button(but_copyALL_Layers, command = partial(copyAllLayers,render_layers,materials), edit = True)
     cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
     panels = cmds.getPanel( type = "modelPanel" )
     for mPanel in panels:
