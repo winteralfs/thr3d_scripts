@@ -1,5 +1,4 @@
 #---
-print 'cleaner_colorRemap'
 import maya.cmds as cmds
 import maya.mel as mel
 import os
@@ -23,10 +22,14 @@ class cleaner():
         vray_layered_textures = cmds.ls(type = "layeredTexture")
         vray_bump_materials = cmds.ls(type = "VRayBumpMtl")
         vray_blend_materials = cmds.ls(type = "VRayBlendMtl")
-        vray_remapHsv_materials = cmds.ls(type = "remapValue")
+        vray_remapHsv_materials = cmds.ls(type = "remapHsv")
+        vray_hsvToRgb_materials = cmds.ls(type = "hsvToRgb")
+        vray_rgbToHsv_materials = cmds.ls(type = "rgbToHsv")
         vray_remapColor_materials = cmds.ls(type = "remapColor")
-        vray_remap_value = cmds.ls(type = "remapHsv")
+        vray_remap_value = cmds.ls(type = "remapValue")
         multiply_divide_nodes = cmds.ls(type = "multiplyDivide")
+        colorCorrect_nodes = cmds.ls(type = "colorCorrect")
+        colorConstant_nodes = cmds.ls(type = "colorConstant")
         gammaCorrect_materials = cmds.ls(type = "gammaCorrect")
         vray_VRayFresnel_materials = cmds.ls(type = "VRayFresnel")
         vray_dirt_materials = cmds.ls(type = "VRayDirt")
@@ -50,9 +53,9 @@ class cleaner():
         place2dTexture_nodes = cmds.ls(type = "place2dTexture")
         blend_colors = cmds.ls(type = "blendColors")
         VRayTriplanar_nodes = cmds.ls(type = "VRayTriplanar")
-        check_connections_list = VRayMtl_list + noise_materials + phong_list + blinn_list + lambert_list + surfaceShader_list + vray_dirt_materials + vray_light_mtls + vray_render_elements + vray_layered_textures + vray_rect_lights_transforms + vray_dome_lights_transforms + file_texture_nodes + ramp_nodes + vray_bump_materials + vray_blend_materials + multiply_divide_nodes + vray_remap_value + vray_remapHsv_materials + vray_remapColor_materials + vray_VRayFresnel_materials + gammaCorrect_materials + reverse_materials + displacement_materials + blend_colors + VRayTriplanar_nodes
+        check_connections_list = VRayMtl_list + noise_materials + phong_list + lambert_list + surfaceShader_list + vray_dirt_materials + vray_light_mtls + vray_render_elements + vray_layered_textures + vray_rect_lights_transforms + vray_dome_lights_transforms + file_texture_nodes + ramp_nodes + vray_bump_materials + vray_blend_materials + vray_VRayFresnel_materials + gammaCorrect_materials + reverse_materials + displacement_materials + blend_colors + VRayTriplanar_nodes + vray_remapColor_materials + multiply_divide_nodes + vray_remap_value + vray_rgbToHsv_materials + vray_remapHsv_materials + vray_hsvToRgb_materials + colorCorrect_nodes + colorConstant_nodes
         check_connections_list.append("vraySettings")
-        return(file_texture_nodes, ramp_nodes, place2dTexture_nodes, check_connections_list, VRayMtl_list, phong_list, blinn_list, lambert_list, surfaceShader_list, vray_blend_materials, vray_bump_materials, multiply_divide_nodes, vray_remap_value, vray_remapHsv_materials, vray_remapColor_materials, vray_VRayFresnel_materials, gammaCorrect_materials, reverse_materials, vray_layered_textures, displacement_materials, noise_materials, blend_colors, VRayTriplanar_nodes)
+        return(file_texture_nodes, ramp_nodes, place2dTexture_nodes, check_connections_list, VRayMtl_list, phong_list, blinn_list, lambert_list, surfaceShader_list, vray_blend_materials, vray_bump_materials, vray_VRayFresnel_materials, gammaCorrect_materials, reverse_materials, vray_layered_textures, displacement_materials, noise_materials, blend_colors, VRayTriplanar_nodes,vray_remapColor_materials, multiply_divide_nodes, vray_remap_value, vray_rgbToHsv_materials, vray_remapHsv_materials, vray_hsvToRgb_materials, colorCorrect_nodes, colorConstant_nodes)
 
     """ function that checks all the shaders in the scene and measaures if they are assigned to an object. Also deals with shading engine nodes"""
     def check_shaders(self):
@@ -76,8 +79,8 @@ class cleaner():
         surfaceShader_list = analize_list[8]
         vray_blend_materials = analize_list[9]
         vray_bump_materials = analize_list[10]
-        vray_VRayFresnel_materials = analize_list[12]
-        displacement_materials = analize_list[16]
+        vray_VRayFresnel_materials = analize_list[11]
+        displacement_materials = analize_list[15]
         shader_types = ["VRayMtl","phong","blinn","lambert","surfaceShader","VRayBumpMtl","VRayBlendMtl","VRayFresnel"]
         mtl_master_list = [VRayMtl_list,phong_list,blinn_list,lambert_list,surfaceShader_list,vray_VRayFresnel_materials,vray_bump_materials,vray_blend_materials]
         for render_layer in render_layers:
@@ -93,7 +96,6 @@ class cleaner():
                     connected = 1
                     if objects_assigned_to_shader_len == 0:
                         connected = 0
-                        print mtl
                         connections_one = cmds.listConnections(mtl, destination = True) or []
                         for connection in connections_one:
                             if connection in self.used_tx_nodes:
@@ -199,17 +201,52 @@ class cleaner():
         ramp_nodes = analize_list[1]
         place2dTexture_nodes = analize_list[2]
         check_connections_list = analize_list[3]
+        vray_VRayFresnel_materials = analize_list[11]
+        gammaCorrect_materials = analize_list[12]
+        reverse_materials = analize_list[13]
+        layered_texture_nodes = analize_list[14]
+        noise_materials = analize_list[16]
+        blend_colors = analize_list[17]
+        VRayTriplanar_nodes = analize_list[18]
+        #print ' 0',analize_list[0]
+        #print ' 1',analize_list[1]
+        #print ' 2',analize_list[2]
+        #print ' 3',analize_list[3]
+        #print ' 4',analize_list[4]
+        #print ' 5',analize_list[5]
+        #print ' 6',analize_list[6]
+        #print ' 7',analize_list[7]
+        #print ' 8',analize_list[8]
+        #print ' 9',analize_list[9]
+        #print ' 10',analize_list[10]
+        #print ' 11',analize_list[11]
+        #print ' 12',analize_list[12]
+        #print ' 13',analize_list[13]
+        #print ' 14',analize_list[14]
+        #print ' 15',analize_list[15]
+        #print ' 16',analize_list[16]
+        #print ' 17',analize_list[17]
+        #print ' 18',analize_list[18]
+        #print ' 19',analize_list[19]
+        #print ' 20',analize_list[20]
+        #print ' 21',analize_list[21]
+        #print ' 22',analize_list[22]
+        #print ' 23',analize_list[23]
+        #print ' 24',analize_list[24]
+        #print ' 25',analize_list[25]
+        #print ' 26',analize_list[26]
+        vray_remapColor_materials = analize_list[19]
+        multiply_divide_nodes = analize_list[20]
+        vray_remap_value = analize_list[21]
+        vray_rgbToHsv_materials = analize_list[22]
+        vray_remapHsv_materials = analize_list[23]
+        vray_hsvToRgb_materials = analize_list[24]
+        colorCorrect_nodes = analize_list[25]
+        colorConstant_nodes = analize_list[26]
         for connection in check_connections_list:
             if connection in self.shaders_for_deletion_list:
                 check_connections_list.remove(connection)
-        vray_VRayFresnel_materials = analize_list[12]
-        gammaCorrect_materials = analize_list[13]
-        reverse_materials = analize_list[14]
-        layered_texture_nodes = analize_list[15]
-        noise_materials = analize_list[17]
-        blend_colors = analize_list[18]
-        VRayTriplanar_nodes = analize_list[19]
-        tx_master_list = file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials + layered_texture_nodes + noise_materials + blend_colors + VRayTriplanar_nodes
+        tx_master_list = file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials + layered_texture_nodes + noise_materials + blend_colors + VRayTriplanar_nodes + vray_remapColor_materials + multiply_divide_nodes + vray_remap_value + vray_rgbToHsv_materials + vray_remapHsv_materials + vray_hsvToRgb_materials + colorCorrect_nodes + colorConstant_nodes
         self.unused_tx_nodes = tx_master_list
         unused_place2dTexture_nodes = []
         for render_layer in render_layers:
@@ -254,14 +291,22 @@ class cleaner():
         for connection in check_connections_list:
             if connection in self.shaders_for_deletion_list:
                 check_connections_list.remove(connection)
-        vray_VRayFresnel_materials = analize_list[12]
-        gammaCorrect_materials = analize_list[13]
-        reverse_materials = analize_list[14]
-        layered_texture_nodes = analize_list[15]
-        noise_materials = analize_list[17]
-        blend_colors = analize_list[18]
-        VRayTriplanar_nodes = analize_list[19]
-        tx_master_list = file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials + layered_texture_nodes + noise_materials + blend_colors + VRayTriplanar_nodes
+        vray_VRayFresnel_materials = analize_list[11]
+        gammaCorrect_materials = analize_list[12]
+        reverse_materials = analize_list[13]
+        layered_texture_nodes = analize_list[14]
+        noise_materials = analize_list[16]
+        blend_colors = analize_list[17]
+        VRayTriplanar_nodes = analize_list[18]
+        vray_remapColor_materials = analize_list[19]
+        multiply_divide_nodes = analize_list[20]
+        vray_remap_value = analize_list[21]
+        vray_rgbToHsv_materials = analize_list[22]
+        vray_remapHsv_materials = analize_list[23]
+        vray_hsvToRgb_materials = analize_list[24]
+        colorCorrect_nodes = analize_list[25]
+        colorConstant_nodes = analize_list[26]
+        tx_master_list = file_texture_nodes + ramp_nodes + gammaCorrect_materials + reverse_materials + layered_texture_nodes + noise_materials + blend_colors + VRayTriplanar_nodes + vray_remapHsv_materials + vray_hsvToRgb_materials + vray_rgbToHsv_materials + vray_remapColor_materials + vray_remap_value + multiply_divide_nodes + colorCorrect_nodes + colorConstant_nodes
         self.unused_tx_nodes = tx_master_list
         unused_place2dTexture_nodes = []
         for render_layer in render_layers:
@@ -292,7 +337,6 @@ class cleaner():
             if len(node.split("|")) > 1:
                 mayaResolvedName.append(node)
                 if (node.split("|")[-1]) not in clashingNames:
-                    print 'adding ',node
                     clashingNames.append(node.split("|")[-1])
         dup_nodes_size = len(clashingNames)
         if dup_nodes_size > 0:
@@ -309,7 +353,7 @@ class cleaner():
         else:
             print "no dupe nodes found"
         if dupes_found != 1:
-            cycle = 1
+            cycle = 5
             it = 0
             complete_deletion_list = []
             while it < cycle:
@@ -349,7 +393,6 @@ class cleaner():
 
     def cleaner_window(self):
         print "cleaner_window"
-        print 'cleaner_window'
         self.window_name = 'cleaner'
         if cmds.window(self.window_name,exists = True):
             cmds.deleteUI(self.window_name)
