@@ -1,4 +1,5 @@
 #---
+print 'v1'
 import maya.cmds as cmds
 import maya.mel as mel
 import os
@@ -75,6 +76,7 @@ class cleaner():
         VRayMtl_list = analize_list[4]
         phong_list = analize_list[5]
         blinn_list = analize_list[6]
+        #print 'blinn_list = ',blinn_list
         lambert_list = analize_list[7]
         surfaceShader_list = analize_list[8]
         vray_blend_materials = analize_list[9]
@@ -88,6 +90,8 @@ class cleaner():
             cmds.select(clear = True)
             for mtl_list in mtl_master_list:
                 for mtl in mtl_list:
+                    #print ' '
+                    #print 'mtl = ',mtl
                     mtl_type = cmds.nodeType(mtl)
                     cmds.select(clear = True)
                     cmds.hyperShade(o = mtl)
@@ -95,11 +99,14 @@ class cleaner():
                     objects_assigned_to_shader_len = len(objects_assigned_to_shader)
                     connected = 1
                     if objects_assigned_to_shader_len == 0:
+                        #print '1 no objects assigned to shader'
                         connected = 0
-                        connections_one = cmds.listConnections(mtl, destination = True) or []
+                        connections_one = cmds.listConnections(mtl, destination = True, source = False) or []
+                        #print 'connections_one = ',connections_one
                         for connection in connections_one:
                             if connection in self.used_tx_nodes:
                                 if mtl not in self.assigned_mtl_list:
+                                    #print '1 mtl adding to assigned ',mtl
                                     self.assigned_mtl_list.append(mtl)
                             connection_type = cmds.nodeType(connection)
                             if connection_type in shader_types:
@@ -110,9 +117,11 @@ class cleaner():
                                 if objects_assigned_to_shader_len > 0:
                                     connected = 1
                                     if mtl not in self.assigned_mtl_list:
+                                        #print '2 mtl adding to assigned ',mtl
                                         self.assigned_mtl_list.append(mtl)
                                 else:
-                                    connections_two = cmds.listConnections(connection, destination = True)
+                                    connections_two = cmds.listConnections(connection, destination = True, source = False)
+                                    #print 'connections_two = ',connections_two
                                     for connection in connections_two:
                                         connection_type = cmds.nodeType(connection)
                                         if connection_type in shader_types:
@@ -121,11 +130,14 @@ class cleaner():
                                             objects_assigned_to_shader = cmds.ls(sl = True) or []
                                             objects_assigned_to_shader_len = len(objects_assigned_to_shader)
                                             if objects_assigned_to_shader_len > 0:
+                                                #print 'objects are assigned to shader'
                                                 connected = 1
                                                 if mtl not in self.assigned_mtl_list:
+                                                    #print '3 mtl adding to assigned ',mtl
                                                     self.assigned_mtl_list.append(mtl)
                                             else:
-                                                connections_three = cmds.listConnections(connection, destination = True)
+                                                connections_three = cmds.listConnections(connection, destination = True, source = False)
+                                                #print 'connections_three = ',connections_three
                                                 for connection in connections_three:
                                                     connection_type = cmds.nodeType(connection)
                                                     if connection_type in shader_types:
@@ -134,11 +146,14 @@ class cleaner():
                                                         objects_assigned_to_shader = cmds.ls(sl = True) or []
                                                         objects_assigned_to_shader_len = len(objects_assigned_to_shader)
                                                         if objects_assigned_to_shader_len > 0:
+                                                            #print '2 objects are assigned to the shader'
                                                             connected = 1
                                                             if mtl not in self.assigned_mtl_list:
+                                                                #print '4 mtl adding to assigned ',mtl
                                                                 self.assigned_mtl_list.append(mtl)
                                                         else:
-                                                            connections_four = cmds.listConnections(connection, destination = True)
+                                                            connections_four = cmds.listConnections(connection, destination = True, source = False)
+                                                            #print 'connections_four = ',connections_four
                                                             for connection in connections_four:
                                                                 connection_type = cmds.nodeType(connection)
                                                                 if connection_type in shader_types:
@@ -147,11 +162,14 @@ class cleaner():
                                                                     objects_assigned_to_shader = cmds.ls(sl = True) or []
                                                                     objects_assigned_to_shader_len = len(objects_assigned_to_shader)
                                                                     if objects_assigned_to_shader_len > 0:
+                                                                        #print '3 objects are assigned to the shader'
                                                                         connected = 1
                                                                         if mtl not in self.assigned_mtl_list:
+                                                                            #print '5 mtl adding to assigned ',mtl
                                                                             self.assigned_mtl_list.append(mtl)
                                                                     else:
-                                                                        connections_five = cmds.listConnections(connection, destination = True)
+                                                                        connections_five = cmds.listConnections(connection, destination = True, source = False)
+                                                                        #print 'connections_five = ',connections_five
                                                                         for connection in connections_five:
                                                                             connection_type = cmds.nodeType(connection)
                                                                             if connection_type in shader_types:
@@ -160,14 +178,18 @@ class cleaner():
                                                                                 objects_assigned_to_shader = cmds.ls(sl = True) or []
                                                                                 objects_assigned_to_shader_len = len(objects_assigned_to_shader)
                                                                                 if objects_assigned_to_shader_len > 0:
+                                                                                    #print '5 objects are assigned to the shader'
                                                                                     connected = 1
                                                                                     if mtl not in self.assigned_mtl_list:
+                                                                                        #print '6 mtl adding to assigned ',mtl
                                                                                         self.assigned_mtl_list.append(mtl)
                     if connected == 0:
                         if mtl not in self.assigned_mtl_list:
                             if mtl not in unassigned_mtl_list:
+                                #print 'assigned material to unassigned list'
                                 unassigned_mtl_list.append(mtl)
                     else:
+                        #print 'assigned shader to assigned list'
                         self.assigned_mtl_list.append(mtl)
                 cmds.select(clear = True)
         for assigned_mtl in self.assigned_mtl_list:
@@ -187,6 +209,7 @@ class cleaner():
             if locked in self.shaders_for_deletion_list:
                 self.shaders_for_deletion_list.remove(locked)
         self.check_textures_2dPlacements()
+        #print 'self.shaders_for_deletion_list = ',self.shaders_for_deletion_list
         return(self.shaders_for_deletion_list)
 
     """ function that checks all the textures in the scene and measaures if they are connected to a used shader. Also deals with place2dTexture nodes"""
@@ -326,7 +349,7 @@ class cleaner():
         else:
             print "no dupe nodes found"
         if dupes_found != 1:
-            cycle = 5
+            cycle = 1
             it = 0
             complete_deletion_list = []
             while it < cycle:
