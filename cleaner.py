@@ -349,7 +349,7 @@ class cleaner():
         else:
             print "no dupe nodes found"
         if dupes_found != 1:
-            cycle = 1
+            cycle = 4
             it = 0
             complete_deletion_list = []
             while it < cycle:
