@@ -331,7 +331,75 @@ class cleaner():
         self.tx_for_deletion_list = self.unused_tx_nodes + unused_place2dTexture_nodes
         return(self.tx_for_deletion_list)
 
+### this method renames duplicate names from the scene when button is pressed
+
+    #def rename_duplicate_names(self,*args):
+        #print self.clashing_names
+        #num_of_conflicts = len(self.clashing_names)
+        #self.name_clashing_dic = {}
+        #i = 0
+        #while i < num_of_conflicts:
+            #for clashing_name in self.clashing_names:
+                #all_nodes = cmds.ls(long = True)
+                #for node in all_nodes:
+                    #print ' '
+                    #print 'node = ',node
+                    #node_split = node.split('|')
+                    #print 'node_split = ',node_split
+                    #node_split_length = len(node_split)
+                    #node_split_length_2 = node_split_length
+                    #print 'node_split_length = ',node_split_length
+                    #if node_split_length_2 > 2:
+                        #node_split = node_split[:-1]
+                    #print 'after -1 node_split = ',node_split
+                    #node_split_length = len(node_split)
+                    #node_name_match = node_split[node_split_length - 1]
+                    #object_path_string = ''
+                    #i = 0
+                    #while i < (node_split_length):
+                        #print 'while activated'
+                        #print 'object_path_string = ',object_path_string
+                        #length_object_path_string = len(object_path_string)
+                        #print 'length_object_path_string = ',length_object_path_string
+                        #if length_object_path_string == 1:
+                            #object_path_string = object_path_string + node_split[i] + '|'
+                            #print 'inside while 0 object_path_string = ',object_path_string
+                        #else:
+                            #object_path_string = object_path_string + node_split[i] + '|'
+                            #print 'inside while not 0 object_path_string = ',object_path_string
+                        #i = i + 1
+                    #print 'object_path_string = ',object_path_string
+                    #if clashing_name == node_name_match:
+                        #print 'object_path_string = ',object_path_string
+                        #print '* clashing_name = ' + clashing_name + ' and node_name_match = ' + node_name_match
+                        #random_number = random.randint(1,100)
+                        #self.name_clashing_dic[node + '_' + str(random_number)] = object_path_string + node_name_match
+                        #print 'renaming ' + node_name_match + ' to ' + node_name_match + '_' + str(random_number)
+                        #cmds.rename(node,node_name_match + '_' + str(random_number))
+                        #if clashing_name in self.clashing_names:
+                            #print 'removing ' + clashing_name + ' from ' + 'self.clashing_names'
+                            #self.clashing_names.remove(clashing_name)
+                        #break
+            #i = i + 1
+        #self.run_cleaner()
+
     def run_cleaner(self):
+        #duplicates_found = 0
+        #self.clashing_names = []
+        #maya_resolved_name = []
+        #all_dag_nodes = cmds.ls(dag = 1)
+        #for node in all_dag_nodes:
+            #if len(node.split("|")) > 1:
+                #maya_resolved_name.append(node)
+                #if (node.split("|")[-1]) not in self.clashing_names:
+                    #self.clashing_names.append(node.split("|")[-1])
+        #dup_nodes_size = len(self.clashing_names)
+        #if dup_nodes_size > 0:
+            #print "name Clash Found: "
+            #self.rename_duplicate_names()
+        #else:
+            print "no duplicate names found"
+        #if duplicates_found != 1:
             cycle = 1
             it = 0
             complete_deletion_list = []
@@ -357,6 +425,25 @@ class cleaner():
                 print "deleted ",item
             print ' '
             print '*****'
+            #length_of_name_clashes = []
+            #print 'self.name_clashing_dic = ',self.name_clashing_dic
+            #for name_clash in self.name_clashing_dic:
+                #length_of_name_clash = len(name_clash)
+                #length_of_name_clashes.append(length_of_name_clash)
+            #length_of_name_clashes.sort()
+            #length_of_name_clashes.reverse()
+            #print 'length_of_name_clashes = ', length_of_name_clashes
+            #for length_of_path in length_of_name_clashes:
+                #for name_clash in self.name_clashing_dic:
+                    #clash = self.name_clashing_dic[name_clash]
+                    #lenth_of_clash = len(clash)
+                    #print ' '
+                    #print 'length_of_path = ',length_of_path
+                    #print 'clash = ',clash
+                    #print 'lenth_of_clash = ', lenth_of_clash
+                    #if lenth_of_clash == length_of_path:
+                        #print 'renaming back: ' + name_clash + ' to ' + self.name_clashing_dic[name_clash]
+                        #cmds.rename(name_clash,self.name_clashing_dic[name_clash])
             print "---"
             print "finished deleting nodes"
             print "---"
