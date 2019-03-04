@@ -1,5 +1,5 @@
 #---
-print 'v1'
+print 'monday morning'
 import maya.cmds as cmds
 import maya.mel as mel
 import os
@@ -7,6 +7,7 @@ import maya.OpenMayaUI as mui
 from functools import partial
 from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
+import random
 
 class cleaner():
     def __init__(self):
@@ -76,7 +77,6 @@ class cleaner():
         VRayMtl_list = analize_list[4]
         phong_list = analize_list[5]
         blinn_list = analize_list[6]
-        #print 'blinn_list = ',blinn_list
         lambert_list = analize_list[7]
         surfaceShader_list = analize_list[8]
         vray_blend_materials = analize_list[9]
@@ -248,30 +248,39 @@ class cleaner():
         for render_layer in render_layers:
             cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
             for tx in tx_master_list:
+                #print ' '
+                #print 'tx = ',tx
                 tx_connections = cmds.listConnections(tx,source = False,destination = True) or []
+                #print 'tx_connections = ',tx_connections
                 if "defaultTextureList" in tx_connections:
                     tx_connections.remove("defaultTextureList")
                 if "defaultTextureList1" in tx_connections:
                     tx_connections.remove("defaultTextureList1")
                 number_tx_connections = len(tx_connections)
                 if number_tx_connections > 0:
+                    #print 'num of connections more than 0'
                     for tx_connection in tx_connections:
                         if tx_connection in check_connections_list:
                             if tx not in self.used_tx_nodes:
+                                #print 'appending tx to self.used_tx_nodes'
                                 self.used_tx_nodes.append(tx)
                             else:
                                 connections_two = cmds.listConnections(tx_connection, destination = True) or []
+                                #print 'connections_two = ',connections_two
                                 for connection in connections_two:
                                     connection_type = cmds.nodeType(connection)
                                     if connection_type in check_connections_list:
                                         if tx not in used_tx_nodes:
+                                            #print 'self.used_tx_nodes = ',self.used_tx_nodes
                                             self.used_tx_nodes.append(tx)
                                         else:
                                             connections_three = cmds.listConnections(tx_connection, destination = True) or []
+                                            #print 'connections_three = ',connections_three
                                             for connection in connections_three:
                                                 connection_type = cmds.nodeType(connection)
                                                 if connection_type in check_connections_list:
                                                     if tx not in self.used_tx_nodes:
+                                                        #print 'appending tx to self.used_tx_nodes'
                                                         self.used_tx_nodes.append(tx)
         return()
 
@@ -324,31 +333,6 @@ class cleaner():
         return(self.tx_for_deletion_list)
 
     def run_cleaner(self):
-
-        dupes_found = 0
-        clashingNames = []
-        mayaResolvedName = []
-        allDagNodes = cmds.ls(dag = 1)
-        for node in allDagNodes:
-            if len(node.split("|")) > 1:
-                mayaResolvedName.append(node)
-                if (node.split("|")[-1]) not in clashingNames:
-                    clashingNames.append(node.split("|")[-1])
-        dup_nodes_size = len(clashingNames)
-        if dup_nodes_size > 0:
-            print "name Clash Found (check light nodes): "
-            print clashingNames
-            dupes_found = 1
-            cmds.window(title = 'Dupes found', width = 300, height = 75, sizeable = False)
-            cmds.columnLayout("mainColumn", adjustableColumn = True)
-            cmds.rowLayout("nameRowLayout01", numberOfColumns = 15, parent = "mainColumn")
-            cmds.text(label = ("name Clash Found (check light nodes): "))
-            for name in clashingNames:
-                cmds.text(label = ('' + name + ', '),font = 'boldLabelFont')
-            cmds.showWindow()
-        else:
-            print "no dupe nodes found"
-        if dupes_found != 1:
             cycle = 4
             it = 0
             complete_deletion_list = []
@@ -372,9 +356,8 @@ class cleaner():
                 print "nothing deleted"
             for item in complete_deletion_list:
                 print "deleted ",item
-            #for obj in selected_objects:
-                #if cmds.objExists(obj):
-                    #cmds.select(obj)
+            print ' '
+            print '*****'
             print "---"
             print "finished deleting nodes"
             print "---"
