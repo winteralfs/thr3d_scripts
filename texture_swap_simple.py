@@ -4,15 +4,54 @@ import os
 import maya.OpenMayaUI as mui
 from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
+from functools import partial
 
 class texture_replacer():
 
     def __init__(self):
         chris = ''
 
+    def populate_texture_window(self):
+        self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow.jpg")
+        arrow_scale_amount_width = 30
+        arrow_scale_amount_height = 134
+        texture_scale_amount = 500
+        arrowItem = QtWidgets.QListWidgetItem("")
+        arrowPixmap = QtGui.QPixmap(self.arrowPath)
+        arrowPixmap = arrowPixmap.scaled(arrow_scale_amount_width,arrow_scale_amount_height)
+        arrowIcon = QtGui.QIcon()
+        arrowIcon.addPixmap(arrowPixmap)
+        arrowItem.setIcon(arrowIcon)
+        print 'populate_texture_window'
+        self.textures_for_swap = []
+        self.textures_for_swap_dic = {}
+        texture_selections = cmds.ls(sl = True)
+        for selection in texture_selections:
+            node_type = cmds.nodeType(selection)
+            if node_type == 'file':
+              self.textures_for_swap.append(selection)
+            print 'textures_for_swap = ',self.textures_for_swap
+        for texture in self.textures_for_swap:
+            print 'texture = ',texture
+            image_name_path = cmds.getAttr(texture + '.fileTextureName')
+            print 'image_name_path = ',image_name_path
+            self.textures_for_swap_dic[texture] = image_name_path
+            texture_item = QtWidgets.QListWidgetItem(texture)
+            texture_pixmap = QtGui.QPixmap(image_name_path)
+            texture_pixmap_scaled = texture_pixmap.scaled(texture_scale_amount,texture_scale_amount)
+            texture_icon = QtGui.QIcon()
+            texture_icon.addPixmap(texture_pixmap_scaled)
+            texture_item.setIcon(texture_icon)
+            print 'adding texture'
+            self.texture_thumbnails_listWidget.addItem(texture_item)
+            print 'adding arrow'
+            self.texture_thumbnails_listWidget.addItem(arrowItem)
+        print self.textures_for_swap_dic
+
+    def toast(self):
+        print 'toasting'
+
     def texture_linker_UI(self):
-        #self.stayHidden = []
-        #self.lowerWindowTextures = []
         windowName = "texture_swap"
         if cmds.window(windowName,exists = True):
             cmds.deleteUI(windowName, wnd = True)
@@ -21,101 +60,40 @@ class texture_replacer():
         window = QtWidgets.QMainWindow(parent)
         window.setObjectName(windowName)
         window.setWindowTitle(windowName)
-        #self.myScriptJobID = cmds.scriptJob(p = windowName, event=["SelectionChanged", self.populateBoxes])
         window.setMinimumSize(450,650)
         window.setMaximumSize(450,650)
         mainWidget = QtWidgets.QWidget()
         window.setCentralWidget(mainWidget)
-        verticalLayout = QtWidgets.QVBoxLayout(mainWidget)
-        #TextureLabelLayout = QtWidgets.QHBoxLayout()
-        #verticalLayout.addLayout(TextureLabelLayout)
-        #newTextureLabel = QtWidgets.QLabel("new texture")
-        #newTextureLabel.setAlignment(QtCore.Qt.AlignCenter)
-        #oldTextureLabel = QtWidgets.QLabel("old texture")
-        #oldTextureLabel.setAlignment(QtCore.Qt.AlignCenter)
-        #TextureLabelLayout.addWidget(newTextureLabel)
-        #TextureLabelLayout.addWidget(oldTextureLabel)
-        textureBoxLayout = QtWidgets.QHBoxLayout()
-        verticalLayout.addLayout(textureBoxLayout)
-        #self.textures = self.textures_populate()
-        #self.newTexBox = QtWidgets.QListWidget()
-        #textureBoxLayout.addWidget(self.newTexBox)
-        #self.newTexBox.setObjectName("newTexBox")
-        #self.oldTexBox = QtWidgets.QListWidget()
-        #textureBoxLayout.addWidget(self.oldTexBox)
-        #self.oldTexBox.setObjectName("oldTexBox")
-        #self.newTexBox.setIconSize(QtCore.QSize(35,35))
-        #self.oldTexBox.setIconSize(QtCore.QSize(35,35))
-        #self.newTexBox.setStyleSheet('QListWidget {background-color: #000000; color: #B0E0E6;}')
-        #self.oldTexBox.setStyleSheet('QListWidget {background-color: #000000; color: #B0E0E6;}')
-        #selItems = self.newTexBox.selectedItems()
-        self.textureIconChartLayout = QtWidgets.QVBoxLayout()
-        textureIconsLayout = QtWidgets.QHBoxLayout()
-        self.textureIconChartLayout.addLayout(textureIconsLayout)
-        verticalLayout.addLayout(self.textureIconChartLayout)
-        self.textureIconChart = QtWidgets.QListWidget()
-        #self.textureIconChart.setStyleSheet('QListWidget {background-color: #000000; color: #B0E0E6;}')
-        #self.textureIconChart.setViewMode(QtWidgets.QListWidget.IconMode)
-        #self.textureIconChart.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        #self.size = 600
-        #self.textureIconChart.setIconSize(QtCore.QSize(self.size, self.size))
-        #self.textureIconChart.setIconSize(QtCore.QSize(self.size, self.size))
-        #self.textureIconChart.setDragEnabled(0)
-        #self.textureIconChart.setMaximumWidth(321)
-        textureIconsLayout.addWidget(self.textureIconChart)
-        #curItem = self.newTexBox.currentItem()
-        #self.oldTexBox.itemClicked.connect(self.oldTextureListChange)
-        #self.newTexBox.itemClicked.connect(self.newTextureListChange)
-        #self.textureIconChart.itemPressed.connect(self.highlightedTexture)
-        #self.textureIconChart.itemDoubleClicked.connect(self.fCheckLaunch)
-        remButtonLayout = QtWidgets.QHBoxLayout()
-        verticalLayout.addLayout(remButtonLayout)
-        removeBtn = QtWidgets.QPushButton('remove textures')
-        remButtonLayout.addWidget(removeBtn)
-        #removeBtn.clicked.connect(self.removeItemFromBox)
-        removeBtn.setShortcut("Backspace")
-        removeBtn.setFixedSize(0,0)
-        buttonLayout = QtWidgets.QVBoxLayout()
-        verticalLayout.addLayout(buttonLayout)
-        replaceBtn = QtWidgets.QPushButton('swap textures')
-        replaceBtn.setStyleSheet("background-color:rgb(0,100,255)")
-        replaceBtn.setFixedHeight(50)
-        buttonLayout.addWidget(replaceBtn)
-        #replaceBtn.clicked.connect(self.textureReplace)
-        #self.populateBoxes()
+        main_vertical_layout = QtWidgets.QVBoxLayout(mainWidget)
+        self.texture_thumbnails_listWidget = QtWidgets.QListWidget()
+        main_vertical_layout.addWidget(self.texture_thumbnails_listWidget)
+        #button_layout = QtWidgets.QVBoxLayout()
+        #main_vertical_layout.addLayout(button_layout)
+        swap_textures_button = QtWidgets.QPushButton('swap textures')
+        #swap_textures_button.setStyleSheet("background-color:rgb(10,100,255)")
+        #swap_textures_button.setFixedHeight(50)
+        main_vertical_layout.addWidget(swap_textures_button)
+        #print 'swap_textures_button = ',swap_textures_button
+        swap_textures_button.pressed.connect(partial(self.texture_replace))
+        self.populate_texture_window()
         fg = window.frameGeometry()
         cp = QtWidgets.QDesktopWidget().availableGeometry().center()
         fg.moveCenter(cp)
         window.move(fg.topLeft())
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        #self.texture_replace()
         window.show()
 
-        #self.newTexBox.setCurrentIndex(QtCore.QModelIndex())
-        #oldTexBoxSize = self.oldTexBox .count()
-        #i = 0
-        #while i < oldTexBoxSize:
-            #it =  self.oldTexBox.item(i)
-            #it.setFlags(it.flags() & ~QtCore.Qt.ItemIsSelectable)
-            #it.setFlags(it.flags() & ~QtCore.Qt.ItemIsEnabled)
-            #it.setFlags(it.flags() & ~QtCore.Qt.ItemIsEditable)
-            #i = i + 1
-
-    def textureReplace(self):
-        textures_for_swap = []
-        texture_selections = cmds.ls(sl = True)
-        for selection in texture_selections:
-          node_type = cmds.nodeType(selection)
-          if node_type == 'file':
-              textures_for_swap.append(selection)
-          print 'textures_for_swap = ',textures_for_swap
-        for texturePair in textures_for_swap:
+    def texture_replace(self):
+        print 'texture_replace'
+        print 'self.textures_for_swap = ',self.textures_for_swap
+        for texture_pair in self.textures_for_swap:
           #splitting out the old and new texture names
-          texturePair = texturePair.split("%")
-          new_fileTex = textures_for_swap[0]
-          old_fileTex = textures_for_swap[1]
+          new_fileTex = self.textures_for_swap[0]
+          old_fileTex = self.textures_for_swap[1]
           print " "
           print "---"
-          print "textures_for_swap = ",textures_for_swap
+          print "textures_for_swap = ",self.textures_for_swap
           print new_fileTex + " swapping " + old_fileTex
           print "---"
           #starting the replace
@@ -188,7 +166,9 @@ class texture_replacer():
                       print "setting " + str(new_fileTex) + "." + str(new_fileTexAttr) + " to " + str(old_file_texture_attr_dic[new_fileTexAttr])
                       cmds.setAttr(new_fileTex + "." + new_fileTexAttr,old_file_texture_attr_dic[new_fileTexAttr])
           cmds.select(clear = True)
-
+          self.texture_thumbnails_listWidget.clear()
+          new_fileTex = ''
+          old_fileTex = ''
 def main():
     swap = texture_replacer()
     swap.texture_linker_UI()
