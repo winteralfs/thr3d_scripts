@@ -82,7 +82,7 @@ class texture_replacer():
         #button_layout = QtWidgets.QVBoxLayout()
         #main_vertical_layout.addLayout(button_layout)
         swap_textures_button = QtWidgets.QPushButton('swap textures')
-        #swap_textures_button.setStyleSheet("background-color:rgb(10,100,255)")
+        swap_textures_button.setStyleSheet("background-color:rgb(30,70,200)")
         #swap_textures_button.setFixedHeight(50)
         main_vertical_layout.addWidget(swap_textures_button)
         #print 'swap_textures_button = ',swap_textures_button
