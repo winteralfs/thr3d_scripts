@@ -11,11 +11,22 @@ class texture_replacer():
     def __init__(self):
         chris = ''
 
+    def fCheckLaunch(self,curr):
+        fCheckText = curr.text()
+        print 'fCheckText = ',fCheckText
+        print 'self.textures_for_swap_dic = ',self.textures_for_swap_dic
+        if fCheckText != "":
+            fCheckTexPath = self.textures_for_swap_dic[fCheckText]
+            print 'fCheckTexPath = ',fCheckTexPath
+            cmds.fcheck(fCheckTexPath)
+
     def populate_texture_window(self):
+        self.texture_thumbnails_listWidget.clear()
+        #self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow.jpg")
         self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow.jpg")
         arrow_scale_amount_width = 30
         arrow_scale_amount_height = 134
-        texture_scale_amount = 500
+        #texture_scale_amount = 1
         arrowItem = QtWidgets.QListWidgetItem("")
         arrowPixmap = QtGui.QPixmap(self.arrowPath)
         arrowPixmap = arrowPixmap.scaled(arrow_scale_amount_width,arrow_scale_amount_height)
@@ -38,35 +49,36 @@ class texture_replacer():
             self.textures_for_swap_dic[texture] = image_name_path
             texture_item = QtWidgets.QListWidgetItem(texture)
             texture_pixmap = QtGui.QPixmap(image_name_path)
-            texture_pixmap_scaled = texture_pixmap.scaled(texture_scale_amount,texture_scale_amount)
+            #texture_pixmap_scaled = texture_pixmap.scaled(texture_scale_amount,texture_scale_amount)
             texture_icon = QtGui.QIcon()
-            texture_icon.addPixmap(texture_pixmap_scaled)
+            texture_icon.addPixmap(texture_pixmap)
             texture_item.setIcon(texture_icon)
             print 'adding texture'
+            texture_item.setFont(QtGui.QFont('SansSerif', 1))
             self.texture_thumbnails_listWidget.addItem(texture_item)
             print 'adding arrow'
             self.texture_thumbnails_listWidget.addItem(arrowItem)
         print self.textures_for_swap_dic
 
-    def toast(self):
-        print 'toasting'
-
     def texture_linker_UI(self):
-        windowName = "texture_swap"
-        if cmds.window(windowName,exists = True):
-            cmds.deleteUI(windowName, wnd = True)
+        window_name = "texture_swap"
+        if cmds.window(window_name,exists = True):
+            cmds.deleteUI(window_name, wnd = True)
         pointer = mui.MQtUtil.mainWindow()
         parent = shiboken2.wrapInstance(long(pointer),QtWidgets.QWidget)
         window = QtWidgets.QMainWindow(parent)
-        window.setObjectName(windowName)
-        window.setWindowTitle(windowName)
+        window.setObjectName(window_name)
+        window.setWindowTitle(window_name)
         window.setMinimumSize(450,650)
         window.setMaximumSize(450,650)
-        mainWidget = QtWidgets.QWidget()
-        window.setCentralWidget(mainWidget)
-        main_vertical_layout = QtWidgets.QVBoxLayout(mainWidget)
+        main_widget = QtWidgets.QWidget()
+        window.setCentralWidget(main_widget)
+        main_vertical_layout = QtWidgets.QVBoxLayout(main_widget)
         self.texture_thumbnails_listWidget = QtWidgets.QListWidget()
+        self.texture_thumbnails_listWidget.setIconSize(QtCore.QSize(190, 190))
+        self.texture_thumbnails_listWidget.setViewMode(QtWidgets.QListView.IconMode)
         main_vertical_layout.addWidget(self.texture_thumbnails_listWidget)
+        self.texture_thumbnails_listWidget.itemDoubleClicked.connect(self.fCheckLaunch)
         #button_layout = QtWidgets.QVBoxLayout()
         #main_vertical_layout.addLayout(button_layout)
         swap_textures_button = QtWidgets.QPushButton('swap textures')
@@ -82,19 +94,24 @@ class texture_replacer():
         window.move(fg.topLeft())
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         #self.texture_replace()
+        self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged", self.populate_texture_window])
         window.show()
 
     def texture_replace(self):
         print 'texture_replace'
         print 'self.textures_for_swap = ',self.textures_for_swap
-        for texture_pair in self.textures_for_swap:
+        number_of_textures = len(self.textures_for_swap)
+        i = 0
+        while i < number_of_textures:
           #splitting out the old and new texture names
-          new_fileTex = self.textures_for_swap[0]
-          old_fileTex = self.textures_for_swap[1]
+          new_fileTex = self.textures_for_swap[i]
+          print 'new_fileTex = ',new_fileTex
+          old_fileTex = self.textures_for_swap[i+1]
+          print 'old_fileTex = ',old_fileTex
           print " "
           print "---"
           print "textures_for_swap = ",self.textures_for_swap
-          print new_fileTex + " swapping " + old_fileTex
+          print new_fileTex + " swapping with " + old_fileTex
           print "---"
           #starting the replace
           source_connections_modified = []
@@ -165,10 +182,12 @@ class texture_replacer():
                   if attrExists == 1:
                       print "setting " + str(new_fileTex) + "." + str(new_fileTexAttr) + " to " + str(old_file_texture_attr_dic[new_fileTexAttr])
                       cmds.setAttr(new_fileTex + "." + new_fileTexAttr,old_file_texture_attr_dic[new_fileTexAttr])
-          cmds.select(clear = True)
-          self.texture_thumbnails_listWidget.clear()
-          new_fileTex = ''
-          old_fileTex = ''
+          i = i + 2
+        cmds.select(clear = True)
+        self.texture_thumbnails_listWidget.clear()
+        new_fileTex = ''
+        old_fileTex = ''
+
 def main():
     swap = texture_replacer()
     swap.texture_linker_UI()
