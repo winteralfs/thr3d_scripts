@@ -4,7 +4,7 @@ from string import digits
 
 def look_for_duplicate_nodes():
     duplicate_node_names = []
-    all_nodes = cmds.ls(type = 'transform')
+    all_nodes = cmds.ls()
     all_nodes_compare = all_nodes
     for node_1 in all_nodes_compare:
         node_1_split = node_1.split('|')
