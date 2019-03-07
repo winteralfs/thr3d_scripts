@@ -4,6 +4,32 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
+def look_for_duplicate_nodes():
+    duplicate_node_names = []
+    all_nodes = cmds.ls(type = 'transform')
+    all_nodes_compare = all_nodes
+    for node_1 in all_nodes_compare:
+        node_1_split = node_1.split('|')
+        node_1_short_name = node_1_split[-1]
+        compare = 0
+        #print 'node_1_short_name = ',node_1_short_name
+        for node_2 in all_nodes:
+            node_2_split = node_2.split('|')
+            node_2_short_name = node_2_split[-1]
+            #print 'node_2_short_name = ',node_2_short_name
+            if node_1_short_name == node_2_short_name:
+                compare = compare + 1
+                #print 'compare = ',compare
+                if compare > 1:
+                    #print '**match**'
+                    duplicate_node_names.append(node_1)
+    #print 'duplicate_node_names = ', duplicate_node_names
+    return(duplicate_node_names)
+
+def dupe_node_window(duplicate_node_names):
+    print 'window duplicate_node_names = ', duplicate_node_names
+    exit
+
 def objectChooseWin():
     name = "object_replace"
     windowSize = (300,100)
@@ -42,32 +68,6 @@ def objectChooseWin():
     cmds.button(label = "replace", command = (objects_CB))
     cmds.showWindow()
 
-def look_for_duplicate_nodes():
-    duplicate_node_names = []
-    all_nodes = cmds.ls(type = 'transform')
-    all_nodes_compare = all_nodes
-    for node_1 in all_nodes_compare:
-        node_1_split = node_1.split('|')
-        node_1_short_name = node_1_split[-1]
-        compare = 0
-        #print 'node_1_short_name = ',node_1_short_name
-        for node_2 in all_nodes:
-            node_2_split = node_2.split('|')
-            node_2_short_name = node_2_split[-1]
-            #print 'node_2_short_name = ',node_2_short_name
-            if node_1_short_name == node_2_short_name:
-                compare = compare + 1
-                #print 'compare = ',compare
-                if compare > 1:
-                    #print '**match**'
-                    duplicate_node_names.append(node_1)
-    #print 'duplicate_node_names = ', duplicate_node_names
-    return(duplicate_names_found)
-
-    def dupe_node_window(duplicate_names_found):
-        print 'window duplicate_names_found = ', duplicate_names_found
-        exit
-
     def objects(object_Old,object_New):
         print " "
         print " "
@@ -75,11 +75,13 @@ def look_for_duplicate_nodes():
         print " "
         print " "
 
-        duplicate_names_found = look_for_duplicate_nodes()
-        print 'duplicate_names_found = ',duplicate_names_found
-        number_of_dup_nodes = len(duplicate_names_found)
+        duplicate_node_names = look_for_duplicate_nodes()
+        print 'duplicate_node_names = ',duplicate_node_names
+        number_of_dup_nodes = len(duplicate_node_names)
         if number_of_dup_nodes > 0:
-            dupe_node_window(duplicate_names_found)
+            dupe_node_window(duplicate_node_names)
+            print 'exiting cause dupe names found'
+            raise Exception("Dupes_Found")
 
         object_Old = object_Old
         object_New = object_New

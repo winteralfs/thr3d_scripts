@@ -32,7 +32,7 @@ class texture_replacer():
             self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow.jpg")
             arrow_scale_amount_width = 30
             arrow_scale_amount_height = 134
-            arrowItem = QtWidgets.QListWidgetItem("")
+            arrowItem = QtWidgets.QListWidgetItem()
             arrowPixmap = QtGui.QPixmap(self.arrowPath)
             arrowPixmap = arrowPixmap.scaled(arrow_scale_amount_width,arrow_scale_amount_height)
             arrowIcon = QtGui.QIcon()
@@ -47,6 +47,7 @@ class texture_replacer():
             texture_item.setIcon(texture_icon)
             texture_item.setFont(QtGui.QFont('SansSerif', 10))
             texture_item.setFlags(texture_item.flags() &~ QtCore.Qt.ItemIsSelectable)
+            arrowItem.setFlags(arrowItem.flags() &~ QtCore.Qt.ItemIsSelectable)
             if i in placement_range_for_arrow:
                 self.texture_thumbnails_listWidget.addItem(texture_item)
                 self.texture_thumbnails_listWidget.addItem(arrowItem)
