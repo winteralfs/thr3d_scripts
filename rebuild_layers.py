@@ -1890,7 +1890,7 @@ def layer_switcher():
     name = "layer_manager"
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
-    window = cmds.window(name, title = name, sizeable = False)
+    window = cmds.window(name, title = name, sizeable = True)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     renderLays = cmds.ls(type = "renderLayer")
     if "defaultRenderLayer" == renderLays[0]:

@@ -13,27 +13,13 @@ class texture_replacer():
 
     def fCheckLaunch(self,curr):
         fCheckText = curr.text()
-        print 'fCheckText = ',fCheckText
-        print 'self.textures_for_swap_dic = ',self.textures_for_swap_dic
         if fCheckText != "":
             fCheckTexPath = self.textures_for_swap_dic[fCheckText]
-            print 'fCheckTexPath = ',fCheckTexPath
             cmds.fcheck(fCheckTexPath)
 
     def populate_texture_window(self):
         self.texture_thumbnails_listWidget.clear()
-        #self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow.jpg")
-        self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow.jpg")
-        arrow_scale_amount_width = 30
-        arrow_scale_amount_height = 134
-        #texture_scale_amount = 1
-        arrowItem = QtWidgets.QListWidgetItem("")
-        arrowPixmap = QtGui.QPixmap(self.arrowPath)
-        arrowPixmap = arrowPixmap.scaled(arrow_scale_amount_width,arrow_scale_amount_height)
-        arrowIcon = QtGui.QIcon()
-        arrowIcon.addPixmap(arrowPixmap)
-        arrowItem.setIcon(arrowIcon)
-        print 'populate_texture_window'
+        placement_range_for_arrow = [0,2,4,7,10,13,16,19,22,25,28,31,34,37,40,43,44,47,50,53,56,59,62,65,68,71,74,77,80,83,86,89,92,95,98,101]
         self.textures_for_swap = []
         self.textures_for_swap_dic = {}
         texture_selections = cmds.ls(sl = True)
@@ -41,24 +27,32 @@ class texture_replacer():
             node_type = cmds.nodeType(selection)
             if node_type == 'file':
               self.textures_for_swap.append(selection)
-            print 'textures_for_swap = ',self.textures_for_swap
+        i = 0
         for texture in self.textures_for_swap:
-            print 'texture = ',texture
+            self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow.jpg")
+            arrow_scale_amount_width = 30
+            arrow_scale_amount_height = 134
+            arrowItem = QtWidgets.QListWidgetItem("")
+            arrowPixmap = QtGui.QPixmap(self.arrowPath)
+            arrowPixmap = arrowPixmap.scaled(arrow_scale_amount_width,arrow_scale_amount_height)
+            arrowIcon = QtGui.QIcon()
+            arrowIcon.addPixmap(arrowPixmap)
+            arrowItem.setIcon(arrowIcon)
             image_name_path = cmds.getAttr(texture + '.fileTextureName')
-            print 'image_name_path = ',image_name_path
             self.textures_for_swap_dic[texture] = image_name_path
             texture_item = QtWidgets.QListWidgetItem(texture)
             texture_pixmap = QtGui.QPixmap(image_name_path)
-            #texture_pixmap_scaled = texture_pixmap.scaled(texture_scale_amount,texture_scale_amount)
             texture_icon = QtGui.QIcon()
             texture_icon.addPixmap(texture_pixmap)
             texture_item.setIcon(texture_icon)
-            print 'adding texture'
-            texture_item.setFont(QtGui.QFont('SansSerif', 1))
-            self.texture_thumbnails_listWidget.addItem(texture_item)
-            print 'adding arrow'
-            self.texture_thumbnails_listWidget.addItem(arrowItem)
-        print self.textures_for_swap_dic
+            texture_item.setFont(QtGui.QFont('SansSerif', 10))
+            texture_item.setFlags(texture_item.flags() &~ QtCore.Qt.ItemIsSelectable)
+            if i in placement_range_for_arrow:
+                self.texture_thumbnails_listWidget.addItem(texture_item)
+                self.texture_thumbnails_listWidget.addItem(arrowItem)
+            else:
+                self.texture_thumbnails_listWidget.addItem(texture_item)
+            i = i + 1
 
     def texture_linker_UI(self):
         window_name = "texture_swap"
@@ -69,23 +63,20 @@ class texture_replacer():
         window = QtWidgets.QMainWindow(parent)
         window.setObjectName(window_name)
         window.setWindowTitle(window_name)
-        window.setMinimumSize(450,650)
-        window.setMaximumSize(450,650)
         main_widget = QtWidgets.QWidget()
         window.setCentralWidget(main_widget)
+        window.setFixedSize(500,700)
         main_vertical_layout = QtWidgets.QVBoxLayout(main_widget)
         self.texture_thumbnails_listWidget = QtWidgets.QListWidget()
-        self.texture_thumbnails_listWidget.setIconSize(QtCore.QSize(190, 190))
+        self.texture_thumbnails_listWidget.setStyleSheet('QListWidget {background-color: #000000; color: #B0E0E6;}')
+        self.texture_thumbnails_listWidget.setIconSize(QtCore.QSize(214, 214))
         self.texture_thumbnails_listWidget.setViewMode(QtWidgets.QListView.IconMode)
         main_vertical_layout.addWidget(self.texture_thumbnails_listWidget)
         self.texture_thumbnails_listWidget.itemDoubleClicked.connect(self.fCheckLaunch)
-        #button_layout = QtWidgets.QVBoxLayout()
-        #main_vertical_layout.addLayout(button_layout)
         swap_textures_button = QtWidgets.QPushButton('swap textures')
-        swap_textures_button.setStyleSheet("background-color:rgb(30,70,200)")
-        #swap_textures_button.setFixedHeight(50)
+        swap_textures_button.setFixedHeight(50)
+        swap_textures_button.setStyleSheet("background-color:rgb(30,125,200)")
         main_vertical_layout.addWidget(swap_textures_button)
-        #print 'swap_textures_button = ',swap_textures_button
         swap_textures_button.pressed.connect(partial(self.texture_replace))
         self.populate_texture_window()
         fg = window.frameGeometry()
@@ -93,13 +84,10 @@ class texture_replacer():
         fg.moveCenter(cp)
         window.move(fg.topLeft())
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        #self.texture_replace()
         self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged", self.populate_texture_window])
         window.show()
 
     def texture_replace(self):
-        print 'texture_replace'
-        print 'self.textures_for_swap = ',self.textures_for_swap
         number_of_textures = len(self.textures_for_swap)
         i = 0
         while i < number_of_textures:
@@ -110,7 +98,7 @@ class texture_replacer():
           print 'old_fileTex = ',old_fileTex
           print " "
           print "---"
-          print "textures_for_swap = ",self.textures_for_swap
+          #print "textures_for_swap = ",self.textures_for_swap
           print new_fileTex + " swapping with " + old_fileTex
           print "---"
           #starting the replace
@@ -139,7 +127,7 @@ class texture_replacer():
           outIter = 1
           while outIter < source_connections_modified_size:
               if connections_source_old[outIter] != "defaultColorMgtGlobals.cmEnabled" and connections_source_old[outIter] != "defaultColorMgtGlobals.configFileEnabled" and connections_source_old[outIter] != "defaultColorMgtGlobals.configFilePath" and connections_source_old[outIter] != "defaultColorMgtGlobals.workingSpaceName":
-                  print "connecting " + connections_source_old[outIter] + " to "  + source_connections_modified[inIter]
+                  #print "connecting " + connections_source_old[outIter] + " to "  + source_connections_modified[inIter]
                   cmds.connectAttr(connections_source_old[outIter],source_connections_modified[inIter],force = True)
               outIter = outIter + 2
               inIter = inIter + 2
@@ -149,7 +137,7 @@ class texture_replacer():
           outIter = 1
           while outIter < destination_connections_modified_size:
               if ".message" not in destination_connections_modified[inIter]:
-                  print "connecting " + destination_connections_modified[inIter] + " to " + connections_destination_old[outIter]
+                  #print "connecting " + destination_connections_modified[inIter] + " to " + connections_destination_old[outIter]
                   cmds.connectAttr(destination_connections_modified[inIter],connections_destination_old[outIter], force = True)
               outIter = outIter + 2
               inIter = inIter + 2
@@ -180,7 +168,7 @@ class texture_replacer():
               if new_fileTexAttr in new_file_texture_attr_dic:
                   attrExists = cmds.attributeQuery(new_fileTexAttr,node = new_fileTex,exists = True)
                   if attrExists == 1:
-                      print "setting " + str(new_fileTex) + "." + str(new_fileTexAttr) + " to " + str(old_file_texture_attr_dic[new_fileTexAttr])
+                      #print "setting " + str(new_fileTex) + "." + str(new_fileTexAttr) + " to " + str(old_file_texture_attr_dic[new_fileTexAttr])
                       cmds.setAttr(new_fileTex + "." + new_fileTexAttr,old_file_texture_attr_dic[new_fileTexAttr])
           i = i + 2
         cmds.select(clear = True)
