@@ -1,4 +1,4 @@
-print 'arrow work'
+print 'background color'
 
 import maya.mel as mel
 import maya.cmds as cmds
@@ -31,12 +31,12 @@ class texture_replacer():
               self.textures_for_swap.append(selection)
         i = 0
         for texture in self.textures_for_swap:
-            self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow_stretch.jpg")
-            arrow_scale_amount_width = 30
-            arrow_scale_amount_height = 134
+            self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/arrow.jpg")
+            #arrow_scale_amount_width = 30
+            #arrow_scale_amount_height = 134
             arrowItem = QtWidgets.QListWidgetItem()
             arrowPixmap = QtGui.QPixmap(self.arrowPath)
-            arrowPixmap = arrowPixmap.scaled(arrow_scale_amount_width,arrow_scale_amount_height)
+            #arrowPixmap = arrowPixmap.scaled(arrow_scale_amount_width,arrow_scale_amount_height)
             arrowIcon = QtGui.QIcon()
             arrowIcon.addPixmap(arrowPixmap)
             arrowItem.setIcon(arrowIcon)
@@ -50,7 +50,6 @@ class texture_replacer():
             texture_item.setFont(QtGui.QFont('SansSerif', 10))
             texture_item.setFlags(texture_item.flags() &~ QtCore.Qt.ItemIsSelectable)
             arrowItem.setFlags(arrowItem.flags() &~ QtCore.Qt.ItemIsSelectable)
-            self.texture_thumbnails_listWidget.setFocusPolicy(QtCore.Qt.NoFocus)
             if i in placement_range_for_arrow:
                 self.texture_thumbnails_listWidget.addItem(texture_item)
                 self.texture_thumbnails_listWidget.addItem(arrowItem)
@@ -72,14 +71,17 @@ class texture_replacer():
         window.setFixedSize(500,700)
         main_vertical_layout = QtWidgets.QVBoxLayout(main_widget)
         self.texture_thumbnails_listWidget = QtWidgets.QListWidget()
-        self.texture_thumbnails_listWidget.setStyleSheet('QListWidget {background-color: #000000; color: #B0E0E6;}')
+        self.texture_thumbnails_listWidget.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
+        self.texture_thumbnails_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.texture_thumbnails_listWidget.setIconSize(QtCore.QSize(214, 214))
         self.texture_thumbnails_listWidget.setViewMode(QtWidgets.QListView.IconMode)
         main_vertical_layout.addWidget(self.texture_thumbnails_listWidget)
         self.texture_thumbnails_listWidget.itemDoubleClicked.connect(self.fCheckLaunch)
+        self.texture_thumbnails_listWidget.setFocusPolicy(QtCore.Qt.NoFocus)
         swap_textures_button = QtWidgets.QPushButton('swap textures')
         swap_textures_button.setFixedHeight(50)
-        swap_textures_button.setStyleSheet("background-color:rgb(30,125,200)")
+        swap_textures_button.setStyleSheet("background-color:rgb(105,110,120)")
+        swap_textures_button.setFont(QtGui.QFont('SansSerif', 12))
         main_vertical_layout.addWidget(swap_textures_button)
         swap_textures_button.pressed.connect(partial(self.texture_replace))
         self.populate_texture_window()
@@ -97,12 +99,8 @@ class texture_replacer():
         while i < number_of_textures:
           #splitting out the old and new texture names
           new_fileTex = self.textures_for_swap[i]
-          #print 'new_fileTex = ',new_fileTex
           old_fileTex = self.textures_for_swap[i+1]
-          #print 'old_fileTex = ',old_fileTex
           print " "
-          #print "---"
-          #print "textures_for_swap = ",self.textures_for_swap
           print new_fileTex + " swapping with " + old_fileTex
           #print "---"
           #starting the replace
