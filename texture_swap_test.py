@@ -1,3 +1,5 @@
+print 'arrow work'
+
 import maya.mel as mel
 import maya.cmds as cmds
 import os
@@ -29,12 +31,12 @@ class texture_replacer():
               self.textures_for_swap.append(selection)
         i = 0
         for texture in self.textures_for_swap:
-            self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/_arrow.jpg")
-            arrow_scale_amount_width = 30
-            arrow_scale_amount_height = 134
+            self.arrowPath = QtGui.QPixmap("U:/cwinters/thumbnails/arrow.jpg")
+            #arrow_scale_amount_width = 30
+            #arrow_scale_amount_height = 134
             arrowItem = QtWidgets.QListWidgetItem()
             arrowPixmap = QtGui.QPixmap(self.arrowPath)
-            arrowPixmap = arrowPixmap.scaled(arrow_scale_amount_width,arrow_scale_amount_height)
+            #arrowPixmap = arrowPixmap.scaled(arrow_scale_amount_width,arrow_scale_amount_height)
             arrowIcon = QtGui.QIcon()
             arrowIcon.addPixmap(arrowPixmap)
             arrowItem.setIcon(arrowIcon)
@@ -47,7 +49,6 @@ class texture_replacer():
             texture_item.setIcon(texture_icon)
             texture_item.setFont(QtGui.QFont('SansSerif', 10))
             texture_item.setFlags(texture_item.flags() &~ QtCore.Qt.ItemIsSelectable)
-            print 'this one', (QtWidgets.QApplication.style().objectName())
             arrowItem.setFlags(arrowItem.flags() &~ QtCore.Qt.ItemIsSelectable)
             self.texture_thumbnails_listWidget.setFocusPolicy(QtCore.Qt.NoFocus)
             if i in placement_range_for_arrow:
@@ -96,14 +97,14 @@ class texture_replacer():
         while i < number_of_textures:
           #splitting out the old and new texture names
           new_fileTex = self.textures_for_swap[i]
-          print 'new_fileTex = ',new_fileTex
+          #print 'new_fileTex = ',new_fileTex
           old_fileTex = self.textures_for_swap[i+1]
-          print 'old_fileTex = ',old_fileTex
+          #print 'old_fileTex = ',old_fileTex
           print " "
-          print "---"
+          #print "---"
           #print "textures_for_swap = ",self.textures_for_swap
           print new_fileTex + " swapping with " + old_fileTex
-          print "---"
+          #print "---"
           #starting the replace
           source_connections_modified = []
           destination_connections_modified = []
