@@ -47,7 +47,9 @@ class texture_replacer():
             texture_item.setIcon(texture_icon)
             texture_item.setFont(QtGui.QFont('SansSerif', 10))
             texture_item.setFlags(texture_item.flags() &~ QtCore.Qt.ItemIsSelectable)
+            print 'this one', (QtWidgets.QApplication.style().objectName())
             arrowItem.setFlags(arrowItem.flags() &~ QtCore.Qt.ItemIsSelectable)
+            self.texture_thumbnails_listWidget.setFocusPolicy(QtCore.Qt.NoFocus)
             if i in placement_range_for_arrow:
                 self.texture_thumbnails_listWidget.addItem(texture_item)
                 self.texture_thumbnails_listWidget.addItem(arrowItem)
