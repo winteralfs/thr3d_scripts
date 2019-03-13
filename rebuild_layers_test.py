@@ -1857,16 +1857,22 @@ class layers_tool_window():
                 else:
                     self.clear_layout(item.layout())
 
-    def set_render_camera(self,camera_comboBox):
-        print 'camera_comboBox = ',camera_comboBox
+    def set_render_camera(self):
         for render_layer in self.render_layers:
             if render_layer != 'defaultRenderLayer':
                 camera_comboBox_pointer = self.render_layer_camera_comboBox_dic[render_layer]
                 print 'camera_comboBox_pointer = ',camera_comboBox_pointer
-                if camera_comboBox_pointer == camera_comboBox:
-                    cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
-                    chosen_camera = camera_comboBox.currentText()
-                    print 'chosen_camera = ',chosen_camera
+                chosen_camera = camera_comboBox_pointer.currentText()
+                cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                for camera in self.cameras:
+                    if camera == chosen_camera:
+                        cmds.editRenderLayerAdjustment((camera + '.renderable'))
+                        cmds.setAttr((camera + '.renderable'), 1)
+                    else:
+                        cmds.editRenderLayerAdjustment((camera + '.renderable'),remove = True)
+                        cmds.setAttr(camera + '.renderable', 0)
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
+        #self.populate_gui()
 
     def window_gen(self):
         self.window_name = "render layers tool"
@@ -1929,7 +1935,7 @@ class layers_tool_window():
                 self.render_layer_layout.addWidget(button_render_layer)
                 camera_comboBox = self.cameras_combobox = QtWidgets.QComboBox()
                 self.render_layer_camera_comboBox_dic[render_layer] = camera_comboBox
-                self.cameras_combobox.activated[str].connect(lambda:self.set_render_camera(camera_comboBox))
+                self.cameras_combobox.activated[str].connect(lambda:self.set_render_camera())
                 self.cameras_combobox.setFixedSize(150,21)
                 self.cameras_combobox.clear()
                 self.render_layer_layout.addWidget(self.cameras_combobox)
