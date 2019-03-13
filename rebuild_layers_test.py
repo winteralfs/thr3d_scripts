@@ -1,6 +1,13 @@
 import maya.cmds as cmds
+import maya.mel as mel
+import os
+import maya.OpenMayaUI as mui
 from functools import partial
+from PySide2 import QtWidgets,QtCore,QtGui
+import shiboken2
 import re
+
+print 'that'
 
 render_layers = cmds.ls(type = "renderLayer")
 light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
@@ -13,7 +20,7 @@ materials_displacement = cmds.ls(type = "displacementShader")
 displacement_nodes = cmds.ls(type = "VRayDisplacement")
 placement_nodes = cmds.ls(type = "place2dTexture")
 file_nodes = cmds.ls(type = "file")
-layered_textures = cmds.ls(type = "layered_textures")
+layered_textures = cmds.ls(type = "layeredTexture")
 VRayBlendMtls = cmds.ls(type = "VRayBlendMtl")
 materials = materials_VRayMtl + materials_phong + materials_blinn + materials_lambert + materials_surface_shader + placement_nodes + file_nodes + materials_displacement + displacement_nodes + layered_textures + VRayBlendMtls
 object_check_g = cmds.ls(g = True)
@@ -1126,46 +1133,6 @@ def camAnalize():
                     camRenDic[camRenDicSTR] = (camm + "_" + rl)
     return(camRenDic,camList)
 
-def setRenCam(rl,camList,renCamMenu,render_layers,*args):
-    global initialLayer
-    laySP = renCamMenu.split("|")
-    lay = laySP[2]
-    cmds.editRenderLayerGlobals(currentRenderLayer = lay)
-    menuValue = cmds.optionMenu(renCamMenu,v = True, query = True)
-    renCamSTR = menuValue + ".renderable"
-    camStatedic = {}
-    camListMod = cmds.ls(type = "camera")
-    camListMod.append("perspShape")
-    camListMod.append("topShape")
-    camListMod.append("frontShape")
-    camListMod.append("sideShape")
-    for rll in render_layers:
-        cmds.editRenderLayerGlobals(currentRenderLayer = rll)
-        for camm in camListMod:
-            renState = cmds.getAttr(camm + ".renderable")
-            curLay = cmds.editRenderLayerGlobals(currentRenderLayer = True,query = True)
-            if renState == 1:
-                camStatedic[(camm + "&" + rll)] = renState
-    cmds.editRenderLayerGlobals(currentRenderLayer = lay)
-    setCam = "none"
-    if lay == "defaultRenderLayer":
-        for cam in camListMod:
-            if cam == menuValue:
-                cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
-                cmds.setAttr((cam + ".renderable"),1)
-                setCam = cam
-            else:
-                cmds.setAttr(cam + ".renderable",0)
-    if lay != "defaultRenderLayer":
-        cmds.editRenderLayerGlobals(currentRenderLayer = lay)
-        for cam in camListMod:
-            if cam == menuValue:
-                cmds.editRenderLayerAdjustment(cam + ".renderable")
-                cmds.setAttr((cam + ".renderable"),1)
-                setCam = cam
-    cmds.editRenderLayerGlobals( currentRenderLayer = initialLayer)
-    camColorCheck(renCamMenu,setCam)
-
 def fixCams(rl,render_layers,camList,renCamMenu,*args):
     global initialLayer
     intialLayer = cmds.editRenderLayerGlobals(currentRenderLayer = True, query = True)
@@ -1876,253 +1843,108 @@ def unlockNodes(*args):
         cmds.setAttr(dad + ".renderable", lock = 0)
     print 'nodes unlocked'
 
-def layer_switcher():
-    global initialLayer
-    setCam = ""
-    render_layers = cmds.ls(type = "renderLayer")
-    initialLayer = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
-    txtFieldList = []
-    valLayerList1 = []
-    valLayerList2 = []
-    camInfo = camAnalize()
-    camFieldTextRaw = camInfo[0]
-    renderCams = camInfo[1]
-    name = "layer_manager"
-    if (cmds.window(name, exists = True)):
-        cmds.deleteUI(name)
-    window = cmds.window(name, title = name, sizeable = True)
-    cmds.columnLayout("mainColumn", adjustableColumn = True)
-    renderLays = cmds.ls(type = "renderLayer")
-    if "defaultRenderLayer" == renderLays[0]:
-        renderLays.reverse()
-    butts = []
-    OILall = []
-    SOLall = []
-    overButts = []
-    butts_addOBJ = []
-    butts_delOBJ = []
-    butts_addOBJ_ALL = []
-    butts_delOBJ_ALL = []
-    buttSize_Add_Obj = 0
-    buttSize_del_OBJ = 0
-    buttSize_Add_Obj_adj = 0
-    buttSize_del_Obj_adj = 0
-    renCheckBo = []
-    cmds.rowLayout("titles", numberOfColumns = 20, parent = "mainColumn")
-    for rl in renderLays:
-        VScount = "on"
-        Tcount = "on"
-        Mcount = "on"
-        Ccount = "off"
-        Lcount = "on"
-        Rcount = "on"
-        VPcount = "on"
-        rmAllcount = "off"
-        renderState = cmds.getAttr(rl + ".renderable")
-        cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-        check = 0
-        cmds.rowLayout(rl, numberOfColumns = 15,parent = 'mainColumn')
-        if "defaultRenderLayer" in rl:
-            rl = "defaultRenderLayer"
-        but_OIL = cmds.button(label = "OIL",bgc = (.3,.3,.3))
-        but_SOL = cmds.button(label = "OVL",bgc = (.3,.3,.3))
-        but = cmds.button( label = rl,bgc = (.25,.25,.25))
-        renCamMenu = cmds.optionMenu(changeCommand = "###printNewMenuItem")
-        activeLayerKids = cmds.rowLayout(rl,childArray = True, query = True)
-        layerBut = activeLayerKids[0]
-        layerBut = cmds.button(layerBut,label = True,query = True)
-        rmALL = 0
-        renCams = []
-        camList = cmds.ls(type = "camera")
+class layers_tool_window():
+    def __init__(self):
+        chris = ''
 
-        for camm in camList:
-            name = camm + ".renderable"
-            state = cmds.getAttr(name)
-            if state == 1:
-                renCams.append(camm)
-        camNum = len(renCams)
-        for rcam in renderCams:
-            cmds.menuItem(label = rcam)
-        if camNum > 0:
-            if rl != "defaultRenderLayer":
-                cmds.optionMenu(renCamMenu, v = renCams[0],bgc = (1,0,0),edit = True)
-            if rl == "defaultRenderLayer":
-                cmds.optionMenu(renCamMenu, v = renCams[0],bgc = (.5,.5,.5),edit = True)
-        if camNum > 1:
-            if rl != "defaultRenderLayer":
-                cmds.optionMenu(renCamMenu, v = renCams[0],bgc = (1,0,0),edit = True)
-        if camNum == 0:
-            cmds.optionMenu(renCamMenu, v = "none",bgc = (.5,.5,.5),edit = True)
-        if camNum != 0:
-            var = 0
-            for cam in camList:
-                if cam in renCams:
-                    if "FtTp" in cam or "FtRt" in cam or "FtLt" in cam in cam or "FtLtTp" in cam or "FtRtTp" in cam or "Ft" in cam or "Bk" in cam or "Rt" in cam or "Lt" in cam or "Tp" in cam or "Bt" in cam:
-                        var = 0
-                    if "C1N1" in cam or "C1N1Shape" in cam or "C7N1" in cam or "C7N1Shape" in cam or "C2N1" in cam or "C2N1Shape" in cam  or "C8N1" in cam  or "C8N1Shape" in cam  or "C3N1" in cam or "C3N1Shape" in cam  or "C9N1" in cam  or "C9N1Shape" in cam or "C1C1" in cam or "C1C1Shape" in cam or "C1L1" in cam  or "C1L1Shape" in cam or "C1R1" in cam or "C1R1Shape" in cam or "C1N2" in cam or "C1NShape2" in cam or "C1N2Shape" in cam or "C1N4" in cam or "C1NShape4" in cam or "C1N4Shape" in cam:
-                        var = 1
-                    if "C1N1Shape1" in cam or "C7N1Shape1" in cam or "C2N1Shape1" in cam or "C8N1Shape1" in cam or "C3N1Shape1" in cam or "C9N1Shape1" in cam or "C1C1Shape1" in cam or "C1L1Shape1" in cam or "C1R1Shape1" in cam or "C1N2Shape1" in cam or "C1N4Shape1" in cam:
-                        var = 2
-                    if "persp" in cam or "top" in cam or "front" in cam or "side" in cam:
-                        var = 3
-                    if "HeroShape" in cam or "HeroShape1" in cam or "heroShape" in cam or "heroShape1" in cam or "Hero1" in cam or "hero" in cam or "Hero" in cam or "Hero1" in cam:
-                        var = 4
-                    camRegExA = ""
-                    for r in render_layers:
-                        if r != "defaultRenderLayer":
-                            if "_BTY" in r:
-                                if var == 0:
-                                    camRegEx = cam + "_"
-                                    camRegExSp = camRegEx.split("_")
-                                    camRegExA = camRegExSp[0]
-                                    camRegExSp = camRegExA.split("Shape")
-                                    camRegExA = camRegExSp[0]
-                                    camRegExA = camRegExA + "_BTY"
-                            if "_BTY" not in r:
-                                    camRegEx = cam + "_"
-                                    camRegExSp = camRegEx.split("_")
-                                    camRegExA = camRegExSp[0]
-                                    camRegExSp = camRegExA.split("Shape")
-                                    camRegExA = camRegExSp[0]
-                    if var == 0:
-                        if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape":
-                            camRegEx = cam + "_"
-                            camRegExSp = camRegEx.split("_")
-                            camRegEx = camRegExSp[0]
-                            camRegEx = camRegEx.split("Shape")
-                            camRegExA = camRegEx[0]
-                        else:
-                            camRegEx = cam + "_"
-                            camRegExSp = camRegEx.split("_")
-                            camRegEx = camRegExSp[0]
-                            camRegEx = camRegEx.split("Shape")
-                            camRegExA = camRegEx[0]
-                    if var == 1:
-                        if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape":
-                            chils = cmds.listRelatives(cam) or []
-                            chilNums = len(chils)
-                            if chilNums > 0:
-                                camRegEx = cam + "_"
-                                camRegExSp = camRegEx.split("_")
-                                camRegEx = camRegExSp[1]
-                                camRegEx = camRegEx.split("Shape")
-                                camRegExA = camRegEx[0] +  camRegEx[1]
-                        else:
-                            camRegExA = cam
-                    if var == 2:
-                        if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape":
-                            chils = cmds.listRelatives(cam) or []
-                            chilNums = len(chils)
-                            if chilNums > 0:
-                                camRegEx = cam + "_"
-                                camRegExSp = camRegEx.split("_")
-                                camRegEx = camRegExSp[1]
-                                camRegEx = camRegEx.split("Shape")
-                                camRegExA = camRegEx[0]
-                        else:
-                            camRegExA = cam
-                    if var == 3:
-                        if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape" and cam != "backShape" and cam != "bottomShape" and cam != "leftShape" and cam != "BkNuShape" and cam != "FtLtShape" and cam != "FtNuShape" and cam != "FtRtShape":
-                            chils = cmds.listRelatives(cam) or []
-                            chilNums = len(chils)
-                            if chilNums > 0:
-                                camRegEx = cam + "_"
-                                camRegExSp = camRegEx.split("_")
-                                camRegEx = camRegExSp[1]
-                                camRegEx = camRegEx.split("Shape")
-                                camRegExA = camRegEx[0]
-                        else:
-                            camRegExA = cam
-                    if var == 4:
-                        print "var = ",var
-                        if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape" and cam != "backShape" and cam != "bottomShape" and cam != "leftShape" and cam != "BkNuShape" and cam != "FtLtShape" and cam != "FtNuShape" and cam != "FtRtShape":
-                            print "cam = ",cam
-                            chils = cmds.listRelatives(cam) or []
-                            chilNums = len(chils)
-                            if chilNums > 0:
-                                camRegEx = cam + "_"
-                                print "camRegEx = ",camRegEx
-                                camRegExSp = camRegEx.split("_")
-                                print "camRegExSp = ",camRegExSp
-                                camRegEx = camRegExSp[1]
-                                print "camRegEx = ",camRegEx
-                                camRegEx = camRegEx.split("Shape")
-                                camRegExA = camRegEx[0] +  camRegEx[1]
-                        else:
-                            camRegExA = cam
-                    if rl != "defaultRenderLayer":
-                        if camNum == 1 and rl == (camRegExA) or rl == (camRegExA + "_BTY") or rl == (camRegExA + "_REF") or rl == (camRegExA + "_SHD") or rl == (camRegExA + "_REF_MATTE") or rl == ("BTY_" + camRegExA):
-                            cmds.optionMenu(renCamMenu,bgc = (.5,.5,.5),edit = True)
-                            break
-                        else:
-                            cmds.optionMenu(renCamMenu, bgc = (1,0,0),edit = True)
-        butts.append(but)
-        OILall.append(but_OIL)
-        SOLall.append(but_SOL)
-        buttSize = len(butts)
-        renCheckBoSize = len(renCheckBo)
-        ButtSizeAdj = (buttSize -1)
-        renCheckBoSiz_ADJ = (renCheckBoSize -1)
-        buttonActive = cmds.button(but, command = partial(activeBut,rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,butts_addOBJ_ALL,butts_delOBJ_ALL),w = 150, edit = True)
-        renCamMenuPath = cmds.optionMenu(renCamMenu,cc = partial(setRenCam,rl,camList,renCamMenu,render_layers), edit = True)
-        if rl == initialLayer:
-            cmds.button(but,bgc = (.5,.8,1), edit = True)
-    button_width = 183
-    cmds.rowLayout(("1"), numberOfColumns = 2, parent = "mainColumn")
-    but_adOBJ = cmds.button(label = "add selection", width = button_width)
-    but_adOBJ_ALL = cmds.button(label = "add selection -all layers",width = button_width)
-    cmds.rowLayout(("2"), numberOfColumns = 2, parent = "mainColumn")
-    but_delOBJ = cmds.button(label = " remove selection",width = button_width)
-    but_delOBJ_ALL = cmds.button(label = "remove selection -all layers",width = button_width)
-    cmds.rowLayout(("3"), numberOfColumns = 2, parent = "mainColumn")
-    but_showSelection = cmds.button(label = "show_selection",width = button_width)
-    but_showSelection_ALL = cmds.button(label = "show_selection -all layers",width = button_width)
-    cmds.rowLayout(("4"), numberOfColumns = 2, parent = "mainColumn")
-    but_hideSelection = cmds.button(label = "hide_selection",width = button_width)
-    but_hideSelection_ALL = cmds.button(label = "hide_selection -all layers",width = button_width)
-    cmds.rowLayout(("5"), numberOfColumns = 2, parent = "mainColumn")
-    but_fixCams = cmds.button(label = "fixCamAssignments",width = button_width)
-    but_ReNameLayers = cmds.button(label = "fixLayerNames",width = button_width)
-    cmds.rowLayout(("6"), numberOfColumns = 2, parent = "mainColumn")
-    but_lockUnlocks = cmds.button(label = "unlock cams",width = button_width)
-    but_copyALL_Layers = cmds.button(label = "copyALL_Layers",width = button_width)
-    butts_addOBJ.append(but_adOBJ)
-    butts_delOBJ.append(but_delOBJ)
-    butts_addOBJ_ALL.append(but_adOBJ_ALL)
-    butts_delOBJ_ALL.append(but_delOBJ_ALL)
-    buttSize_Add_Obj = len(butts_addOBJ)
-    buttSize_del_OBJ = len(butts_delOBJ)
-    buttSize_Add_Obj_ALL = len(butts_addOBJ_ALL)
-    buttSize_del_OBJ_ALL = len(butts_delOBJ_ALL)
-    buttSize_Add_Obj_adj = (buttSize_Add_Obj -1)
-    buttSize_del_Obj_adj = (buttSize_del_OBJ -1)
-    buttSize_Add_Obj_adj_ALL = (buttSize_Add_Obj_ALL -1)
-    buttSize_del_Obj_adj_ALL = (buttSize_del_OBJ_ALL -1)
-    buttonActiveAdObj = cmds.button(but_adOBJ, command = partial(addActObj,OILall), edit = True)
-    buttonActiveDelObj = cmds.button(but_delOBJ, command = partial(delActObj,OILall), edit = True)
-    print 'master OILall = ',OILall
-    buttonActiveAdObj_ALL = cmds.button(but_adOBJ_ALL, command = partial(addActObj_ALL,OILall), edit = True)
-    buttonActiveDelObj_ALL = cmds.button(but_delOBJ_ALL, command = partial(delActObj_ALL,OILall), edit = True)
-    buttonfixCams = cmds.button(but_fixCams, command = partial(fixCams,rl,render_layers,camList,renCamMenu), edit = True)
-    buttonReNameLayers = cmds.button(but_ReNameLayers, command = partial(ReNameLayers,rl,render_layers,camList,renCamMenu), edit = True)
-    buttonShowObj = cmds.button(but_showSelection, command = partial(showSel,SOLall), edit = True)
-    buttonShowObj_ALL = cmds.button(but_showSelection_ALL, command = partial(showSel_ALL,SOLall), edit = True)
-    buttonHideObj = cmds.button(but_hideSelection, command = partial(hideSel,SOLall), edit = True)
-    buttonHideObj_ALL = cmds.button(but_hideSelection_ALL, command = partial(hideSel_ALL,SOLall), edit = True)
-    cmds.button(but_lockUnlocks, command = partial(unlockNodes), edit = True)
-    cmds.button(but_copyALL_Layers, command = partial(copyAllLayers,render_layers,materials), edit = True)
-    cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
-    panels = cmds.getPanel( type = "modelPanel" )
-    for mPanel in panels:
-        cmds.modelEditor(mPanel, edit = True, allObjects = 1)
-    rl = initialLayer
-    myScriptJobID = cmds.scriptJob(p = window, event=["NameChanged", layer_switcher])
-    myScriptJobID = cmds.scriptJob(p = window, event=["renderLayerManagerChange", layer_switcher])
-    myScriptJobID = cmds.scriptJob(p = window, event=["renderLayerChange", layer_switcher])
-    myScriptJobID = cmds.scriptJob(p = window, event=["SelectionChanged", layer_switcher])
-    cmds.showWindow()
+    def clear_layout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.setParent(None)
+                else:
+                    self.clear_layout(item.layout())
+
+    def set_render_camera(self,camera_comboBox):
+        print 'camera_comboBox = ',camera_comboBox
+        for render_layer in self.render_layers:
+            if render_layer != 'defaultRenderLayer':
+                camera_comboBox_pointer = self.render_layer_camera_comboBox_dic[render_layer]
+                print 'camera_comboBox_pointer = ',camera_comboBox_pointer
+                if camera_comboBox_pointer == camera_comboBox:
+                    cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                    chosen_camera = camera_comboBox.currentText()
+                    print 'chosen_camera = ',chosen_camera
+
+    def window_gen(self):
+        self.window_name = "render layers tool"
+        if cmds.window(self.window_name,exists = True):
+            cmds.deleteUI(self.window_name, wnd = True)
+        pointer = mui.MQtUtil.mainWindow()
+        parent = shiboken2.wrapInstance(long(pointer),QtWidgets.QWidget)
+        window = QtWidgets.QMainWindow(parent)
+        window.setObjectName(self.window_name)
+        window.setWindowTitle(self.window_name)
+        mainWidget = QtWidgets.QWidget()
+        window.setCentralWidget(mainWidget)
+        window.setFixedSize(550,200)
+        self.vertical_layout = QtWidgets.QVBoxLayout(mainWidget)
+        self.vertical_layout.setMargin(0)
+        self.vertical_layout.setSpacing(0)
+        self.layout_top = QtWidgets.QVBoxLayout()
+        self.layout_top.setMargin(0)
+        self.layout_top.setSpacing(0)
+        self.vertical_layout.addLayout(self.layout_top)
+        self.layout_bottom = QtWidgets.QVBoxLayout()
+        self.layout_bottom.setMargin(0)
+        self.layout_bottom.setSpacing(0)
+        self.vertical_layout.addLayout(self.layout_bottom)
+        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["NameChanged", self.populate_gui])
+        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerManagerChange", self.populate_gui])
+        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
+        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["SelectionChanged", self.populate_gui])
+        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["SceneOpened", self.populate_gui])
+        self.populate_gui()
+        window.show()
+
+    def populate_gui(self):
+        global initialLayer
+        self.render_layer_camera_comboBox_dic = {}
+        self.cameras = cmds.ls(type = 'camera')
+        self.render_layers = cmds.ls(type = "renderLayer")
+        self.initial_layer = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
+        if "defaultRenderLayer" == self.render_layers[0]:
+            self.render_layers.reverse()
+        self.clear_layout(self.vertical_layout)
+        for render_layer in self.render_layers:
+            if render_layer != 'defaultRenderLayer':
+                cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                renderable_cameras = []
+                for camera in self.cameras:
+                    camera_renderable = cmds.getAttr(camera + '.renderable')
+                    if camera_renderable == 1:
+                        renderable_cameras.append(camera)
+                self.render_layer_layout = QtWidgets.QHBoxLayout()
+                self.vertical_layout.addLayout(self.render_layer_layout)
+                button_OIL = QtWidgets.QPushButton('OIL')
+                button_OIL.setFixedSize(30,21)
+                self.render_layer_layout.addWidget(button_OIL)
+                button_OVL = QtWidgets.QPushButton('OVL')
+                button_OVL.setFixedSize(30,21)
+                self.render_layer_layout.addWidget(button_OVL)
+                button_render_layer = QtWidgets.QPushButton(render_layer)
+                button_render_layer.setFixedSize(325,21)
+                self.render_layer_layout.addWidget(button_render_layer)
+                camera_comboBox = self.cameras_combobox = QtWidgets.QComboBox()
+                self.render_layer_camera_comboBox_dic[render_layer] = camera_comboBox
+                self.cameras_combobox.activated[str].connect(lambda:self.set_render_camera(camera_comboBox))
+                self.cameras_combobox.setFixedSize(150,21)
+                self.cameras_combobox.clear()
+                self.render_layer_layout.addWidget(self.cameras_combobox)
+                for camera in self.cameras:
+                    self.cameras_combobox.addItem(camera)
+                i = 0
+                for camera in self.cameras:
+                    if camera == renderable_cameras[0]:
+                        self.cameras_combobox.setCurrentIndex(i)
+                    i = i + 1
+                if len(renderable_cameras) > 1:
+                    self.cameras_combobox.setStyleSheet("background-color: rgb(200, 0, 0);")
 
 def main():
-    layer_switcher()
+    layers_tool_inst = layers_tool_window()
+    layers_tool_inst.window_gen()
 
 #main()
