@@ -7,8 +7,6 @@ from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 import re
 
-print 'adding lower buttons'
-
 render_layers = cmds.ls(type = "renderLayer")
 light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
 materials_VRayMtl = cmds.ls(type = "VRayMtl")
@@ -1207,6 +1205,227 @@ def fixCams(rl,render_layers,camList,renCamMenu,*args):
     cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
     layer_switcher()
 
+
+def camColorCheck(renCamMenu,setCam):
+    renCamSp = renCamMenu.split("|")
+    layerLabel = renCamSp[2]
+    cam = setCam
+    camNum = 1
+    var = 4
+    if "FtTp" in cam  or "FtRt" in cam or "FtLt" in cam or "FtLtTp" in cam or "FtRtTp" in cam or "Ft" in cam or "Bk" in cam or "Rt" in cam or "Lt" in cam or "Tp" in cam or "Bt" in cam:
+        var = 0
+    if "C1N1" in cam or "C1N1Shape" in cam or "C7N1" in cam or "C7N1Shape" in cam or "C2N1" in cam or "C2N1Shape" in cam  or "C8N1" in cam  or "C8N1Shape" in cam  or "C3N1" in cam or "C3N1Shape" in cam  or "C9N1" in cam  or "C9N1Shape" in cam or "C1C1" in cam or "C1C1Shape" in cam or "C1L1" in cam  or "C1L1Shape" in cam or "C1R1" in cam or "C1R1Shape" in cam or "C1N2" in cam or "C1NShape2" in cam or "C1N2Shape" in cam or "C1N4" in cam or "C1NShape4" in cam or "C1N4Shape" in cam:
+        var = 1
+    if "C1N1Shape1" in cam or "C7N1Shape1" in cam or "C2N1Shape1" in cam or "C8N1Shape1" in cam or "C3N1Shape1" in cam or "C9N1Shape1" in cam or "C1C1Shape1" in cam or "C1L1Shape1" in cam or "C1R1Shape1" in cam or "C1N2Shape1" in cam or "C1N4Shape1" in cam:
+        var = 2
+    if "C1NShape1" in cam or "C7NShape1" in cam or "C2NShape1" in cam or "C8NShape1" in cam or "C3NShape1" in cam or "C9NShape1" in cam or "C1CShape1" in cam or "C1LShape1" in cam or "C1RShape1" in cam or "C1NShape1" in cam or "C1NShape1" in cam:
+        var = 3
+    camRegExA = ""
+    if layerLabel != "defaultRenderLayer":
+        if var == 0:
+            if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape":
+                camRegExSp = setCam.split("Shape")
+                camRegExA = camRegExSp[0]
+                camRegExAsp = camRegExA.split("_")
+                camRegExA = camRegExAsp[0]
+            else:
+                camRegExA = cam
+        if var == 1:
+            if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape":
+                camRegExSp = setCam.split("Shape")
+                camRegExA = camRegExSp[0] + camRegExSp[1]
+                camRegExAsp = camRegExA.split("_")
+                camRegExA = camRegExAsp[1]
+            else:
+                camRegExA = cam
+        if var == 2:
+            if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape":
+                camRegEx = cam + "_"
+                camRegExSp = camRegEx.split("_")
+                camRegEx = camRegExSp[1]
+                camRegEx = camRegEx.split("Shape")
+                camRegExA = camRegEx[0]
+            else:
+                camRegExA = cam
+        if var == 3:
+            if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape":
+                camRegExSp = setCam.split("Shape")
+                camRegExA = camRegExSp[0] + camRegExSp[1]
+                camRegExAsp = camRegExA.split("_")
+                camRegExA = camRegExAsp[1]
+            else:
+                camRegExA = cam
+        if var == 4:
+            if cam != "perspShape" and cam != "topShape" and cam != "frontShape" and cam != "sideShape":
+                camRegExSp = setCam.split("Shape")
+                camRegExA = camRegExSp[0]
+            else:
+                camRegExA = cam
+        if layerLabel != "defaultRenderLayer":
+            if camNum > 1:
+                cmds.optionMenu(renCamMenu, v = cam, bgc = (1,.0,0),edit = True)
+            if camNum == 1 and layerLabel == (camRegExA) or layerLabel == (camRegExA + "_BTY") or layerLabel == (camRegExA + "_REF") or layerLabel == (camRegExA + "_SHD") or layerLabel == (camRegExA + "_REF_MATTE") or layerLabel == ("BTY_" + camRegExA):
+                cmds.optionMenu(renCamMenu, v = cam, bgc = (.5,.5,.5),edit = True)
+            else:
+                cmds.optionMenu(renCamMenu, v = cam , bgc = (1,0,0),edit = True)
+        else:
+            cmds.optionMenu(renCamMenu, v = cam, bgc = (.5,.5,.5),edit = True)
+
+def ReNameLayers(rl,render_layers,camList,renCamMenu,*args):
+    for rl in render_layers:
+        if rl == "C1N1":
+            cmds.rename("C1N1","Ft")
+        if rl == "C7N1":
+            cmds.rename("C7N1","Bk")
+        if rl == "C1C1":
+            cmds.rename("C1C1","FtTp")
+        if rl == "C1L1":
+           cmds.rename("C1L1","FtLtTp")
+        if rl == "C1R1":
+            cmds.rename("C1R1","FtRtTp")
+        if rl == "C2N1":
+            cmds.rename("C2N1","Lt")
+        if rl == "C8N1":
+            cmds.rename("C8N1","Rt")
+        if rl == "C3N1":
+            cmds.rename("C3N1","Tp")
+        if rl == "C9N1":
+            cmds.rename("C9N1","Bt")
+    layer_switcher()
+
+def addActObj(OILall,*args):
+    current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+    activeSel = cmds.ls(sl = True)
+    for active_selection in activeSel:
+        if "defaultRenderLayer" != current_render_layer:
+            cmds.editRenderLayerMembers(current_render_layer, active_selection)
+    OIL(OILall)
+
+def addActObj_ALL(OILall,*args):
+    render_layers = cmds.ls(type = "renderLayer")
+    current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+    activeSel = cmds.ls(sl = True)
+    for active_selection in activeSel:
+        for layer in render_layers:
+            if "defaultRenderLayer" != layer:
+                cmds.editRenderLayerMembers(layer, active_selection)
+    OIL(OILall)
+
+def delActObj(OILall,*args):
+    current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+    activeSel = cmds.ls(sl = True)
+    for active_selection in activeSel:
+        if "defaultRenderLayer" != current_render_layer:
+            cmds.editRenderLayerMembers(current_render_layer, active_selection, remove = True)
+    OIL(OILall)
+
+def delActObj_ALL(OILall,*args):
+    activeSel = cmds.ls(sl = True)
+    for active_selection in activeSel:
+        for layer in render_layers:
+            if "defaultRenderLayer" != layer:
+                cmds.editRenderLayerMembers(layer, active_selection, remove = True)
+    OIL(OILall)
+
+def showSel(SOLall,*args):
+    selObjs = cmds.ls(sl = True)
+    curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
+    for selOb in selObjs:
+        cmds.setAttr(selOb + ".visibility", 1)
+    OVL(SOLall)
+
+def showSel_ALL(SOLall,*args):
+    render_layers = cmds.ls(type = "renderLayer")
+    selObjs = cmds.ls(sl = True)
+    curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
+    for rl in render_layers:
+        cmds.editRenderLayerGlobals(currentRenderLayer = rl)
+        if rl != 'defaultRenderLayer':
+            for selOb in selObjs:
+                cmds.setAttr(selOb + ".visibility", 1)
+    OVL(SOLall)
+
+def hideSel(SOLall,*args):
+    selObjs = cmds.ls(sl = True)
+    curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
+    for selOb in selObjs:
+        cmds.setAttr(selOb + ".visibility", 0)
+    OVL(SOLall)
+
+def hideSel_ALL(SOLall,*args):
+    render_layers = cmds.ls(type = "renderLayer")
+    selObjs = cmds.ls(sl = True)
+    curRenlay = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
+    for rl in render_layers:
+        cmds.editRenderLayerGlobals(currentRenderLayer = rl)
+        if rl != 'defaultRenderLayer':
+            for selOb in selObjs:
+                cmds.setAttr(selOb + ".visibility", 0)
+    OVL(SOLall)
+
+def OIL(OILall,*args):
+    render_layers = cmds.ls(type = "renderLayer")
+    selected_objects = cmds.ls(sl = True)
+    for render_layer in render_layers:
+        objects_in_layer = cmds.editRenderLayerMembers(render_layer, query=True ) or []
+        for button in OILall:
+            button_layer_split = button.split("|")
+            button_layer = button_layer_split[2]
+            if button_layer == render_layer:
+                for object in selected_objects:
+                    if object in objects_in_layer:
+                        cmds.button(button,bgc = (.5,.1,.2),edit = True)
+                    else:
+                        cmds.button(button,bgc = (.3,.3,.3),edit = True)
+    cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
+
+def OVL(SOLall):
+    render_layers = cmds.ls(type = "renderLayer")
+    selected_objects = cmds.ls(sl = True)
+    for render_layer in render_layers:
+        cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+        for button in SOLall:
+            button_layer_split = button.split("|")
+            button_layer = button_layer_split[2]
+            if button_layer == render_layer:
+                for object in selected_objects:
+                    object_visibility = cmds.getAttr(object + '.visibility')
+                    if object_visibility == 1:
+                        cmds.button(button,bgc = (0,.5,.2),edit = True)
+                    else:
+                        cmds.button(button,bgc = (.3,.3,.3),edit = True)
+    cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
+
+def lightRigOverides(*args):
+    lightRig = cmds.ls(sl = True)
+    lightRig = lightRig[0]
+    initialLayer = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
+    render_layers = cmds.ls(type = "renderLayer")
+    for rl in render_layers:
+        cmds.editRenderLayerGlobals(currentRenderLayer = rl)
+        if rl == "Bk" or rl == "C7N1":
+            cmds.editRenderLayerAdjustment(lightRig + ".rotate")
+            cmds.setAttr(lightRig + ".rotateY",180)
+        if rl == "Lt" or rl == "C2N1":
+            cmds.editRenderLayerAdjustment(lightRig + ".rotate")
+            cmds.setAttr(lightRig + ".rotateY",-90)
+        if rl == "Rt" or rl == "C8N1":
+            cmds.editRenderLayerAdjustment(lightRig + ".rotate")
+            cmds.setAttr(lightRig + ".rotateY",90)
+        if rl == "Tp" or rl == "C3N1":
+            cmds.editRenderLayerAdjustment(lightRig + ".rotate")
+            cmds.setAttr(lightRig + ".rotateX",-90)
+        if rl == "Bt" or rl == "C9N1":
+            cmds.editRenderLayerAdjustment(lightRig + ".rotate")
+            cmds.setAttr(lightRig + ".rotateX",90)
+        if rl == "FtRtTp" or rl == "C1R1":
+            cmds.editRenderLayerAdjustment(lightRig + ".rotate")
+            cmds.setAttr(lightRig + ".rotateY",15)
+        if rl == "FtLtTp" or rl == "C1L1":
+            cmds.editRenderLayerAdjustment(lightRig + ".rotate")
+            cmds.setAttr(lightRig + ".rotateY",-15)
+    cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
+
 def copyOneLayer(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,*args):
     copyAllLay = "A"
     copyLayers(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,copyAllLay)
@@ -1248,8 +1467,8 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
             obsInLay = cmds.editRenderLayerMembers( rlll, fn = True,query=True ) or []
             obsVizDic = {}
             for obCL in object_checkCL:
-                visibility_example = cmds.attributeQuery("visibility",node = obCL,exists = True)
-                if visibility_example == 1:
+                vizEx = cmds.attributeQuery("visibility",node = obCL,exists = True)
+                if vizEx == 1:
                     cmds.editRenderLayerGlobals(currentRenderLayer = rlll)
                     vizString = (obCL + ".visibility")
                     visState = cmds.getAttr(vizString)
@@ -1542,6 +1761,66 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
         cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
         layer_switcher()
 
+def checkrender_layers(renLayOverCompare1,renLayOverCompare2,checkLayerFieldResult,txtFieldList,*args):
+    menu1 = cmds.optionMenu(renLayOverCompare1,value = True,query = True)
+    menu2 = cmds.optionMenu(renLayOverCompare2,value = True,query = True)
+    oversMenu1 = ""
+    oversMenu2 = ""
+    for txtF in txtFieldList:
+        txtFsp = txtF.split("|")
+        txtFsp = txtFsp[2]
+        if txtFsp == menu1:
+            oversMenu1 = cmds.textField(txtF,text = True, query = True)
+        if txtFsp == menu2:
+            oversMenu2 = cmds.textField(txtF,text = True, query = True)
+        oversMenu1SP = oversMenu1.split(",")
+        oversMenu2SP = oversMenu2.split(",")
+        diff1Edit = []
+        diff2Edit = []
+        diff = (list(set(oversMenu1SP) - set(oversMenu2SP)))
+        for d in diff:
+            d = d.replace("u' ","")
+            d = d.replace(" '","")
+            d = d.replace(" '","")
+            if d != "":
+                d = "diff:" + d
+                diff1Edit.append(d)
+        diff2 = (list(set(oversMenu2SP) - set(oversMenu1SP)))
+        for d2 in diff2:
+            d2 = d2.replace("u' ","")
+            d2 = d2.replace(" '","")
+            d2 = d2.replace(" '","")
+            if d2 != "":
+                d2 = "diff2:" + d2
+                diff2Edit.append(d2)
+        diffCombo = diff1Edit + diff2Edit
+        diffCombo = str(diffCombo)
+        diffCombo = diffCombo.replace("[u'","")
+        diffCombo = diffCombo.replace("u'","")
+        diffCombo = diffCombo.replace(" '","")
+        diffCombo = diffCombo.replace("]","")
+    checkLayerFieldResult = cmds.textField(checkLayerFieldResult,text = diffCombo, edit = True)
+
+def unlockNodes(*args):
+    cams = cmds.ls(type = "camera")
+    for cam in cams:
+        parentNode = cmds.listRelatives(cam, parent = True)
+        Plockstate = cmds.lockNode(parentNode[0],lock = True, query = True)
+        Plockstate = Plockstate[0]
+        if Plockstate == 1:
+            cmds.lockNode(parentNode[0], lock = 0)
+        if "Shape" in cam:
+            dad = cmds.listRelatives(cam, parent = True)
+            dad = dad[0]
+        else:
+            dad = cam
+        cmds.lockNode(cam, lock = 0)
+        vizEx = cmds.attributeQuery("visibility", node = cam, exists = True)
+        renEx = cmds.attributeQuery("renderable", node = cam, exists = True)
+        if vizEx == 1:
+            cmds.setAttr(dad + ".visibility", lock = 0)
+        cmds.setAttr(dad + ".renderable", lock = 0)
+
 class LAYERS_WINDOW_TOOL():
     def __init__(self):
         chris = ''
@@ -1555,80 +1834,6 @@ class LAYERS_WINDOW_TOOL():
                     widget.setParent(None)
                 else:
                     self.clear_layout(item.layout())
-
-    def add_object_to_all_layers(self):
-        selected_objects = cmds.ls(sl = True)
-        for selected_object in selected_objects:
-            for render_layer in self.render_layers:
-                if render_layer != "defaultRenderLayer":
-                    cmds.editRenderLayerMembers(render_layer, selected_object)
-
-    def remove_object_from_all_layers(self):
-        selected_objects = cmds.ls(sl = True)
-        for selected_object in selected_objects:
-            for render_layer in self.render_layers:
-                if render_layer != "defaultRenderLayer":
-                    cmds.editRenderLayerMembers(render_layer, selected_object, remove = True)
-
-    def make_object_visible_in_all_layers(self):
-        selected_objects = cmds.ls(sl = True)
-        for selected_object in selected_objects:
-            for render_layer in self.render_layers:
-                if render_layer != "defaultRenderLayer":
-                    cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
-                    cmds.setAttr(selected_object + '.visibility', 1)
-        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
-
-
-    def hide_object_in_all_layers(self):
-        selected_objects = cmds.ls(sl = True)
-        for selected_object in selected_objects:
-            for render_layer in self.render_layers:
-                if render_layer != "defaultRenderLayer":
-                    cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
-                    cmds.setAttr(selected_object + '.visibility', 0)
-        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
-
-    def convert_layer_names(self):
-        for render_layer in self.render_layers:
-            if render_layer == "C1N1":
-                cmds.rename("C1N1","Ft")
-            if render_layer == "C7N1":
-                cmds.rename("C7N1","Bk")
-            if render_layer == "C1C1":
-                cmds.rename("C1C1","FtTp")
-            if render_layer == "C1L1":
-               cmds.rename("C1L1","FtLtTp")
-            if render_layer == "C1R1":
-                cmds.rename("C1R1","FtRtTp")
-            if render_layer == "C2N1":
-                cmds.rename("C2N1","Lt")
-            if render_layer == "C8N1":
-                cmds.rename("C8N1","Rt")
-            if render_layer == "C3N1":
-                cmds.rename("C3N1","Tp")
-            if render_layer == "C9N1":
-                cmds.rename("C9N1","Bt")
-
-    def unlock_cameras(self):
-        cams = cmds.ls(type = "camera")
-        for camera in self.cameras:
-            parent_node = cmds.listRelatives(camera, parent = True)
-            parent_lock_state = cmds.lockNode(parent_node[0],lock = True, query = True)
-            parent_lock_state = parent_lock_state[0]
-            if parent_lock_state == 1:
-                cmds.lockNode(parent_node[0], lock = 0)
-            if "Shape" in camera:
-                parent_node = cmds.listRelatives(camera, parent = True)
-                parent_node = parent_node[0]
-            else:
-                parent_node = camera
-            cmds.lockNode(camera, lock = 0)
-            visibility_example = cmds.attributeQuery("visibility", node = camera, exists = True)
-            renderable_example = cmds.attributeQuery("renderable", node = camera, exists = True)
-            if visibility_example == 1:
-                cmds.setAttr(parent_node + ".visibility", lock = 0)
-            cmds.setAttr(parent_node + ".renderable", lock = 0)
 
     def evaluate_objects_in_render_layers(self):
         #print 'evaluate_objects_in_render_layers'
@@ -1808,34 +2013,6 @@ class LAYERS_WINDOW_TOOL():
                 camera_split = camera.split('_')
                 if camera_split[0] != render_layer:
                     self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
-        self.vertical_layout.addLayout(self.layout_bottom)
-        button_add_object_to_all_layers = QtWidgets.QPushButton('add selection to all render layers')
-        self.layout_bottom.addWidget(button_add_object_to_all_layers)
-        button_add_object_to_all_layers.pressed.connect(partial(self.add_object_to_all_layers))
-        button_remove_objects_from_all_layers = QtWidgets.QPushButton('remove selection from all render layers')
-        self.layout_bottom.addWidget(button_remove_objects_from_all_layers)
-        button_remove_objects_from_all_layers.pressed.connect(partial(self.remove_object_from_all_layers))
-        button_make_object_visible_in_all_layers = QtWidgets.QPushButton('make selection visible in all render layers')
-        self.layout_bottom.addWidget(button_make_object_visible_in_all_layers)
-        button_make_object_visible_in_all_layers.pressed.connect(partial(self.make_object_visible_in_all_layers))
-        button_hide_object_in_all_layers = QtWidgets.QPushButton('hide selection in all render layers')
-        self.layout_bottom.addWidget(button_hide_object_in_all_layers)
-        button_hide_object_in_all_layers.pressed.connect(partial(self.hide_object_in_all_layers))
-        button_convert_layer_names = QtWidgets.QPushButton('convert layer names')
-        self.layout_bottom.addWidget(button_convert_layer_names)
-        button_convert_layer_names.pressed.connect(partial(self.convert_layer_names))
-        button_unlock_cameras = QtWidgets.QPushButton('unlock cameras')
-        self.layout_bottom.addWidget(button_unlock_cameras)
-        button_unlock_cameras.pressed.connect(partial(self.unlock_cameras))
-        button_fix_cam_layer_assignments = QtWidgets.QPushButton('fix the render camera to render layer assignments')
-        self.layout_bottom.addWidget(button_fix_cam_layer_assignments)
-        #button_fix_cam_layer_assignments.pressed.connect(partial(self.fix_cam_layer_assignments))
-        rebuild_selected_render_layer = QtWidgets.QPushButton('rebuild selected render layer')
-        self.layout_bottom.addWidget(rebuild_selected_render_layer)
-        #rebuild_selected_render_layer.pressed.connect(partial(self.rebuild_selected_render_layer))
-        rebuild_all_layers = QtWidgets.QPushButton('rebuild all render layers')
-        self.layout_bottom.addWidget(rebuild_all_layers)
-        #rebuild_selected_render_layer.pressed.connect(partial(self.rebuild_selected_render_layer))
         for render_layer_button in self.render_layer_button_pointer_dic:
             render_layer_button.pressed.connect(partial(self.render_layer_change,render_layer_button))
         for OIL_button in self.OIL_button_pointer_dic:
@@ -1857,17 +2034,22 @@ class LAYERS_WINDOW_TOOL():
         window.setWindowTitle(self.window_name)
         mainWidget = QtWidgets.QWidget()
         window.setCentralWidget(mainWidget)
-        #window.setFixedSize(550,400)
+        window.setFixedSize(550,200)
         self.vertical_layout = QtWidgets.QVBoxLayout(mainWidget)
         self.vertical_layout.setMargin(0)
         self.vertical_layout.setSpacing(0)
+        self.layout_top = QtWidgets.QVBoxLayout()
+        self.layout_top.setMargin(0)
+        self.layout_top.setSpacing(0)
+        self.vertical_layout.addLayout(self.layout_top)
         self.layout_bottom = QtWidgets.QVBoxLayout()
         self.layout_bottom.setMargin(0)
         self.layout_bottom.setSpacing(0)
-        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["NameChanged", self.populate_gui])
-        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerManagerChange", self.populate_gui])
-        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
-        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["SelectionChanged", self.populate_gui])
+        self.vertical_layout.addLayout(self.layout_bottom)
+        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["NameChanged", self.populate_gui])
+        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerManagerChange", self.populate_gui])
+        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
+        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["SelectionChanged", self.populate_gui])
         self.populate_gui()
         window.show()
 
