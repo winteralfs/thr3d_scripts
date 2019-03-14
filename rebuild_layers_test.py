@@ -7,8 +7,6 @@ from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 import re
 
-print 'eggs'
-
 render_layers = cmds.ls(type = "renderLayer")
 light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
 materials_VRayMtl = cmds.ls(type = "VRayMtl")
@@ -1296,32 +1294,21 @@ def ReNameLayers(rl,render_layers,camList,renCamMenu,*args):
     layer_switcher()
 
 def addActObj(OILall,*args):
-    print 'addActObj'
-    print 'OILall = ',OILall
     current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
     activeSel = cmds.ls(sl = True)
     for active_selection in activeSel:
         if "defaultRenderLayer" != current_render_layer:
             cmds.editRenderLayerMembers(current_render_layer, active_selection)
-    print 'finished'
     OIL(OILall)
 
 def addActObj_ALL(OILall,*args):
-    print 'addActObj_ALL'
-    print 'addActObj_ALL OILall = ', OILall
     render_layers = cmds.ls(type = "renderLayer")
     current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
     activeSel = cmds.ls(sl = True)
     for active_selection in activeSel:
-        print '1'
         for layer in render_layers:
-            print 'layer = ',layer
-            print 'ac = ',active_selection
-            print '2'
             if "defaultRenderLayer" != layer:
-                print '3'
                 cmds.editRenderLayerMembers(layer, active_selection)
-    print 'finished'
     OIL(OILall)
 
 def delActObj(OILall,*args):
@@ -1377,18 +1364,12 @@ def hideSel_ALL(SOLall,*args):
     OVL(SOLall)
 
 def OIL(OILall,*args):
-    print 'OIL'
-    print OILall
     render_layers = cmds.ls(type = "renderLayer")
     selected_objects = cmds.ls(sl = True)
-    print OILall
     for render_layer in render_layers:
-        print OILall
         objects_in_layer = cmds.editRenderLayerMembers(render_layer, query=True ) or []
         for button in OILall:
-            print 'OILall = ',OILall
             button_layer_split = button.split("|")
-            print 'button_layer_split = ',button_layer_split
             button_layer = button_layer_split[2]
             if button_layer == render_layer:
                 for object in selected_objects:
@@ -1399,8 +1380,6 @@ def OIL(OILall,*args):
     cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
 
 def OVL(SOLall):
-    print 'OVL'
-    print SOLall
     render_layers = cmds.ls(type = "renderLayer")
     selected_objects = cmds.ls(sl = True)
     for render_layer in render_layers:
@@ -1841,7 +1820,6 @@ def unlockNodes(*args):
         if vizEx == 1:
             cmds.setAttr(dad + ".visibility", lock = 0)
         cmds.setAttr(dad + ".renderable", lock = 0)
-    print 'nodes unlocked'
 
 class LAYERS_WINDOW_TOOL():
     def __init__(self):
@@ -1857,10 +1835,72 @@ class LAYERS_WINDOW_TOOL():
                 else:
                     self.clear_layout(item.layout())
 
-    def render_layer_change(self,button_render_layer):
+    def evaluate_objects_in_render_layers(self):
+        #print 'evaluate_objects_in_render_layers'
+        selected_objects = cmds.ls(sl = True)
+        for render_layer in self.render_layers:
+            cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+            if render_layer != 'defaultRenderLayer':
+                #print 'render_layer = ',render_layer
+                for OIL_button in self.OIL_button_pointer_dic:
+                    render_layer_linked_to_pointer = self.OIL_button_pointer_dic[OIL_button]
+                    #print 'render_layer_linked_to_pointer = ', render_layer_linked_to_pointer
+                    if render_layer_linked_to_pointer == render_layer:
+                        for object in selected_objects:
+                            #print 'object = ',object
+                            object_in_render_layer_check = cmds.editRenderLayerMembers(render_layer, object, query = True)
+                            #print 'object_in_render_layer_check = ',object_in_render_layer_check
+                            if object in object_in_render_layer_check:
+                                OIL_button.setStyleSheet("background-color: rgb(0, 200, 0);")
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
+
+    def evaluate_objects_visible_in_render_layers(self):
+        print 'evaluate_objects_visible_in_render_layers'
+        selected_objects = cmds.ls(sl = True)
+        for render_layer in self.render_layers:
+            cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+            if render_layer != 'defaultRenderLayer':
+                #print 'render_layer = ',render_layer
+                for OVL_button in self.OVL_button_pointer_dic:
+                    render_layer_linked_to_pointer = self.OVL_button_pointer_dic[OVL_button]
+                    #print 'render_layer_linked_to_pointer = ', render_layer_linked_to_pointer
+                    if render_layer_linked_to_pointer == render_layer:
+                        for object in selected_objects:
+                            #print 'object = ',object
+                            object_visible_in_render_layer_check = cmds.getAttr(object + '.visibility')
+                            #print 'object_in_render_layer_check = ',object_in_render_layer_check
+                            if object_visible_in_render_layer_check == 1:
+                                OVL_button.setStyleSheet("background-color: rgb(0, 0, 200);")
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
+
+    def OIL_toggle_object_in_render_layer(self,OIL_button):
+        print 'OIL_add_object'
+        selected_objects = cmds.ls(sl = True)
         for render_layer in self.render_layers:
             if render_layer != 'defaultRenderLayer':
-                render_layer_linked_to_button = self.render_layer_button_pointer_dic[button_render_layer]
+                render_layer_linked_to_button = self.OIL_button_pointer_dic[OIL_button]
+                if render_layer_linked_to_button == render_layer:
+                    cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                    for object in selected_objects:
+                        cmds.editRenderLayerMembers(render_layer, object)
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
+
+    def OVL_object_toggle_visibility_in_render_layer(self,OVL_button):
+        print 'OVL_object_made_visible_in_render_layer'
+        selected_objects = cmds.ls(sl = True)
+        for render_layer in self.render_layers:
+            if render_layer != 'defaultRenderLayer':
+                render_layer_linked_to_button = self.OVL_button_pointer_dic[OVL_button]
+                if render_layer_linked_to_button == render_layer:
+                    cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                    for object in selected_objects:
+                        cmds.setAttr(object + '.visibility', 1)
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
+
+    def render_layer_change(self,render_layer_button):
+        for render_layer in self.render_layers:
+            if render_layer != 'defaultRenderLayer':
+                render_layer_linked_to_button = self.render_layer_button_pointer_dic[render_layer_button]
                 if render_layer_linked_to_button == render_layer:
                     cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
 
@@ -1898,6 +1938,8 @@ class LAYERS_WINDOW_TOOL():
         #print 'populate_gui'
         self.render_layer_camera_comboBox_dic = {}
         self.render_layer_button_pointer_dic = {}
+        self.OIL_button_pointer_dic = {}
+        self.OVL_button_pointer_dic = {}
         render_layer_order_dict = {}
         render_layers_in_order = []
         self.cameras = cmds.ls(type = 'camera')
@@ -1925,16 +1967,18 @@ class LAYERS_WINDOW_TOOL():
                 self.render_layer_layout = QtWidgets.QHBoxLayout()
                 self.vertical_layout.addLayout(self.render_layer_layout)
                 button_OIL = QtWidgets.QPushButton('OIL')
+                self.OIL_button_pointer_dic[button_OIL] = render_layer
                 button_OIL.setFixedSize(30,21)
                 self.render_layer_layout.addWidget(button_OIL)
                 button_OVL = QtWidgets.QPushButton('OVL')
+                self.OVL_button_pointer_dic[button_OVL] = render_layer
                 button_OVL.setFixedSize(30,21)
                 self.render_layer_layout.addWidget(button_OVL)
                 button_render_layer = QtWidgets.QPushButton(render_layer)
                 self.render_layer_button_pointer_dic[button_render_layer] = render_layer
                 button_render_layer.setFixedSize(325,21)
                 if render_layer == self.initial_layer:
-                    button_render_layer.setStyleSheet("background-color: rgb(75, 135, 175);")
+                    button_render_layer.setStyleSheet("background-color: rgb(100, 150, 190);")
                 self.render_layer_layout.addWidget(button_render_layer)
                 camera_comboBox = self.cameras_combobox = QtWidgets.QComboBox()
                 self.render_layer_camera_comboBox_dic[render_layer] = camera_comboBox
@@ -1954,12 +1998,16 @@ class LAYERS_WINDOW_TOOL():
                     self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
                 camera = renderable_cameras[0]
                 camera_split = camera.split('_')
-                print 'camera_split = ',camera_split
-                print 'render_layer = ',render_layer
                 if camera_split[0] != render_layer:
                     self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
-        for button_render_layer in self.render_layer_button_pointer_dic:
-            button_render_layer.pressed.connect(partial(self.render_layer_change,button_render_layer))
+        for render_layer_button in self.render_layer_button_pointer_dic:
+            render_layer_button.pressed.connect(partial(self.render_layer_change,render_layer_button))
+        for OIL_button in self.OIL_button_pointer_dic:
+            OIL_button.pressed.connect(partial(self.OIL_toggle_object_in_render_layer,OIL_button))
+        for OVL_button in self.OVL_button_pointer_dic:
+            OVL_button.pressed.connect(partial(self.OVL_object_toggle_visibility_in_render_layer,OVL_button))
+        self.evaluate_objects_in_render_layers()
+        self.evaluate_objects_visible_in_render_layers()
 
     def window_gen(self):
         #print 'window_gen'
