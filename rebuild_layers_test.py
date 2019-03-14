@@ -1742,7 +1742,7 @@ class LAYERS_WINDOW_TOOL():
         self.OVL_button_pointer_dic = {}
         render_layer_order_dict = {}
         render_layers_in_order = []
-        self.cameras = cmds.ls(type = 'camera')
+        self.cameras = cmds.ls(type = 'camera') or []
         self.render_layers = cmds.ls(type = "renderLayer")
         for layer in self.render_layers:
             render_layer_order_number = cmds.getAttr(layer + ".displayOrder")
@@ -1796,18 +1796,21 @@ class LAYERS_WINDOW_TOOL():
                 self.render_layer_layout.addWidget(self.cameras_combobox)
                 for camera in self.cameras:
                     self.cameras_combobox.addItem(camera)
-                i = 0
                 renderable_cameras = self.renderable_cameras_dic[render_layer] or []
+                number_of_renderable_cameras = len(renderable_cameras)
+                i = 0
                 for camera in self.cameras:
-                    if camera == renderable_cameras[0]:
-                        self.cameras_combobox.setCurrentIndex(i)
+                    if number_of_renderable_cameras > 0:
+                        if camera == renderable_cameras[0]:
+                            self.cameras_combobox.setCurrentIndex(i)
                     i = i + 1
-                if len(renderable_cameras) > 1:
+                if number_of_renderable_cameras > 1:
                     self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
-                camera = renderable_cameras[0]
-                camera_split = camera.split('_')
-                if camera_split[0] != render_layer:
-                    self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
+                if number_of_renderable_cameras > 0:
+                    camera = renderable_cameras[0]
+                    camera_split = camera.split('_')
+                    if camera_split[0] != render_layer:
+                        self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
         self.vertical_layout.addLayout(self.layout_bottom)
         button_add_object_to_all_layers = QtWidgets.QPushButton('add selection to all render layers')
         self.layout_bottom.addWidget(button_add_object_to_all_layers)
