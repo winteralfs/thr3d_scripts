@@ -7,8 +7,6 @@ from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 import re
 
-print '4'
-
 render_layers = cmds.ls(type = "renderLayer")
 light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
 materials_VRayMtl = cmds.ls(type = "VRayMtl")
@@ -1340,7 +1338,7 @@ class LAYERS_WINDOW_TOOL():
         self.populate_gui()
 
     def fix_cam_layer_assignments(self):
-        print 'button_fix_cam_layer_assignments'
+        #print 'button_fix_cam_layer_assignments'
         camera_list_modified = cmds.ls(type = "camera")
         camera_list_modified.append("perspShape")
         camera_list_modified.append("topShape")
