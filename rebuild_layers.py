@@ -39,7 +39,7 @@ object_check.append("vraySettings")
 def overides_information_function(render_layers):
     class ATTR_OVERRIDES_CLASS:
         def __init__(self,render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check):
-            rll_ramp_overrides = {}
+            render_layer_ramp_overrides = {}
             self.object_label = object_label
             self.render_layers = render_layers
             self.object_type = object_type
@@ -129,16 +129,16 @@ def overides_information_function(render_layers):
                                             attr_DIC_string = self.object_label + "_overide_rampMismatch*" + obj + "." + attr + "**" + rl + "_"
                                             self.attr_overrides_DIC[attr_DIC_string] = override_ramp
                                         if override_ramp == default_ramp:
-                                            rll_overrides = cmds.listConnections(rl + ".adjustments", p = True, c = True) or []
-                                            rll_ramp_overrides = []
-                                            for cn in rll_overrides:
+                                            render_layer_overrides = cmds.listConnections(rl + ".adjustments", p = True, c = True) or []
+                                            render_layer_ramp_overrides = []
+                                            for cn in render_layer_overrides:
                                                 t = cmds.nodeType(cn)
                                                 if t == "ramp":
-                                                    if cn not in rll_ramp_overrides:
-                                                        rll_ramp_overrides.append(cn)
-                                                for i in range(0, len(rll_overrides), 2):
-                                                    rl_connection = rll_overrides[i]
-                                                    override_Attr = rll_overrides[i+1]
+                                                    if cn not in render_layer_ramp_overrides:
+                                                        render_layer_ramp_overrides.append(cn)
+                                                for i in range(0, len(render_layer_overrides), 2):
+                                                    rl_connection = render_layer_overrides[i]
+                                                    override_Attr = render_layer_overrides[i+1]
                                                     override_index = rl_connection.split("]")[0]
                                                     override_index = override_index.split("[")[-1]
                                                     override_value = cmds.getAttr(rl + ".adjustments[%s].value" %override_index)
@@ -684,7 +684,7 @@ def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsO
         renderStatsOVeride = ""
     if VPcount == 0:
         vrayObjectPropertiesOVeride = ""
-    for RLL in render_layers:
+    for render_layer in render_layers:
         vraySettingOVerideL = []
         vraySettingOVerideLstr = ""
         transformsOVerideL = []
@@ -717,7 +717,7 @@ def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsO
             vsoSplit = vso.split("**")
             match = vsoSplit[1]
             match = match[:-1]
-            if RLL  == match:
+            if render_layer  == match:
                 vraySettingOVerideVal = vraySettingOVeride[vso]
                 vraySettingOVerideVal = str(vraySettingOVerideVal) + " "
                 splt = vso.split("**")
@@ -728,7 +728,7 @@ def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsO
         for to in transformsOVeride:
             toSplit = to.split("$")
             match = toSplit[2]
-            if RLL == match:
+            if render_layer == match:
                 transformsOVerideVal = transformsOVeride[to]
                 transformsOVerideVal = str(transformsOVerideVal) + " "
                 toS = to.split("$")
@@ -748,7 +748,7 @@ def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsO
                 moSplit = mo.split("**")
                 match = moSplit[1]
                 match = match[:-1]
-                if RLL == match:
+                if render_layer == match:
                     materialsOVerideVal = materialsOVeride[mo]
                     materialsOVerideVal = str(materialsOVerideVal) + " "
                     splt = mo.split("**")
@@ -760,7 +760,7 @@ def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsO
             coSplit = co.split("**")
             match = coSplit[1]
             match = match[:-1]
-            if RLL == match:
+            if render_layer == match:
                 cameraOVerideVal = cameraOVeride[co]
                 cameraOVerideVal = str(cameraOVerideVal) + " "
                 splt = co.split("**")
@@ -772,7 +772,7 @@ def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsO
             loSplit = lo.split("**")
             match = loSplit[1]
             match = match[:-1]
-            if RLL == match:
+            if render_layer == match:
                 lightsOVerideVal = lightsOVeride[lo]
                 lightsOVerideVal = str(lightsOVerideVal) + " "
                 splt = lo.split("**")
@@ -783,7 +783,7 @@ def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsO
         for rso in renderStatsOVeride:
             rsoSplit = rso.split("**")
             match = rsoSplit[3]
-            if RLL == match:
+            if render_layer == match:
                 renderStatsOVerideVal = renderStatsOVeride[rso]
                 renderStatsOVerideVal = str(renderStatsOVerideVal) + " "
                 rsoS = rso.split("**")
@@ -793,7 +793,7 @@ def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsO
         for vpo in vrayObjectPropertiesOVeride:
             vpoSplit = vpo.split("**")
             match = vpoSplit[3]
-            if RLL == match:
+            if render_layer == match:
                 vrayObjectPropertiesOVerideVal = vrayObjectPropertiesOVeride[vpo]
                 vrayObjectPropertiesOVerideVal = str(vrayObjectPropertiesOVerideVal) + " "
                 vpoS = vpo.split("**")
@@ -806,7 +806,7 @@ def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsO
         for txtF in txtFieldList:
             txtFsplit = txtF.split("|")
             matchSplit = txtFsplit[2]
-            if RLL == matchSplit:
+            if render_layer == matchSplit:
                 for odc in overidesDicCombo:
                     oddStrCombo = oddStrCombo + " " + odc
                 cmds.textField(txtF, text = oddStrCombo, edit = True)
@@ -829,80 +829,6 @@ def camAnalize():
                     camRenDicSTR = rl + "_" + camm
                     camRenDic[camRenDicSTR] = (camm + "_" + rl)
     return(camRenDic,camList)
-
-def fixCams(rl,render_layers,camList,renCamMenu,*args):
-    global initialLayer
-    intialLayer = cmds.editRenderLayerGlobals(currentRenderLayer = True, query = True)
-    render_layers = cmds.ls(type = "renderLayer")
-    camListMod = cmds.ls(type = "camera")
-    camListMod.append("perspShape")
-    camListMod.append("topShape")
-    camListMod.append("frontShape")
-    camListMod.append("sideShape")
-    for rll in render_layers:
-        if rll == "defaultRenderLayer":
-            cmds.editRenderLayerGlobals(currentRenderLayer = rll)
-            for cam in camListMod:
-                if cam == "perspShape":
-                    cmds.setAttr(cam + ".renderable",1)
-        if rll != "defaultRenderLayer":
-            cmds.editRenderLayerGlobals(currentRenderLayer = rll)
-            for cam in camListMod:
-                if "FtTp" in cam or "FtRt" in cam or "FtLt" in cam in cam or "FtLtTp" in cam or "FtRtTp" in cam or "Ft" in cam or "Bk" in cam or "Rt" in cam or "Lt" in cam or "Tp" in cam or "Bt" in cam:
-                    var = 0
-                if "C1N1" in cam or "C1N1Shape" in cam or "C7N1" in cam or "C7N1Shape" in cam or "C2N1" in cam or "C2N1Shape" in cam  or "C8N1" in cam  or "C8N1Shape" in cam  or "C3N1" in cam or "C3N1Shape" in cam  or "C9N1" in cam  or "C9N1Shape" in cam or "C1C1" in cam or "C1C1Shape" in cam or "C1L1" in cam  or "C1L1Shape" in cam or "C1R1" in cam or "C1R1Shape" in cam or "C1N2" in cam or "C1NShape2" in cam or "C1N2Shape" in cam or "C1N4" in cam or "C1NShape4" in cam or "C1N4Shape" in cam:
-                    var = 1
-                if "C1N1Shape1" in cam or "C7N1Shape1" in cam or "C2N1Shape1" in cam or "C8N1Shape1" in cam or "C3N1Shape1" in cam or "C9N1Shape1" in cam or "C1C1Shape1" in cam or "C1L1Shape1" in cam or "C1R1Shape1" in cam or "C1N2Shape1" in cam or "C1N4Shape1" in cam:
-                    var = 2
-                if "perspShape2" in cam or "topShape2" in cam or "frontShape2" in cam or "sideShape2" in cam or "backShape1" in cam or "backShape2" in cam:
-                    var = 3
-                if var == 0:
-                    if cam == "perspShape" or cam == "topShape" or cam == "frontShape" or cam == "sideShape":
-                        camLayCompare = cam.split("Shape")
-                        camLayCompare = camLayCompare[0] +  camLayCompare[1]
-                    else:
-                        camSP = cam.split("_")
-                        camCut = camSP[0]
-                        camLayCompare = camCut
-                if var == 1:
-                    if cam == "perspShape" or cam == "topShape" or cam == "frontShape" or cam == "sideShape":
-                        camLayCompare = cam.split("Shape")
-                        camLayCompare = camLayCompare[0] + camLayCompare[1]
-                    else:
-                        camSP = cam.split("_")
-                        camCut = camSP[1]
-                        camLayCompare = camCut.split("Shape")
-                        camLayCompare = camLayCompare[0] + camLayCompare[1]
-                if var == 2:
-                    if cam == "perspShape" or cam == "topShape" or cam == "frontShape" or cam == "sideShape":
-                        camLayCompare = cam.split("Shape")
-                        camLayCompare = camLayCompare[0] + camLayCompare[1]
-                    else:
-                        camSP = cam.split("_")
-                        camCut = camSP[1]
-                        camLayCompare = camCut.split("Shape")
-                        camLayCompare = camLayCompare[0]
-                if var == 3:
-                    if cam == "perspShape" or cam == "topShape" or cam == "frontShape" or cam == "sideShape" or cam == "backShape1" or cam == "backShape2":
-                        if "2" not in cam:
-                            camLayCompare = cam.split("Shape")
-                            camLayCompare = camLayCompare[0] + camLayCompare[1]
-                        if "2" in cam:
-                            camLayCompare = cam.split("Shape")
-                            camLayCompare = camLayCompare[0]
-                    else:
-                        camLayCompare = camCut.split("Shape")
-                        camLayCompare = camLayCompare[0]
-                camLayCompareSPb = camLayCompare.split("Shape")
-                camLayCompareSPb = camLayCompareSPb[0]
-                if camLayCompare == rll or (camLayCompareSPb + "_BTY") == rll or (camLayCompareSPb + "_REF") == rll or (camLayCompareSPb + "_SHD") == rll or (camLayCompareSPb + "_REF_MATTE") == rll or ("BTY_" + camLayCompareSPb) == rll:
-                    cmds.editRenderLayerAdjustment(cam + ".renderable")
-                    cmds.setAttr(cam + ".renderable",1)
-                else:
-                    cmds.editRenderLayerAdjustment(cam + ".renderable")
-                    cmds.setAttr(cam + ".renderable",0)
-    cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
-    layer_switcher()
 
 def copyOneLayer(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,*args):
     copyAllLay = "A"
@@ -940,24 +866,24 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
     lightO = overides[3] or []
     renderStatsO = overides[4] or []
     vrayObjPropsO = overides[5] or []
-    for rlll in activeLayers:
-        if rlll != "defaultRenderLayer":
-            obsInLay = cmds.editRenderLayerMembers( rlll, fn = True,query=True ) or []
+    for render_layerl in activeLayers:
+        if render_layerl != "defaultRenderLayer":
+            obsInLay = cmds.editRenderLayerMembers( render_layerl, fn = True,query=True ) or []
             obsVizDic = {}
             for obCL in object_checkCL:
                 visibility_example = cmds.attributeQuery("visibility",node = obCL,exists = True)
                 if visibility_example == 1:
-                    cmds.editRenderLayerGlobals(currentRenderLayer = rlll)
+                    cmds.editRenderLayerGlobals(currentRenderLayer = render_layerl)
                     vizString = (obCL + ".visibility")
                     visState = cmds.getAttr(vizString)
                     strKey = (obCL + "%" + str(visState))
                     obsVizDic[strKey] = visState
-            cmds.createRenderLayer(obsInLay, name = (rlll + "_copy"))
-            cmds.editRenderLayerGlobals(currentRenderLayer = (rlll + "_copy"))
-            cmds.rename(rlll,("**_" + rlll + "_old"))
-            cmds.rename((rlll + "_copy"),rlll)
+            cmds.createRenderLayer(obsInLay, name = (render_layerl + "_copy"))
+            cmds.editRenderLayerGlobals(currentRenderLayer = (render_layerl + "_copy"))
+            cmds.rename(render_layerl,("**_" + render_layerl + "_old"))
+            cmds.rename((render_layerl + "_copy"),render_layerl)
             for objL in obsInLay:
-                cmds.editRenderLayerMembers((rlll),objL)
+                cmds.editRenderLayerMembers((render_layerl),objL)
             for ob in object_check:
                 for obvd in obsVizDic:
                      obvdSP = obvd.split("%")
@@ -977,7 +903,7 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
                 layer = tfoSP[2]
                 for ob in object_check:
                     if ob == tfoSP[1]:
-                        if layer == rlll:
+                        if layer == render_layerl:
                             val = transformO[tfo]
                             if "translate" in tfoSP[3]:
                                 cmds.editRenderLayerAdjustment(ob + ".translate")
@@ -1005,7 +931,7 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
                         kid = cmds.listRelatives(ob,children = True)
                         ob = kid[0]
                     if ob == loOBsp[0]:
-                        if layer == rlll:
+                        if layer == render_layerl:
                             val = lightO[loOrig]
                             typ = type(val)
                             kindLS = type(val) is list
@@ -1064,7 +990,7 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
                     moOBsp = mo.split(".")
                     for mats in materials:
                         if mats == moOBsp[0]:
-                            if layer == rlll:
+                            if layer == render_layerl:
                                 val = materialO[moOrig]
                                 typ = type(val)
                                 kindLS = type(val) is list
@@ -1087,7 +1013,7 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
                                             a = a + 1
                                     cmds.setAttr(moSP[1],valA,valB,valC)
                                 if kindFL == 1 or kindInt == 1 or kindBoo == 1:
-                                    cmds.editRenderLayerAdjustment(mo,layer = rlll)
+                                    cmds.editRenderLayerAdjustment(mo,layer = render_layerl)
                                     if rr_found == 1:
                                         a = 1
                                         dest_cons = cmds.listConnections(moSP[1], destination = False, plugs = True, connections = True) or []
@@ -1114,7 +1040,7 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
                     moAo = moSP[0]
                     for mats in materials:
                         if mats == moSP[0]:
-                            if layer == rlll:
+                            if layer == render_layerl:
                                 val = materialO[moOrig]
                                 typ = type(val)
                                 cmds.select(moAo)
@@ -1129,7 +1055,7 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
                 rs = rs + "." + rsB
                 for rS in renderStats:
                     if rsAttr == rS:
-                        if layer == rlll:
+                        if layer == render_layerl:
                             val = renderStatsO[rsOrig]
                             typ = type(val)
                             kindLS = type(val) is list
@@ -1158,7 +1084,7 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
                 vrpFull = vrp + "." + vrpSP[2]
                 for vrpB in VrayObjectProps:
                     if vrp == vrpB:
-                        if layer == rlll:
+                        if layer == render_layerl:
                             val = vrayObjPropsO[vrpOrig]
                             typ = type(val)
                             kindLS = type(val) is list
@@ -1194,7 +1120,7 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
                 for vrsB in vraySettings:
                     vrsB = "vraySettings." + vrsB
                     if vrs == vrsB:
-                        if layer == rlll:
+                        if layer == render_layerl:
                             val = vraySettingsO[vrsOrig]
                             typ = type(val)
                             kindLS = type(val) is list
@@ -1237,7 +1163,6 @@ def copyLayers(render_layers,materials,copyAllLay,*args):
                                         a = a + 1
                                 cmds.connectAttr((val + ".outColor"),vrsFull, force = True)
         cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
-        layer_switcher()
 
 class LAYERS_WINDOW_TOOL():
     def __init__(self):
@@ -1414,6 +1339,77 @@ class LAYERS_WINDOW_TOOL():
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
         self.populate_gui()
 
+    def fix_cam_layer_assignments(self):
+        print 'button_fix_cam_layer_assignments'
+        camera_list_modified = cmds.ls(type = "camera")
+        camera_list_modified.append("perspShape")
+        camera_list_modified.append("topShape")
+        camera_list_modified.append("frontShape")
+        camera_list_modified.append("sideShape")
+        for render_layer in self.render_layers:
+            if render_layer == "defaultRenderLayer":
+                cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                for cam in camera_list_modified:
+                    if cam == "perspShape":
+                        cmds.setAttr(cam + ".renderable",1)
+            if render_layer != "defaultRenderLayer":
+                cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                for cam in camera_list_modified:
+                    if "FtTp" in cam or "FtRt" in cam or "FtLt" in cam in cam or "FtLtTp" in cam or "FtRtTp" in cam or "Ft" in cam or "Bk" in cam or "Rt" in cam or "Lt" in cam or "Tp" in cam or "Bt" in cam:
+                        var = 0
+                    if "C1N1" in cam or "C1N1Shape" in cam or "C7N1" in cam or "C7N1Shape" in cam or "C2N1" in cam or "C2N1Shape" in cam  or "C8N1" in cam  or "C8N1Shape" in cam  or "C3N1" in cam or "C3N1Shape" in cam  or "C9N1" in cam  or "C9N1Shape" in cam or "C1C1" in cam or "C1C1Shape" in cam or "C1L1" in cam  or "C1L1Shape" in cam or "C1R1" in cam or "C1R1Shape" in cam or "C1N2" in cam or "C1NShape2" in cam or "C1N2Shape" in cam or "C1N4" in cam or "C1NShape4" in cam or "C1N4Shape" in cam:
+                        var = 1
+                    if "C1N1Shape1" in cam or "C7N1Shape1" in cam or "C2N1Shape1" in cam or "C8N1Shape1" in cam or "C3N1Shape1" in cam or "C9N1Shape1" in cam or "C1C1Shape1" in cam or "C1L1Shape1" in cam or "C1R1Shape1" in cam or "C1N2Shape1" in cam or "C1N4Shape1" in cam:
+                        var = 2
+                    if "perspShape2" in cam or "topShape2" in cam or "frontShape2" in cam or "sideShape2" in cam or "backShape1" in cam or "backShape2" in cam:
+                        var = 3
+                    if var == 0:
+                        if cam == "perspShape" or cam == "topShape" or cam == "frontShape" or cam == "sideShape":
+                            camera_layer_compare = cam.split("Shape")
+                            camera_layer_compare = camera_layer_compare[0] +  camera_layer_compare[1]
+                        else:
+                            camera_split = cam.split("_")
+                            camera_cut = camera_split[0]
+                            camera_layer_compare = camera_cut
+                    if var == 1:
+                        if cam == "perspShape" or cam == "topShape" or cam == "frontShape" or cam == "sideShape":
+                            camera_layer_compare = cam.split("Shape")
+                            camera_layer_compare = camera_layer_compare[0] + camera_layer_compare[1]
+                        else:
+                            camera_split = cam.split("_")
+                            camera_cut = camera_split[1]
+                            camera_layer_compare = camera_cut.split("Shape")
+                            camera_layer_compare = camera_layer_compare[0] + camera_layer_compare[1]
+                    if var == 2:
+                        if cam == "perspShape" or cam == "topShape" or cam == "frontShape" or cam == "sideShape":
+                            camera_layer_compare = cam.split("Shape")
+                            camera_layer_compare = camera_layer_compare[0] + camera_layer_compare[1]
+                        else:
+                            camera_split = cam.split("_")
+                            camera_cut = camera_split[1]
+                            camera_layer_compare = camera_cut.split("Shape")
+                            camera_layer_compare = camera_layer_compare[0]
+                    if var == 3:
+                        if cam == "perspShape" or cam == "topShape" or cam == "frontShape" or cam == "sideShape" or cam == "backShape1" or cam == "backShape2":
+                            if "2" not in cam:
+                                camera_layer_compare = cam.split("Shape")
+                                camera_layer_compare = camera_layer_compare[0] + camera_layer_compare[1]
+                            if "2" in cam:
+                                camera_layer_compare = cam.split("Shape")
+                                camera_layer_compare = camera_layer_compare[0]
+                        else:
+                            camera_layer_compare = camera_cut.split("Shape")
+                            camera_layer_compare = camera_layer_compare[0]
+                    camera_layer_compareSPb = camera_layer_compare.split("Shape")
+                    camera_layer_compareSPb = camera_layer_compareSPb[0]
+                    if camera_layer_compare == render_layer or (camera_layer_compareSPb + "_BTY") == render_layer or (camera_layer_compareSPb + "_REF") == render_layer or (camera_layer_compareSPb + "_SHD") == render_layer or (camera_layer_compareSPb + "_REF_MATTE") == render_layer or ("BTY_" + camera_layer_compareSPb) == render_layer:
+                        cmds.editRenderLayerAdjustment(cam + ".renderable")
+                        cmds.setAttr(cam + ".renderable",1)
+                    else:
+                        cmds.editRenderLayerAdjustment(cam + ".renderable")
+                        cmds.setAttr(cam + ".renderable",0)
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
+
     def render_layer_change(self,button_render_layer):
         for render_layer in self.render_layers:
             if render_layer != 'defaultRenderLayer':
@@ -1547,7 +1543,7 @@ class LAYERS_WINDOW_TOOL():
         button_unlock_cameras.pressed.connect(partial(self.unlock_cameras))
         button_fix_cam_layer_assignments = QtWidgets.QPushButton('fix the render camera to render layer assignments')
         self.layout_bottom.addWidget(button_fix_cam_layer_assignments)
-        #button_fix_cam_layer_assignments.pressed.connect(partial(self.fix_cam_layer_assignments))
+        button_fix_cam_layer_assignments.pressed.connect(partial(self.fix_cam_layer_assignments))
         rebuild_selected_render_layer = QtWidgets.QPushButton('rebuild selected render layer')
         self.layout_bottom.addWidget(rebuild_selected_render_layer)
         #rebuild_selected_render_layer.pressed.connect(partial(self.rebuild_selected_render_layer))
