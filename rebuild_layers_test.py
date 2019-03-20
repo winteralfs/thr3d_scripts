@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 import re
 
-class LAYERS_WINDOW_TOOL():
+class LAYERS_WINDOW_TOOL(object):
     def __init__(self):
         self.light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
         self.materials_VRayMtl = cmds.ls(type = "VRayMtl")
@@ -48,36 +48,47 @@ class LAYERS_WINDOW_TOOL():
 #---
 
     def overides_information_function(self):
-        print 'overides_information_function'
+        #print 'overides_information_function'
         vraySettingsOverrideDic = {}
         transform_layer_overrides = {}
         matAssignmentLayOverides = {}
-        materialsOverideDIC = {}
+        self.materialsOverideDIC = {}
         cameraOveridesDIC = {}
         lightOveridesDIC = {}
         Render_Stats_Overides = {}
         vrayObjectPropertyOverides = {}
         vraySettingsOverrideDic = self.vraySettingsOverides()
         OBJ_1_translations = self.translations()
-        transform_layer_overrides = OBJ_1_translations[5]
-        OBJ_1_materialsAssignments = self.material_assignments()
-        matAssignmentLayOverides = OBJ_1_materialsAssignments[4]
-        materialsOverideDIC = self.material_overrides()
-        materialsOverideDIC.update(matAssignmentLayOverides)
+        #print 'OBJ_1_translations = ',OBJ_1_translations
+        transform_layer_overrides = OBJ_1_translations[3]
+        #print 'transform_layer_overrides = ',transform_layer_overrides
+        self.materialsAssignments = self.material_assignments()
+        #print 'OBJ_1_self.materialsAssignments = ',OBJ_1_self.materialsAssignments
+        self.matAssignmentLayOverides = self.materialsAssignments[3]
+        #print 'matAssignmentLayOverides = ',matAssignmentLayOverides
+        self.materialsOverideDIC = self.material_overrides()
+        self.materialsOverideDIC.update(matAssignmentLayOverides)
         cameraOveridesDIC = self.cameraOverides()
         lightOveridesDIC = self.lightOverides()
         OBJ_1_Render_Stats = self.Render_stat_Overides()
         Render_Stats_Overides = OBJ_1_Render_Stats
         OBJ_1_VrayObjectProps = self.vrayObjectPropO()
         vrayObjectPropertyOverides = OBJ_1_VrayObjectProps
-        return(vraySettingsOverrideDic,transform_layer_overrides,materialsOverideDIC,lightOveridesDIC,Render_Stats_Overides,vrayObjectPropertyOverides,cameraOveridesDIC)
+        #print 'vraySettingsOverrideDic = ',vraySettingsOverrideDic
+        #print 'transform_layer_overrides = ',transform_layer_overrides
+        #print 'self.materialsOverideDIC = ',self.materialsOverideDIC
+        #print 'lightOveridesDIC = ',lightOveridesDIC
+        #print 'Render_Stats_Overides = ',Render_Stats_Overides
+        #print 'vrayObjectPropertyOverides = ',vrayObjectPropertyOverides
+        #print 'cameraOveridesDIC = ',cameraOveridesDIC
+        return(vraySettingsOverrideDic,transform_layer_overrides,self.materialsOverideDIC,lightOveridesDIC,Render_Stats_Overides,vrayObjectPropertyOverides,cameraOveridesDIC)
 
     def overides_information_summary(self,object_type,remove_attr_List,attr_overrides_DIC,object_label):
         render_layer_ramp_overrides = {}
         object_label = object_label
         self.object_type = object_type
-        print " "
-        print " "
+        #print " "
+        #print " "
         print "self.object_type = ",self.object_type
         object_list = self.object_check
         if self.object_type == "camera" or self.object_type == "VRayLightRectShape" or self.object_type == "spotLight" or self.object_type == "ambientLight" or self.object_type == "directionalLight" or self.object_type == "pointLight" or self.object_type == "VRayMtl" or self.object_type == "blinn" or self.object_type == "phong" or self.object_type == "lambert" or self.object_type == "surfaceShader" or self.object_type == "displacementShader" or self.object_type == "VRayDisplacement" or self.object_type == "place2dTexture" or self.object_type == "file" or self.object_type == "layered_textures" or self.object_type == "VRayBlendMtl":
@@ -88,7 +99,7 @@ class LAYERS_WINDOW_TOOL():
         self.attr_overrides_DIC = attr_overrides_DIC
         self.remove_attr_List = remove_attr_List
 
-    def attr_override_detect(self):
+    def attr_override_detect(self,object_label):
         for obj in self.object_list:
             default_ramp = "none"
             override_ramp = "none"
@@ -190,6 +201,7 @@ class LAYERS_WINDOW_TOOL():
         cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
         lay = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
         for ob in self.object_check_t:
+            #print 'ob = ',ob
             string_translateX = ob + ".translateX"
             translateX = cmds.getAttr(string_translateX)
             var = ob + "$" + lay + "$translateX"
@@ -226,6 +238,7 @@ class LAYERS_WINDOW_TOOL():
             scaleZ = cmds.getAttr(string_scaleZ)
             var = ob + "$" + lay + "$scaleZ"
             transform_default_values_DIC[var] = scaleZ
+        #print 'transform_default_values_DIC = ',transform_default_values_DIC
         for ob in self.object_check_t:
             for lay in self.render_layers:
                 cmds.editRenderLayerGlobals( currentRenderLayer = lay )
@@ -267,6 +280,7 @@ class LAYERS_WINDOW_TOOL():
                     scaleZ = cmds.getAttr(string_scaleZ)
                     var = ob + "$" + lay + "$scaleZ"
                     transform_override_values_DIC[var] = scaleZ
+        #print 'transform_override_values_DIC = ',transform_override_values_DIC
         for transform_value in transform_override_values_DIC:
             transform_values_split = transform_value.split("$")
             for transform_defualt_value in transform_default_values_DIC:
@@ -277,15 +291,16 @@ class LAYERS_WINDOW_TOOL():
                     if valu != valuDef:
                         transform_layer_overrides.append(transform_value)
                         transform_layer_DIC["transO$" + transform_value] = valu
+
         return transform_default_values_DIC,transform_override_values_DIC,transform_layer_overrides,transform_layer_DIC
 
     def material_assignments(self):
-        materials_list = []
-        materials_list_overrides = []
+        self.materials_list = []
+        self.materials_list_overrides = []
         material_layer_overrides = []
-        materials_defualt_DIC = {}
-        materials_override_DIC = {}
-        materials_layer_DIC = {}
+        self.materials_defualt_DIC = {}
+        self.materials_override_DIC = {}
+        self.materials_layer_DIC = {}
         for ob in self.object_check:
             cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
             lay = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
@@ -295,43 +310,43 @@ class LAYERS_WINDOW_TOOL():
                     cmds.select(clear = True)
                     cmds.select(ob)
                     cmds.hyperShade(smn = True)
-                    materials_list = cmds.ls(sl = True)
-                    for MM in materials_list:
+                    self.materials_list = cmds.ls(sl = True)
+                    for MM in self.materials_list:
                         NT = cmds.nodeType(MM)
                         if NT != "renderLayer":
-                            if MM not in materials_list_overrides:
-                                materials_list_overrides.append(MM)
+                            if MM not in self.materials_list_overrides:
+                                self.materials_list_overrides.append(MM)
                             override_DIC_key = ob + "$" + L + "$"
-                            materials_defualt_DIC[override_DIC_key] = MM
+                            self.materials_defualt_DIC[override_DIC_key] = MM
                 else:
                     cmds.select(clear = True)
                     cmds.select(ob)
                     cmds.hyperShade(smn = True)
-                    materials_list = cmds.ls(sl = True)
-                    for MM in materials_list:
+                    self.materials_list = cmds.ls(sl = True)
+                    for MM in self.materials_list:
                         NT = cmds.nodeType(MM)
                         if NT != "renderLayer":
-                            if MM not in materials_list_overrides:
-                                materials_list_overrides.append(MM)
+                            if MM not in self.materials_list_overrides:
+                                self.materials_list_overrides.append(MM)
                             override_DIC_key = ob + "$" + L + "$"
-                            materials_override_DIC[override_DIC_key] = MM
-        for material_override_DIC in materials_override_DIC:
+                            self.materials_override_DIC[override_DIC_key] = MM
+        for material_override_DIC in self.materials_override_DIC:
            material_value_split = material_override_DIC.split("$")
-           for material_defualt_DIC in materials_defualt_DIC:
+           for material_defualt_DIC in self.materials_defualt_DIC:
                material_defualt_value_split = material_defualt_DIC.split("$")
                if material_value_split[0] == material_defualt_value_split[0]:
-                    mat_oth = materials_override_DIC[material_override_DIC]
-                    mat_def = materials_defualt_DIC[material_defualt_DIC]
+                    mat_oth = self.materials_override_DIC[material_override_DIC]
+                    mat_def = self.materials_defualt_DIC[material_defualt_DIC]
                     if mat_oth != mat_def:
                         material_layer_overrides.append(material_override_DIC)
                         material_DIC_string = material_override_DIC + ".materialAssignment"
-                        if material_DIC_string not in materials_layer_DIC and "Shape" not in material_DIC_string:
-                            materials_layer_DIC[material_DIC_string] = mat_oth
-        return(materials_list_overrides,materials_list_overrides,materials_override_DIC,material_layer_overrides,materials_layer_DIC)
+                        if material_DIC_string not in self.materials_layer_DIC and "Shape" not in material_DIC_string:
+                            self.materials_layer_DIC[material_DIC_string] = mat_oth
+        return(self.materials_list_overrides,self.materials_list_overrides,self.materials_override_DIC,material_layer_overrides,self.materials_layer_DIC)
 
     def material_overrides(self):
-        materialsOverideDIC = {}
-        attr_overrides_DIC = materialsOverideDIC
+        self.materialsOverideDIC = {}
+        attr_overrides_DIC = self.materialsOverideDIC
         object_label = "mtlOveride"
 
         object_type = "VRayMtl"
@@ -353,7 +368,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "blinn"
         remove_attr_List = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB", "reflectionLimit", "specularColor", "specularColorR", "specularColorG", "specularColorB", "reflectivity", "reflectedColor", "reflectedColorR", "reflectedColorG", "reflectedColorB", "triangleNormalCamera", "triangleNormalCameraX", "triangleNormalCameraY", "triangleNormalCameraZ", "reflectionSpecularity", "eccentricity", "specularRollOff", "reflectionRolloff"]
@@ -361,7 +376,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "phong"
         remove_attr_List = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB", "reflectionLimit", "specularColor", "specularColorR", "specularColorG", "specularColorB", "reflectivity", "reflectedColor", "reflectedColorR", "reflectedColorG", "reflectedColorB", "triangleNormalCamera", "triangleNormalCameraX", "triangleNormalCameraY", "triangleNormalCameraZ", "reflectionSpecularity", "cosinePower"]
@@ -369,7 +384,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "lambert"
         remove_attr_List = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB"]
@@ -377,7 +392,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "surfaceShader"
         remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","outColor","outColorR","outColorG","outColorB","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","outMatteOpacity","outMatteOpacityR","outMatteOpacityG","outMatteOpacityB","outGlowColor","outGlowColorR","outGlowColorG","outGlowColorB","materialAlphaGain"]
@@ -385,7 +400,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "place2dTexture"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","uvCoord","uCoord","vCoord","vertexUvOne","vertexUvOneU","vertexUvOneV","vertexUvTwo","vertexUvTwoU","vertexUvTwoV","vertexUvThree","vertexUvThreeU","vertexUvThreeV","vertexCameraOne","vertexCameraOneX","vertexCameraOneY","vertexCameraOneZ","uvFilterSize","uvFilterSizeX","uvFilterSizeY","coverage","coverageU","coverageV","translateFrame","translateFrameU","translateFrameV","rotateFrame","mirrorU","mirrorV","stagger","wrapU","wrapV","repeatUV","repeatU","repeatV","offset","offsetU","offsetV","rotateUV","noiseUV","noiseU","noiseV","fast","outUV","outU","outV","outUvFilterSize","outUvFilterSizeX","outUvFilterSizeY","doTransform"]
@@ -393,7 +408,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "file"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","filter","filterOffset","invert","alphaIsLuminance","colorGain","colorGainR","colorGainG","colorGainB","colorOffset","colorOffsetR","colorOffsetG","colorOffsetB","alphaGain","alphaOffset","defaultColor","defaultColorR","defaultColorG","defaultColorB","outColor","outColorR","outColorG","outColorB","outAlpha","fileTextureName","fileTextureNamePattern","computedFileTextureNamePattern","disableFileLoad","useFrameExtension","frameExtension","frameOffset","useHardwareTextureCycling","startCycleExtension","endCycleExtension","byCycleIncrement","forceSwatchGen","filterType","filterWidth","preFilter","preFilterRadius","useCache","useMaximumRes","uvTilingMode","explicitUvTiles","explicitUvTiles.explicitUvTileName","explicitUvTiles.explicitUvTilePosition","explicitUvTiles.explicitUvTilePositionU","explicitUvTiles.explicitUvTilePositionV","baseExplicitUvTilePosition","baseExplicitUvTilePositionU","baseExplicitUvTilePositionV","uvTileProxyDirty","uvTileProxyGenerate","uvTileProxyQuality","coverage","coverageU","coverageV","translateFrame","translateFrameU","translateFrameV","rotateFrame","doTransform","mirrorU","mirrorV","stagger","wrapU","wrapV","repeatUV","repeatU","repeatV","offset","offsetU","offsetV","rotateUV","noiseUV","noiseU","noiseV","blurPixelation","vertexCameraOne","vertexCameraOneX","vertexCameraOneY","vertexCameraOneZ","vertexCameraTwo","vertexCameraTwoX","vertexCameraTwoY","vertexCameraTwoZ","vertexCameraThree","vertexCameraThreeX","vertexCameraThreeY","vertexCameraThreeZ","vertexUvOne","vertexUvOneU","vertexUvOneV","vertexUvTwo","vertexUvTwoU","vertexUvTwoV","vertexUvThree","vertexUvThreeU","vertexUvThreeV","objectType","rayDepth","primitiveId","pixelCenter","pixelCenterX","pixelCenterY","exposure","hdrMapping","hdrExposure","dirtyPixelRegion","ptexFilterType","ptexFilterWidth","ptexFilterBlur","ptexFilterSharpness","ptexFilterInterpolateLevels","colorProfile","colorSpace","ignoreColorSpaceFileRules","workingSpace","colorManagementEnabled","colorManagementConfigFileEnabled","colorManagementConfigFilePath","outSize","outSizeX","outSizeY","fileHasAlpha","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","infoBits"]
@@ -401,7 +416,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "layered_textures"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","inputs","inputs.color","inputs.colorR","inputs.colorG","inputs.colorB","inputs.alpha","inputs.blendMode","inputs.isVisible","outColor","outColorR","outColorG","outColorB","outAlpha","hardwareColor","hardwareColorR","hardwareColorG","hardwareColorB","alphaIsLuminance","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB"]
@@ -409,7 +424,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "VRayBlendMtl"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","swatchAutoUpdate","swatchAlwaysRender","swatchExplicitUpdate","swatchMaxRes","base_material","base_materialR","base_materialG","base_materialB","color","colorR","colorG","colorB","viewportColor","viewportColorR","viewportColorG","viewportColorB","coat_material_0","coat_material_0R","coat_material_0G","coat_material_0B","blend_amount_0","blend_amount_0R","blend_amount_0G","blend_amount_0B","coat_material_1","coat_material_1R","coat_material_1G","coat_material_1B","blend_amount_1","blend_amount_1R","blend_amount_1G","blend_amount_1B","coat_material_2","coat_material_2R","coat_material_2G","coat_material_2B","blend_amount_2","blend_amount_2R","blend_amount_2G","blend_amount_2B","coat_material_3","coat_material_3R","coat_material_3G","coat_material_3B","blend_amount_3","blend_amount_3R","blend_amount_3G","blend_amount_3B","coat_material_4","coat_material_4R","coat_material_4G","coat_material_4B","blend_amount_4","blend_amount_4R","blend_amount_4G","blend_amount_4B","coat_material_5","coat_material_5R","coat_material_5G","coat_material_5B","blend_amount_5","blend_amount_5R","blend_amount_5G","blend_amount_5B","coat_material_6","coat_material_6R","coat_material_6G","coat_material_6B","blend_amount_6","blend_amount_6R","blend_amount_6G","blend_amount_6B","coat_material_7","coat_material_7R","coat_material_7G","coat_material_7B","blend_amount_7","blend_amount_7R","blend_amount_7G","blend_amount_7B","coat_material_8","coat_material_8R","coat_material_8G","coat_material_8B","blend_amount_8","blend_amount_8R","blend_amount_8G","blend_amount_8B","additive_mode","outColor","outColorR","outColorG","outColorB","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","outApiType","outApiClassification"]
@@ -417,7 +432,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "displacementShader"
         remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","displacementMode","displacement","vectorDisplacement","vectorDisplacementX","vectorDisplacementY","vectorDisplacementZ","scale","vectorEncoding","vectorSpace","yIsUp","tangent","tangentX","tangentY","tangentZ"]
@@ -425,7 +440,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "VRayDisplacement"
         remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","dagSetMembers","dnSetMembers","memberWireframeColor","annotation","isLayer","verticesOnlySet","edgesOnlySet","facetsOnlySet","editPointsOnlySet","renderableOnlySet","partition","groupNodes","usedBy","displacement","overrideGlobalDisplacement","outApiType","outApiClassification","vraySeparator_vray_displacement","vrayDisplacementNone","vrayDisplacementStatic","vrayDisplacementType","vrayDisplacementAmount","vrayDisplacementShift","vrayDisplacementKeepContinuity","vrayEnableWaterLevel","vrayWaterLevel","vrayDisplacementCacheNormals","vray2dDisplacementResolution","vray2dDisplacementPrecision","vray2dDisplacementTightBounds","vray2dDisplacementMultiTile","vray2dDisplacementFilterTexture","vray2dDisplacementFilterBlur","vrayDisplacementUseBounds","vrayDisplacementMinValue","vrayDisplacementMinValueR","vrayDisplacementMinValueG","vrayDisplacementMinValueB","vrayDisplacementMaxValue","vrayDisplacementMaxValueR","vrayDisplacementMaxValueG","vrayDisplacementMaxValueB","vraySeparator_vray_subquality","vrayOverrideGlobalSubQual","vrayViewDep","vrayEdgeLength","vrayMaxSubdivs"]
@@ -433,9 +448,9 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         matOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
-        return(materialsOverideDIC)
+        return(self.materialsOverideDIC)
 
     def cameraOverides(self):
         cameraOveridesDIC = {}
@@ -450,7 +465,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         cameraOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        cameraOveridesDIC = cameraOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         return(cameraOveridesDIC)
 
@@ -478,7 +493,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         lightOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "spotLight"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","coneAngle","penumbraAngle","dropoff","barnDoors","leftBarnDoor","rightBarnDoor","topBarnDoor","bottomBarnDoor","useDecayRegions","startDistance1","endDistance1","startDistance2","endDistance2","startDistance3","endDistance3","fogSpread","fogIntensity","objectType","pointWorld","pointWorldX","pointWorldY","pointWorldZ","farPointWorld","farPointWorldX","farPointWorldY","farPointWorldZ","rayDirection","rayDirectionX","rayDirectionY","rayDirectionZ","fogGeometry","lightGlow","psIllumSamples"]
@@ -486,7 +501,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         lightOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "ambientLight"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","ambientShade","objectType","shadowRadius","castSoftShadows","normalCamera","normalCameraX","normalCameraY","normalCameraZ","receiveShadows"]
@@ -494,7 +509,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         lightOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "directionalLight"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","useLightPosition","objectType","lightAngle","pointWorld","pointWorldX","pointWorldY","pointWorldZ"]
@@ -502,7 +517,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         lightOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         object_type = "pointLight"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","fogGeometry","fogRadius","lightGlow","objectType","fogType","pointWorld","pointWorldX","pointWorldY","pointWorldZ","farPointWorld","farPointWorldX","farPointWorldY","farPointWorldZ","fogIntensity"]
@@ -510,7 +525,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         lightOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         return(lightOveridesDIC)
 
@@ -532,7 +547,7 @@ class LAYERS_WINDOW_TOOL():
         for attr in attrCheck:
             remove_attr_List.remove(attr)
         vraySettingsOverides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_DIC,object_label)
-        vraySettingsOverrideDic = vraySettingsOverides.attr_override_detect()
+        self.attr_override_detect(object_label)
 
         return(vraySettingsOverrideDic)
 
@@ -600,32 +615,30 @@ class LAYERS_WINDOW_TOOL():
                             vrayObjectPropertyOvrideDIC[dicString] = oVal
         return(vrayObjectPropertyOvrideDIC)
 
-    def copyOneLayer(self):
-        copyAllLay = "A"
-        copyLayers(vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,copyAllLay)
+    def rebuild_selected_layer(self):
+        rebuild_selected_layer = 1
+        self.rebuild_layers(rebuild_selected_layer)
 
-    def copyAllLayers(self):
-        copyAllLay = "B"
-        copyLayers(materials,copyAllLay)
+    def rebuild_all_layers(self):
+        rebuild_selected_layer = 0
+        self.rebuild_layers(rebuild_selected_layer)
 
-    def copyLayers(self):
+    def rebuild_layers(self,rebuild_selected_layer):
         activeLayers = []
-        unlockNodes()
-        #panels = cmds.getPanel( type = "modelPanel" )
+        self.unlock_cameras()
         for mPanel in self.panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 0)
-        initialLayer = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
-        startLayer = initialLayer
-        if copyAllLay == "A":
+        startLayer = self.initial_layer
+        if rebuild_selected_layer == 1:
             activeLayers.append(startLayer)
-        if copyAllLay == "B":
+        if rebuild_selected_layer == 0:
             activeLayers = self.render_layers
         self.object_checkCL_g = cmds.ls(g = True)
         self.object_checkCL_t = cmds.ls(type = "transform")
         self.object_checkCL_cam = cmds.ls(type = "camera")
         self.object_checkCL = self.object_check_g + self.object_check_t + self.object_check_cam
         light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
-        #overides = overides_information_function()
+        overides = self.overides_information_function()
         VrayObjectProps = cmds.ls(type = "VRayObjectProperties")
         renderStats = ["castsShadows","receiveShadows","motionBlur","primaryVisibility","smoothShading","visibleInReflections","visibleInRefractions"]
         vraySettings = cmds.listAttr("vraySettings")
@@ -758,7 +771,7 @@ class LAYERS_WINDOW_TOOL():
                         moSP = mo.split("*")
                         mo = moSP[1]
                         moOBsp = mo.split(".")
-                        for mats in materials:
+                        for mats in self.materials:
                             if mats == moOBsp[0]:
                                 if layer == render_layerl:
                                     val = materialO[moOrig]
@@ -808,7 +821,7 @@ class LAYERS_WINDOW_TOOL():
                         layer = moSP[1]
                         mo = moSP[2]
                         moAo = moSP[0]
-                        for mats in materials:
+                        for mats in self.materials:
                             if mats == moSP[0]:
                                 if layer == render_layerl:
                                     val = materialO[moOrig]
@@ -932,7 +945,8 @@ class LAYERS_WINDOW_TOOL():
                                             cmds.disconnectAttr(dest_cons[1],dest_cons[0])
                                             a = a + 1
                                     cmds.connectAttr((val + ".outColor"),vrsFull, force = True)
-            cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
+        self.fix_cam_layer_assignments()
 
 #---
     def add_object_to_all_layers(self):
@@ -1204,6 +1218,7 @@ class LAYERS_WINDOW_TOOL():
 
     def populate_gui(self):
         #print 'populate_gui'
+        self.panels = cmds.getPanel( type = "modelPanel" )
         self.render_layer_camera_comboBox_dic = {}
         self.render_layer_button_pointer_dic = {}
         self.OIL_button_pointer_dic = {}
@@ -1236,7 +1251,6 @@ class LAYERS_WINDOW_TOOL():
             self.vertical_layout.addLayout(self.render_layer_layout)
             button_OIL = QtWidgets.QPushButton('OIL')
             button_OIL.setCheckable(True)
-            #button_OIL.setChecked(True)
             button_OIL.setStyleSheet("QPushButton {background:rgb(120,150,180);} QPushButton::checked{background-color: rgb(40, 40, 40);""border:0px solid rgb(80, 170, 20)};")
             button_OIL.toggle()
             self.OIL_button_pointer_dic[button_OIL] = render_layer
@@ -1244,7 +1258,6 @@ class LAYERS_WINDOW_TOOL():
             self.render_layer_layout.addWidget(button_OIL)
             button_OVL = QtWidgets.QPushButton('OVL')
             button_OVL.setCheckable(True)
-            #button_OVL.setChecked(True)
             button_OVL.setStyleSheet("QPushButton {background:rgb(120,150,180);} QPushButton::checked{background-color: rgb(40, 40, 40);""border:0px solid rgb(80, 170, 20)};")
             button_OVL.toggle()
             self.OVL_button_pointer_dic[button_OVL] = render_layer
@@ -1303,10 +1316,10 @@ class LAYERS_WINDOW_TOOL():
         button_fix_cam_layer_assignments.pressed.connect(partial(self.fix_cam_layer_assignments))
         rebuild_selected_render_layer = QtWidgets.QPushButton('rebuild selected render layer')
         self.layout_bottom.addWidget(rebuild_selected_render_layer)
-        rebuild_selected_render_layer.pressed.connect(partial(self.overides_information_function))
+        rebuild_selected_render_layer.pressed.connect(partial(self.rebuild_selected_layer))
         rebuild_all_layers = QtWidgets.QPushButton('rebuild all render layers')
         self.layout_bottom.addWidget(rebuild_all_layers)
-        #rebuild_selected_render_layer.pressed.connect(partial(self.rebuild_selected_render_layer))
+        rebuild_all_layers.pressed.connect(partial(self.rebuild_all_layers))
         for render_layer_button in self.render_layer_button_pointer_dic:
             render_layer_button.pressed.connect(partial(self.render_layer_change,render_layer_button))
         for OIL_button in self.OIL_button_pointer_dic:
