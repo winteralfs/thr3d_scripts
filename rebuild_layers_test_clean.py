@@ -134,7 +134,7 @@ class LAYERS_WINDOW_TOOL(object):
                                 attr_string = object + "." + "inputs[" + str(it_list_n) + "]." + attr
                                 attr = ("inputs[" + str(it_list_n) + "]." + attr)
                         cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
-                        print 'attr_string = ',attr_string
+                        #print 'attr_string = ',attr_string
                         default_attr_value = cmds.getAttr(attr_string)
                         attr_connections = cmds.listConnections(attr_string,destination = False) or []
                         default_ramp_found = 0
@@ -175,8 +175,8 @@ class LAYERS_WINDOW_TOOL(object):
                                         render_layer_overrides = cmds.listConnections(render_layer + ".adjustments", p = True, c = True) or []
                                         render_layer_ramp_overrides = []
                                         for connection in render_layer_overrides:
-                                            t = cmds.nodeType(connection)
-                                            if t == "ramp":
+                                            type = cmds.nodeType(connection)
+                                            if type == "ramp":
                                                 if connection not in render_layer_ramp_overrides:
                                                     render_layer_ramp_overrides.append(connection)
                                             for i in range(0, len(render_layer_overrides), 2):
@@ -213,8 +213,8 @@ class LAYERS_WINDOW_TOOL(object):
             translateZ = cmds.getAttr(string_translateZ)
             var = object + "$" + render_layer + "$translateZ"
             transform_default_values_dic[var] = translateZ
-            strrotateX = object + ".rotateX"
-            rotateX = cmds.getAttr(strrotateX)
+            str_rotateX = object + ".rotateX"
+            rotateX = cmds.getAttr(str_rotateX)
             var = object + "$" + render_layer + "$rotateX"
             transform_default_values_dic[var] = rotateX
             string_rotateY = object + ".rotateY"
@@ -255,8 +255,8 @@ class LAYERS_WINDOW_TOOL(object):
                     translateZ = cmds.getAttr(string_translateZ)
                     var = object + "$" + render_layer + "$translateZ"
                     transform_override_values_dic[var] = translateZ
-                    strrotateX = object + ".rotateX"
-                    rotateX = cmds.getAttr(strrotateX)
+                    str_rotateX = object + ".rotateX"
+                    rotateX = cmds.getAttr(str_rotateX)
                     var = object + "$" + render_layer + "$rotateX"
                     transform_override_values_dic[var] = rotateX
                     string_rotateY = object + ".rotateY"
@@ -413,6 +413,16 @@ class LAYERS_WINDOW_TOOL(object):
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","filter","filterOffset","invert","alphaIsLuminance","colorGain","colorGainR","colorGainG","colorGainB","colorOffset","colorOffsetR","colorOffsetG","colorOffsetB","alphaGain","alphaOffset","defaultColor","defaultColorR","defaultColorG","defaultColorB","outColor","outColorR","outColorG","outColorB","outAlpha","fileTextureName","fileTextureNamePattern","computedFileTextureNamePattern","disableFileLoad","useFrameExtension","frameExtension","frameOffset","useHardwareTextureCycling","startCycleExtension","endCycleExtension","byCycleIncrement","forceSwatchGen","filterType","filterWidth","preFilter","preFilterRadius","useCache","useMaximumRes","uvTilingMode","explicitUvTiles","explicitUvTiles.explicitUvTileName","explicitUvTiles.explicitUvTilePosition","explicitUvTiles.explicitUvTilePositionU","explicitUvTiles.explicitUvTilePositionV","baseExplicitUvTilePosition","baseExplicitUvTilePositionU","baseExplicitUvTilePositionV","uvTileProxyDirty","uvTileProxyGenerate","uvTileProxyQuality","coverage","coverageU","coverageV","translateFrame","translateFrameU","translateFrameV","rotateFrame","doTransform","mirrorU","mirrorV","stagger","wrapU","wrapV","repeatUV","repeatU","repeatV","offset","offsetU","offsetV","rotateUV","noiseUV","noiseU","noiseV","blurPixelation","vertexCameraOne","vertexCameraOneX","vertexCameraOneY","vertexCameraOneZ","vertexCameraTwo","vertexCameraTwoX","vertexCameraTwoY","vertexCameraTwoZ","vertexCameraThree","vertexCameraThreeX","vertexCameraThreeY","vertexCameraThreeZ","vertexUvOne","vertexUvOneU","vertexUvOneV","vertexUvTwo","vertexUvTwoU","vertexUvTwoV","vertexUvThree","vertexUvThreeU","vertexUvThreeV","objectType","rayDepth","primitiveId","pixelCenter","pixelCenterX","pixelCenterY","exposure","hdrMapping","hdrExposure","dirtyPixelRegion","ptexFilterType","ptexFilterWidth","ptexFilterBlur","ptexFilterSharpness","ptexFilterInterpolateLevels","colorProfile","colorSpace","ignoreColorSpaceFileRules","workingSpace","colorManagementEnabled","colorManagementConfigFileEnabled","colorManagementConfigFilePath","outSize","outSizeX","outSizeY","fileHasAlpha","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","infoBits"]
         attr_check = ["exposure","defaultColor","colorGain","colorOffset","alphaGain","alphaOffset","alphaIsLuminance","invert"]
         for attr in attr_check:
+            remove_attr_List.remove(attr)
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
+
+        object_type = "VRayPlaceEnvTex"
+        remove_attr_List = ['message','caching','frozen','isHistoricallyInteresting','nodeState','binMembership','mappingType','horFlip','verFlip','horRotation','verRotation','outUV','outU','outV','outApiType','outApiClassification','useTransform','transform','groundOn','groundPosition','groundPosition0','groundPosition1','groundPosition2','groundRadius']
+        attr_check = ['horRotation','verRotation']
+        print 'remove_attr_List = ',remove_attr_List
+        for attr in attr_check:
+            print 'attr = ',attr
             remove_attr_List.remove(attr)
         material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
         self.attr_override_detect(object_label)
@@ -694,9 +704,11 @@ class LAYERS_WINDOW_TOOL(object):
                                     cmds.editRenderLayerAdjustment(object + ".scale")
                                     cmds.setAttr((object + "." + transform_override_split[3]),value)
                 for lo in light_overrides:
+                    print 'lo = ',lo
                     ramp_removed_found = 0
                     if "rampRemoved" in lo or "rampMismatch" in lo:
                         ramp_removed_found = 1
+                    print 'ramp_removed_found = ',ramp_removed_found
                     light_override_original = lo
                     light_override_original_split = lo.split("**")
                     lo = light_override_original_split[0]
@@ -704,13 +716,13 @@ class LAYERS_WINDOW_TOOL(object):
                     layer = layer[:-1]
                     light_override_original_split = lo.split("*")
                     lo = light_override_original_split[1]
-                    light_override_ob_split = lo.split(".")
+                    light_override_object_split = lo.split(".")
                     for object in self.object_check:
                         if "spotLight" in object or "ambientLight" in object or "directionalLight" in object or "pointLight" in object:
                             kid = cmds.listRelatives(object,children = True)
                             object = kid[0]
-                        if object == light_override_ob_split[0]:
-                            if layer == render_layerl:
+                        if object == light_override_object_split[0]:
+                            if layer == render_layer:
                                 value = light_overrides[light_override_original]
                                 typ = type(value)
                                 kind_list = type(value) is list
@@ -731,7 +743,21 @@ class LAYERS_WINDOW_TOOL(object):
                                         while a < destination_connections_size:
                                             cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                             a = a + 1
-                                    cmds.setAttr(light_override_original_split[1],value_a,value_b,value_c)
+                                    print 'object = ',object
+                                    print 'typ = ',typ
+                                    print 'kind_list = ',kind_list
+                                    print 'light_override_original_split[1] = ',light_override_original_split[1]
+                                    print 'value_a = ',value_a
+                                    print 'value_b = ',value_b
+                                    print 'value_c = ',value_c
+                                    check_for_rectText_split = light_override_original_split[1].split('.')
+                                    print 'check_for_rectText_split = ',check_for_rectText_split
+                                    check_for_rectText = check_for_rectText_split[1]
+                                    print 'check_for_rectText = ',check_for_rectText
+                                    if ramp_removed_found == 0:
+                                        if check_for_rectText != 'rectTex':
+                                            print 'executing setAttr'
+                                            cmds.setAttr(light_override_original_split[1],value_a,value_b,value_c)
                                 if kind_float == 1 or kind_int == 1 or kind_bool == 1:
                                     cmds.editRenderLayerAdjustment(lo)
                                     if ramp_removed_found == 1:
@@ -766,9 +792,9 @@ class LAYERS_WINDOW_TOOL(object):
                         layer = layer[:-1]
                         mo_split_two = mo.split("*")
                         mo = mo_split_two[1]
-                        mo_ob_split = mo.split(".")
+                        mo_object_split = mo.split(".")
                         for material in self.materials:
-                            if material == mo_ob_split[0]:
+                            if material == mo_object_split[0]:
                                 if layer == render_layer:
                                     value = material_overrides[mo_original]
                                     typ = type(value)
