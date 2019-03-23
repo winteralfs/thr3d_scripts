@@ -1088,11 +1088,12 @@ class LAYERS_WINDOW_TOOL(object):
                 if render_layer_linked_to_pointer == render_layer:
                     cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
                     for object in selected_objects:
-                        object_visibility_check = cmds.getAttr(object + '.visibility')
-                        if object_visibility_check == 1:
-                            OVL_button.setChecked(False)
-                        else:
-                            OVL_button.setChecked(True)
+                        if cmds.attributeQuery('visibility',node = object,exists = True):
+                            object_visibility_check = cmds.getAttr(object + '.visibility')
+                            if object_visibility_check == 1:
+                                OVL_button.setChecked(False)
+                            else:
+                                OVL_button.setChecked(True)
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
 
     def OIL_toggle_object_in_render_layer(self,OIL_button):
@@ -1379,6 +1380,7 @@ class LAYERS_WINDOW_TOOL(object):
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["SelectionChanged", self.populate_gui])
         self.populate_gui()
+        window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         window.show()
 
 def main():
