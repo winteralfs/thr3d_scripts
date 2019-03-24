@@ -71,7 +71,6 @@ class LAYERS_WINDOW_TOOL(object):
         self.material_overrides_dic = self.material_overrides()
         self.material_overrides_dic.update(material_assignment_overrides)
         self.ramp_overrides = self.ramp_overrides_method()
-        print 'ramp_overrides = ',self.ramp_overrides
         camera_overrides_dic = self.camera_overides()
         light_overrides_dic = self.light_overrides()
         render_stat_overrides = self.render_stat_overrides()
@@ -487,7 +486,6 @@ class LAYERS_WINDOW_TOOL(object):
                         ramp_override_string = render_layer + '&&' + ramp  + '&&' + override + '&&' + str(override_value)
                         #print 'ramp_override_string = ',ramp_override_string
                         self.ramp_overrides.append(ramp_override_string)
-        print 'self.ramp_overrides = ',self.ramp_overrides
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
         return(self.ramp_overrides)
 
@@ -1006,33 +1004,17 @@ class LAYERS_WINDOW_TOOL(object):
                     ramp_override_value = ramp_override_split[3]
                     cmds.editRenderLayerAdjustment(ramp_override_attr)
                     if ramp_override_layer == render_layer:
-                        print ' '
-                        print self.ramp_overrides
-                        print render_layer
-                        print 'ramp_override_layer = ',ramp_override_layer
-                        print 'ramp = ',ramp_override_ramp
-                        print 'ramp_override_attr = ',ramp_override_attr
-                        print 'ramp_override_value = ',ramp_override_value
                         override_value_split = ramp_override_value.split(',')
-                        print 'override_value_split = ',override_value_split
                         size_of_override_value = len(override_value_split)
-                        print 'size_of_override_value = ',size_of_override_value
                         if size_of_override_value > 1:
                             override_value_split[0] = override_value_split[0].replace('(','')
                             override_value_split[2] = override_value_split[2].replace(')','')
                             override_value_split[0] = float(override_value_split[0])
                             override_value_split[1] = float(override_value_split[1])
                             override_value_split[2] = float(override_value_split[2])
-                            print override_value_split[0]
-                            print override_value_split[1]
-                            print override_value_split[2]
-                            #setAttr_string = (ramp_override_attr,str(override_value_split[0]),str(override_value_split[1]),str(override_value_split[2]), type = 'double3')
-                            #print setAttr_string
                             cmds.setAttr(ramp_override_attr,override_value_split[0],override_value_split[1],override_value_split[2], type = 'double3')
                         if size_of_override_value < 2:
                             ramp_override_value = float(ramp_override_value)
-                            print ramp_override_attr + ',' + str(ramp_override_value)
-                            print ' '
                             cmds.setAttr(ramp_override_attr,ramp_override_value)
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
         self.fix_cam_layer_assignments()
