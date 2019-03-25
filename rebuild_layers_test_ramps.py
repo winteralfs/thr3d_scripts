@@ -19,11 +19,12 @@ class LAYERS_WINDOW_TOOL(object):
         self.displacement_nodes = cmds.ls(type = "VRayDisplacement")
         self.placement_nodes = cmds.ls(type = "place2dTexture")
         self.file_nodes = cmds.ls(type = "file")
+        self.gammaCorrect_nodes = cmds.ls(type = "gammaCorrect")
         self.ramp_nodes = cmds.ls(type = "ramp")
-        self.layered_texture = cmds.ls(type = "layeredTexture")
+        self.layeredTexture = cmds.ls(type = "layeredTexture")
         self.VRayBlendMtls = cmds.ls(type = "VRayBlendMtl")
         self.VRayPlaceEnvTex_nodes = cmds.ls(type = "VRayPlaceEnvTex")
-        self.materials = self.materials_VRayMtl + self.materials_phong + self.materials_blinn + self.materials_lambert + self.materials_surface_shader + self.placement_nodes + self.file_nodes + self.materials_displacement + self.displacement_nodes + self.layered_texture + self.VRayBlendMtls + self.VRayPlaceEnvTex_nodes + self.ramp_nodes
+        self.materials = self.materials_VRayMtl + self.materials_phong + self.materials_blinn + self.materials_lambert + self.materials_surface_shader + self.placement_nodes + self.file_nodes + self.materials_displacement + self.displacement_nodes + self.layeredTexture + self.VRayBlendMtls + self.VRayPlaceEnvTex_nodes + self.ramp_nodes + self.gammaCorrect_nodes
         self.object_check_g = cmds.ls(g = True)
         self.object_check_transform = cmds.ls(type = "transform")
         self.object_check_cameras = cmds.ls(type = "camera")
@@ -69,7 +70,7 @@ class LAYERS_WINDOW_TOOL(object):
         self.material_assignment_overrides = self.material_assignments[3]
         #print 'material_assignment_overrides = ',material_assignment_overrides
         self.material_overrides_dic = self.material_overrides()
-        self.material_overrides_dic.update(material_assignment_overrides)
+        #self.material_overrides_dic.update(material_assignment_overrides)
         self.ramp_overrides = self.ramp_overrides_method()
         camera_overrides_dic = self.camera_overides()
         light_overrides_dic = self.light_overrides()
@@ -92,7 +93,7 @@ class LAYERS_WINDOW_TOOL(object):
         #print " "
         #print "self.object_type = ",self.object_type
         object_list = self.object_check
-        if self.object_type == "camera" or self.object_type == "VRayLightRectShape" or self.object_type == "spotLight" or self.object_type == "ambientLight" or self.object_type == "directionalLight" or self.object_type == "pointLight" or self.object_type == "VRayMtl" or self.object_type == "blinn" or self.object_type == "phong" or self.object_type == "lambert" or self.object_type == "surfaceShader" or self.object_type == "displacementShader" or self.object_type == "VRayDisplacement" or self.object_type == "place2dTexture" or self.object_type == "file" or self.object_type == "layered_texture" or self.object_type == "VRayBlendMtl" or self.object_type == "VRayPlaceEnvTex":
+        if self.object_type == "camera" or self.object_type == "VRayLightRectShape" or self.object_type == "spotLight" or self.object_type == "ambientLight" or self.object_type == "directionalLight" or self.object_type == "pointLight" or self.object_type == "VRayMtl" or self.object_type == "blinn" or self.object_type == "phong" or self.object_type == "lambert" or self.object_type == "surfaceShader" or self.object_type == "displacementShader" or self.object_type == "VRayDisplacement" or self.object_type == "place2dTexture" or self.object_type == "file" or self.object_type == "layeredTexture" or self.object_type == "VRayBlendMtl" or self.object_type == "VRayPlaceEnvTex":
             self.object_list = cmds.ls(type = self.object_type)
         if self.object_type == "VRaySettingsNode":
             self.object_list = []
@@ -112,8 +113,9 @@ class LAYERS_WINDOW_TOOL(object):
             if node_type == self.object_type:
                 attrs = cmds.listAttr(object)
                 for remove_attr in self.remove_attr_List:
+                    #print 'remove_attr = ',remove_attr
                     attrs.remove(remove_attr)
-                if self.object_type == "layered_texture":
+                if self.object_type == "layeredTexture":
                     connections = cmds.listConnections(object, source = True,destination = False) or []
                     connections_count = len(connections)
                     for connection in connections:
@@ -145,7 +147,7 @@ class LAYERS_WINDOW_TOOL(object):
                         default_ramp_found = 0
                         for connection in attr_connections:
                             connection_type = cmds.nodeType(connection)
-                            if connection_type == "ramp" or connection_type == "fractal" or connection_type == "noise" or connection_type == "file" or connection_type == "checker" or connection_type == "cloud" or connection_type == "brownian" or connection_type == "bulge" or connection_type == "VRayMtl" or connection_type == "blinn" or connection_type == "phong" or connection_type == "lambert" or connection_type == "surfaceShader":
+                            if connection_type == "ramp" or connection_type == "fractal" or connection_type == "noise" or connection_type == "file" or connection_type == "checker" or connection_type == "cloud" or connection_type == "brownian" or connection_type == "bulge" or connection_type == "VRayMtl" or connection_type == "blinn" or connection_type == "phong" or connection_type == "lambert" or connection_type == "surfaceShader" or connection_type == "gammaCorrect":
                                 default_ramp_found = 1
                                 default_ramp = connection
                         for render_layer in self.render_layers:
@@ -156,7 +158,7 @@ class LAYERS_WINDOW_TOOL(object):
                                 override_ramp_found = 0
                                 for attr_connection in attr_connections:
                                     attr_type = cmds.nodeType(attr_connection)
-                                    if attr_type == "ramp" or attr_type == "fractal" or attr_type == "noise" or attr_type == "file" or attr_type == "checker" or attr_type == "cloud" or attr_type == "brownian" or attr_type == "bulge" or attr_type == "VRayMtl" or attr_type == "blinn" or attr_type == "phong" or attr_type == "lambert" or attr_type == "surfaceShader":
+                                    if attr_type == "ramp" or attr_type == "fractal" or attr_type == "noise" or attr_type == "file" or attr_type == "checker" or attr_type == "cloud" or attr_type == "brownian" or attr_type == "bulge" or attr_type == "VRayMtl" or attr_type == "blinn" or attr_type == "phong" or attr_type == "lambert" or attr_type == "surfaceShader" or attr_type == "gammaCorrect":
                                         override_ramp_found = 1
                                         override_ramp = attr_connection
                                 override_attr_value = cmds.getAttr(attr_string)
@@ -190,7 +192,7 @@ class LAYERS_WINDOW_TOOL(object):
                                                 override_index = rl_connection.split("]")[0]
                                                 override_index = override_index.split("[")[-1]
                                                 override_value = cmds.getAttr(render_layer + ".adjustments[%s].value" %override_index)
-                                                attr_dic_string =  object_label + "_" + attr + "_rampOveride" + "*" + override_Attr + "**" + render_layer
+                                                attr_dic_string =  object_label + "_" + attr + "_rampOveride" + "*" + override_Attr + "**" + render_layer + "_"
                                                 if attr_dic_string not in self.attr_overrides_dic and override_ramp in override_Attr:
                                                     self.attr_overrides_dic[attr_dic_string] = override_value
                     it = it + 1
@@ -423,6 +425,15 @@ class LAYERS_WINDOW_TOOL(object):
         material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
         self.attr_override_detect(object_label)
 
+        object_type = "gammaCorrect"
+        #print 'running gamma correct'
+        remove_attr_List = ['message','caching','frozen','isHistoricallyInteresting','nodeState','binMembership','value','valueX','valueY','valueZ','gamma','gammaX','gammaY','gammaZ','renderPassMode','outValue','outValueX','outValueY','outValueZ','aiUserOptions','aiValue','aiValueX','aiValueY','aiValueZ','aiGamma','aiGammaX','aiGammaY','aiGammaZ']
+        attr_check = ['value','gammaX','gammaY','gammaZ']
+        for attr in attr_check:
+            remove_attr_List.remove(attr)
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
+
         object_type = "VRayPlaceEnvTex"
         remove_attr_List = ['message','caching','frozen','isHistoricallyInteresting','nodeState','binMembership','mappingType','horFlip','verFlip','horRotation','verRotation','outUV','outU','outV','outApiType','outApiClassification','useTransform','transform','groundOn','groundPosition','groundPosition0','groundPosition1','groundPosition2','groundRadius']
         attr_check = ['horRotation','verRotation']
@@ -431,7 +442,7 @@ class LAYERS_WINDOW_TOOL(object):
         material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
         self.attr_override_detect(object_label)
 
-        object_type = "layered_texture"
+        object_type = "layeredTexture"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","inputs","inputs.color","inputs.colorR","inputs.colorG","inputs.colorB","inputs.alpha","inputs.blendMode","inputs.isVisible","outColor","outColorR","outColorG","outColorB","outAlpha","hardwareColor","hardwareColorR","hardwareColorG","hardwareColorB","alphaIsLuminance","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB"]
         attr_check = ["alphaIsLuminance","inputs.isVisible","inputs.alpha","inputs.color","inputs.blendMode"]
         for attr in attr_check:
@@ -811,22 +822,38 @@ class LAYERS_WINDOW_TOOL(object):
                                     else:
                                         cmds.connectAttr((value + ".outColor"),lo,force = True)
                 for mo in material_overrides:
+                    #print ' '
+                    #print 'rebuilding layers MO '
+                    #print 'mo = ',mo
                     if "material_overide" in mo:
                         ramp_removed_found = 0
                         if "ramp_removed" in mo:
+                            #print 'ramp_removed'
                             ramp_removed_found = 1
                         mo_original = mo
+                        #print 'mo_original = ',mo_original
                         mo_split = mo.split("**")
+                        #print 'mo_split = ',mo_split
                         layer = mo_split[1]
+                        #print '[1] layer = ',layer
                         layer = layer[:-1]
+                        #print 'after :-1 layer = ',layer
                         mo_split_two = mo.split("*")
                         mo = mo_split_two[1]
+                        #print 'mo = ',mo
                         mo_object_split = mo.split(".")
                         for material in self.materials:
+                            #print 'material = ',material
                             if material == mo_object_split[0]:
+                                #print 'mo_object_split[0] = ',mo_object_split[0]
+                                #print 'layer = ',layer
+                                #print 'render_layer = ',render_layer
                                 if layer == render_layer:
+                                    #print 'layer = render_layer'
                                     value = material_overrides[mo_original]
+                                    #print 'value = ',value
                                     typ = type(value)
+                                    #print 'typ = ',typ
                                     kind_list = type(value) is list
                                     kind_int = type(value) is int
                                     kind_float = type(value) is float
@@ -839,14 +866,17 @@ class LAYERS_WINDOW_TOOL(object):
                                         value_c = value_sub[2]
                                         cmds.editRenderLayerAdjustment(mo)
                                         if ramp_removed_found == 1:
+                                            #print 'ramp_removed_found = 1'
                                             a = 1
                                             destination_connections = cmds.listConnections(mo_split_two[1], destination = False, plugs = True, connections = True) or []
                                             destination_connections_size = len(destination_connections)
                                             while a < destination_connections_size:
                                                 cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                                 a = a + 1
+                                        #print 'setting ',mo_split_two[1] + str(value_a) + str(value_b) + str(value_c)
                                         cmds.setAttr(mo_split_two[1],value_a,value_b,value_c)
                                     if kind_float == 1 or kind_int == 1 or kind_bool == 1:
+                                        #print 'kind = float, int, or bool'
                                         cmds.editRenderLayerAdjustment(mo,layer = render_layer)
                                         if ramp_removed_found == 1:
                                             a = 1
@@ -855,6 +885,7 @@ class LAYERS_WINDOW_TOOL(object):
                                             while a < destination_connections_size:
                                                 cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                                 a = a + 1
+                                        #print 'setting ',mo_split_two[1] + str(value)
                                         cmds.setAttr(mo_split_two[1],value)
                                     if kind_unicode == 1:
                                         cmds.editRenderLayerAdjustment(mo)
