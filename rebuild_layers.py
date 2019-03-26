@@ -7,298 +7,415 @@ from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 import re
 
-render_layers = cmds.ls(type = "renderLayer")
-light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
-materials_VRayMtl = cmds.ls(type = "VRayMtl")
-materials_phong = cmds.ls(type = "phong")
-materials_blinn = cmds.ls(type = "blinn")
-materials_lambert = cmds.ls(type = "lambert")
-materials_surface_shader = cmds.ls(type = "surfaceShader")
-materials_displacement = cmds.ls(type = "displacementShader")
-displacement_nodes = cmds.ls(type = "VRayDisplacement")
-placement_nodes = cmds.ls(type = "place2dTexture")
-file_nodes = cmds.ls(type = "file")
-layered_textures = cmds.ls(type = "layeredTexture")
-VRayBlendMtls = cmds.ls(type = "VRayBlendMtl")
-materials = materials_VRayMtl + materials_phong + materials_blinn + materials_lambert + materials_surface_shader + placement_nodes + file_nodes + materials_displacement + displacement_nodes + layered_textures + VRayBlendMtls
-object_check_g = cmds.ls(g = True)
-object_check_t = cmds.ls(type = "transform")
-object_check_cam = cmds.ls(type = "camera")
-object_check = object_check_g + object_check_t + materials + object_check_cam
-lites = cmds.ls(lt = True)
-vray_lights = []
-for o in object_check:
-    nt = cmds.nodeType(o)
-    for lt in light_types:
-        if nt == lt:
-            vray_lights.append(o)
-object_check.append("vraySettings")
+class LAYERS_WINDOW_TOOL(object):
+    def __init__(self):
+        self.light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
+        self.materials_VRayMtl = cmds.ls(type = "VRayMtl")
+        self.materials_phong = cmds.ls(type = "phong")
+        self.materials_blinn = cmds.ls(type = "blinn")
+        self.materials_lambert = cmds.ls(type = "lambert")
+        self.materials_surface_shader = cmds.ls(type = "surfaceShader")
+        self.materials_displacement = cmds.ls(type = "displacementShader")
+        self.displacement_nodes = cmds.ls(type = "VRayDisplacement")
+        self.placement_nodes = cmds.ls(type = "place2dTexture")
+        self.file_nodes = cmds.ls(type = "file")
+        self.gammaCorrect_nodes = cmds.ls(type = "gammaCorrect")
+        self.ramp_nodes = cmds.ls(type = "ramp")
+        self.layeredTexture = cmds.ls(type = "layeredTexture")
+        self.VRayBlendMtls = cmds.ls(type = "VRayBlendMtl")
+        self.VRayPlaceEnvTex_nodes = cmds.ls(type = "VRayPlaceEnvTex")
+        self.materials = self.materials_VRayMtl + self.materials_phong + self.materials_blinn + self.materials_lambert + self.materials_surface_shader + self.placement_nodes + self.file_nodes + self.materials_displacement + self.displacement_nodes + self.layeredTexture + self.VRayBlendMtls + self.VRayPlaceEnvTex_nodes + self.ramp_nodes + self.gammaCorrect_nodes
+        self.object_check_g = cmds.ls(g = True)
+        self.object_check_transform = cmds.ls(type = "transform")
+        self.object_check_cameras = cmds.ls(type = "camera")
+        self.object_check = self.object_check_g + self.object_check_transform + self.materials + self.object_check_cameras
+        self.lites = cmds.ls(lt = True)
+        self.vray_lights = []
+        for object in self.object_check:
+            node_type = cmds.nodeType(object)
+            for lite in self.light_types:
+                if node_type == lite:
+                    self.vray_lights.append(object)
+        self.object_check.append("vraySettings")
 
-def overides_information_function(render_layers):
-    class ATTR_OVERRIDES_CLASS:
-        def __init__(self,render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check):
-            render_layer_ramp_overrides = {}
-            self.object_label = object_label
-            self.render_layers = render_layers
-            self.object_type = object_type
-            print " "
-            print " "
-            print "self.object_type = ",self.object_type
-            object_list = object_check
-            if self.object_type == "camera" or self.object_type == "VRayLightRectShape" or self.object_type == "spotLight" or self.object_type == "ambientLight" or self.object_type == "directionalLight" or self.object_type == "pointLight" or self.object_type == "VRayMtl" or self.object_type == "blinn" or self.object_type == "phong" or self.object_type == "lambert" or self.object_type == "surfaceShader" or self.object_type == "displacementShader" or self.object_type == "VRayDisplacement" or self.object_type == "place2dTexture" or self.object_type == "file" or self.object_type == "layered_textures" or self.object_type == "VRayBlendMtl":
-                self.object_list = cmds.ls(type = self.object_type)
-            if self.object_type == "VRaySettingsNode":
-                self.object_list = []
-                self.object_list.append("vraySettings")
-            self.attr_overrides_DIC = attr_overrides_DIC
-            self.remove_attr_List = remove_attr_List
+    def clear_layout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.setParent(None)
+                else:
+                    self.clear_layout(item.layout())
 
-        def attr_override_detect(self):
-            for obj in self.object_list:
-                default_ramp = "none"
-                override_ramp = "none"
-                cns_count = 1
-                it_list_count = 1
-                it_list = []
-                nt = cmds.nodeType(obj)
-                if nt == self.object_type:
-                    attrs = cmds.listAttr(obj)
-                    for rem in self.remove_attr_List:
-                        attrs.remove(rem)
-                    if self.object_type == "layered_textures":
-                        cns = cmds.listConnections(obj, source = True,destination = False) or []
-                        cns_count = len(cns)
-                        for cn in cns:
-                            cn_string = cn + ".outColor"
-                            connection_info = cmds.connectionInfo(cn_string,destinationFromSource = True) or []
-                            for ci in connection_info:
-                                if obj in ci:
-                                    it_num_split_A = ci.split("[")
-                                    it_num_split_B = it_num_split_A[1].split("]")
-                                    it_num = it_num_split_B[0]
-                                    it_list.append(it_num)
-                                    it_list_count = len(it_list)
-                    it = 0
-                    while it < it_list_count:
-                        for attr in attrs:
-                            attr_string = obj + "." + attr
-                            if attr == "inputs.isVisible" or attr == "inputs.alpha" or attr == "inputs.color" or attr == "inputs.blendMode":
-                                it_list_2 = len(it_list)
-                                if it_list_2 != 0:
-                                    it_list_n = it_list[it]
-                                    attr = attr.replace("inputs.","")
-                                    attr_string = obj + "." + "inputs[" + str(it_list_n) + "]." + attr
-                                    attr = ("inputs[" + str(it_list_n) + "]." + attr)
-                            cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
-                            default_attr_value = cmds.getAttr(attr_string)
-                            attr_connections = cmds.listConnections(attr_string,destination = False) or []
-                            default_ramp_found = 0
-                            for conn in attr_connections:
-                                connection_type = cmds.nodeType(conn)
-                                if connection_type == "ramp" or connection_type == "fractal" or connection_type == "noise" or connection_type == "file" or connection_type == "checker" or connection_type == "cloud" or connection_type == "brownian" or connection_type == "bulge" or connection_type == "VRayMtl" or connection_type == "blinn" or connection_type == "phong" or connection_type == "lambert" or connection_type == "surfaceShader":
-                                    default_ramp_found = 1
-                                    default_ramp = conn
-                            for rl in render_layers:
-                                if rl != "defaultRenderLayer":
-                                    cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
-                                    cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-                                    attr_connections = cmds.listConnections(attr_string,destination = False) or []
-                                    override_ramp_found = 0
-                                    for attrConn in attr_connections:
-                                        attrType = cmds.nodeType(attrConn)
-                                        if attrType == "ramp" or attrType == "fractal" or attrType == "noise" or attrType == "file" or attrType == "checker" or attrType == "cloud" or attrType == "brownian" or attrType == "bulge" or attrType == "VRayMtl" or attrType == "blinn" or attrType == "phong" or attrType == "lambert" or attrType == "surfaceShader":
-                                            override_ramp_found = 1
-                                            override_ramp = attrConn
+#---
+
+    def overides_information_function(self):
+        #print 'overides_information_function'
+        vray_settings_overrides_dic = {}
+        transform_layer_overrides = {}
+        material_assignment_overrides = {}
+        self.material_overrides_dic = {}
+        camera_overrides_dic = {}
+        light_overrides_dic = {}
+        render_stat_overrides = {}
+        vray_object_property_overrides = {}
+        vray_settings_overrides_dic = self.vray_settings_overrides()
+        object_translations = self.translations()
+        #print 'object_translations = ',object_translations
+        transform_layer_overrides = object_translations[3]
+        #print 'transform_layer_overrides = ',transform_layer_overrides
+        self.material_assignments = self.material_assignments()
+        #print 'OBJ_1_self.material_assignments = ',OBJ_1_self.material_assignments
+        self.material_assignment_overrides = self.material_assignments[3]
+        #print 'material_assignment_overrides = ',material_assignment_overrides
+        self.material_overrides_dic = self.material_overrides()
+        #self.material_overrides_dic.update(material_assignment_overrides)
+        self.ramp_overrides = self.ramp_overrides_method()
+        camera_overrides_dic = self.camera_overides()
+        light_overrides_dic = self.light_overrides()
+        render_stat_overrides = self.render_stat_overrides()
+        vray_object_property_overrides = self.vray_object_prop_overrides()
+        #print 'vray_settings_overrides_dic = ',vray_settings_overrides_dic
+        #print 'transform_layer_overrides = ',transform_layer_overrides
+        #print 'self.material_overrides_dic = ',self.material_overrides_dic
+        #print 'light_overrides_dic = ',light_overrides_dic
+        #print 'render_stat_overrides = ',render_stat_overrides
+        #print 'vray_object_property_overrides = ',vray_object_property_overrides
+        #print 'camera_overrides_dic = ',camera_overrides_dic
+        return(vray_settings_overrides_dic,transform_layer_overrides,self.material_overrides_dic,light_overrides_dic,render_stat_overrides,vray_object_property_overrides,camera_overrides_dic)
+
+    def overides_information_summary(self,object_type,remove_attr_List,attr_overrides_dic,object_label):
+        render_layer_ramp_overrides = {}
+        object_label = object_label
+        self.object_type = object_type
+        #print " "
+        #print " "
+        #print "self.object_type = ",self.object_type
+        object_list = self.object_check
+        if self.object_type == "camera" or self.object_type == "VRayLightRectShape" or self.object_type == "spotLight" or self.object_type == "ambientLight" or self.object_type == "directionalLight" or self.object_type == "pointLight" or self.object_type == "VRayMtl" or self.object_type == "blinn" or self.object_type == "phong" or self.object_type == "lambert" or self.object_type == "surfaceShader" or self.object_type == "displacementShader" or self.object_type == "VRayDisplacement" or self.object_type == "place2dTexture" or self.object_type == "file" or self.object_type == "layeredTexture" or self.object_type == "VRayBlendMtl" or self.object_type == "VRayPlaceEnvTex":
+            self.object_list = cmds.ls(type = self.object_type)
+        if self.object_type == "VRaySettingsNode":
+            self.object_list = []
+            self.object_list.append("vraySettings")
+        self.attr_overrides_dic = attr_overrides_dic
+        self.remove_attr_List = remove_attr_List
+
+    def attr_override_detect(self,object_label):
+        for object in self.object_list:
+            print ' '
+            print ' '
+            print 'object = ',object
+            layered_texture_overrides = []
+            default_ramp = "none"
+            override_ramp = "none"
+            connections_count = 1
+            it_list_count = 1
+            it_list = []
+            node_type = cmds.nodeType(object)
+            if node_type == self.object_type:
+                attrs = cmds.listAttr(object)
+                for remove_attr in self.remove_attr_List:
+                    #print 'remove_attr = ',remove_attr
+                    attrs.remove(remove_attr)
+                if self.object_type == "layeredTexture":
+                    print ' '
+                    print ' '
+                    print 'LAYERED TEXTURE'
+                    print ' '
+                    print ' '
+                    connections = cmds.listConnections(object, source = True,destination = False) or []
+                    print 'connections = ',connections
+                    connections_count = len(connections)
+                    print 'connections_count = ',connections_count
+                    for connection in connections:
+                        cn_string = connection + ".outColor"
+                        connection_info = cmds.connectionInfo(cn_string,destinationFromSource = True) or []
+                        for ci in connection_info:
+                            if object in ci:
+                                it_num_split_a = ci.split("[")
+                                it_num_split_b = it_num_split_a[1].split("]")
+                                it_num = it_num_split_b[0]
+                                it_list.append(it_num)
+                                #print 'it_list = ',it_list
+                                it_list_count = len(it_list)
+                                #print 'it_list_count = ',it_list_count
+                    else:
+                        overrides = cmds.editRenderLayerAdjustment('layer1', query = True, layer = True)
+                        for override in overrides:
+                            overrides_split = override.split('.')
+                            override = overrides_split[0]
+                            override_type = cmds.nodeType(override)
+                            if override_type == 'layeredTexture':
+                                layered_texture_overrides.append(override)
+                        count_layered_texture_overrides = len(layered_texture_overrides)
+                it = 0
+                if self.object_type == 'layeredTexture':
+                    it_list_count = count_layered_texture_overrides
+                print 'it_list_count = ',it_list_count
+                while it < it_list_count:
+                    for attr in attrs:
+                        print 'attr = ',attr
+                        if self.object_type == "layeredTexture" and attr != 'alphaIsLuminance':
+                            attr_split = attr.split('.')
+                            attr_string = object + "." + (attr_split[0] + '[' + str(it) + ']' + '.' + attr_split[1])
+                        else:
+                            attr_string = object + "." + attr
+                        print 'attr_string = ',attr_string
+                        if attr == "inputs.isVisible" or attr == "inputs.alpha" or attr == "inputs.color" or attr == "inputs.blendMode":
+                            it_list_2 = len(it_list)
+                            print 'it_list_2 =',it_list_2
+                            if it_list_2 != 0:
+                                it_list_n = it_list[it]
+                                print 'it_list_n = ',it_list_n
+                                attr = attr.replace("inputs.","")
+                                #print 'attr = ',attr
+                                attr_string = object + "." + "inputs[" + str(it_list_n) + "]." + attr
+                                #print 'attr_string = ',attr_string
+                                attr = ("inputs[" + str(it_list_n) + "]." + attr)
+                                #print 'attr = ',attr
+                        cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
+                        #print 'attr_string = ',attr_string
+                        default_attr_value = cmds.getAttr(attr_string)
+                        #print 'default_attr_value = ',default_attr_value
+                        attr_connections = cmds.listConnections(attr_string,destination = False) or []
+                        #print 'attr_connections = ',attr_connections
+                        default_ramp_found = 0
+                        for connection in attr_connections:
+                            #print 'connection = ',connection
+                            connection_type = cmds.nodeType(connection)
+                            #print 'connection_type = ',connection_type
+                            if connection_type == "ramp" or connection_type == "fractal" or connection_type == "noise" or connection_type == "file" or connection_type == "checker" or connection_type == "cloud" or connection_type == "brownian" or connection_type == "bulge" or connection_type == "VRayMtl" or connection_type == "blinn" or connection_type == "phong" or connection_type == "lambert" or connection_type == "surfaceShader" or connection_type == "gammaCorrect":
+                                default_ramp_found = 1
+                                default_ramp = connection
+                        for render_layer in self.render_layers:
+                            if render_layer != "defaultRenderLayer":
+                                #print 'render_layer = ',render_layer
+                                cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
+                                cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                                attr_connections = cmds.listConnections(attr_string,destination = False) or []
+                                #print 'attr_connections = ',attr_connections
+                                override_ramp_found = 0
+                                for attr_connection in attr_connections:
+                                    #print 'attr_connection = ',attr_connection
+                                    attr_type = cmds.nodeType(attr_connection)
+                                    if attr_type == "ramp" or attr_type == "fractal" or attr_type == "noise" or attr_type == "file" or attr_type == "checker" or attr_type == "cloud" or attr_type == "brownian" or attr_type == "bulge" or attr_type == "VRayMtl" or attr_type == "blinn" or attr_type == "phong" or attr_type == "lambert" or attr_type == "surfaceShader" or attr_type == "gammaCorrect":
+                                        override_ramp_found = 1
+                                        override_ramp = attr_connection
+                                override_attr_value = cmds.getAttr(attr_string)
+                                #print 'override_attr_value = ',override_attr_value
+                                if default_ramp_found == 0 and override_ramp_found == 0:
+                                    #print 'def ramp = 0 and over ramp = 0'
+                                    if default_attr_value != override_attr_value:
+                                        #print 'default_attr_value = ',default_attr_value
+                                        #print 'override_attr_value = ',override_attr_value
+                                        #print 'not equal, adding an override to self.attr_overrides_dic'
+                                        if self.object_type == "layeredTexture":
+                                            attr_split = attr.split('.')
+                                            print 'attr_split = ',attr_split
+                                            attr_layered_texture_string = attr_split[0] + '[' + str(it) + ']' + '.' + attr_split[1]
+                                            print 'attr_layered_texture_string = ',attr_layered_texture_string
+                                            attr_dic_string = object_label + "_overide*" + object + "." + attr_layered_texture_string + "**" + render_layer + "_"
+                                            self.attr_overrides_dic[attr_dic_string] = override_attr_value
+                                            print 'self.attr_overrides_dic = ',self.attr_overrides_dic
+                                            print ' '
+                                        else:
+                                            attr_dic_string = object_label + "_overide*" + object + "." + attr + "**" + render_layer + "_"
+                                            self.attr_overrides_dic[attr_dic_string] = override_attr_value
+                                            print 'self.attr_overrides_dic = ',self.attr_overrides_dic
+                                            print ' '
+                                if default_ramp_found == 0 and override_ramp_found == 1:
+                                    attr_dic_string = object_label + "_overide_rampAdded*" + object + "." + attr + "**" + render_layer + "_"
+                                    self.attr_overrides_dic[attr_dic_string] = override_ramp
+                                if default_ramp_found == 1 and override_ramp_found == 0:
                                     override_attr_value = cmds.getAttr(attr_string)
-                                    if default_ramp_found == 0 and override_ramp_found == 0:
-                                        if default_attr_value != override_attr_value:
-                                            attr_DIC_string = self.object_label + "_overide*" + obj + "." + attr + "**" + rl + "_"
-                                            self.attr_overrides_DIC[attr_DIC_string] = override_attr_value
-                                    if default_ramp_found == 0 and override_ramp_found == 1:
-                                        attr_DIC_string = self.object_label + "_overide_rampAdded*" + obj + "." + attr + "**" + rl + "_"
-                                        self.attr_overrides_DIC[attr_DIC_string] = override_ramp
-                                    if default_ramp_found == 1 and override_ramp_found == 0:
-                                        override_attr_value = cmds.getAttr(attr_string)
-                                        attr_DIC_string = self.object_label + "_overide_rampRemoved*" + obj + "." + attr + "**" + rl + "_"
-                                        self.attr_overrides_DIC[attr_DIC_string] = override_attr_value
-                                    if default_ramp_found == 1 and override_ramp_found == 1:
-                                        override_ramp = attrConn
-                                        if override_ramp != default_ramp:
-                                            attr_DIC_string = self.object_label + "_overide_rampMismatch*" + obj + "." + attr + "**" + rl + "_"
-                                            self.attr_overrides_DIC[attr_DIC_string] = override_ramp
-                                        if override_ramp == default_ramp:
-                                            render_layer_overrides = cmds.listConnections(rl + ".adjustments", p = True, c = True) or []
-                                            render_layer_ramp_overrides = []
-                                            for cn in render_layer_overrides:
-                                                t = cmds.nodeType(cn)
-                                                if t == "ramp":
-                                                    if cn not in render_layer_ramp_overrides:
-                                                        render_layer_ramp_overrides.append(cn)
-                                                for i in range(0, len(render_layer_overrides), 2):
-                                                    rl_connection = render_layer_overrides[i]
-                                                    override_Attr = render_layer_overrides[i+1]
-                                                    override_index = rl_connection.split("]")[0]
-                                                    override_index = override_index.split("[")[-1]
-                                                    override_value = cmds.getAttr(rl + ".adjustments[%s].value" %override_index)
-                                                    attr_DIC_string =  self.object_label + "_" + attr + "_rampOveride" + "*" + override_Attr + "**" + rl
-                                                    if attr_DIC_string not in self.attr_overrides_DIC and override_ramp in override_Attr:
-                                                        self.attr_overrides_DIC[attr_DIC_string] = override_value
-                        it = it + 1
-            return(self.attr_overrides_DIC)
+                                    attr_dic_string = object_label + "_overide_rampRemoved*" + object + "." + attr + "**" + render_layer + "_"
+                                    self.attr_overrides_dic[attr_dic_string] = override_attr_value
+                                if default_ramp_found == 1 and override_ramp_found == 1:
+                                    override_ramp = attr_connection
+                                    if override_ramp != default_ramp:
+                                        attr_dic_string = object_label + "_overide_rampMismatch*" + object + "." + attr + "**" + render_layer + "_"
+                                        self.attr_overrides_dic[attr_dic_string] = override_ramp
+                                    if override_ramp == default_ramp:
+                                        render_layer_overrides = cmds.listConnections(render_layer + ".adjustments", p = True, c = True) or []
+                                        render_layer_ramp_overrides = []
+                                        for connection in render_layer_overrides:
+                                            type = cmds.nodeType(connection)
+                                            if type == "ramp":
+                                                if connection not in render_layer_ramp_overrides:
+                                                    render_layer_ramp_overrides.append(connection)
+                                            for i in range(0, len(render_layer_overrides), 2):
+                                                rl_connection = render_layer_overrides[i]
+                                                override_Attr = render_layer_overrides[i+1]
+                                                override_index = rl_connection.split("]")[0]
+                                                override_index = override_index.split("[")[-1]
+                                                override_value = cmds.getAttr(render_layer + ".adjustments[%s].value" %override_index)
+                                                attr_dic_string =  object_label + "_" + attr + "_rampOveride" + "*" + override_Attr + "**" + render_layer + "_"
+                                                if attr_dic_string not in self.attr_overrides_dic and override_ramp in override_Attr:
+                                                    self.attr_overrides_dic[attr_dic_string] = override_value
+                    it = it + 1
+        print ' '
+        print ' '
+        print 'self.attr_overrides_dic = ',self.attr_overrides_dic
+        print ' '
+        return(self.attr_overrides_dic)
 
-
-    def translations(object_check, render_layers):
-        transform_default_values_DIC = {}
+    def translations(self):
+        transform_default_values_dic = {}
         object_in_layers = []
         transform_layer_overrides = []
-        transform_override_values_DIC = {}
-        transform_layer_DIC = {}
+        transform_override_values_dic = {}
+        transform_layer_dic = {}
         cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
-        lay = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
-        for ob in object_check_t:
-            string_translateX = ob + ".translateX"
+        render_layer = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
+        for object in self.object_check_transform:
+            #print 'object = ',object
+            string_translateX = object + ".translateX"
             translateX = cmds.getAttr(string_translateX)
-            var = ob + "$" + lay + "$translateX"
-            transform_default_values_DIC[var] = translateX
-            string_translateY = ob + ".translateY"
+            var = object + "$" + render_layer + "$translateX"
+            transform_default_values_dic[var] = translateX
+            string_translateY = object + ".translateY"
             translateY = cmds.getAttr(string_translateY)
-            var = ob + "$" + lay + "$translateY"
-            transform_default_values_DIC[var] = translateY
-            string_translateZ = ob + ".translateZ"
+            var = object + "$" + render_layer + "$translateY"
+            transform_default_values_dic[var] = translateY
+            string_translateZ = object + ".translateZ"
             translateZ = cmds.getAttr(string_translateZ)
-            var = ob + "$" + lay + "$translateZ"
-            transform_default_values_DIC[var] = translateZ
-            strrotateX = ob + ".rotateX"
-            rotateX = cmds.getAttr(strrotateX)
-            var = ob + "$" + lay + "$rotateX"
-            transform_default_values_DIC[var] = rotateX
-            string_rotateY = ob + ".rotateY"
+            var = object + "$" + render_layer + "$translateZ"
+            transform_default_values_dic[var] = translateZ
+            str_rotateX = object + ".rotateX"
+            rotateX = cmds.getAttr(str_rotateX)
+            var = object + "$" + render_layer + "$rotateX"
+            transform_default_values_dic[var] = rotateX
+            string_rotateY = object + ".rotateY"
             rotateY = cmds.getAttr(string_rotateY)
-            var = ob + "$" + lay + "$rotateY"
-            transform_default_values_DIC[var] = rotateY
-            string_rotateZ = ob + ".rotateZ"
+            var = object + "$" + render_layer + "$rotateY"
+            transform_default_values_dic[var] = rotateY
+            string_rotateZ = object + ".rotateZ"
             rotateZ = cmds.getAttr(string_rotateZ)
-            var = ob + "$" + lay + "$rotateZ"
-            transform_default_values_DIC[var] = rotateZ
-            string_scaleX = ob + ".scaleX"
+            var = object + "$" + render_layer + "$rotateZ"
+            transform_default_values_dic[var] = rotateZ
+            string_scaleX = object + ".scaleX"
             scaleX = cmds.getAttr(string_scaleX)
-            var = ob + "$" + lay + "$scaleX"
-            transform_default_values_DIC[var] = scaleX
-            string_scaleY = ob + ".scaleY"
+            var = object + "$" + render_layer + "$scaleX"
+            transform_default_values_dic[var] = scaleX
+            string_scaleY = object + ".scaleY"
             scaleY = cmds.getAttr(string_scaleY)
-            var = ob + "$" + lay + "$scaleY"
-            transform_default_values_DIC[var] = scaleY
-            string_scaleZ = ob + ".scaleZ"
+            var = object + "$" + render_layer + "$scaleY"
+            transform_default_values_dic[var] = scaleY
+            string_scaleZ = object + ".scaleZ"
             scaleZ = cmds.getAttr(string_scaleZ)
-            var = ob + "$" + lay + "$scaleZ"
-            transform_default_values_DIC[var] = scaleZ
-        for ob in object_check_t:
-            for lay in render_layers:
-                cmds.editRenderLayerGlobals( currentRenderLayer = lay )
-                lay = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
-                if "defaultRenderLayer" != lay:
-                    string_translateX = ob + ".translateX"
+            var = object + "$" + render_layer + "$scaleZ"
+            transform_default_values_dic[var] = scaleZ
+        #print 'transform_default_values_dic = ',transform_default_values_dic
+        for object in self.object_check_transform:
+            for render_layer in self.render_layers:
+                cmds.editRenderLayerGlobals( currentRenderLayer = render_layer )
+                render_layer = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
+                if "defaultRenderLayer" != render_layer:
+                    string_translateX = object + ".translateX"
                     translateX = cmds.getAttr(string_translateX)
-                    var = ob + "$" + lay + "$translateX"
-                    transform_override_values_DIC[var] = translateX
-                    string_translateY = ob + ".translateY"
+                    var = object + "$" + render_layer + "$translateX"
+                    transform_override_values_dic[var] = translateX
+                    string_translateY = object + ".translateY"
                     translateY = cmds.getAttr(string_translateY)
-                    var = ob + "$" + lay + "$translateY"
-                    transform_override_values_DIC[var] = translateY
-                    string_translateZ = ob + ".translateZ"
+                    var = object + "$" + render_layer + "$translateY"
+                    transform_override_values_dic[var] = translateY
+                    string_translateZ = object + ".translateZ"
                     translateZ = cmds.getAttr(string_translateZ)
-                    var = ob + "$" + lay + "$translateZ"
-                    transform_override_values_DIC[var] = translateZ
-                    strrotateX = ob + ".rotateX"
-                    rotateX = cmds.getAttr(strrotateX)
-                    var = ob + "$" + lay + "$rotateX"
-                    transform_override_values_DIC[var] = rotateX
-                    string_rotateY = ob + ".rotateY"
+                    var = object + "$" + render_layer + "$translateZ"
+                    transform_override_values_dic[var] = translateZ
+                    str_rotateX = object + ".rotateX"
+                    rotateX = cmds.getAttr(str_rotateX)
+                    var = object + "$" + render_layer + "$rotateX"
+                    transform_override_values_dic[var] = rotateX
+                    string_rotateY = object + ".rotateY"
                     rotateY = cmds.getAttr(string_rotateY)
-                    var = ob + "$" + lay + "$rotateY"
-                    transform_override_values_DIC[var] = rotateY
-                    string_rotateZ = ob + ".rotateZ"
+                    var = object + "$" + render_layer + "$rotateY"
+                    transform_override_values_dic[var] = rotateY
+                    string_rotateZ = object + ".rotateZ"
                     rotateZ = cmds.getAttr(string_rotateZ)
-                    var = ob + "$" + lay + "$rotateZ"
-                    transform_override_values_DIC[var] = rotateZ
-                    string_scaleX = ob + ".scaleX"
+                    var = object + "$" + render_layer + "$rotateZ"
+                    transform_override_values_dic[var] = rotateZ
+                    string_scaleX = object + ".scaleX"
                     scaleX = cmds.getAttr(string_scaleX)
-                    var = ob + "$" + lay + "$scaleX"
-                    transform_override_values_DIC[var] = scaleX
-                    string_scaleY = ob + ".scaleY"
+                    var = object + "$" + render_layer + "$scaleX"
+                    transform_override_values_dic[var] = scaleX
+                    string_scaleY = object + ".scaleY"
                     scaleY = cmds.getAttr(string_scaleY)
-                    var = ob + "$" + lay + "$scaleY"
-                    transform_override_values_DIC[var] = scaleY
-                    string_scaleZ = ob + ".scaleZ"
+                    var = object + "$" + render_layer + "$scaleY"
+                    transform_override_values_dic[var] = scaleY
+                    string_scaleZ = object + ".scaleZ"
                     scaleZ = cmds.getAttr(string_scaleZ)
-                    var = ob + "$" + lay + "$scaleZ"
-                    transform_override_values_DIC[var] = scaleZ
-        for transform_value in transform_override_values_DIC:
+                    var = object + "$" + render_layer + "$scaleZ"
+                    transform_override_values_dic[var] = scaleZ
+        #print 'transform_override_values_dic = ',transform_override_values_dic
+        for transform_value in transform_override_values_dic:
             transform_values_split = transform_value.split("$")
-            for transform_defualt_value in transform_default_values_DIC:
+            for transform_defualt_value in transform_default_values_dic:
                 transform_defualt_value_split = transform_defualt_value.split("$")
                 if transform_values_split[0] == transform_defualt_value_split[0] and transform_values_split[2] == transform_defualt_value_split[2]:
-                    valu = transform_override_values_DIC[transform_value]
-                    valuDef = transform_default_values_DIC[transform_defualt_value]
-                    if valu != valuDef:
+                    value = transform_override_values_dic[transform_value]
+                    value_default = transform_default_values_dic[transform_defualt_value]
+                    if value != value_default:
                         transform_layer_overrides.append(transform_value)
-                        transform_layer_DIC["transO$" + transform_value] = valu
-        return transform_default_values_DIC,transform_override_values_DIC,transform_layer_overrides,object_check,render_layers,transform_layer_DIC
+                        transform_layer_dic["transO$" + transform_value] = value
 
-    def material_assignments(object_check, render_layers):
-        materials_list = []
-        materials_list_overrides = []
+        return transform_default_values_dic,transform_override_values_dic,transform_layer_overrides,transform_layer_dic
+
+    def material_assignments(self):
+        self.materials_list = []
+        self.materials_list_overrides = []
         material_layer_overrides = []
-        materials_defualt_DIC = {}
-        materials_override_DIC = {}
-        materials_layer_DIC = {}
-        for ob in object_check:
+        self.materials_defualt_dic = {}
+        self.materials_override_dic = {}
+        self.materials_layer_dic = {}
+        for object in self.object_check:
             cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
-            lay = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
-            for L in render_layers:
-                cmds.editRenderLayerGlobals( currentRenderLayer = L )
-                if L == "defaultRenderLayer":
+            render_layer = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
+            for render_layer in self.render_layers:
+                cmds.editRenderLayerGlobals( currentRenderLayer = render_layer )
+                if render_layer == "defaultRenderLayer":
                     cmds.select(clear = True)
-                    cmds.select(ob)
+                    cmds.select(object)
                     cmds.hyperShade(smn = True)
-                    materials_list = cmds.ls(sl = True)
-                    for MM in materials_list:
-                        NT = cmds.nodeType(MM)
-                        if NT != "renderLayer":
-                            if MM not in materials_list_overrides:
-                                materials_list_overrides.append(MM)
-                            override_DIC_key = ob + "$" + L + "$"
-                            materials_defualt_DIC[override_DIC_key] = MM
+                    self.materials_list = cmds.ls(sl = True)
+                    for material in self.materials_list:
+                        node_type = cmds.nodeType(material)
+                        if node_type != "renderLayer":
+                            if material not in self.materials_list_overrides:
+                                self.materials_list_overrides.append(material)
+                            override_dic_key = object + "$" + render_layer + "$"
+                            self.materials_defualt_dic[override_dic_key] = material
                 else:
                     cmds.select(clear = True)
-                    cmds.select(ob)
+                    cmds.select(object)
                     cmds.hyperShade(smn = True)
-                    materials_list = cmds.ls(sl = True)
-                    for MM in materials_list:
-                        NT = cmds.nodeType(MM)
-                        if NT != "renderLayer":
-                            if MM not in materials_list_overrides:
-                                materials_list_overrides.append(MM)
-                            override_DIC_key = ob + "$" + L + "$"
-                            materials_override_DIC[override_DIC_key] = MM
-        for material_override_DIC in materials_override_DIC:
-           material_value_split = material_override_DIC.split("$")
-           for material_defualt_DIC in materials_defualt_DIC:
-               material_defualt_value_split = material_defualt_DIC.split("$")
+                    self.materials_list = cmds.ls(sl = True)
+                    for material in self.materials_list:
+                        node_type = cmds.nodeType(material)
+                        if node_type != "renderLayer":
+                            if material not in self.materials_list_overrides:
+                                self.materials_list_overrides.append(material)
+                            override_dic_key = object + "$" + render_layer + "$"
+                            self.materials_override_dic[override_dic_key] = material
+        for material_override_dic in self.materials_override_dic:
+           material_value_split = material_override_dic.split("$")
+           for material_default_dic in self.materials_defualt_dic:
+               material_defualt_value_split = material_default_dic.split("$")
                if material_value_split[0] == material_defualt_value_split[0]:
-                    mat_oth = materials_override_DIC[material_override_DIC]
-                    mat_def = materials_defualt_DIC[material_defualt_DIC]
-                    if mat_oth != mat_def:
-                        material_layer_overrides.append(material_override_DIC)
-                        material_DIC_string = material_override_DIC + ".materialAssignment"
-                        if material_DIC_string not in materials_layer_DIC and "Shape" not in material_DIC_string:
-                            materials_layer_DIC[material_DIC_string] = mat_oth
-        return(materials_list_overrides,materials_list_overrides,materials_override_DIC,material_layer_overrides,materials_layer_DIC)
+                    material_override = self.materials_override_dic[material_override_dic]
+                    material_default = self.materials_defualt_dic[material_default_dic]
+                    if material_override != material_default:
+                        material_layer_overrides.append(material_override_dic)
+                        material_dic_string = material_override_dic + ".materialAssignment"
+                        if material_dic_string not in self.materials_layer_dic and "Shape" not in material_dic_string:
+                            self.materials_layer_dic[material_dic_string] = material_override
+        return(self.materials_list_overrides,self.materials_list_overrides,self.materials_override_dic,material_layer_overrides,self.materials_layer_dic)
 
-    def material_overrides(object_check,render_layers):
-        materialsOverideDIC = {}
-        attr_overrides_DIC = materialsOverideDIC
-        object_label = "mtlOveride"
+    def material_overrides(self):
+        self.material_overrides_dic = {}
+        attr_overrides_dic = self.material_overrides_dic
+        object_label = "material_overide"
 
         object_type = "VRayMtl"
         remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","outColor","outColorR","outColorG","outColorB","outApiType","outApiClassification","outTransparency",
@@ -311,118 +428,159 @@ def overides_information_function(render_layers):
         ,"refrMapMinRate","refrMapMaxRate","refrMapColorThreshold","refrMapNormalThreshold","refrMapSamples","fogColor","fogColorR","fogColorG","fogColorB","fogMult","fogBias","affectShadows","affectAlpha","traceReflections","traceRefractions"
         ,"cutoffThreshold","brdfType","bumpMapType","bumpMap","bumpMapR","bumpMapG","bumpMapB","bumpMult","bumpShadows","bumpDeltaScale","sssOn","translucencyColor","translucencyColorR","translucencyColorG","translucencyColorB","thickness","scatterCoeff"
         ,"scatterDir","scatterLevels","scatterSubdivs","sssEnvironment","opacityMap","opacityMapR","opacityMapG","opacityMapB","doubleSided","useIrradianceMap","reflectionDimDistanceOn","reflectionDimDistance","reflectionDimFallOff","attributeAliasList"]
-        attrCheck = ["color","diffuseColorAmount","opacityMap","roughnessAmount","illumColor","illumGI","compensateExposure","brdfType","reflectionColor","reflectionColorAmount","hilightGlossinessLock",
+        attr_check = ["color","diffuseColorAmount","opacityMap","roughnessAmount","illumColor","illumGI","compensateExposure","brdfType","reflectionColor","reflectionColorAmount","hilightGlossinessLock",
         "hilightGlossiness","reflectionGlossiness","useFresnel","glossyFresnel","lockFresnelIORToRefractionIOR","refractionColor","refractionColorAmount","refractionGlossiness","refractionIOR",
         "fogColor","fogMult","fogBias","affectShadows","sssOn","translucencyColor","scatterSubdivs","scatterDir","scatterLevels","scatterCoeff","thickness","sssEnvironment","traceRefractions",
         "refractionExitColorOn","refractionsMaxDepth","affectAlpha","refrDispersionOn","refrDispersionAbbe","bumpMapType","bumpMap","bumpMult","bumpShadows","bumpDeltaScale","cutoffThreshold",
         "doubleSided","useIrradianceMap","fixDarkEdges","caching","nodeState","reflMapMinRate","reflMapMaxRate","reflMapColorThreshold","reflMapNormalThreshold","reflMapSamples"]
-        for attr in attrCheck:
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "blinn"
         remove_attr_List = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB", "reflectionLimit", "specularColor", "specularColorR", "specularColorG", "specularColorB", "reflectivity", "reflectedColor", "reflectedColorR", "reflectedColorG", "reflectedColorB", "triangleNormalCamera", "triangleNormalCameraX", "triangleNormalCameraY", "triangleNormalCameraZ", "reflectionSpecularity", "eccentricity", "specularRollOff", "reflectionRolloff"]
-        attrCheck = ["color","transparency","ambientColor","normalCamera","diffuse","translucence","translucenceDepth","translucenceFocus","eccentricity","specularRollOff","specularColor","reflectivity","reflectedColor"]
-        for attr in attrCheck:
+        attr_check = ["color","transparency","ambientColor","normalCamera","diffuse","translucence","translucenceDepth","translucenceFocus","eccentricity","specularRollOff","specularColor","reflectivity","reflectedColor"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "phong"
         remove_attr_List = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB", "reflectionLimit", "specularColor", "specularColorR", "specularColorG", "specularColorB", "reflectivity", "reflectedColor", "reflectedColorR", "reflectedColorG", "reflectedColorB", "triangleNormalCamera", "triangleNormalCameraX", "triangleNormalCameraY", "triangleNormalCameraZ", "reflectionSpecularity", "cosinePower"]
-        attrCheck = ["color","transparency","ambientColor","normalCamera","diffuse","translucence","translucenceDepth","translucenceFocus","cosinePower","specularColor","reflectivity","reflectedColor"]
-        for attr in attrCheck:
+        attr_check = ["color","transparency","ambientColor","normalCamera","diffuse","translucence","translucenceDepth","translucenceFocus","cosinePower","specularColor","reflectivity","reflectedColor"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "lambert"
         remove_attr_List = ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "objectId", "primitiveId", "raySampler", "rayDepth", "rayInstance", "refractionLimit", "refractiveIndex", "mediumRefractiveIndex", "refractions", "diffuse", "rayDirection", "rayDirectionX", "rayDirectionY", "rayDirectionZ", "color", "colorR", "colorG", "colorB", "transparency", "transparencyR", "transparencyG", "transparencyB", "ambientColor", "ambientColorR", "ambientColorG", "ambientColorB", "incandescence", "incandescenceR", "incandescenceG", "incandescenceB", "translucence", "translucenceFocus", "translucenceDepth", "opacityDepth", "glowIntensity", "vrOverwriteDefaults", "vrFillObject", "vrEdgeWeight", "vrEdgeColor", "vrEdgeColorR", "vrEdgeColorG", "vrEdgeColorB", "vrEdgeStyle", "vrEdgePriority", "vrHiddenEdges", "vrHiddenEdgesOnTransparent", "vrOutlinesAtIntersections", "materialAlphaGain", "hideSource", "surfaceThickness", "shadowAttenuation", "transparencyDepth", "lightAbsorbance", "chromaticAberration", "outColor", "outColorR", "outColorG", "outColorB", "outTransparency", "outTransparencyR", "outTransparencyG", "outTransparencyB", "outGlowColor", "outGlowColorR", "outGlowColorG", "outGlowColorB", "pointCamera", "pointCameraX", "pointCameraY", "pointCameraZ", "normalCamera", "normalCameraX", "normalCameraY", "normalCameraZ", "lightDataArray", "lightDataArray.lightDirection", "lightDataArray.lightDirectionX", "lightDataArray.lightDirectionY", "lightDataArray.lightDirectionZ", "lightDataArray.lightIntensity", "lightDataArray.lightIntensityR", "lightDataArray.lightIntensityG", "lightDataArray.lightIntensityB", "lightDataArray.lightAmbient", "lightDataArray.lightDiffuse", "lightDataArray.lightSpecular", "lightDataArray.lightShadowFraction", "lightDataArray.preShadowIntensity", "lightDataArray.lightBlindData", "matteOpacityMode", "matteOpacity", "outMatteOpacity", "outMatteOpacityR", "outMatteOpacityG", "outMatteOpacityB", "hardwareShader", "hardwareShaderR", "hardwareShaderG", "hardwareShaderB"]
-        attrCheck = ["color","transparency","ambientColor","incandescence","diffuse","translucence","translucenceDepth","translucenceFocus"]
-        for attr in attrCheck:
+        attr_check = ["color","transparency","ambientColor","incandescence","diffuse","translucence","translucenceDepth","translucenceFocus"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "surfaceShader"
         remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","outColor","outColorR","outColorG","outColorB","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","outMatteOpacity","outMatteOpacityR","outMatteOpacityG","outMatteOpacityB","outGlowColor","outGlowColorR","outGlowColorG","outGlowColorB","materialAlphaGain"]
-        attrCheck = ["outColor","outTransparency","outGlowColor","outMatteOpacity"]
-        for attr in attrCheck:
+        attr_check = ["outColor","outTransparency","outGlowColor","outMatteOpacity"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "place2dTexture"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","uvCoord","uCoord","vCoord","vertexUvOne","vertexUvOneU","vertexUvOneV","vertexUvTwo","vertexUvTwoU","vertexUvTwoV","vertexUvThree","vertexUvThreeU","vertexUvThreeV","vertexCameraOne","vertexCameraOneX","vertexCameraOneY","vertexCameraOneZ","uvFilterSize","uvFilterSizeX","uvFilterSizeY","coverage","coverageU","coverageV","translateFrame","translateFrameU","translateFrameV","rotateFrame","mirrorU","mirrorV","stagger","wrapU","wrapV","repeatUV","repeatU","repeatV","offset","offsetU","offsetV","rotateUV","noiseUV","noiseU","noiseV","fast","outUV","outU","outV","outUvFilterSize","outUvFilterSizeX","outUvFilterSizeY","doTransform"]
-        attrCheck = ["coverageU","coverageV","translateFrameU","translateFrameV","rotateFrame","mirrorU","mirrorV","wrapU","wrapV","stagger","repeatU","repeatV","offsetU","offsetV","rotateUV","noiseU","noiseV","fast"]
-        for attr in attrCheck:
+        attr_check = ["coverageU","coverageV","translateFrameU","translateFrameV","rotateFrame","mirrorU","mirrorV","wrapU","wrapV","stagger","repeatU","repeatV","offsetU","offsetV","rotateUV","noiseU","noiseV","fast"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "file"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","filter","filterOffset","invert","alphaIsLuminance","colorGain","colorGainR","colorGainG","colorGainB","colorOffset","colorOffsetR","colorOffsetG","colorOffsetB","alphaGain","alphaOffset","defaultColor","defaultColorR","defaultColorG","defaultColorB","outColor","outColorR","outColorG","outColorB","outAlpha","fileTextureName","fileTextureNamePattern","computedFileTextureNamePattern","disableFileLoad","useFrameExtension","frameExtension","frameOffset","useHardwareTextureCycling","startCycleExtension","endCycleExtension","byCycleIncrement","forceSwatchGen","filterType","filterWidth","preFilter","preFilterRadius","useCache","useMaximumRes","uvTilingMode","explicitUvTiles","explicitUvTiles.explicitUvTileName","explicitUvTiles.explicitUvTilePosition","explicitUvTiles.explicitUvTilePositionU","explicitUvTiles.explicitUvTilePositionV","baseExplicitUvTilePosition","baseExplicitUvTilePositionU","baseExplicitUvTilePositionV","uvTileProxyDirty","uvTileProxyGenerate","uvTileProxyQuality","coverage","coverageU","coverageV","translateFrame","translateFrameU","translateFrameV","rotateFrame","doTransform","mirrorU","mirrorV","stagger","wrapU","wrapV","repeatUV","repeatU","repeatV","offset","offsetU","offsetV","rotateUV","noiseUV","noiseU","noiseV","blurPixelation","vertexCameraOne","vertexCameraOneX","vertexCameraOneY","vertexCameraOneZ","vertexCameraTwo","vertexCameraTwoX","vertexCameraTwoY","vertexCameraTwoZ","vertexCameraThree","vertexCameraThreeX","vertexCameraThreeY","vertexCameraThreeZ","vertexUvOne","vertexUvOneU","vertexUvOneV","vertexUvTwo","vertexUvTwoU","vertexUvTwoV","vertexUvThree","vertexUvThreeU","vertexUvThreeV","objectType","rayDepth","primitiveId","pixelCenter","pixelCenterX","pixelCenterY","exposure","hdrMapping","hdrExposure","dirtyPixelRegion","ptexFilterType","ptexFilterWidth","ptexFilterBlur","ptexFilterSharpness","ptexFilterInterpolateLevels","colorProfile","colorSpace","ignoreColorSpaceFileRules","workingSpace","colorManagementEnabled","colorManagementConfigFileEnabled","colorManagementConfigFilePath","outSize","outSizeX","outSizeY","fileHasAlpha","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","infoBits"]
-        attrCheck = ["exposure","defaultColor","colorGain","colorOffset","alphaGain","alphaOffset","alphaIsLuminance","invert"]
-        for attr in attrCheck:
+        attr_check = ["exposure","defaultColor","colorGain","colorOffset","alphaGain","alphaOffset","alphaIsLuminance","invert"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
-        object_type = "layered_textures"
-        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","inputs","inputs.color","inputs.colorR","inputs.colorG","inputs.colorB","inputs.alpha","inputs.blendMode","inputs.isVisible","outColor","outColorR","outColorG","outColorB","outAlpha","hardwareColor","hardwareColorR","hardwareColorG","hardwareColorB","alphaIsLuminance","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB"]
-        attrCheck = ["alphaIsLuminance","inputs.isVisible","inputs.alpha","inputs.color","inputs.blendMode"]
-        for attr in attrCheck:
+        object_type = "gammaCorrect"
+        #print 'running gamma correct'
+        remove_attr_List = ['message','caching','frozen','isHistoricallyInteresting','nodeState','binMembership','value','valueX','valueY','valueZ','gamma','gammaX','gammaY','gammaZ','renderPassMode','outValue','outValueX','outValueY','outValueZ','aiUserOptions','aiValue','aiValueX','aiValueY','aiValueZ','aiGamma','aiGammaX','aiGammaY','aiGammaZ']
+        attr_check = ['value','gammaX','gammaY','gammaZ']
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
+
+        object_type = "VRayPlaceEnvTex"
+        remove_attr_List = ['message','caching','frozen','isHistoricallyInteresting','nodeState','binMembership','mappingType','horFlip','verFlip','horRotation','verRotation','outUV','outU','outV','outApiType','outApiClassification','useTransform','transform','groundOn','groundPosition','groundPosition0','groundPosition1','groundPosition2','groundRadius']
+        attr_check = ['horRotation','verRotation']
+        for attr in attr_check:
+            remove_attr_List.remove(attr)
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
+
+        object_type = "layeredTexture"
+        remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","inputs","inputs.color","inputs.colorR","inputs.colorG","inputs.colorB","inputs.alpha","inputs.blendMode","inputs.isVisible","outColor","outColorR","outColorG","outColorB","outAlpha","hardwareColor","hardwareColorR","hardwareColorG","hardwareColorB","alphaIsLuminance","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB"]
+        attr_check = ["alphaIsLuminance","inputs.isVisible","inputs.alpha","inputs.color","inputs.blendMode"]
+        for attr in attr_check:
+            remove_attr_List.remove(attr)
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "VRayBlendMtl"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","swatchAutoUpdate","swatchAlwaysRender","swatchExplicitUpdate","swatchMaxRes","base_material","base_materialR","base_materialG","base_materialB","color","colorR","colorG","colorB","viewportColor","viewportColorR","viewportColorG","viewportColorB","coat_material_0","coat_material_0R","coat_material_0G","coat_material_0B","blend_amount_0","blend_amount_0R","blend_amount_0G","blend_amount_0B","coat_material_1","coat_material_1R","coat_material_1G","coat_material_1B","blend_amount_1","blend_amount_1R","blend_amount_1G","blend_amount_1B","coat_material_2","coat_material_2R","coat_material_2G","coat_material_2B","blend_amount_2","blend_amount_2R","blend_amount_2G","blend_amount_2B","coat_material_3","coat_material_3R","coat_material_3G","coat_material_3B","blend_amount_3","blend_amount_3R","blend_amount_3G","blend_amount_3B","coat_material_4","coat_material_4R","coat_material_4G","coat_material_4B","blend_amount_4","blend_amount_4R","blend_amount_4G","blend_amount_4B","coat_material_5","coat_material_5R","coat_material_5G","coat_material_5B","blend_amount_5","blend_amount_5R","blend_amount_5G","blend_amount_5B","coat_material_6","coat_material_6R","coat_material_6G","coat_material_6B","blend_amount_6","blend_amount_6R","blend_amount_6G","blend_amount_6B","coat_material_7","coat_material_7R","coat_material_7G","coat_material_7B","blend_amount_7","blend_amount_7R","blend_amount_7G","blend_amount_7B","coat_material_8","coat_material_8R","coat_material_8G","coat_material_8B","blend_amount_8","blend_amount_8R","blend_amount_8G","blend_amount_8B","additive_mode","outColor","outColorR","outColorG","outColorB","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB","outApiType","outApiClassification"]
-        attrCheck = ["base_material","additive_mode","coat_material_0","blend_amount_0","coat_material_1","blend_amount_1","coat_material_2","blend_amount_2","coat_material_3","blend_amount_3","coat_material_4","blend_amount_4","coat_material_5","blend_amount_5","coat_material_6","blend_amount_6","coat_material_7","blend_amount_7","coat_material_8","blend_amount_8"]
-        for attr in attrCheck:
+        attr_check = ["base_material","additive_mode","coat_material_0","blend_amount_0","coat_material_1","blend_amount_1","coat_material_2","blend_amount_2","coat_material_3","blend_amount_3","coat_material_4","blend_amount_4","coat_material_5","blend_amount_5","coat_material_6","blend_amount_6","coat_material_7","blend_amount_7","coat_material_8","blend_amount_8"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "displacementShader"
         remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","displacementMode","displacement","vectorDisplacement","vectorDisplacementX","vectorDisplacementY","vectorDisplacementZ","scale","vectorEncoding","vectorSpace","yIsUp","tangent","tangentX","tangentY","tangentZ"]
-        attrCheck = ["displacement","vectorDisplacementX","vectorDisplacementY","vectorDisplacementZ","scale","vectorEncoding","vectorSpace","tangentX","tangentY","tangentZ","nodeState","caching","displacementMode"]
-        for attr in attrCheck:
+        attr_check = ["displacement","vectorDisplacementX","vectorDisplacementY","vectorDisplacementZ","scale","vectorEncoding","vectorSpace","tangentX","tangentY","tangentZ","nodeState","caching","displacementMode"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "VRayDisplacement"
         remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","dagSetMembers","dnSetMembers","memberWireframeColor","annotation","isLayer","verticesOnlySet","edgesOnlySet","facetsOnlySet","editPointsOnlySet","renderableOnlySet","partition","groupNodes","usedBy","displacement","overrideGlobalDisplacement","outApiType","outApiClassification","vraySeparator_vray_displacement","vrayDisplacementNone","vrayDisplacementStatic","vrayDisplacementType","vrayDisplacementAmount","vrayDisplacementShift","vrayDisplacementKeepContinuity","vrayEnableWaterLevel","vrayWaterLevel","vrayDisplacementCacheNormals","vray2dDisplacementResolution","vray2dDisplacementPrecision","vray2dDisplacementTightBounds","vray2dDisplacementMultiTile","vray2dDisplacementFilterTexture","vray2dDisplacementFilterBlur","vrayDisplacementUseBounds","vrayDisplacementMinValue","vrayDisplacementMinValueR","vrayDisplacementMinValueG","vrayDisplacementMinValueB","vrayDisplacementMaxValue","vrayDisplacementMaxValueR","vrayDisplacementMaxValueG","vrayDisplacementMaxValueB","vraySeparator_vray_subquality","vrayOverrideGlobalSubQual","vrayViewDep","vrayEdgeLength","vrayMaxSubdivs"]
-        attrCheck = ["overrideGlobalDisplacement","displacement","caching","nodeState","blackBox","vrayDisplacementNone","vrayDisplacementStatic","vrayDisplacementType","vrayDisplacementAmount","vrayDisplacementShift","vrayEdgeLength","vrayMaxSubdivs","vrayDisplacementUseBounds"]
-        for attr in attrCheck:
+        attr_check = ["overrideGlobalDisplacement","displacement","caching","nodeState","blackBox","vrayDisplacementNone","vrayDisplacementStatic","vrayDisplacementType","vrayDisplacementAmount","vrayDisplacementShift","vrayEdgeLength","vrayMaxSubdivs","vrayDisplacementUseBounds"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        matOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        materialsOverideDIC = matOverides.attr_override_detect()
+        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
-        return(materialsOverideDIC)
+        return(self.material_overrides_dic)
 
-    def cameraOverides(object_check,render_layers):
-        cameraOveridesDIC = {}
-        attr_overrides_DIC = cameraOveridesDIC
+    def ramp_overrides_method(self):
+        self.ramp_overrides = []
+        for render_layer in self.render_layers:
+            cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+            self.overrides =  cmds.editRenderLayerAdjustment(render_layer, query = True, layer = True)
+            for ramp in self.ramp_nodes:
+                for override in self.overrides:
+                    if ramp in override:
+                        #print 'override = ',override
+                        override_value = cmds.getAttr(override)
+                        override_value_type = type(override_value) is list
+                        #print 'anal override_value = ',override_value
+                        #print 'anal override_value_type = ',override_value_type
+                        if override_value_type == 1:
+                            override_value = override_value[0]
+                            #print 'list = ', override_value
+                        #else:
+                            #print 'non list = ', override_value
+                        ramp_override_string = render_layer + '&&' + ramp  + '&&' + override + '&&' + str(override_value)
+                        #print 'ramp_override_string = ',ramp_override_string
+                        self.ramp_overrides.append(ramp_override_string)
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
+        return(self.ramp_overrides)
+
+    def camera_overides(self):
+        camera_overrides_dic = {}
+        attr_overrides_dic = camera_overrides_dic
         object_label = "camera_overide"
         object_type = "camera"
-        remove_attr_List =  ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "hyperLayout", "isCollapsed", "blackBox", "borderConnections", "isHierarchicalConnection", "publishedNodeInfo", "publishedNodeInfo.publishedNode", "publishedNodeInfo.isHierarchicalNode", "publishedNodeInfo.publishedNodeType", "rmbCommand", "templateName", "templatePath", "viewName", "iconName", "viewMode", "templateVersion", "uiTreatment", "customTreatment", "creator", "creationDate", "containerType", "boundingBox", "boundingBoxMin", "boundingBoxMinX", "boundingBoxMinY", "boundingBoxMinZ", "boundingBoxMax", "boundingBoxMaxX", "boundingBoxMaxY", "boundingBoxMaxZ", "boundingBoxSize", "boundingBoxSizeX", "boundingBoxSizeY", "boundingBoxSizeZ", "center", "boundingBoxCenterX", "boundingBoxCenterY", "boundingBoxCenterZ", "matrix", "inverseMatrix", "worldMatrix", "worldInverseMatrix", "parentMatrix", "parentInverseMatrix", "visibility", "intermediateObject", "template", "ghosting", "instObjGroups", "instObjGroups.objectGroups", "instObjGroups.objectGroups.objectGrpCompList", "instObjGroups.objectGroups.objectGroupId", "instObjGroups.objectGroups.objectGrpColor", "objectColorRGB", "objectColorR", "objectColorG", "objectColorB", "useObjectColor", "objectColor", "drawOverride", "overrideDisplayType", "overrideLevelOfDetail", "overrideShading", "overrideTexturing", "overridePlayback", "overrideEnabled", "overrideVisibility", "overrideColor", "lodVisibility", "selectionChildHighlighting", "renderInfo", "identification", "layerRenderable", "layerOverrideColor", "renderLayerInfo", "renderLayerInfo.renderLayerId", "renderLayerInfo.renderLayerRenderable", "renderLayerInfo.renderLayerColor", "ghostingControl", "ghostCustomSteps", "ghostPreSteps", "ghostPostSteps", "ghostStepSize", "ghostFrames", "ghostColorPreA", "ghostColorPre", "ghostColorPreR", "ghostColorPreG", "ghostColorPreB", "ghostColorPostA", "ghostColorPost", "ghostColorPostR", "ghostColorPostG", "ghostColorPostB", "ghostRangeStart", "ghostRangeEnd", "ghostDriver", "hiddenInOutliner", "renderable", "cameraAperture", "horizontalFilmAperture", "verticalFilmAperture", "shakeOverscan", "shakeOverscanEnabled", "filmOffset", "horizontalFilmOffset", "verticalFilmOffset", "shakeEnabled", "shake", "horizontalShake", "verticalShake", "stereoHorizontalImageTranslateEnabled", "stereoHorizontalImageTranslate", "postProjection", "preScale", "filmTranslate", "filmTranslateH", "filmTranslateV", "filmRollControl", "filmRollPivot", "horizontalRollPivot", "verticalRollPivot", "filmRollValue", "filmRollOrder", "postScale", "filmFit", "filmFitOffset", "overscan", "panZoomEnabled", "renderPanZoom", "pan", "horizontalPan", "verticalPan", "zoom", "focalLength", "lensSqueezeRatio", "cameraScale", "triggerUpdate", "nearClipPlane", "farClipPlane", "fStop", "focusDistance", "shutterAngle", "centerOfInterest", "orthographicWidth", "imageName", "depthName", "maskName", "tumblePivot", "tumblePivotX", "tumblePivotY", "tumblePivotZ", "usePivotAsLocalSpace", "imagePlane", "homeCommand", "bookmarks", "locatorScale", "displayGateMaskOpacity", "displayGateMask", "displayFilmGate", "displayResolution", "displaySafeAction", "displaySafeTitle", "displayFieldChart", "displayFilmPivot", "displayFilmOrigin", "clippingPlanes", "bestFitClippingPlanes", "depthOfField", "motionBlur", "orthographic", "journalCommand", "image", "depth", "transparencyBasedDepth", "threshold", "depthType", "useExploreDepthFormat", "mask", "displayGateMaskColor", "displayGateMaskColorR", "displayGateMaskColorG", "displayGateMaskColorB", "backgroundColor", "backgroundColorR", "backgroundColorG", "backgroundColorB", "focusRegionScale", "displayCameraNearClip", "displayCameraFarClip", "displayCameraFrustum", "cameraPrecompTemplate", "vraySeparator_vray_cameraPhysical", "vrayCameraPhysicalOn", "vrayCameraPhysicalType", "vrayCameraPhysicalFilmWidth", "vrayCameraPhysicalFocalLength", "vrayCameraPhysicalSpecifyFOV", "vrayCameraPhysicalFOV", "vrayCameraPhysicalZoomFactor", "vrayCameraPhysicalDistortionType", "vrayCameraPhysicalDistortion", "vrayCameraPhysicalLensFile", "vrayCameraPhysicalDistortionMap", "vrayCameraPhysicalDistortionMapR", "vrayCameraPhysicalDistortionMapG", "vrayCameraPhysicalDistortionMapB", "vrayCameraPhysicalFNumber", "vrayCameraPhysicalHorizLensShift", "vrayCameraPhysicalLensShift", "vrayCameraPhysicalLensAutoVShift", "vrayCameraPhysicalShutterSpeed", "vrayCameraPhysicalShutterAngle", "vrayCameraPhysicalShutterOffset", "vrayCameraPhysicalLatency", "vrayCameraPhysicalISO", "vrayCameraPhysicalSpecifyFocus", "vrayCameraPhysicalFocusDistance", "vrayCameraPhysicalExposure", "vrayCameraPhysicalWhiteBalance", "vrayCameraPhysicalWhiteBalanceR", "vrayCameraPhysicalWhiteBalanceG", "vrayCameraPhysicalWhiteBalanceB", "vrayCameraPhysicalVignetting", "vrayCameraPhysicalVignettingAmount", "vrayCameraPhysicalBladesEnable", "vrayCameraPhysicalBladesNum", "vrayCameraPhysicalBladesRotation", "vrayCameraPhysicalCenterBias", "vrayCameraPhysicalAnisotropy", "vrayCameraPhysicalUseDof", "vrayCameraPhysicalUseMoBlur", "vrayCameraPhysicalApertureMap", "vrayCameraPhysicalApertureMapR", "vrayCameraPhysicalApertureMapG", "vrayCameraPhysicalApertureMapB", "vrayCameraPhysicalApertureMapAffectsExposure", "vrayCameraPhysicalOpticalVignetting", "vraySeparator_vray_cameraOverrides", "vrayCameraOverridesOn", "vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist", "vrayCameraCurve",]
-        attrCheck = ["vraySeparator_vray_cameraPhysical","vrayCameraPhysicalOn","vrayCameraPhysicalType","vrayCameraPhysicalFilmWidth","vrayCameraPhysicalFocalLength","vrayCameraPhysicalSpecifyFOV","vrayCameraPhysicalFOV","vrayCameraPhysicalZoomFactor","vrayCameraPhysicalDistortionType","vrayCameraPhysicalDistortion","vrayCameraPhysicalLensFile","vrayCameraPhysicalDistortionMap","vrayCameraPhysicalDistortionMapR",
+        remove_attr_List =  ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "hyperLayout", "isCollapsed", "blackBox", "borderConnections", "isHierarchicalConnection", "publishedNodeInfo", "publishedNodeInfo.publishedNode", "publishedNodeInfo.isHierarchicalNode", "publishedNodeInfo.publishedNodeType", "rmbCommand", "templateName", "templatePath", "viewName", "iconName", "viewMode", "templateVersion", "uiTreatment", "customTreatment", "creator", "creationDate", "containerType", "boundingBox", "boundingBoxMin", "boundingBoxMinX", "boundingBoxMinY", "boundingBoxMinZ", "boundingBoxMax", "boundingBoxMaxX", "boundingBoxMaxY", "boundingBoxMaxZ", "boundingBoxSize", "boundingBoxSizeX", "boundingBoxSizeY", "boundingBoxSizeZ", "center", "boundingBoxCenterX", "boundingBoxCenterY", "boundingBoxCenterZ", "matrix", "inverseMatrix", "worldMatrix", "worldInverseMatrix", "parentMatrix", "parentInverseMatrix", "visibility", "intermediateObject", "template", "ghosting", "instObjGroups", "instObjGroups.objectGroups", "instObjGroups.objectGroups.objectGrpCompList", "instObjGroups.objectGroups.objectGroupId", "instObjGroups.objectGroups.objectGrpColor", "objectColorRGB", "objectColorR", "objectColorG", "objectColorB", "useObjectColor", "objectColor", "drawOverride", "overrideDisplayType", "overrideLevelOfDetail", "overrideShading", "overrideTexturing", "overridePlayback", "overrideEnabled", "overrideVisibility", "overrideColor", "lodVisibility", "selectionChildHighlighting", "renderInfo", "identification", "layerRenderable", "layerOverrideColor", "renderLayerInfo", "renderLayerInfo.renderLayerId", "renderLayerInfo.renderLayerRenderable", "renderLayerInfo.renderLayerColor", "ghostingControl", "ghostCustomSteps", "ghostPreSteps", "ghostPostSteps", "ghostStepSize", "ghostFrames", "ghostColorPreA", "ghostColorPre", "ghostColorPreR", "ghostColorPreG", "ghostColorPreB", "ghostColorPostA", "ghostColorPost", "ghostColorPostR", "ghostColorPostG", "ghostColorPostB", "ghostRangeStart", "ghostRangeEnd", "ghostDriver", "hiddenInOutliner", "renderable", "cameraAperture", "horizontalFilmAperture", "verticalFilmAperture", "shakeOverscan", "shakeOverscanEnabled", "filmOffset", "horizontalFilmOffset", "verticalFilmOffset", "shakeEnabled", "shake", "horizontalShake", "verticalShake", "stereoHorizontalImageTranslateEnabled", "stereoHorizontalImageTranslate", "postProjection", "preScale", "filmTranslate", "filmTranslateH", "filmTranslateV", "filmRollControl", "filmRollPivot", "horizontalRollPivot", "verticalRollPivot", "filmRollValue", "filmRollOrder", "postScale", "filmFit", "filmFitOffset", "overscan", "panZoomEnabled", "renderPanZoom", "pan", "horizontalPan", "verticalPan", "zoom", "focalLength", "lensSqueezeRatio", "cameraScale", "triggerUpdate", "nearClipPlane", "farClipPlane", "fStop", "focusDistance", "shutterAngle", "centerOfInterest", "orthographicWidth", "imageName", "depthName", "maskName", "tumblePivot", "tumblePivotX", "tumblePivotY", "tumblePivotZ", "usePivotAsLocalSpace", "imagePlane", "homeCommand", "bookmarks", "locatorScale", "displayGateMaskOpacity", "displayGateMask", "displayFilmGate", "displayResolution", "displaySafeAction", "displaySafeTitle", "displayFieldChart", "displayFilmPivot", "displayFilmOrigin", "clippingPlanes", "bestFitClippingPlanes", "depthOfField", "motionBlur", "orthographic", "journalCommand", "image", "depth", "transparencyBasedDepth", "threshold", "depthType", "useExploreDepthFormat", "mask", "displayGateMaskColor", "displayGateMaskColorR", "displayGateMaskColorG", "displayGateMaskColorB", "backgroundColor", "backgroundColorR", "backgroundColorG", "backgroundColorB", "focusRegionScale", "displayCameraNearClip", "displayCameraFarClip", "displayCameraFrustum", "cameraPrecompTemplate", "vraySeparator_vray_cameraPhysical", "vrayCameraPhysicalOn", "vrayCameraPhysicalType", "vrayCameraPhysicalFilmWidth", "vrayCameraPhysicalFocalLength", "vrayCameraPhysicalSpecifyFOV", "vrayCameraPhysicalFOV", "vrayCameraPhysicalZoomFactor", "vrayCameraPhysicalDistortionType", "vrayCameraPhysicalDistortion", "vrayCameraPhysicalLensFile", "vrayCameraPhysicalDistortionMap", "vrayCameraPhysicalDistortionMapR", "vrayCameraPhysicalDistortionMapG", "vrayCameraPhysicalDistortionMapB", "vrayCameraPhysicalFNumber", "vrayCameraPhysicalHorizLensShift", "vrayCameraPhysicalLensShift", "vrayCameraPhysicalLensAutoVShift", "vrayCameraPhysicalShutterSpeed", "vrayCameraPhysicalShutterAngle", "vrayCameraPhysicalShutterOffset", "vrayCameraPhysicalLatency", "vrayCameraPhysicalISO", "vrayCameraPhysicalSpecifyFocus", "vrayCameraPhysicalFocusDistance", "vrayCameraPhysicalExposure", "vrayCameraPhysicalWhiteBalance", "vrayCameraPhysicalWhiteBalanceR", "vrayCameraPhysicalWhiteBalanceG", "vrayCameraPhysicalWhiteBalanceB", "vrayCameraPhysicalVignetting", "vrayCameraPhysicalVignettingAmount", "vrayCameraPhysicalBladesEnable", "vrayCameraPhysicalBladesNum", "vrayCameraPhysicalBladesRotation", "vrayCameraPhysicalCenterBias", "vrayCameraPhysicalAnisotropy", "vrayCameraPhysicalUseDof", "vrayCameraPhysicalUseMoBlur", "vrayCameraPhysicalApertureMap", "vrayCameraPhysicalApertureMapR", "vrayCameraPhysicalApertureMapG", "vrayCameraPhysicalApertureMapB", "vrayCameraPhysicalApertureMapAffectsExposure", "vrayCameraPhysicalOpticalVignetting", "vraySeparator_vray_cameraOverrides", "vrayCameraOverridesOn", "vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist", "vrayCameraCurve",'aiFiltermap','aiShutterCurve.aiShutterCurveX','aiShutterCurve.aiShutterCurveY','aiPosition.aiPositionX','aiPosition.aiPositionY','aiPosition.aiPositionZ','aiLookAt.aiLookAtX','aiLookAt.aiLookAtY','aiLookAt.aiLookAtZ','aiUp.aiUpX','aiUp.aiUpY','aiUp.aiUpZ','aiScreenWindowMin.aiScreenWindowMinX','aiScreenWindowMin.aiScreenWindowMinY','aiScreenWindowMax.aiScreenWindowMaxX','aiScreenWindowMax.aiScreenWindowMaxY']
+        attr_check = ["vraySeparator_vray_cameraPhysical","vrayCameraPhysicalOn","vrayCameraPhysicalType","vrayCameraPhysicalFilmWidth","vrayCameraPhysicalFocalLength","vrayCameraPhysicalSpecifyFOV","vrayCameraPhysicalFOV","vrayCameraPhysicalZoomFactor","vrayCameraPhysicalDistortionType","vrayCameraPhysicalDistortion","vrayCameraPhysicalLensFile","vrayCameraPhysicalDistortionMap","vrayCameraPhysicalDistortionMapR",
         "vrayCameraPhysicalDistortionMapG","vrayCameraPhysicalDistortionMapB","vrayCameraPhysicalFNumber","vrayCameraPhysicalHorizLensShift","vrayCameraPhysicalLensShift","vrayCameraPhysicalLensAutoVShift","vrayCameraPhysicalShutterSpeed","vrayCameraPhysicalShutterAngle","vrayCameraPhysicalShutterOffset","vrayCameraPhysicalLatency","vrayCameraPhysicalISO","vrayCameraPhysicalSpecifyFocus","vrayCameraPhysicalFocusDistance",
         "vrayCameraPhysicalExposure","vrayCameraPhysicalWhiteBalance","vrayCameraPhysicalWhiteBalanceR","vrayCameraPhysicalWhiteBalanceG","vrayCameraPhysicalWhiteBalanceB","vrayCameraPhysicalVignetting","vrayCameraPhysicalVignettingAmount","vrayCameraPhysicalBladesEnable","vrayCameraPhysicalBladesNum","vrayCameraPhysicalBladesRotation","vrayCameraPhysicalCenterBias","vrayCameraPhysicalAnisotropy","vrayCameraPhysicalUseDof","vrayCameraPhysicalUseMoBlur"
         ,"vrayCameraPhysicalApertureMap","vrayCameraPhysicalApertureMapR","vrayCameraPhysicalApertureMapG","vrayCameraPhysicalApertureMapB","vrayCameraPhysicalApertureMapAffectsExposure","vrayCameraPhysicalOpticalVignetting","vraySeparator_vray_cameraOverrides","vrayCameraOverridesOn","vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist", "vrayCameraCurve","renderable"]
-        for attr in attrCheck:
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        cameraOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        cameraOveridesDIC = cameraOverides.attr_override_detect()
+        camera_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
-        return(cameraOveridesDIC)
+        return(camera_overrides_dic)
 
-    def lightOverides(object_check,render_layers):
-        lightOveridesDIC = {}
-        attr_overrides_DIC = lightOveridesDIC
+    def light_overrides(self):
+        light_overrides_dic = {}
+        attr_overrides_dic = light_overrides_dic
         object_label = "light_overide"
         object_type = "VRayLightRectShape"
         remove_attr_List = ["message","caching","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType"
@@ -439,50 +597,50 @@ def overides_information_function(render_layers):
         ,"directional","directionalPreviewLength","doubleSided","invisible","affectDiffuse","affectSpecular","affectReflections","ignoreLightNormals","noDecay","skylightPortal","simpleSkylightPortal","storeWithIrradianceMap","rectTex","rectTexR","rectTexG","rectTexB","rectTexA","useRectTex","multiplyByTheLightColor","texResolution"
         ,"texAdaptive","subdivs","shadowBias","cutoffThreshold","locatorScale","photonSubdivs","causticsSubdivs","diffuseMult","causticMult","diffuseContrib","specularContrib","useMIS","vrayOverrideMBSamples","vrayMBSamples","outA","outAX","outAY","outAZ","outApiType","outApiClassification","outTemperatureColor","outTemperatureColorR"
         ,"outTemperatureColorG","outTemperatureColorB","emitDiffuse","emitSpecular","decayRate","attributeAliasList","pickTexture"]
-        attrCheck = ["lightColor","intensityMult","shapeType","uSize","vSize","directional","useRectTex","rectTex","noDecay","doubleSided","invisible","skylightPortal","simpleSkylightPortal","affectDiffuse","affectSpecular","affectReflections","shadows","shadowColor","shadowBias","visibility","colorR","colorG","colorB","emitDiffuse","emitSpecular",
+        attr_check = ["lightColor","intensityMult","shapeType","uSize","vSize","directional","useRectTex","rectTex","noDecay","doubleSided","invisible","skylightPortal","simpleSkylightPortal","affectDiffuse","affectSpecular","affectReflections","shadows","shadowColor","shadowBias","visibility","colorR","colorG","colorB","emitDiffuse","emitSpecular",
         "decayRate","attributeAliasList","diffuseContrib","specularContrib","enabled"]
-        for attr in attrCheck:
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        light_overrides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "spotLight"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","coneAngle","penumbraAngle","dropoff","barnDoors","leftBarnDoor","rightBarnDoor","topBarnDoor","bottomBarnDoor","useDecayRegions","startDistance1","endDistance1","startDistance2","endDistance2","startDistance3","endDistance3","fogSpread","fogIntensity","objectType","pointWorld","pointWorldX","pointWorldY","pointWorldZ","farPointWorld","farPointWorldX","farPointWorldY","farPointWorldZ","rayDirection","rayDirectionX","rayDirectionY","rayDirectionZ","fogGeometry","lightGlow","psIllumSamples"]
-        attrCheck = ["color","intensity","emitDiffuse","emitSpecular","decayRate","coneAngle","penumbraAngle","dropoff","shadowColor","useRayTraceShadows","lightRadius","shadowRays","rayDepthLimit","useDepthMapShadows","dmapResolution","useMidDistDmap","useDmapAutoFocus","dmapFocus","dmapFilterSize","dmapBias","fogShadowIntensity","volumeShadowSamples"]
-        for attr in attrCheck:
+        attr_check = ["color","intensity","emitDiffuse","emitSpecular","decayRate","coneAngle","penumbraAngle","dropoff","shadowColor","useRayTraceShadows","lightRadius","shadowRays","rayDepthLimit","useDepthMapShadows","dmapResolution","useMidDistDmap","useDmapAutoFocus","dmapFocus","dmapFilterSize","dmapBias","fogShadowIntensity","volumeShadowSamples"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        light_overrides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "ambientLight"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","ambientShade","objectType","shadowRadius","castSoftShadows","normalCamera","normalCameraX","normalCameraY","normalCameraZ","receiveShadows"]
-        attrCheck = ["color","intensity","ambientShade"]
-        for attr in attrCheck:
+        attr_check = ["color","intensity","ambientShade"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        light_overrides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "directionalLight"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","useLightPosition","objectType","lightAngle","pointWorld","pointWorldX","pointWorldY","pointWorldZ"]
-        attrCheck = ["color","intensity","emitDiffuse","emitSpecular"]
-        for attr in attrCheck:
+        attr_check = ["color","intensity","emitDiffuse","emitSpecular"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        light_overrides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
         object_type = "pointLight"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","hyperLayout","isCollapsed","blackBox","borderConnections","isHierarchicalConnection","publishedNodeInfo","publishedNodeInfo.publishedNode","publishedNodeInfo.isHierarchicalNode","publishedNodeInfo.publishedNodeType","rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType","boundingBox","boundingBoxMin","boundingBoxMinX","boundingBoxMinY","boundingBoxMinZ","boundingBoxMax","boundingBoxMaxX","boundingBoxMaxY","boundingBoxMaxZ","boundingBoxSize","boundingBoxSizeX","boundingBoxSizeY","boundingBoxSizeZ","center","boundingBoxCenterX","boundingBoxCenterY","boundingBoxCenterZ","matrix","inverseMatrix","worldMatrix","worldInverseMatrix","parentMatrix","parentInverseMatrix","visibility","intermediateObject","template","ghosting","instObjGroups","instObjGroups.objectGroups","instObjGroups.objectGroups.objectGrpCompList","instObjGroups.objectGroups.objectGroupId","instObjGroups.objectGroups.objectGrpColor","objectColorRGB","objectColorR","objectColorG","objectColorB","wireColorRGB","wireColorR","wireColorG","wireColorB","useObjectColor","objectColor","drawOverride","overrideDisplayType","overrideLevelOfDetail","overrideShading","overrideTexturing","overridePlayback","overrideEnabled","overrideVisibility","hideOnPlayback","overrideRGBColors","overrideColor","overrideColorRGB","overrideColorR","overrideColorG","overrideColorB","lodVisibility","selectionChildHighlighting","renderInfo","identification","layerRenderable","layerOverrideColor","renderLayerInfo","renderLayerInfo.renderLayerId","renderLayerInfo.renderLayerRenderable","renderLayerInfo.renderLayerColor","ghostingControl","ghostCustomSteps","ghostPreSteps","ghostPostSteps","ghostStepSize","ghostFrames","ghostColorPreA","ghostColorPre","ghostColorPreR","ghostColorPreG","ghostColorPreB","ghostColorPostA","ghostColorPost","ghostColorPostR","ghostColorPostG","ghostColorPostB","ghostRangeStart","ghostRangeEnd","ghostDriver","hiddenInOutliner","useOutlinerColor","outlinerColor","outlinerColorR","outlinerColorG","outlinerColorB","color","colorR","colorG","colorB","intensity","useRayTraceShadows","shadowColor","shadColorR","shadColorG","shadColorB","shadowRays","rayDepthLimit","centerOfIllumination","pointCamera","pointCameraX","pointCameraY","pointCameraZ","matrixWorldToEye","matrixEyeToWorld","objectId","primitiveId","raySampler","rayDepth","renderState","locatorScale","uvCoord","uCoord","vCoord","uvFilterSize","uvFilterSizeX","uvFilterSizeY","infoBits","lightData","lightDirection","lightDirectionX","lightDirectionY","lightDirectionZ","lightIntensity","lightIntensityR","lightIntensityG","lightIntensityB","lightAmbient","lightDiffuse","lightSpecular","lightShadowFraction","preShadowIntensity","lightBlindData","opticalFXvisibility","opticalFXvisibilityR","opticalFXvisibilityG","opticalFXvisibilityB","rayInstance","decayRate","emitDiffuse","emitSpecular","lightRadius","castSoftShadows","useDepthMapShadows","reuseDmap","useMidDistDmap","dmapFilterSize","dmapResolution","dmapBias","dmapFocus","dmapWidthFocus","useDmapAutoFocus","volumeShadowSamples","fogShadowIntensity","useDmapAutoClipping","dmapNearClipPlane","dmapFarClipPlane","useOnlySingleDmap","useXPlusDmap","useXMinusDmap","useYPlusDmap","useYMinusDmap","useZPlusDmap","useZMinusDmap","dmapUseMacro","dmapName","dmapLightName","dmapSceneName","dmapFrameExt","writeDmap","lastWrittenDmapAnimExtName","receiveShadows","fogGeometry","fogRadius","lightGlow","objectType","fogType","pointWorld","pointWorldX","pointWorldY","pointWorldZ","farPointWorld","farPointWorldX","farPointWorldY","farPointWorldZ","fogIntensity"]
-        attrCheck = ["color","intensity","emitDiffuse","emitSpecular","decayRate"]
-        for attr in attrCheck:
+        attr_check = ["color","intensity","emitDiffuse","emitSpecular","decayRate"]
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        lightOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        lightOveridesDIC = lightOverides.attr_override_detect()
+        light_overrides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
-        return(lightOveridesDIC)
+        return(light_overrides_dic)
 
-    def vraySettingsOverides(object_check,render_layers):
-        vraySettingsOverrideDic = {}
-        attr_overrides_DIC = vraySettingsOverrideDic
+    def vray_settings_overrides(self):
+        vray_settings_overrides_dic = {}
+        attr_overrides_dic = vray_settings_overrides_dic
         object_label = "vs"
         cmds.loadPlugin('vrayformaya', quiet=True)
         cmds.pluginInfo('vrayformaya', edit=True, autoload=True)
@@ -490,692 +648,486 @@ def overides_information_function(render_layers):
 
         object_type = "VRaySettingsNode"
         remove_attr_List =  cmds.listAttr("vraySettings")
-        attrCheck = ["cam_envtexBg","cam_envtexGi","cam_envtexReflect","cam_envtexRefract","cam_envtexSecondaryMatte","globopt_geom_displacement","globopt_light_doLights","globopt_light_doHiddenLights","globopt_light_doDefaultLights",
+        attr_check = ["cam_envtexBg","cam_envtexGi","cam_envtexReflect","cam_envtexRefract","cam_envtexSecondaryMatte","globopt_geom_displacement","globopt_light_doLights","globopt_light_doHiddenLights","globopt_light_doDefaultLights",
         "globopt_light_doShadows","globopt_light_ignoreLightLinking","globopt_light_disableSelfIllumination","photometricScale","globopt_mtl_reflectionRefraction","globopt_mtl_glossy","globopt_mtl_transpMaxLevels","globopt_mtl_transpCutoff"
         ,"globopt_mtl_doMaps","globopt_mtl_filterMaps","bumpMultiplier","texFilterScaleMultiplier","globopt_ray_bias","globopt_ray_maxIntens_on","gi_texFilteringMultiplier","cam_overrideEnvtex","cam_overrideEnvtexSecondaryMatte",
         "ddisplac_amount","ddisplac_edgeLength","ddisplac_maxSubdivs","giOn","reflectiveCaustics","refractiveCaustics","secondaryMultiplier","secondaryEngine","saturation","contrast","contrastBase","aoOn","aoAmount","aoRadius","aoSubdivs",
         "giRayDistOn","giRayDist","causticsOn","causticsMultiplier","causticsSearchDistance","causticsMaxPhotons","causticsMaxDensity","minShadeRate"]
-        for attr in attrCheck:
+        for attr in attr_check:
             remove_attr_List.remove(attr)
-        vraySettingsOverides = ATTR_OVERRIDES_CLASS(render_layers,object_type,remove_attr_List,attr_overrides_DIC,object_label,object_check)
-        vraySettingsOverrideDic = vraySettingsOverides.attr_override_detect()
+        vray_settings_overrides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
+        self.attr_override_detect(object_label)
 
-        return(vraySettingsOverrideDic)
+        return(vray_settings_overrides_dic)
 
-    def objsInRenderLayer(object_check,renderLayer):
-        obsInLayerDic = {}
-        for rl in render_layers:
-            obsInLayer = cmds.editRenderLayerMembers(rl, query = True) or []
-            for obj in object_check:
-                for obs in obsInLayer:
-                    if obj == obs:
-                        obsIlaySTRING = obj + "_" + rl
-                        obsInLayerDic[obsIlaySTRING] = rl
+    def objects_in_render_layer(self):
+        object_in_layer_dic = {}
+        for render_layer in self.render_layers:
+            objects_in_layer = cmds.editRenderLayerMembers(render_layer, query = True) or []
+            for object in self.object_check:
+                for objects in objects_in_layer:
+                    if object == objects:
+                        object_layer_string = object + "_" + render_layer
+                        object_in_layer_dic[object_layer_string] = render_layer
 
-        return(obsInLayerDic)
+        return(object_in_layer_dic)
 
-    def Render_stat_Overides(object_check_g, render_layers):
-        RenderStatOverrideDic = {}
-        excludeList = ["camera","ambientLight","directionalLight","pointLight","spotLight","areaLight","volumeLight","VRayLightSphereShape","VRayLightRectShape","VRayLightDomeShape","VRayLightIESShape"]
-        siz = len(object_check_g)
-        l = 0
-        while l < siz:
-            for object in object_check_g:
-                objectT = cmds.objectType(object)
-                for excld in excludeList:
-                    if excld == objectT:
-                        object_check_g.remove(object)
-            l = l + 1
-        for object in object_check_g:
+    def render_stat_overrides(self):
+        render_stat_override_dic = {}
+        exclude_list = ["camera","ambientLight","directionalLight","pointLight","spotLight","areaLight","volumeLight","VRayLightSphereShape","VRayLightRectShape","VRayLightDomeShape","VRayLightIESShape"]
+        siz = len(self.object_check_g)
+        render_layer = 0
+        while render_layer < siz:
+            for object in self.object_check_g:
+                object_type = cmds.objectType(object)
+                for exclude_node in exclude_list:
+                    if exclude_node == object_type:
+                        self.object_check_g.remove(object)
+            render_layer = render_layer + 1
+        for object in self.object_check_g:
             object_type = cmds.objectType(object)
             if object_type != "locator":
                 Render_Stat_List = ["castsShadows","receiveShadows","motionBlur","primaryVisibility","smoothShading","visibleInReflections","visibleInRefractions","doubleSided"]
-                for rsl in Render_Stat_List:
-                    attr_string = object + "." + rsl
+                for render_stat in Render_Stat_List:
+                    attr_string = object + "." + render_stat
                     cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
-                    defValue = cmds.getAttr(attr_string)
-                    for rl in render_layers:
-                        if rl != "defaultRenderLayer":
-                            cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-                            layValue = cmds.getAttr(attr_string)
-                            if layValue != defValue:
-                                dicString = object + "**" + "renderStats" + "**" +  rsl + "**" + rl
-                                RenderStatOverrideDic[dicString] = layValue
-            return(RenderStatOverrideDic)
+                    value_default = cmds.getAttr(attr_string)
+                    for render_layer in self.render_layers:
+                        if render_layer != "defaultRenderLayer":
+                            cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                            value = cmds.getAttr(attr_string)
+                            if value != value_default:
+                                dic_string = object + "**" + "render_stats" + "**" +  render_stat + "**" + render_layer
+                                render_stat_override_dic[dic_string] = value
+            return(render_stat_override_dic)
 
-    def vrayObjectPropO(render_layers):
-        VrayObjectProps = cmds.ls(type = "VRayObjectProperties")
-        vrayObjectPropertyOvrideDIC = {}
-        Object_Props = ["overrideMBSamples","mbSamples","objectIDEnabled","objectID","skipExportEnabled","skipExport","ignore",
+    def vray_object_prop_overrides(self):
+        vray_object_props = cmds.ls(type = "VRayObjectProperties")
+        vray_object_property_overrides_dic = {}
+        object_props = ["overrideMBSamples","mbSamples","objectIDEnabled","objectID","skipExportEnabled","skipExport","ignore",
         "useIrradianceMap","generateGI","generateGIMultiplier","receiveGI","receiveGIMultiplier","giSubdivsMultiplier","giSubdivsMultiplier","generateCaustics",
         "receiveCaustics","causticsMultiplier","giVisibility","primaryVisibility","reflectionVisibility","refractionVisibility","shadowVisibility","receiveShadows","matteSurface",
         "alphaContribution","generateRenderElements","shadows","affectAlpha","shadowTintColor","shadowBrightness","reflectionAmount","refractionAmount","giAmount","noGIOnOtherMattes",
         "matteForSecondaryRays","giSurfaceID","useReflectionExclude","reflectionListIsInclusive","useRefractionExclude","refractionListIsInclusive","blackBox",
         "rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType"]
-        for vop in VrayObjectProps:
-            for op in Object_Props:
+        for vray_object_prop in vray_object_props:
+            for op in object_props:
                 cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
-                valString = vop + "." + op
-                defVal = cmds.getAttr(valString)
-                for rl in render_layers:
-                    if rl != "defaultRenderLayer":
-                        cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-                        oVal = cmds.getAttr(valString)
-                        if oVal != defVal:
-                            dicString = vop + "**" + "vrayObjProp" + "**" + op + "**" + rl
-                            vrayObjectPropertyOvrideDIC[dicString] = oVal
-        return(vrayObjectPropertyOvrideDIC)
+                value_string = vray_object_prop + "." + op
+                value_default = cmds.getAttr(value_string)
+                for render_layer in self.render_layers:
+                    if render_layer != "defaultRenderLayer":
+                        cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                        value = cmds.getAttr(value_string)
+                        if value != value_default:
+                            dic_string = vray_object_prop + "**" + "vrayObjProp" + "**" + op + "**" + render_layer
+                            vray_object_property_overrides_dic[dic_string] = value
+        return(vray_object_property_overrides_dic)
 
-    vraySettingsOverrideDic = {}
-    transform_layer_overrides = {}
-    matAssignmentLayOveridesmatAssignmentLayOverides = {}
-    materialsOverideDIC = {}
-    cameraOveridesDIC = {}
-    lightOveridesDIC = {}
-    Render_Stats_Overides = {}
-    vrayObjectPropertyOverides = {}
+    def rebuild_selected_layer(self):
+        rebuild_selected_layer = 1
+        self.rebuild_layers(rebuild_selected_layer)
 
-    VScount = 1
-    Tcount = 1
-    Mcount = 1
-    Ccount = 1
-    Lcount = 1
-    Rcount = 1
-    VPcount = 1
+    def rebuild_all_layers(self):
+        rebuild_selected_layer = 0
+        self.rebuild_layers(rebuild_selected_layer)
 
-    if VScount == 1:
-        vraySettingsOverrideDic = vraySettingsOverides(object_check,render_layers)
-    if Tcount == 1:
-        OBJ_1_translations = translations(object_check, render_layers)
-        transform_layer_overrides = OBJ_1_translations[5]
-    if Mcount == 1:
-        OBJ_1_materialsAssignments = material_assignments(object_check, render_layers)
-        matAssignmentLayOverides = OBJ_1_materialsAssignments[4]
-
-        materialsOverideDIC = material_overrides(object_check,render_layers)
-        materialsOverideDIC.update(matAssignmentLayOverides)
-    if Ccount == 1:
-        cameraOveridesDIC = cameraOverides(object_check,render_layers)
-    if Lcount == 1:
-        lightOveridesDIC = lightOverides(object_check,render_layers)
-    if Rcount == 1:
-        OBJ_1_Render_Stats = Render_stat_Overides(object_check_g, render_layers)
-        Render_Stats_Overides = OBJ_1_Render_Stats
-    if VPcount == 1:
-        OBJ_1_VrayObjectProps = vrayObjectPropO(render_layers)
-        vrayObjectPropertyOverides = OBJ_1_VrayObjectProps
-
-    return(vraySettingsOverrideDic,transform_layer_overrides,materialsOverideDIC,lightOveridesDIC,Render_Stats_Overides,vrayObjectPropertyOverides,cameraOveridesDIC)
-
-
-#--- overide section over ----
-
-def activeBut(rl,check,buttSize_Add_Obj,butts,ButtSizeAdj,butts_addOBJ,buttSize_Add_Obj_adj,butts_delOBJ,buttSize_del_OBJ,buttSize_del_Obj_adj,butts_addOBJ_ALL,butts_delOBJ_ALL,*args):
-    global initialLayer
-    initialLayer = rl
-    cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
-    pressed = butts[ButtSizeAdj]
-    pressed_action = "defaultRenderLayer"
-
-    if rl != "defaultRenderLayer":
-        pressed_addObbj = butts_addOBJ[buttSize_Add_Obj_adj]
-        pressed_delOBJ = butts_delOBJ[buttSize_del_Obj_adj]
-
-    for bu in butts:
-        if bu == pressed:
-            cmds.button(bu,bgc = (.5,.8,1), edit = True)
-        else:
-            cmds.button(bu,bgc = (.25,.25,.25), edit = True)
-
-    for but in butts_addOBJ:
-        if pressed_action != rl:
-            cmds.button(but,bgc = (.4,.4,.4),label = " add selection",edit = True)
-        else:
-            cmds.button(but,bgc = (.2,.2,.2), label = "object in layer",edit = True)
-
-    for but in butts_addOBJ_ALL:
-        if pressed_action != rl:
-            cmds.button(but,bgc = (.4,.4,.4),label = " add selection -all layers",edit = True)
-        else:
-            cmds.button(but,bgc = (.2,.2,.2), label = "object in layer",edit = True)
-
-    for but in butts_delOBJ:
-        if pressed_action != rl:
-            cmds.button(but,bgc = (.4,.4,.4),label = " remove selection",edit = True)
-        else:
-            cmds.button(but,bgc = (.2,.2,.2),label = "can not remove",edit = True)
-
-    for but in butts_delOBJ_ALL:
-        if pressed_action != rl:
-            cmds.button(but,bgc = (.4,.4,.4),label = "remove selection -all layers",edit = True)
-        else:
-            cmds.button(but,bgc = (.2,.2,.2),label = "can not remove",edit = True)
-
-
-def OBpress(O_but,render_layers,txtFieldList,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,*args):
-    overidesDic = overides_information_function(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut)
-    vraySettingOVeride = overidesDic[0] or []
-    transformsOVeride = overidesDic[1] or []
-    materialsOVeride = overidesDic[2] or []
-    lightsOVeride = overidesDic[3] or []
-    renderStatsOVeride = overidesDic[4] or []
-    vrayObjectPropertiesOVeride = overidesDic[5] or []
-    cameraOVeride = overidesDic[6] or []
-    VScount = cmds.checkBox(vraySetBut,value = True,query = True)
-    Tcount = cmds.checkBox(transformObut,value = True,query = True)
-    Mcount = cmds.checkBox(materialsObut,value = True,query = True)
-    Ccount = cmds.checkBox(cameraObut,value = True,query = True)
-    Lcount = cmds.checkBox(lightObut,value = True,query = True)
-    Rcount = cmds.checkBox(renderStatsObut,value = True,query = True)
-    VPcount = cmds.checkBox(vrayObjectPropertiesObut,value = True,query = True)
-    if VScount == 0:
-        vraySettingOVeride = ""
-    if Tcount == 0:
-        transformsOVeride = ""
-    if Mcount == 0:
-        materialsOVeride = ""
-    if Ccount == 0:
-        cameraOVeride = ""
-    if Lcount == 0:
-        lightsOVeride = ""
-    if Rcount == 0:
-        renderStatsOVeride = ""
-    if VPcount == 0:
-        vrayObjectPropertiesOVeride = ""
-    for render_layer in render_layers:
-        vraySettingOVerideL = []
-        vraySettingOVerideLstr = ""
-        transformsOVerideL = []
-        transformsOVerideLstr = ""
-        materialsOVerideL = []
-        materialsOVerideLstr = ""
-        cameraOVerideL= []
-        cameraOVerideLstr = ""
-        lightsOVerideL= []
-        lightsOVerideLstr = ""
-        renderStatsOVerideL = []
-        renderStatsOVerideLstr = ""
-        vrayObjectPropertiesOVerideL = []
-        vrayObjectPropertiesOVerideLstr = ""
-        vraySettingOVerideVal = 0
-        transformsOVerideVal = 0
-        materialsOVerideVal = 0
-        cameraOVerideVal = 0
-        lightsOVerideVal = 0
-        renderStatsOVerideVal = 0
-        vrayObjectPropertiesOVerideVal = 0
-        vraySettingOVerideLstrALL = []
-        transformsOVerideLstrALL = []
-        materialsOVerideLstrALL = []
-        cameraOVerideLstrALL = []
-        lightsOVerideLstrALL = []
-        renderStatsOVerideLstrALL = []
-        vrayObjectPropertiesOVerideLstrALL = []
-        for vso in vraySettingOVeride:
-            vsoSplit = vso.split("**")
-            match = vsoSplit[1]
-            match = match[:-1]
-            if render_layer  == match:
-                vraySettingOVerideVal = vraySettingOVeride[vso]
-                vraySettingOVerideVal = str(vraySettingOVerideVal) + " "
-                splt = vso.split("**")
-                vso = splt[0]
-                vso = vso + ": " + vraySettingOVerideVal + ", "
-                vso = vso.replace(".:",":")
-                vraySettingOVerideLstrALL.append(vso)
-        for to in transformsOVeride:
-            toSplit = to.split("$")
-            match = toSplit[2]
-            if render_layer == match:
-                transformsOVerideVal = transformsOVeride[to]
-                transformsOVerideVal = str(transformsOVerideVal) + " "
-                toS = to.split("$")
-                to = toS[1] + "." + toS[3]
-                to = to + ": " + transformsOVerideVal + ", "
-                transformsOVerideLstrALL.append(to)
-        for mo in materialsOVeride:
-            if "materialAssignment" in mo:
-                materialsOVerideVal = materialsOVeride[mo]
-                materialsOVerideVal = str(materialsOVerideVal) + " "
-                moS = mo.split("$")
-                mo = moS[1] + moS[2]
-                mo = mo + ": " + materialsOVerideVal + ", "
-                if mo not in materialsOVerideLstrALL:
-                    materialsOVerideLstrALL.append(mo)
-            else:
-                moSplit = mo.split("**")
-                match = moSplit[1]
-                match = match[:-1]
-                if render_layer == match:
-                    materialsOVerideVal = materialsOVeride[mo]
-                    materialsOVerideVal = str(materialsOVerideVal) + " "
-                    splt = mo.split("**")
-                    mo = splt[0]
-                    mo = mo + ": " + materialsOVerideVal + ", "
-                    mo = mo.replace(".:",":")
-                    materialsOVerideLstrALL.append(mo)
-        for co in cameraOVeride:
-            coSplit = co.split("**")
-            match = coSplit[1]
-            match = match[:-1]
-            if render_layer == match:
-                cameraOVerideVal = cameraOVeride[co]
-                cameraOVerideVal = str(cameraOVerideVal) + " "
-                splt = co.split("**")
-                co = splt[0]
-                co = co + ": " + cameraOVerideVal + ", "
-                co = co.replace(".:",":")
-                cameraOVerideLstrALL.append(co)
-        for lo in lightsOVeride:
-            loSplit = lo.split("**")
-            match = loSplit[1]
-            match = match[:-1]
-            if render_layer == match:
-                lightsOVerideVal = lightsOVeride[lo]
-                lightsOVerideVal = str(lightsOVerideVal) + " "
-                splt = lo.split("**")
-                lo = splt[0]
-                lo = lo + ": " + lightsOVerideVal + ", "
-                lo = lo.replace(".:",":")
-                lightsOVerideLstrALL.append(lo)
-        for rso in renderStatsOVeride:
-            rsoSplit = rso.split("**")
-            match = rsoSplit[3]
-            if render_layer == match:
-                renderStatsOVerideVal = renderStatsOVeride[rso]
-                renderStatsOVerideVal = str(renderStatsOVerideVal) + " "
-                rsoS = rso.split("**")
-                rso = rsoS[0] + "." + rsoS[2]
-                rso = rso + ": " + renderStatsOVerideVal + ", "
-                renderStatsOVerideLstrALL.append(rso)
-        for vpo in vrayObjectPropertiesOVeride:
-            vpoSplit = vpo.split("**")
-            match = vpoSplit[3]
-            if render_layer == match:
-                vrayObjectPropertiesOVerideVal = vrayObjectPropertiesOVeride[vpo]
-                vrayObjectPropertiesOVerideVal = str(vrayObjectPropertiesOVerideVal) + " "
-                vpoS = vpo.split("**")
-                vpo = vpoS[1]+ "." + vpoS[2]
-                vpo = vpo + ": " + vrayObjectPropertiesOVerideVal + ", "
-                vrayObjectPropertiesOVerideLstrALL.append(vpo)
-        overidesDicCombo = vraySettingOVerideLstrALL + transformsOVerideLstrALL + materialsOVerideLstrALL + cameraOVerideLstrALL + lightsOVerideLstrALL + renderStatsOVerideLstrALL + vrayObjectPropertiesOVerideLstrALL
-        odcALL = []
-        oddStrCombo = ""
-        for txtF in txtFieldList:
-            txtFsplit = txtF.split("|")
-            matchSplit = txtFsplit[2]
-            if render_layer == matchSplit:
-                for odc in overidesDicCombo:
-                    oddStrCombo = oddStrCombo + " " + odc
-                cmds.textField(txtF, text = oddStrCombo, edit = True)
-
-def camAnalize():
-    camRenDic = {}
-    render_layers = cmds.ls(type = "renderLayer")
-    camList = cmds.ls(type = "camera")
-    camList.append("none")
-    camListOn = []
-
-    for rl in render_layers:
-        cmds.editRenderLayerGlobals(currentRenderLayer = rl)
-        for camm in camList:
-            if camm != "none":
-                name = camm + ".renderable"
-                state = cmds.getAttr(name)
-                if state == 1:
-                    camListOn.append(camm)
-                    camRenDicSTR = rl + "_" + camm
-                    camRenDic[camRenDicSTR] = (camm + "_" + rl)
-    return(camRenDic,camList)
-
-def copyOneLayer(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,*args):
-    copyAllLay = "A"
-    copyLayers(render_layers,vraySetBut,transformObut,materialsObut,cameraObut,lightObut,renderStatsObut,vrayObjectPropertiesObut,materials,copyAllLay)
-
-def copyAllLayers(render_layers,materials,*args):
-    copyAllLay = "B"
-    copyLayers(render_layers,materials,copyAllLay)
-
-def copyLayers(render_layers,materials,copyAllLay,*args):
-    activeLayers = []
-    unlockNodes()
-    #panels = cmds.getPanel( type = "modelPanel" )
-    for mPanel in self.panels:
-        cmds.modelEditor(mPanel, edit = True, allObjects = 0)
-    initialLayer = cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
-    startLayer = initialLayer
-    if copyAllLay == "A":
-        activeLayers.append(startLayer)
-    if copyAllLay == "B":
-        activeLayers = render_layers
-    object_checkCL_g = cmds.ls(g = True)
-    object_checkCL_t = cmds.ls(type = "transform")
-    object_checkCL_cam = cmds.ls(type = "camera")
-    object_checkCL = object_check_g + object_check_t + object_check_cam
-    light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
-    overides = overides_information_function(render_layers)
-    VrayObjectProps = cmds.ls(type = "VRayObjectProperties")
-    renderStats = ["castsShadows","receiveShadows","motionBlur","primaryVisibility","smoothShading","visibleInReflections","visibleInRefractions"]
-    vraySettings = cmds.listAttr("vraySettings")
-    vraySettingsO =  overides[0] or []
-    transformO = overides[1] or []
-    materialO = overides[2] or []
-    cameraO = overides[6] or []
-    lightO = overides[3] or []
-    renderStatsO = overides[4] or []
-    vrayObjPropsO = overides[5] or []
-    for render_layerl in activeLayers:
-        if render_layerl != "defaultRenderLayer":
-            obsInLay = cmds.editRenderLayerMembers( render_layerl, fn = True,query=True ) or []
-            obsVizDic = {}
-            for obCL in object_checkCL:
-                visibility_example = cmds.attributeQuery("visibility",node = obCL,exists = True)
-                if visibility_example == 1:
-                    cmds.editRenderLayerGlobals(currentRenderLayer = render_layerl)
-                    vizString = (obCL + ".visibility")
-                    visState = cmds.getAttr(vizString)
-                    strKey = (obCL + "%" + str(visState))
-                    obsVizDic[strKey] = visState
-            cmds.createRenderLayer(obsInLay, name = (render_layerl + "_copy"))
-            cmds.editRenderLayerGlobals(currentRenderLayer = (render_layerl + "_copy"))
-            cmds.rename(render_layerl,("**_" + render_layerl + "_old"))
-            cmds.rename((render_layerl + "_copy"),render_layerl)
-            for objL in obsInLay:
-                cmds.editRenderLayerMembers((render_layerl),objL)
-            for ob in object_check:
-                for obvd in obsVizDic:
-                     obvdSP = obvd.split("%")
-                     if obvdSP[0] == ob:
-                         if obvdSP[1] == "True":
-                            ste = 1
-                         if obvdSP[1] == "False":
-                            ste = 0
-                         nodeTY = cmds.nodeType(obvdSP[0])
-                         if nodeTY != "camera":
-                             lockState = cmds.lockNode(obvdSP[0],lock = True, query = True)
-                             lockState = lockState[0]
-                             if lockState == 0:
-                                 cmds.setAttr((obvdSP[0] + ".visibility"),ste)
-            for tfo in transformO:
-                tfoSP = tfo.split("$")
-                layer = tfoSP[2]
-                for ob in object_check:
-                    if ob == tfoSP[1]:
-                        if layer == render_layerl:
-                            val = transformO[tfo]
-                            if "translate" in tfoSP[3]:
-                                cmds.editRenderLayerAdjustment(ob + ".translate")
-                                cmds.setAttr((ob + "." + tfoSP[3]),val)
-                            if "rotate" in tfoSP[3]:
-                                cmds.editRenderLayerAdjustment(ob + ".rotate")
-                                cmds.setAttr((ob + "." + tfoSP[3]),val)
-                            if "scale" in tfoSP[3]:
-                                cmds.editRenderLayerAdjustment(ob + ".scale")
-                                cmds.setAttr((ob + "." + tfoSP[3]),val)
-            for lo in lightO:
-                rr_found = 0
-                if "rampRemoved" in lo or "rampMismatch" in lo:
-                    rr_found = 1
-                loOrig = lo
-                loSP = lo.split("**")
-                lo = loSP[0]
-                layer = loSP[1]
-                layer = layer[:-1]
-                loSP = lo.split("*")
-                lo = loSP[1]
-                loOBsp = lo.split(".")
-                for ob in object_check:
-                    if "spotLight" in ob or "ambientLight" in ob or "directionalLight" in ob or "pointLight" in ob:
-                        kid = cmds.listRelatives(ob,children = True)
-                        ob = kid[0]
-                    if ob == loOBsp[0]:
-                        if layer == render_layerl:
-                            val = lightO[loOrig]
-                            typ = type(val)
-                            kindLS = type(val) is list
-                            kindInt = type(val) is int
-                            kindFL = type(val) is float
-                            kindBoo = type(val) is bool
-                            kindUni = type(val) is unicode
-                            if kindLS == 1:
-                                valsub = val[0]
-                                valA = valsub[0]
-                                valB = valsub[1]
-                                valC = valsub[2]
-                                cmds.editRenderLayerAdjustment(lo)
-                                if rr_found == 1:
-                                    a = 1
-                                    dest_cons = cmds.listConnections(loSP[1], destination = False, plugs = True, connections = True) or []
-                                    dest_cons_size = len(dest_cons)
-                                    while a < dest_cons_size:
-                                        cmds.disconnectAttr(dest_cons[1],dest_cons[0])
-                                        a = a + 1
-                                cmds.setAttr(loSP[1],valA,valB,valC)
-                            if kindFL == 1 or kindInt == 1 or kindBoo == 1:
-                                cmds.editRenderLayerAdjustment(lo)
-                                if rr_found == 1:
-                                    a = 1
-                                    dest_cons = cmds.listConnections(loSP[1], destination = False, plugs = True, connections = True) or []
-                                    dest_cons_size = len(dest_cons)
-                                    while a < dest_cons_size:
-                                        cmds.disconnectAttr(dest_cons[1],dest_cons[0])
-                                        a = a + 1
-                                cmds.setAttr(loSP[1],val)
-                            if kindUni == 1:
-                                cmds.editRenderLayerAdjustment(lo)
-                                if rr_found == 1:
-                                    a = 1
-                                    dest_cons = cmds.listConnections(loSP[1], destination = False, plugs = True, connections = True) or []
-                                    dest_cons_size = len(dest_cons)
-                                    while a < dest_cons_size:
-                                        cmds.disconnectAttr(dest_cons[1],dest_cons[0])
-                                        a = a + 1
-                                if "intensity" in lo or "penumbraAngle" in lo or "dropoff" in lo:
-                                    cmds.connectAttr((val + ".outAlpha"),lo,force = True)
-                                else:
-                                    cmds.connectAttr((val + ".outColor"),lo,force = True)
-            for mo in materialO:
-                if "mtlOveride_overide" in mo:
-                    rr_found = 0
-                    if "rampRemoved" in mo:
-                        rr_found = 1
-                    moOrig = mo
-                    moSPL = mo.split("**")
-                    layer = moSPL[1]
+    def rebuild_layers(self,rebuild_selected_layer):
+        active_layers = []
+        self.unlock_cameras()
+        for mPanel in self.panels:
+            cmds.modelEditor(mPanel, edit = True, allObjects = 0)
+        start_layer = self.initial_layer
+        if rebuild_selected_layer == 1:
+            active_layers.append(start_layer)
+        if rebuild_selected_layer == 0:
+            active_layers = self.render_layers
+        object_check = self.object_check_g + self.object_check_transform + self.object_check_cameras
+        light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
+        overrides = self.overides_information_function()
+        vray_object_props = cmds.ls(type = "VRayObjectProperties")
+        render_stats = ["castsShadows","receiveShadows","motionBlur","primaryVisibility","smoothShading","visibleInReflections","visibleInRefractions"]
+        vraySettings = cmds.listAttr("vraySettings")
+        vraySettings_overrides =  overrides[0] or []
+        transform_overrides = overrides[1] or []
+        material_overrides = overrides[2] or []
+        #print 'material_overrides = ',material_overrides
+        camera_overrides = overrides[6] or []
+        light_overrides = overrides[3] or []
+        render_stats_overrides = overrides[4] or []
+        vray_object_prop_overrides = overrides[5] or []
+        for render_layer in active_layers:
+            if render_layer != "defaultRenderLayer":
+                objects_in_layer = cmds.editRenderLayerMembers( render_layer, fn = True,query=True ) or []
+                objects_visibility_dic = {}
+                for object in object_check:
+                    visibility_example = cmds.attributeQuery("visibility",node = object,exists = True)
+                    if visibility_example == 1:
+                        cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                        visibility_string = (object + ".visibility")
+                        visibility_state = cmds.getAttr(visibility_string)
+                        string_key = (object + "%" + str(visibility_state))
+                        objects_visibility_dic[string_key] = visibility_state
+                cmds.createRenderLayer(objects_in_layer, name = (render_layer + "_copy"))
+                cmds.editRenderLayerGlobals(currentRenderLayer = (render_layer + "_copy"))
+                cmds.rename(render_layer,("**_" + render_layer + "_old"))
+                cmds.rename((render_layer + "_copy"),render_layer)
+                for object_in_layer in objects_in_layer:
+                    cmds.editRenderLayerMembers((render_layer),object_in_layer)
+                for object in self.object_check:
+                    for object_visibility_dic in objects_visibility_dic:
+                         object_visibility_dic_split = object_visibility_dic.split("%")
+                         if object_visibility_dic_split[0] == object:
+                             if object_visibility_dic_split[1] == "True":
+                                ste = 1
+                             if object_visibility_dic_split[1] == "False":
+                                ste = 0
+                             node_type = cmds.nodeType(object_visibility_dic_split[0])
+                             if node_type != "camera":
+                                 lock_state = cmds.lockNode(object_visibility_dic_split[0],lock = True, query = True)
+                                 lock_state = lock_state[0]
+                                 if lock_state == 0:
+                                     cmds.setAttr((object_visibility_dic_split[0] + ".visibility"),ste)
+                for transform_override in transform_overrides:
+                    transform_override_split = transform_override.split("$")
+                    layer = transform_override_split[2]
+                    for object in self.object_check:
+                        if object == transform_override_split[1]:
+                            if layer == render_layer:
+                                value = transform_overrides[transform_override]
+                                if "translate" in transform_override_split[3]:
+                                    cmds.editRenderLayerAdjustment(object + ".translate")
+                                    cmds.setAttr((object + "." + transform_override_split[3]),value)
+                                if "rotate" in transform_override_split[3]:
+                                    cmds.editRenderLayerAdjustment(object + ".rotate")
+                                    cmds.setAttr((object + "." + transform_override_split[3]),value)
+                                if "scale" in transform_override_split[3]:
+                                    cmds.editRenderLayerAdjustment(object + ".scale")
+                                    cmds.setAttr((object + "." + transform_override_split[3]),value)
+                for lo in light_overrides:
+                    #print 'lo = ',lo
+                    ramp_removed_found = 0
+                    if "rampRemoved" in lo or "rampMismatch" in lo:
+                        ramp_removed_found = 1
+                    #print 'ramp_removed_found = ',ramp_removed_found
+                    light_override_original = lo
+                    light_override_original_split = lo.split("**")
+                    lo = light_override_original_split[0]
+                    layer = light_override_original_split[1]
                     layer = layer[:-1]
-                    moSP = mo.split("*")
-                    mo = moSP[1]
-                    moOBsp = mo.split(".")
-                    for mats in materials:
-                        if mats == moOBsp[0]:
-                            if layer == render_layerl:
-                                val = materialO[moOrig]
-                                typ = type(val)
-                                kindLS = type(val) is list
-                                kindInt = type(val) is int
-                                kindFL = type(val) is float
-                                kindBoo = type(val) is bool
-                                kindUni = type(val) is unicode
-                                if kindLS == 1:
-                                    valsub = val[0]
-                                    valA = valsub[0]
-                                    valB = valsub[1]
-                                    valC = valsub[2]
-                                    cmds.editRenderLayerAdjustment(mo)
-                                    if rr_found == 1:
+                    light_override_original_split = lo.split("*")
+                    lo = light_override_original_split[1]
+                    light_override_object_split = lo.split(".")
+                    for object in self.object_check:
+                        if "spotLight" in object or "ambientLight" in object or "directionalLight" in object or "pointLight" in object:
+                            kid = cmds.listRelatives(object,children = True)
+                            object = kid[0]
+                        if object == light_override_object_split[0]:
+                            if layer == render_layer:
+                                value = light_overrides[light_override_original]
+                                typ = type(value)
+                                kind_list = type(value) is list
+                                kind_int = type(value) is int
+                                kind_float = type(value) is float
+                                kind_bool = type(value) is bool
+                                kind_unicode = type(value) is unicode
+                                if kind_list == 1:
+                                    value_sub = value[0]
+                                    value_a = value_sub[0]
+                                    value_b = value_sub[1]
+                                    value_c = value_sub[2]
+                                    cmds.editRenderLayerAdjustment(lo)
+                                    if ramp_removed_found == 1:
                                         a = 1
-                                        dest_cons = cmds.listConnections(moSP[1], destination = False, plugs = True, connections = True) or []
-                                        dest_cons_size = len(dest_cons)
-                                        while a < dest_cons_size:
-                                            cmds.disconnectAttr(dest_cons[1],dest_cons[0])
+                                        destination_connections = cmds.listConnections(light_override_original_split[1], destination = False, plugs = True, connections = True) or []
+                                        destination_connections_size = len(destination_connections)
+                                        while a < destination_connections_size:
+                                            cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                             a = a + 1
-                                    cmds.setAttr(moSP[1],valA,valB,valC)
-                                if kindFL == 1 or kindInt == 1 or kindBoo == 1:
-                                    cmds.editRenderLayerAdjustment(mo,layer = render_layerl)
-                                    if rr_found == 1:
+                                    #print 'object = ',object
+                                    #print 'typ = ',typ
+                                    #print 'kind_list = ',kind_list
+                                    #print 'light_override_original_split[1] = ',light_override_original_split[1]
+                                    #print 'value_a = ',value_a
+                                    #print 'value_b = ',value_b
+                                    #print 'value_c = ',value_c
+                                    check_for_rectText_split = light_override_original_split[1].split('.')
+                                    #print 'check_for_rectText_split = ',check_for_rectText_split
+                                    check_for_rectText = check_for_rectText_split[1]
+                                    #print 'check_for_rectText = ',check_for_rectText
+                                    if ramp_removed_found == 0:
+                                        if check_for_rectText != 'rectTex':
+                                            #print 'executing setAttr'
+                                            cmds.setAttr(light_override_original_split[1],value_a,value_b,value_c)
+                                if kind_float == 1 or kind_int == 1 or kind_bool == 1:
+                                    cmds.editRenderLayerAdjustment(lo)
+                                    if ramp_removed_found == 1:
                                         a = 1
-                                        dest_cons = cmds.listConnections(moSP[1], destination = False, plugs = True, connections = True) or []
-                                        dest_cons_size = len(dest_cons)
-                                        while a < dest_cons_size:
-                                            cmds.disconnectAttr(dest_cons[1],dest_cons[0])
+                                        destination_connections = cmds.listConnections(light_override_original_split[1], destination = False, plugs = True, connections = True) or []
+                                        destination_connections_size = len(destination_connections)
+                                        while a < destination_connections_size:
+                                            cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                             a = a + 1
-                                    cmds.setAttr(moSP[1],val)
-                                if kindUni == 1:
-                                    cmds.editRenderLayerAdjustment(mo)
-                                    if rr_found == 1:
+                                    cmds.setAttr(light_override_original_split[1],value)
+                                if kind_unicode == 1:
+                                    cmds.editRenderLayerAdjustment(lo)
+                                    if ramp_removed_found == 1:
                                         a = 1
-                                        dest_cons = cmds.listConnections(moSP[1], destination = False, plugs = True, connections = True) or []
-                                        dest_cons_size = len(dest_cons)
-                                        while a < dest_cons_size:
-                                            cmds.disconnectAttr(dest_cons[1],dest_cons[0])
+                                        destination_connections = cmds.listConnections(light_override_original_split[1], destination = False, plugs = True, connections = True) or []
+                                        destination_connections_size = len(destination_connections)
+                                        while a < destination_connections_size:
+                                            cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                             a = a + 1
-                                    cmds.connectAttr((val + ".outColor"),mo,force = True)
-                if "materialAssignment" in mo:
-                    moOrig = mo
-                    moSP = mo.split("$")
-                    layer = moSP[1]
-                    mo = moSP[2]
-                    moAo = moSP[0]
-                    for mats in materials:
-                        if mats == moSP[0]:
-                            if layer == render_layerl:
-                                val = materialO[moOrig]
-                                typ = type(val)
-                                cmds.select(moAo)
-                                cmds.hyperShade(assign = val)
-            for rs in renderStatsO:
-                rsOrig = rs
-                rsSP = rs.split("**")
-                layer = rsSP[3]
-                rs = rsSP[0]
-                rsB = rsSP[2]
-                rsAttr = rsB
-                rs = rs + "." + rsB
-                for rS in renderStats:
-                    if rsAttr == rS:
-                        if layer == render_layerl:
-                            val = renderStatsO[rsOrig]
-                            typ = type(val)
-                            kindLS = type(val) is list
-                            kindInt = type(val) is int
-                            kindFL = type(val) is float
-                            kindBoo = type(val) is bool
-                            kindUni = type(val) is unicode
-                            if kindLS == 1:
-                                valsub = val[0]
-                                valA = valsub[0]
-                                valB = valsub[1]
-                                valC = valsub[2]
-                                cmds.editRenderLayerAdjustment(rs)
-                                cmds.setAttr(rs,valA,valB,valC)
-                            if kindFL == 1 or kindInt == 1 or kindBoo == 1:
-                                cmds.editRenderLayerAdjustment(rs)
-                                cmds.setAttr(rs,val)
-                            if kindUni == 1:
-                                cmds.editRenderLayerAdjustment(rs)
-                                cmds.connectAttr((val + ".outColor"),rs,force = True)
-            for vrp in vrayObjPropsO:
-                vrpOrig = vrp
-                vrpSP = vrp.split("**")
-                layer = vrpSP[3]
-                vrp = vrpSP[0]
-                vrpFull = vrp + "." + vrpSP[2]
-                for vrpB in VrayObjectProps:
-                    if vrp == vrpB:
-                        if layer == render_layerl:
-                            val = vrayObjPropsO[vrpOrig]
-                            typ = type(val)
-                            kindLS = type(val) is list
-                            kindInt = type(val) is int
-                            kindFL = type(val) is float
-                            kindBoo = type(val) is bool
-                            kindUni = type(val) is unicode
-                            if kindLS == 1:
-                                valsub = val[0]
-                                valA = valsub[0]
-                                valB = valsub[1]
-                                valC = valsub[2]
-                                cmds.editRenderLayerAdjustment(vrpFull)
-                                cmds.setAttr(vrpFull,valA,valB,valC)
-                            if kindFL == 1 or kindInt == 1 or kindBoo == 1:
-                                cmds.editRenderLayerAdjustment(vrpFull)
-                                cmds.setAttr(vrpFull,val)
-                            if kindUni == 1:
-                                cmds.editRenderLayerAdjustment(vrpFull)
-                                cmds.connectAttr((val + ".outColor"),vrpFull,force = True)
-            for vrs in vraySettingsO:
-                rr_found = 0
-                if "rampRemoved" in vrs:
-                    rr_found = 1
-                vrsOrig = vrs
-                vrsSP = vrs.split("**")
-                vrs = vrsSP[0]
-                layer = vrsSP[1]
-                layer = layer[:-1]
-                vrsSP = vrs.split("*")
-                vrs = vrsSP[1]
-                vrsFull = vrs
-                for vrsB in vraySettings:
-                    vrsB = "vraySettings." + vrsB
-                    if vrs == vrsB:
-                        if layer == render_layerl:
-                            val = vraySettingsO[vrsOrig]
-                            typ = type(val)
-                            kindLS = type(val) is list
-                            kindInt = type(val) is int
-                            kindFL = type(val) is float
-                            kindBoo = type(val) is bool
-                            kindUni = type(val) is unicode
-                            if kindLS == 1:
-                                valsub = val[0]
-                                valA = valsub[0]
-                                valB = valsub[1]
-                                valC = valsub[2]
-                                cmds.editRenderLayerAdjustment(vrsFull)
-                                if rr_found == 1:
-                                    a = 1
-                                    dest_cons = cmds.listConnections(vrsSP[1], destination = False, plugs = True, connections = True) or []
-                                    dest_cons_size = len(dest_cons)
-                                    while a < dest_cons_size:
-                                        cmds.disconnectAttr(dest_cons[1],dest_cons[0])
-                                        a = a + 1
-                                cmds.setAttr(vrsFull,valA,valB,valC)
-                            if kindFL == 1 or kindInt == 1 or kindBoo == 1:
-                                cmds.editRenderLayerAdjustment(vrsFull)
-                                if rr_found == 1:
-                                    a = 1
-                                    dest_cons = cmds.listConnections(vrsSP[1], destination = False, plugs = True, connections = True) or []
-                                    dest_cons_size = len(dest_cons)
-                                    while a < dest_cons_size:
-                                        cmds.disconnectAttr(dest_cons[1],dest_cons[0])
-                                        a = a + 1
-                                cmds.setAttr(vrsFull,val)
-                            if kindUni == 1:
-                                cmds.editRenderLayerAdjustment(vrsFull)
-                                if rr_found == 1:
-                                    a = 1
-                                    dest_cons = cmds.listConnections(vrsSP[1], destination = False, plugs = True, connections = True) or []
-                                    dest_cons_size = len(dest_cons)
-                                    while a < dest_cons_size:
-                                        cmds.disconnectAttr(dest_cons[1],dest_cons[0])
-                                        a = a + 1
-                                cmds.connectAttr((val + ".outColor"),vrsFull, force = True)
-        cmds.editRenderLayerGlobals(currentRenderLayer = initialLayer)
+                                    if "intensity" in lo or "penumbraAngle" in lo or "dropoff" in lo:
+                                        cmds.connectAttr((value + ".outAlpha"),lo,force = True)
+                                    else:
+                                        cmds.connectAttr((value + ".outColor"),lo,force = True)
+                for mo in material_overrides:
+                    print ' '
+                    print ' '
+                    print 'rebuilding layers MO '
+                    print 'mo = ',mo
+                    if "material_overide" in mo:
+                        ramp_removed_found = 0
+                        if "ramp_removed" in mo:
+                            print 'ramp_removed'
+                            ramp_removed_found = 1
+                        mo_original = mo
+                        print 'mo_original = ',mo_original
+                        mo_split = mo.split("**")
+                        print 'mo_split = ',mo_split
+                        layer = mo_split[1]
+                        print '[1] layer = ',layer
+                        layer = layer[:-1]
+                        print 'after :-1 layer = ',layer
+                        mo_split_two = mo.split("*")
+                        mo = mo_split_two[1]
+                        print 'mo = ',mo
+                        mo_object_split = mo.split(".")
+                        for material in self.materials:
+                            print 'material = ',material
+                            if material == mo_object_split[0]:
+                                print 'mo_object_split[0] = ',mo_object_split[0]
+                                print 'layer = ',layer
+                                print 'render_layer = ',render_layer
+                                if layer == render_layer:
+                                    print 'layer = render_layer'
+                                    value = material_overrides[mo_original]
+                                    print 'value = ',value
+                                    typ = type(value)
+                                    print 'typ = ',typ
+                                    kind_list = type(value) is list
+                                    kind_int = type(value) is int
+                                    kind_float = type(value) is float
+                                    kind_bool = type(value) is bool
+                                    kind_unicode = type(value) is unicode
+                                    if kind_list == 1:
+                                        value_sub = value[0]
+                                        value_a = value_sub[0]
+                                        value_b = value_sub[1]
+                                        value_c = value_sub[2]
+                                        cmds.editRenderLayerAdjustment(mo)
+                                        if ramp_removed_found == 1:
+                                            print 'ramp_removed_found = 1'
+                                            a = 1
+                                            destination_connections = cmds.listConnections(mo_split_two[1], destination = False, plugs = True, connections = True) or []
+                                            destination_connections_size = len(destination_connections)
+                                            while a < destination_connections_size:
+                                                cmds.disconnectAttr(destination_connections[1],destination_connections[0])
+                                                a = a + 1
+                                        print 'setting ',mo_split_two[1] + str(value_a) + str(value_b) + str(value_c)
+                                        cmds.setAttr(mo_split_two[1],value_a,value_b,value_c)
+                                    if kind_float == 1 or kind_int == 1 or kind_bool == 1:
+                                        print 'kind = float, int, or bool'
+                                        cmds.editRenderLayerAdjustment(mo,layer = render_layer)
+                                        if ramp_removed_found == 1:
+                                            a = 1
+                                            destination_connections = cmds.listConnections(mo_split_two[1], destination = False, plugs = True, connections = True) or []
+                                            destination_connections_size = len(destination_connections)
+                                            while a < destination_connections_size:
+                                                cmds.disconnectAttr(destination_connections[1],destination_connections[0])
+                                                a = a + 1
+                                        print 'setting ',mo_split_two[1] + str(value)
+                                        cmds.setAttr(mo_split_two[1],value)
+                                    if kind_unicode == 1:
+                                        cmds.editRenderLayerAdjustment(mo)
+                                        if ramp_removed_found == 1:
+                                            a = 1
+                                            destination_connections = cmds.listConnections(mo_split_two[1], destination = False, plugs = True, connections = True) or []
+                                            destination_connections_size = len(destination_connections)
+                                            while a < destination_connections_size:
+                                                cmds.disconnectAttr(destination_connections[1],destination_connections[0])
+                                                a = a + 1
+                                        cmds.connectAttr((value + ".outColor"),mo,force = True)
+                    if "materialAssignment" in mo:
+                        mo_original = mo
+                        mo_split_two = mo.split("$")
+                        layer = mo_split_two[1]
+                        mo = mo_split_two[2]
+                        moAo = mo_split_two[0]
+                        for material in self.materials:
+                            if material == mo_split_two[0]:
+                                if layer == render_layer:
+                                    value = material_overrides[mo_original]
+                                    typ = type(value)
+                                    cmds.select(moAo)
+                                    cmds.hyperShade(assign = value)
+                for rs in render_stats_overrides:
+                    rs_original = rs
+                    rs_split = rs.split("**")
+                    layer = rs_split[3]
+                    rs = rs_split[0]
+                    rs_split_two = rs_split[2]
+                    rs_attr = rs_split_two
+                    rs = rs + "." + rs_split_two
+                    for rS in render_stats:
+                        if rs_attr == rS:
+                            if layer == render_layer:
+                                value = render_stats_overrides[rs_original]
+                                typ = type(value)
+                                kind_list = type(value) is list
+                                kind_int = type(value) is int
+                                kind_float = type(value) is float
+                                kind_bool = type(value) is bool
+                                kind_unicode = type(value) is unicode
+                                if kind_list == 1:
+                                    value_sub = value[0]
+                                    value_a = value_sub[0]
+                                    value_b = value_sub[1]
+                                    value_c = value_sub[2]
+                                    cmds.editRenderLayerAdjustment(rs)
+                                    cmds.setAttr(rs,value_a,value_b,value_c)
+                                if kind_float == 1 or kind_int == 1 or kind_bool == 1:
+                                    cmds.editRenderLayerAdjustment(rs)
+                                    cmds.setAttr(rs,value)
+                                if kind_unicode == 1:
+                                    cmds.editRenderLayerAdjustment(rs)
+                                    cmds.connectAttr((value + ".outColor"),rs,force = True)
+                for vray_object_prop in vray_object_prop_overrides:
+                    vray_object_prop_original = vray_object_prop
+                    vray_object_prop_original_split = vray_object_prop.split("**")
+                    layer = vray_object_prop_original_split[3]
+                    vray_object_prop = vray_object_prop_original_split[0]
+                    vrpFull = vray_object_prop + "." + vray_object_prop_original_split[2]
+                    for vrpB in vray_object_props:
+                        if vray_object_prop == vrpB:
+                            if layer == render_layer:
+                                value = vray_object_prop_overrides[vray_object_prop_original]
+                                typ = type(value)
+                                kind_list = type(value) is list
+                                kind_int = type(value) is int
+                                kind_float = type(value) is float
+                                kind_bool = type(value) is bool
+                                kind_unicode = type(value) is unicode
+                                if kind_list == 1:
+                                    value_sub = value[0]
+                                    value_a = value_sub[0]
+                                    value_b = value_sub[1]
+                                    value_c = value_sub[2]
+                                    cmds.editRenderLayerAdjustment(vrpFull)
+                                    cmds.setAttr(vrpFull,value_a,value_b,value_c)
+                                if kind_float == 1 or kind_int == 1 or kind_bool == 1:
+                                    cmds.editRenderLayerAdjustment(vrpFull)
+                                    cmds.setAttr(vrpFull,value)
+                                if kind_unicode == 1:
+                                    cmds.editRenderLayerAdjustment(vrpFull)
+                                    cmds.connectAttr((value + ".outColor"),vrpFull,force = True)
+                for vray_render_setting in vraySettings_overrides:
+                    ramp_removed_found = 0
+                    if "ramp_removed" in vray_render_setting:
+                        ramp_removed_found = 1
+                    vray_render_setting_original = vray_render_setting
+                    vray_render_setting_split = vray_render_setting.split("**")
+                    vray_render_setting = vray_render_setting_split[0]
+                    layer = vray_render_setting_split[1]
+                    layer = layer[:-1]
+                    vray_render_setting_split = vray_render_setting.split("*")
+                    vray_render_setting = vray_render_setting_split[1]
+                    vray_render_setting_full = vray_render_setting
+                    for vray_render_setting_two in vraySettings:
+                        vray_render_setting_two = "vraySettings." + vray_render_setting_two
+                        if vray_render_setting == vray_render_setting_two:
+                            if layer == render_layer:
+                                value = vraySettings_overrides[vray_render_setting_original]
+                                typ = type(value)
+                                kind_list = type(value) is list
+                                kind_int = type(value) is int
+                                kind_float = type(value) is float
+                                kind_bool = type(value) is bool
+                                kind_unicode = type(value) is unicode
+                                if kind_list == 1:
+                                    value_sub = value[0]
+                                    value_a = value_sub[0]
+                                    value_b = value_sub[1]
+                                    value_c = value_sub[2]
+                                    cmds.editRenderLayerAdjustment(vray_render_setting_full)
+                                    if ramp_removed_found == 1:
+                                        a = 1
+                                        destination_connections = cmds.listConnections(vray_render_setting_split[1], destination = False, plugs = True, connections = True) or []
+                                        destination_connections_size = len(destination_connections)
+                                        while a < destination_connections_size:
+                                            cmds.disconnectAttr(destination_connections[1],destination_connections[0])
+                                            a = a + 1
+                                    cmds.setAttr(vray_render_setting_full,value_a,value_b,value_c)
+                                if kind_float == 1 or kind_int == 1 or kind_bool == 1:
+                                    cmds.editRenderLayerAdjustment(vray_render_setting_full)
+                                    if ramp_removed_found == 1:
+                                        a = 1
+                                        destination_connections = cmds.listConnections(vray_render_setting_split[1], destination = False, plugs = True, connections = True) or []
+                                        destination_connections_size = len(destination_connections)
+                                        while a < destination_connections_size:
+                                            cmds.disconnectAttr(destination_connections[1],destination_connections[0])
+                                            a = a + 1
+                                    cmds.setAttr(vray_render_setting_full,value)
+                                if kind_unicode == 1:
+                                    cmds.editRenderLayerAdjustment(vray_render_setting_full)
+                                    if ramp_removed_found == 1:
+                                        a = 1
+                                        destination_connections = cmds.listConnections(vray_render_setting_split[1], destination = False, plugs = True, connections = True) or []
+                                        destination_connections_size = len(destination_connections)
+                                        while a < destination_connections_size:
+                                            cmds.disconnectAttr(destination_connections[1],destination_connections[0])
+                                            a = a + 1
+                                    cmds.connectAttr((value + ".outColor"),vray_render_setting_full, force = True)
+                for ramp_override in self.ramp_overrides:
+                    #print 'ramp_override = ',ramp_override
+                    ramp_override_split = ramp_override.split('&&')
+                    #print 'ramp_override_split = ',ramp_override_split
+                    ramp_override_layer = ramp_override_split[0]
+                    #print 'ramp_override_layer = ',ramp_override_layer
+                    ramp_override_ramp = ramp_override_split[1]
+                    #print 'ramp_override_ramp = ',ramp_override_ramp
+                    ramp_override_attr = ramp_override_split[2]
+                    #print 'ramp_override_attr = ',ramp_override_attr
+                    ramp_override_value = ramp_override_split[3]
+                    #print 'ramp_override_value = ',ramp_override_value
+                    cmds.editRenderLayerAdjustment(ramp_override_attr)
+                    if ramp_override_layer == render_layer:
+                        override_value_split = ramp_override_value.split(',')
+                        #print 'override_value_split = ',override_value_split
+                        size_of_override_value = len(override_value_split)
+                        if size_of_override_value > 1:
+                            override_value_split[0] = override_value_split[0].replace('(','')
+                            override_value_split[2] = override_value_split[2].replace(')','')
+                            override_value_split[0] = float(override_value_split[0])
+                            override_value_split[1] = float(override_value_split[1])
+                            override_value_split[2] = float(override_value_split[2])
+                            #print 'ramp_override_attr = ',ramp_override_attr
+                            #print 'override_value_split[0] = ',override_value_split[0]
+                            #print 'override_value_split[2] = ',override_value_split[2]
+                            #print 'override_value_split[0] = ',override_value_split[0]
+                            #print 'override_value_split[1] = ',override_value_split[1]
+                            #print 'override_value_split[2] = ',override_value_split[2]
+                            cmds.setAttr(ramp_override_attr,override_value_split[0],override_value_split[1],override_value_split[2], type = 'double3')
+                        if size_of_override_value < 2:
+                            ramp_override_value = float(ramp_override_value)
+                            #print 'ramp_override_attr = ',ramp_override_attr
+                            #print 'ramp_override_value = ',ramp_override_value
+                            cmds.setAttr(ramp_override_attr,ramp_override_value)
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
+        self.fix_cam_layer_assignments()
 
-class LAYERS_WINDOW_TOOL():
-    def __init__(self):
-        chris = ''
-
-    def clear_layout(self, layout):
-        if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.setParent(None)
-                else:
-                    self.clear_layout(item.layout())
-
+#---
     def add_object_to_all_layers(self):
         selected_objects = cmds.ls(sl = True)
         for selected_object in selected_objects:
@@ -1290,11 +1242,12 @@ class LAYERS_WINDOW_TOOL():
                 if render_layer_linked_to_pointer == render_layer:
                     cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
                     for object in selected_objects:
-                        object_visibility_check = cmds.getAttr(object + '.visibility')
-                        if object_visibility_check == 1:
-                            OVL_button.setChecked(False)
-                        else:
-                            OVL_button.setChecked(True)
+                        if cmds.attributeQuery('visibility',node = object,exists = True):
+                            object_visibility_check = cmds.getAttr(object + '.visibility')
+                            if object_visibility_check == 1:
+                                OVL_button.setChecked(False)
+                            else:
+                                OVL_button.setChecked(True)
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
 
     def OIL_toggle_object_in_render_layer(self,OIL_button):
@@ -1352,6 +1305,7 @@ class LAYERS_WINDOW_TOOL():
                         cmds.setAttr(cam + ".renderable",1)
             if render_layer != "defaultRenderLayer":
                 cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                var = 0
                 for cam in camera_list_modified:
                     if "FtTp" in cam or "FtRt" in cam or "FtLt" in cam in cam or "FtLtTp" in cam or "FtRtTp" in cam or "Ft" in cam or "Bk" in cam or "Rt" in cam or "Lt" in cam or "Tp" in cam or "Bt" in cam:
                         var = 0
@@ -1445,6 +1399,7 @@ class LAYERS_WINDOW_TOOL():
 
     def populate_gui(self):
         #print 'populate_gui'
+        self.panels = cmds.getPanel( type = "modelPanel" )
         self.render_layer_camera_comboBox_dic = {}
         self.render_layer_button_pointer_dic = {}
         self.OIL_button_pointer_dic = {}
@@ -1477,7 +1432,6 @@ class LAYERS_WINDOW_TOOL():
             self.vertical_layout.addLayout(self.render_layer_layout)
             button_OIL = QtWidgets.QPushButton('OIL')
             button_OIL.setCheckable(True)
-            #button_OIL.setChecked(True)
             button_OIL.setStyleSheet("QPushButton {background:rgb(120,150,180);} QPushButton::checked{background-color: rgb(40, 40, 40);""border:0px solid rgb(80, 170, 20)};")
             button_OIL.toggle()
             self.OIL_button_pointer_dic[button_OIL] = render_layer
@@ -1485,7 +1439,6 @@ class LAYERS_WINDOW_TOOL():
             self.render_layer_layout.addWidget(button_OIL)
             button_OVL = QtWidgets.QPushButton('OVL')
             button_OVL.setCheckable(True)
-            #button_OVL.setChecked(True)
             button_OVL.setStyleSheet("QPushButton {background:rgb(120,150,180);} QPushButton::checked{background-color: rgb(40, 40, 40);""border:0px solid rgb(80, 170, 20)};")
             button_OVL.toggle()
             self.OVL_button_pointer_dic[button_OVL] = render_layer
@@ -1544,10 +1497,10 @@ class LAYERS_WINDOW_TOOL():
         button_fix_cam_layer_assignments.pressed.connect(partial(self.fix_cam_layer_assignments))
         rebuild_selected_render_layer = QtWidgets.QPushButton('rebuild selected render layer')
         self.layout_bottom.addWidget(rebuild_selected_render_layer)
-        #rebuild_selected_render_layer.pressed.connect(partial(self.rebuild_selected_render_layer))
+        rebuild_selected_render_layer.pressed.connect(partial(self.rebuild_selected_layer))
         rebuild_all_layers = QtWidgets.QPushButton('rebuild all render layers')
         self.layout_bottom.addWidget(rebuild_all_layers)
-        #rebuild_selected_render_layer.pressed.connect(partial(self.rebuild_selected_render_layer))
+        rebuild_all_layers.pressed.connect(partial(self.rebuild_all_layers))
         for render_layer_button in self.render_layer_button_pointer_dic:
             render_layer_button.pressed.connect(partial(self.render_layer_change,render_layer_button))
         for OIL_button in self.OIL_button_pointer_dic:
@@ -1581,6 +1534,7 @@ class LAYERS_WINDOW_TOOL():
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["SelectionChanged", self.populate_gui])
         self.populate_gui()
+        window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         window.show()
 
 def main():
