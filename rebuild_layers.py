@@ -187,16 +187,16 @@ class LAYERS_WINDOW_TOOL(object):
                                     if default_attr_value != override_attr_value:
                                         self.attr_overrides_dic[attr_dic_string] = override_attr_value
                                 if default_ramp_found == 0 and override_ramp_found == 1:
-                                    attr_dic_string = object_label + "_overide_rampAdded*" + attr_string + "**" + render_layer + "_"
+                                    attr_dic_string = object_label + "_overide_ramp_added*" + attr_string + "**" + render_layer + "_"
                                     self.attr_overrides_dic[attr_dic_string] = override_ramp
                                 if default_ramp_found == 1 and override_ramp_found == 0:
                                     override_attr_value = cmds.getAttr(attr_string)
-                                    attr_dic_string = object_label + "_overide_rampRemoved*" + attr_string + "**" + render_layer + "_"
+                                    attr_dic_string = object_label + "_overide_ramp_removed*" + attr_string + "**" + render_layer + "_"
                                     self.attr_overrides_dic[attr_dic_string] = override_attr_value
                                 if default_ramp_found == 1 and override_ramp_found == 1:
                                     override_ramp = attr_connection
                                     if override_ramp != default_ramp:
-                                        attr_dic_string = object_label + "_overide_rampMismatch*" + attr_string + "**" + render_layer + "_"
+                                        attr_dic_string = object_label + "_overide_ramp_mismatch*" + attr_string + "**" + render_layer + "_"
                                         self.attr_overrides_dic[attr_dic_string] = override_ramp
                                     if override_ramp == default_ramp:
                                         render_layer_overrides = cmds.listConnections(render_layer + ".adjustments", p = True, c = True) or []
@@ -769,7 +769,7 @@ class LAYERS_WINDOW_TOOL(object):
                 for lo in light_overrides:
                     #print 'lo = ',lo
                     ramp_removed_found = 0
-                    if "rampRemoved" in lo or "rampMismatch" in lo:
+                    if "ramp_removed" in lo or "ramp_mismatch" in lo:
                         ramp_removed_found = 1
                     #print 'ramp_removed_found = ',ramp_removed_found
                     light_override_original = lo
@@ -847,6 +847,7 @@ class LAYERS_WINDOW_TOOL(object):
                 for mo in material_overrides:
                     #print ' '
                     #print ' '
+                    #print 'material_overrides = ',material_overrides
                     #print 'rebuilding layers MO '
                     #print 'mo = ',mo
                     if "material_overide" in mo:
@@ -894,7 +895,9 @@ class LAYERS_WINDOW_TOOL(object):
                                             a = 1
                                             destination_connections = cmds.listConnections(mo_split_two[1], destination = False, plugs = True, connections = True) or []
                                             destination_connections_size = len(destination_connections)
+                                            #print 'destination_connections_size = ',destination_connections_size
                                             while a < destination_connections_size:
+                                                #print 'disconnectAttr connections ',destination_connections[1] + ' ' + destination_connections[0]
                                                 cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                                 a = a + 1
                                         #print 'setting ',mo_split_two[1] + str(value_a) + str(value_b) + str(value_c)
