@@ -98,7 +98,7 @@ def objectChooseWin():
         currentRenderLayer = cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
         print "object_Old = ",object_Old
         print "object_New = ",object_New
-        print "current render layer is",currentRenderLayer
+        #print "current render layer is",currentRenderLayer
         def object_New_Center(object_Old,object_New,renderLayers):
             print " "
             print "---"
@@ -123,11 +123,11 @@ def objectChooseWin():
             new_transY = float(obj2_WorldSpaceCentered[1])
             new_transZ = float(obj2_WorldSpaceCentered[2])
             transXdiff = (old_transX - new_transX)
-            print "transXdiff = ",transXdiff
+            #print "transXdiff = ",transXdiff
             transYdiff = (old_transY - new_transY)
-            print "transYdiff = ",transYdiff
+            #print "transYdiff = ",transYdiff
             transZdiff = (old_transZ - new_transZ)
-            print "transZdiff = ",transZdiff
+            #print "transZdiff = ",transZdiff
             cmds.xform(obj2,r = True, t = (transXdiff,transYdiff,transZdiff))
             cmds.xform(obj2,rotatePivot = obj2_WorldSpace)
             obj2_WorldSpaceFixed = cmds.xform(obj2,q = True, os = True,rotatePivot = True)
@@ -168,7 +168,7 @@ def objectChooseWin():
                     for cko in checkLayer:
                         if cko == (object_Old):
                             layerList.append(layer)
-            print layerList
+            #print layerList
             return layerList,object_Old,object_New
 
         def translations(object_Old,object_New,renderLayers):
@@ -193,42 +193,61 @@ def objectChooseWin():
                     if object_Old == obj:
                         objInLayers.append(L)
             for lay in objInLayers:
+                #print 'render layer = ',lay
                 cmds.editRenderLayerGlobals( currentRenderLayer = lay )
                 strTransX = object_Old + ".translateX"
+                #print 'strTransX = ',strTransX
                 transX = cmds.getAttr(strTransX)
-                var = object_Old + "_" + lay + "_transX"
+                #print 'transX = ',transX
+                var = object_Old + "_" + '&'+lay+'&' + "_transX"
                 transValuesDict[var] = transX
+                #print 'transValuesDict = ',transValuesDict
                 strTransY = object_Old + ".translateY"
+                #print 'strTransY = ',strTransY
                 transY = cmds.getAttr(strTransY)
-                var = object_Old + "_" + lay + "_transY"
+                #print 'transY = ',transY
+                var = object_Old + "_" + '&'+lay+'&' + "_transY"
                 transValuesDict[var] = transY
+                #print 'transValuesDict'
                 strTransZ = object_Old + ".translateZ"
+                #print 'strTransZ = ',strTransZ
                 transZ = cmds.getAttr(strTransZ)
-                var = object_Old + "_" + lay + "_transZ"
+                #print 'transZ = ',transZ
+                var = object_Old + "_" + '&'+lay+'&' + "_transZ"
                 transValuesDict[var] = transZ
+                #print 'transValuesDict = ',transValuesDict
                 strRotX = object_Old + ".rotateX"
+                #print 'strRotX = ',strRotX
                 rotX = cmds.getAttr(strRotX)
-                var = object_Old + "_" + lay + "_rotX"
+                #print 'rotX = ',rotX
+                var = object_Old + "_" + '&'+lay+'&' + "_rotX"
                 transValuesDict[var] = rotX
+                #print 'transValuesDict'
                 strRotY = object_Old + ".rotateY"
+                #print 'strRotY = ',strRotY
                 rotY = cmds.getAttr(strRotY)
-                var = object_Old + "_" + lay + "_rotY"
+                #print 'rotY = ',rotY
+                var = object_Old + "_" + '&'+lay+'&' + "_rotY"
                 transValuesDict[var] = rotY
+                #print 'transValuesDict = ',transValuesDict
                 strRotZ = object_Old + ".rotateZ"
+                #print 'strRotZ = ',strRotZ
                 rotZ = cmds.getAttr(strRotZ)
-                var = object_Old + "_" + lay + "_rotZ"
+                #print 'rotZ = ',rotZ
+                var = object_Old + "_" + '&'+lay+'&' + "_rotZ"
                 transValuesDict[var] = rotZ
+                #print 'transValuesDict = ',transValuesDict
                 strScaleX = object_Old + ".scaleX"
                 scaleX = cmds.getAttr(strScaleX)
-                var = object_Old + "_" + lay + "_scaleX"
+                var = object_Old + "_" + '&'+lay+'&' + "_scaleX"
                 transValuesDict[var] = scaleX
                 strScaleY = object_Old + ".scaleY"
                 scaleY = cmds.getAttr(strScaleY)
-                var = object_Old + "_" + lay + "_scaleY"
+                var = object_Old + "_" + '&'+lay+'&' + "_scaleY"
                 transValuesDict[var] = scaleY
                 strScaleZ = object_Old + ".scaleZ"
                 scaleZ = cmds.getAttr(strScaleZ)
-                var = object_Old + "_" + lay + "_scaleZ"
+                var = object_Old + "_" + '&'+lay+'&' + "_scaleZ"
                 transValuesDict[var] = scaleZ
             print object_Old + " defaultRenderLayer translation values:"
             print "----"
@@ -236,24 +255,31 @@ def objectChooseWin():
             for tv in transValuesDict:
                 if "defaultRenderLayer" in tv:
                     defVals.append(tv)
+                    #print 'defVals = ',defVals
             for A in defVals:
                 if "transX" in A:
                     transX_val = transValuesDict[A]
+                    #print 'transX_val = ',transX_val
             for A in defVals:
                 if "transY" in A:
                     transY_val = transValuesDict[A]
+                    #print 'transY_val = ',transY_val
             for A in defVals:
                 if "transZ" in A:
                     transZ_val = transValuesDict[A]
+                    #print 'transZ_val = ',transZ_val
             for A in defVals:
                 if "rotX" in A:
                     rotX_val = transValuesDict[A]
+                    #print 'rotX_val = ',rotX_val
             for A in defVals:
                 if "rotY" in A:
                     rotY_val = transValuesDict[A]
+                    #print 'rotY_val = ',rotY_val
             for A in defVals:
                 if "rotZ" in A:
                     rotZ_val = transValuesDict[A]
+                    #print 'rotZ_val = ',rotZ_val
             for A in defVals:
                 if "scaleX" in A:
                     scaleX_val = transValuesDict[A]
@@ -264,36 +290,55 @@ def objectChooseWin():
                 if "scaleZ" in A:
                     scaleZ_val = transValuesDict[A]
             transLayerOveride = []
+            #print 'transValuesDict = ',transValuesDict
             for dic in transValuesDict:
+                #print 'dic = ',dic
                 if "transX" in dic:
                     val = transValuesDict[dic]
+                    #print 'val = ',val
                     if val != transX_val:
+                        #print 'override_found' + str(val) + ',' + str(transX_val)
                         transLayerOveride.append(dic)
             for dic in transValuesDict:
+                #print 'dic = ',dic
                 if "transY" in dic:
                     val = transValuesDict[dic]
+                    #print 'val = ',val
                     if val != transY_val:
+                        #print 'override_found' + str(val) + ',' + str(transY_val)
                         transLayerOveride.append(dic)
             for dic in transValuesDict:
+                #print 'dic = ',dic
                 if "transZ" in dic:
                     val = transValuesDict[dic]
+                    #print 'val = ',val
                     if val != transZ_val:
                         transLayerOveride.append(dic)
+                        #print 'override_found' + str(val) + ',' + str(transZ_val)
             for dic in transValuesDict:
+                #print 'dic = ',dic
                 if "rotX" in dic:
                     val = transValuesDict[dic]
+                    #print 'val = ',val
                     if val != rotX_val:
                         transLayerOveride.append(dic)
+                        #print 'override_found' + str(val) + ',' + str(rotX_val)
             for dic in transValuesDict:
+                #print 'dic = ',dic
                 if "rotY" in dic:
                     val = transValuesDict[dic]
+                    #print 'val = ',val
                     if val != rotY_val:
                         transLayerOveride.append(dic)
+                        #print 'override_found' + str(val) + ',' + str(rotY_val)
             for dic in transValuesDict:
+                #print 'dic = ',dic
                 if "rotZ" in dic:
                     val = transValuesDict[dic]
+                    #print 'val = ',val
                     if val != rotZ_val:
                         transLayerOveride.append(dic)
+                        #print 'override_found' + str(val) + ',' + str(rotZ_val)
             for dic in transValuesDict:
                 if "scaleX" in dic:
                     val = transValuesDict[dic]
@@ -309,7 +354,9 @@ def objectChooseWin():
                     val = transValuesDict[dic]
                     if val != scaleZ_val:
                         transLayerOveride.append(dic)
+            #print 'transLayerOveride = ',transLayerOveride
             defValList = [transX_val,transY_val,transZ_val,rotX_val,rotY_val,rotZ_val,scaleX_val,scaleY_val,scaleZ_val]
+            #print 'defValList = ',defValList
             sizL = len(transLayerOveride)
             if sizL > 0:
                 print " "
@@ -317,6 +364,10 @@ def objectChooseWin():
             else:
                 print " "
                 print "no transform render layer overides detected"
+            #print 'transValuesDict = ',transValuesDict
+            for override in transValuesDict:
+                print transValuesDict[override]
+            print 'transLayerOveride = ',transLayerOveride
             return transValuesDict,object_Old,object_New,defVals,defValList,objInLayers,transLayerOveride
 
         def excludeListSets(object_Old,object_New,renderLayers):
@@ -882,12 +933,12 @@ def objectChooseWin():
             displacement_extra_attr_dic = {}
             displacement_extra_attributes = ['displayMapBorders','vraySeparator_vray_subquality','vrayOverrideGlobalSubQual','vrayViewDep','vrayEdgeLength','vrayMaxSubdivs','vraySeparator_vray_displacement','vrayDisplacementNone','vrayDisplacementStatic','vrayDisplacementType','vrayDisplacementAmount','vrayDisplacementShift','vrayDisplacementKeepContinuity','vrayEnableWaterLevel','vrayWaterLevel','vrayDisplacementCacheNormals','vray2dDisplacementResolution','vray2dDisplacementPrecision','vray2dDisplacementTightBounds','vray2dDisplacementMultiTile','vray2dDisplacementFilterTexture','vray2dDisplacementFilterBlur','vrayDisplacementUseBounds','vrayDisplacementMinValue','vrayDisplacementMaxValue','vrayOverrideGlobalSubQual','vrayViewDep','vrayEdgeLength','vrayMaxSubdivs','vrayDisplacementNone','vrayDisplacementStatic','vrayDisplacementType','vrayDisplacementAmount','vrayDisplacementShift','vrayDisplacementKeepContinuity','vrayEnableWaterLevel','vrayWaterLevel','vrayDisplacementCacheNormals','vray2dDisplacementResolution','vray2dDisplacementPrecision','vray2dDisplacementTightBounds','vray2dDisplacementMultiTile','vray2dDisplacementFilterTexture','vrayDisplacementUseBounds','vrayDisplacementMinValue','vrayDisplacementMaxValue']
             for displacement_extra_attribute in displacement_extra_attributes:
-                print displacement_extra_attribute
+                #print displacement_extra_attribute
                 disp_attr_full = object_Old + '.' + displacement_extra_attribute
                 disp_attr_exists = cmds.attributeQuery(displacement_extra_attribute,node = object_Old,exists = True)
                 print disp_attr_exists
                 if disp_attr_exists == 1:
-                    print 'exists!'
+                    #print 'exists!'
                     disp_attr_value = cmds.getAttr(disp_attr_full)
                     displacement_extra_attr_dic[displacement_extra_attribute] = disp_attr_value
             print "displacement_extra_attr_dic = ", displacement_extra_attr_dic
@@ -937,7 +988,7 @@ def objectChooseWin():
                 object_Old = object_Old
                 object_OldChild = children
             dispNodes = cmds.ls(type = "VRayDisplacement") or []
-            print "dispNodes = ",dispNodes
+            #print "dispNodes = ",dispNodes
             for DN in dispNodes:
                 dispChildren = cmds.listConnections(DN) or []
                 if object_Old in dispChildren:
@@ -1124,8 +1175,8 @@ def objectChooseWin():
                     if "defaultRenderLayer" not in r:
                         tval = conNodeDic[r]
                         if tval != defConnectVal:
-                            print " "
-                            print "possible displacement map layer override detected."
+                            #print " "
+                            #print "possible displacement map layer override detected."
                             v = object_Old + "_" + r + "_disp_con"
                             dispLayerOR.append(v)
                             overide_dispValDic[v] = tval
@@ -1133,55 +1184,55 @@ def objectChooseWin():
                     if "displacement_keepContinuity" in vals:
                         tempVal = dispValDic[vals]
                         if tempVal != def_displacement_keepContinuity:
-                            print "possible displacement keepContinuity layer override detected."
+                            #print "possible displacement keepContinuity layer override detected."
                             dispLayerOR.append(vals)
                             overide_dispValDic[vals] = tempVal
                 for vals in dispValDic:
                     if "overrideGlobalDisplacement" in vals:
                         tempVal = dispValDic[vals]
                         if tempVal != def_overrideGlobalDisplacement:
-                            print "possible overrideGlobalDisplacement layer override detected."
+                            #print "possible overrideGlobalDisplacement layer override detected."
                             dispLayerOR.append(vals)
                             overide_dispValDic[vals] = tempVal
                 for vals in dispValDic:
                     if "displacementBlackBox" in vals:
                         tempVal = dispValDic[vals]
                         if tempVal != def_displacementBlackBox:
-                            print "possible displacementBlackBox layer override detected."
+                            #print "possible displacementBlackBox layer override detected."
                             dispLayerOR.append(vals)
                             overide_dispValDic[vals] = tempVal
                 for vals in dispValDic:
                     if "dispAmount" in vals:
                         tempVal = dispValDic[vals]
                         if tempVal != def_vrayDisplacementAmount:
-                            print "possible dispAmount layer override detected."
+                            #print "possible dispAmount layer override detected."
                             dispLayerOR.append(vals)
                             overide_dispValDic[vals] = tempVal
                 for vals in dispValDic:
                     if "dispShift" in vals:
                         tempVal = dispValDic[vals]
                         if tempVal != def_dispShift:
-                            print "possible dispShift layer override detected."
+                            #print "possible dispShift layer override detected."
                             dispLayerOR.append(vals)
                             overide_dispValDic[vals] = tempVal
                 for vals in dispValDic:
                     if "vrayEdgeLength" in vals:
                         tempVal = dispValDic[vals]
                         if tempVal != def_vrayEdgeLength:
-                            print "possible vrayEdgeLength layer override detected."
+                            #print "possible vrayEdgeLength layer override detected."
                             dispLayerOR.append(vals)
                             overide_dispValDic[vals] = tempVal
                 for vals in dispValDic:
                     if "dispMaxSubdivs" in vals:
                         tempVal = dispValDic[vals]
                         if tempVal != def_dispMaxSubdivs:
-                            print "possible dispMaxSubdivs layer override detected."
+                            #print "possible dispMaxSubdivs layer override detected."
                             dispLayerOR.append(vals)
                             overide_dispValDic[vals] = tempVal
             else:
                 print "No vray displacement nodes detected for", object_Old
             if object_Old_DispNode != "None":
-                print "object_Old_DispNode is not None",object_Old_DispNode
+                #print "object_Old_DispNode is not None",object_Old_DispNode
                 if layerTexDetect != 1 and rampDetect != 1:
                     cmds.select(clear = True)
                     shadEx = cmds.objExists("tempShader")
@@ -1202,9 +1253,9 @@ def objectChooseWin():
                     secConList = []
                     thirdConList = []
                     fourthConList = []
-                    print 'filename = ',fileName
+                    #print 'filename = ',fileName
                     firstCon = cmds.listConnections(fileName, destination = False)
-                    print 'firstCon = ',firstCon
+                    #print 'firstCon = ',firstCon
                     for f in firstCon:
                         if f not in firstConList:
                             if f not in firstConList:
@@ -1212,23 +1263,23 @@ def objectChooseWin():
                     print 'firstConList = ',firstConList
                     for first_connection in firstConList:
                         first = first_connection
-                        print 'first = ',first
+                        #print 'first = ',first
                         fType = cmds.nodeType(first)
-                        print 'fType = ',fType
+                        #print 'fType = ',fType
                         if fType == "uvChooser":
                             firstConList = cmds.listConnections(first, destination = False, plugs = True) or []
                         if fType != "uvChooser":
                             firstConList = cmds.listConnections(first, destination = False) or []
                     siz = len(firstConList)
-                    print ' '
-                    print '*** firstConList = ***',firstConList
-                    print ' '
-                    print 'siz =',siz
+                    #print ' '
+                    #print '*** firstConList = ***',firstConList
+                    #print ' '
+                    #print 'siz =',siz
                     if siz > 0:
-                        print 'size > 0'
-                        print 'firstConList = ',firstConList
+                        #print 'size > 0'
+                        #print 'firstConList = ',firstConList
                         second = firstConList[0]
-                        print 'second =',second
+                        #print 'second =',second
                         fType = cmds.nodeType(second)
 
                     if fType == "uvChooser":
@@ -1268,65 +1319,96 @@ def objectChooseWin():
                     if shadEx2 == 1:
                         cmds.delete("tempShader")
                 if layerTexDetect == 1:
+                    #print ' '
                     #print "layerTextures UV calculating"
                     for dft in layerTexFiles:
+                        #print 'dft = ',dft
                         cmds.select(clear = True)
                         shadEx = cmds.objExists("tempShader")
                         if shadEx == 1:
                             cmds.delete("tempShader")
                         tempNodeName = cmds.createNode("surfaceShader")
                         cmds.rename(tempNodeName, "tempShader")
+                        #print 'created and renamed a tmp shader, "surfaceShader"'
                         fileName = dft
                         cmds.select(clear = True)
                         cmds.select(object_New)
                         cmds.hyperShade(assign = "tempShader")
+                        #print 'assigning tmp shader'
                         tempFileMod = fileName + ".outColor"
                         cmds.connectAttr(tempFileMod,"tempShader.outColor", force = True)
+                        #print 'connects ' + fileName + ' to tempShader'
                         object_Old_children = cmds.listRelatives(object_Old, children = True)
+                        #print 'object_Old_children = ',object_Old_children
                         object_Old_child = object_Old_children[0]
+                        #print 'object_Old_child = ',object_Old_child
                         object_New_children = cmds.listRelatives(object_New, children = True)
+                        #print 'object_New_children = ',object_New_children
                         object_New_child = object_New_children[0]
+                        #print 'object_New_child = ',object_New_child
                         firstConList = []
                         secConList = []
                         thirdConList = []
                         fourthConList = []
-                        firstCon = cmds.listConnections(fileName, destination = False)
+                        firstCon = cmds.listConnections(fileName, destination = False) or []
+                        #print 'firstCon =',firstCon
                         for f in firstCon:
+                            #print 'f = ',f
                             if f not in firstConList:
+                                #print 'firstConList appending f'
                                 firstConList.append(f)
+                                #print 'firstConList = ',firstConList
                         first = firstConList[0]
+                        #print 'firstConList[0] = ',firstConList[0]
+                        #print 'first = ',first
                         fType = cmds.nodeType(first)
+                        #print 'fType = ',fType
+                        second = ''
                         if fType == "uvChooser":
+                            #print 'uvChooser found'
                             firstConList = cmds.listConnections(first, destination = False, plugs = True) or []
+                            #print 'firstConList = ',firstConList
                         else:
+                            #print 'uvChooser not found'
                             firstConList = cmds.listConnections(first, destination = False) or []
+                            #print 'firstConList = ',firstConList
                         siz = len(firstConList)
+                        #print 'siz = ',siz
                         if siz > 0:
-                            print 'firstConList = ',firstConList
+                            #print 'firstConList = ',firstConList
                             second = firstConList[0]
-                        fType = cmds.nodeType(second)
+                            #print 'second = ',second
+                            fType = cmds.nodeType(second)
+                            #print 'fType = ',fType
                         if fType == "uvChooser":
+                            #print 'fType = uvChooser'
+                            #print 'fType = ',fType
                             secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
+                            #print 'secondConList = ',secondConList
                             UVmapAddressOLD = secondConList[0]
+                            #print 'UVmapAddressOLD = ',UVmapAddressOLD
                             UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
                             #print " "
                             #print "linking " + fileName + " to " + UVmapAddressNEW
                             #print " "
                             cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
                         else:
-                            secondConList = cmds.listConnections(second, destination = False) or []
-            print 'vrayDisplacement_filePath =',vrayDisplacement_filePath
-            print 'def_vrayDisplacementAmount =',def_vrayDisplacementAmount
-            print 'def_dispShift = ',def_dispShift
-            print 'def_vrayEdgeLength = ',def_vrayEdgeLength
-            print 'def_dispMaxSubdivs = ',def_dispMaxSubdivs
-            print 'dispValDic = ',dispValDic
-            print 'object_Old_DispNode = ',object_Old_DispNode
-            print 'displacement_map_con = ',displacement_map_con
-            print 'disp_fileConnection = ',disp_fileConnection
-            print 'displacementBlackBox = ',displacementBlackBox
-            print 'displacement_keepContinuity = ',displacement_keepContinuity
-            print 'overrideGlobalDisplacement = ',overrideGlobalDisplacement
+                            siz = len(second)
+                            if siz != 0:
+                                secondConList = cmds.listConnections(second, destination = False) or []
+                                #print 'secondConList = ',secondConList
+            #print 'vrayDisplacement_filePath =',vrayDisplacement_filePath
+            #print 'def_vrayDisplacementAmount =',def_vrayDisplacementAmount
+            #print 'def_dispShift = ',def_dispShift
+            #print 'def_vrayEdgeLength = ',def_vrayEdgeLength
+            #print 'def_dispMaxSubdivs = ',def_dispMaxSubdivs
+            #print 'dispValDic = ',dispValDic
+            #print 'object_Old_DispNode = ',object_Old_DispNode
+            #print 'displacement_map_con = ',displacement_map_con
+            #print 'disp_fileConnection = ',disp_fileConnection
+            #print 'displacementBlackBox = ',displacementBlackBox
+            #print 'displacement_keepContinuity = ',displacement_keepContinuity
+            #print 'overrideGlobalDisplacement = ',overrideGlobalDisplacement
             return vrayDisplacement_filePath,def_vrayDisplacementAmount,def_dispShift,def_vrayEdgeLength,def_dispMaxSubdivs,dispValDic,object_Old,object_New,object_Old_DispNode,displacement_map_con,disp_fileConnection,displacementBlackBox,displacement_keepContinuity,overrideGlobalDisplacement,dispLayerOR,overide_dispValDic,renderLayers,conNodeDic,UVdic_texSet,UVdic_label,displacement_map_connection,disp_fileConnect,displacement_extra_attributes,displacement_extra_attr_dic
 
 
@@ -1446,11 +1528,17 @@ def objectChooseWin():
             print "---"
             print " "
             transX_attr = OBJ_1_TX[2] + ".translateX"
+            #print 'transX_attr = ',transX_attr
             transY_attr = OBJ_1_TX[2] + ".translateY"
+            #print 'transY_attr = ',transY_attr
             transZ_attr = OBJ_1_TX[2] + ".translateZ"
+            #print 'transZ_attr = ',transZ_attr
             rotX_attr = OBJ_1_TX[2] + ".rotateX"
+            #print 'rotX_attr = ',rotX_attr
             rotY_attr = OBJ_1_TX[2] + ".rotateY"
+            #print 'rotY_attr = ',rotY_attr
             rotZ_attr = OBJ_1_TX[2] + ".rotateZ"
+            #print 'rotZ_attr = ',rotZ_attr
             scaleX_attr = OBJ_1_TX[2] + ".scaleX"
             scaleY_attr = OBJ_1_TX[2] + ".scaleY"
             scaleZ_attr = OBJ_1_TX[2] + ".scaleZ"
@@ -1478,85 +1566,119 @@ def objectChooseWin():
             cmds.setAttr(scaleZ_attr,defValList[8])
             print " setting the SZ default render layer value to " + transX_attr,defValList[8]
             transValuesDict = OBJ_1_TX[0]
+            #print 'transValuesDict = ',transValuesDict
+            #print 'transLayerOveride = ',transLayerOveride
             for L in layerList:
                 for tlo in transLayerOveride:
-                    if L in tlo:
+                    #print 'tlo = ',tlo
+                    override_layer_check_split = tlo.split('&')
+                    #print 'override_layer_check_split = ',override_layer_check_split
+                    override_layer_check = override_layer_check_split[1]
+                    #print 'override_layer_check = ',override_layer_check
+                    if L == override_layer_check:
+                        #print 'L = ',L
                         cmds.select(object_New)
                         cmds.xform( r=True, cp = True )
                         cmds.select(clear = True)
                         if "transX" in tlo:
-                            v = OBJ_1_TX[1] + "_" + L + "_" + "transX"
+                            v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "transX"
                             va = transValuesDict[v]
                             cmds.editRenderLayerGlobals( currentRenderLayer = L )
+                            #print 'changed layer to ',L
                             ERLAnameT = OBJ_1_TX[2] + ".translate"
                             cmds.editRenderLayerAdjustment(ERLAnameT)
+                            #print 'creating render layer override', ERLAnameT
                             ERLAnameTX = OBJ_1_TX[2] + ".translateX"
+                            #print 'setting ' + ERLAnameTX + '' + str(va)
                             cmds.setAttr(ERLAnameTX, va)
                             print " setting a TX overide value of " + str(va) + " in layer " + L
                         if "transY" in tlo:
-                            v = OBJ_1_TX[1] + "_" + L + "_" + "transY"
+                            v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "transY"
                             va = transValuesDict[v]
                             cmds.editRenderLayerGlobals( currentRenderLayer = L )
+                            #print 'changed layer to ',L
                             ERLAnameT = OBJ_1_TX[2] + ".translate"
                             cmds.editRenderLayerAdjustment(ERLAnameT)
+                            #print 'creating render layer override', ERLAnameT
                             ERLAnameTX = OBJ_1_TX[2] + ".translateY"
+                            #print 'setting ' + ERLAnameTX + '' + str(va)
                             cmds.setAttr(ERLAnameTX, va)
+                            print " setting a TY overide value of " + str(va) + " in layer " + L
                         if "transZ" in tlo:
-                            v = OBJ_1_TX[1] + "_" + L + "_" + "transZ"
+                            v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "transZ"
                             va = transValuesDict[v]
                             cmds.editRenderLayerGlobals( currentRenderLayer = L )
+                            #print 'changed layer to ',L
                             ERLAnameT = OBJ_1_TX[2] + ".translate"
                             cmds.editRenderLayerAdjustment(ERLAnameT)
+                            #print 'creating render layer override', ERLAnameT
                             ERLAnameTX = OBJ_1_TX[2] + ".translateZ"
+                            #print 'setting ' + ERLAnameTX + '' + str(va)
                             cmds.setAttr(ERLAnameTX, va)
+                            print " setting a TZ overide value of " + str(va) + " in layer " + L
                         if "rotX" in tlo:
-                            v = OBJ_1_TX[1] + "_" + L + "_" + "rotX"
+                            v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotX"
                             va = transValuesDict[v]
                             cmds.editRenderLayerGlobals( currentRenderLayer = L )
+                            #print 'changed layer to ',L
                             ERLAnameT = OBJ_1_TX[2] + ".rotate"
                             cmds.editRenderLayerAdjustment(ERLAnameT)
+                            #print 'creating render layer override', ERLAnameT
                             ERLAnameTX = OBJ_1_TX[2] + ".rotateX"
+                            #print 'setting ' + ERLAnameTX + '' + str(va)
                             cmds.setAttr(ERLAnameTX, va)
+                            print " setting a RotX overide value of " + str(va) + " in layer " + L
                         if "rotY" in tlo:
-                            v = OBJ_1_TX[1] + "_" + L + "_" + "rotY"
+                            v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotY"
                             va = transValuesDict[v]
                             cmds.editRenderLayerGlobals( currentRenderLayer = L )
+                            #print 'changed layer to ',L
                             ERLAnameT = OBJ_1_TX[2] + ".rotate"
                             cmds.editRenderLayerAdjustment(ERLAnameT)
+                            #print 'creating render layer override', ERLAnameT
                             ERLAnameTX = OBJ_1_TX[2] + ".rotateY"
+                            #print 'setting ' + ERLAnameTX + '' + str(va)
                             cmds.setAttr(ERLAnameTX, va)
+                            print " setting a RotY overide value of " + str(va) + " in layer " + L
                         if "rotZ" in tlo:
-                            v = OBJ_1_TX[1] + "_" + L + "_" + "rotZ"
+                            v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotZ"
                             va = transValuesDict[v]
                             cmds.editRenderLayerGlobals( currentRenderLayer = L )
+                            #print 'changed layer to ',L
                             ERLAnameT = OBJ_1_TX[2] + ".rotate"
                             cmds.editRenderLayerAdjustment(ERLAnameT)
+                            #print 'creating render layer override', ERLAnameT
                             ERLAnameTX = OBJ_1_TX[2] + ".rotateZ"
+                            #print 'setting ' + ERLAnameTX + '' + str(va)
                             cmds.setAttr(ERLAnameTX, va)
+                            print " setting a RotZ overide value of " + str(va) + " in layer " + L
                         if "scaleX" in tlo:
-                            v = OBJ_1_TX[1] + "_" + L + "_" + "scaleX"
+                            v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "scaleX"
                             va = transValuesDict[v]
                             cmds.editRenderLayerGlobals( currentRenderLayer = L )
                             ERLAnameT = OBJ_1_TX[2] + ".scale"
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleX"
                             cmds.setAttr(ERLAnameTX, va)
+                            print " setting a scaleX overide value of " + str(va) + " in layer " + L
                         if "scaleY" in tlo:
-                            v = OBJ_1_TX[1] + "_" + L + "_" + "scaleY"
+                            v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "scaleY"
                             va = transValuesDict[v]
                             cmds.editRenderLayerGlobals( currentRenderLayer = L )
                             ERLAnameT = OBJ_1_TX[2] + ".scale"
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleY"
                             cmds.setAttr(ERLAnameTX, va)
+                            print " setting a scaleY overide value of " + str(va) + " in layer " + L
                         if "scaleZ" in tlo:
-                            v = OBJ_1_TX[1] + "_" + L + "_" + "scaleZ"
+                            v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "scaleZ"
                             va = transValuesDict[v]
                             cmds.editRenderLayerGlobals( currentRenderLayer = L )
                             ERLAnameT = OBJ_1_TX[2] + ".scale"
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleZ"
                             cmds.setAttr(ERLAnameTX, va)
+                            print " setting a scaleZ overide value of " + str(va) + " in layer " + L
             if siiz < 1:
                 print " "
                 print " no transform render layer overides detected"
