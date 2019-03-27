@@ -24,7 +24,10 @@ class LAYERS_WINDOW_TOOL(object):
         self.layeredTexture = cmds.ls(type = "layeredTexture")
         self.VRayBlendMtls = cmds.ls(type = "VRayBlendMtl")
         self.VRayPlaceEnvTex_nodes = cmds.ls(type = "VRayPlaceEnvTex")
-        self.materials = self.materials_VRayMtl + self.materials_phong + self.materials_blinn + self.materials_lambert + self.materials_surface_shader + self.placement_nodes + self.file_nodes + self.materials_displacement + self.displacement_nodes + self.layeredTexture + self.VRayBlendMtls + self.VRayPlaceEnvTex_nodes + self.ramp_nodes + self.gammaCorrect_nodes
+        self.multiplyDivide = cmds.ls(type = "multiplyDivide")
+        self.remapHsv = cmds.ls(type = "remapHsv")
+        self.remapColor = cmds.ls(type = "remapColor")
+        self.materials = self.materials_VRayMtl + self.materials_phong + self.materials_blinn + self.materials_lambert + self.materials_surface_shader + self.placement_nodes + self.file_nodes + self.materials_displacement + self.displacement_nodes + self.layeredTexture + self.VRayBlendMtls + self.VRayPlaceEnvTex_nodes + self.ramp_nodes + self.gammaCorrect_nodes + self.multiplyDivide + self.remapHsv + self.remapColor
         self.object_check_g = cmds.ls(g = True)
         self.object_check_transform = cmds.ls(type = "transform")
         self.object_check_cameras = cmds.ls(type = "camera")
@@ -93,7 +96,7 @@ class LAYERS_WINDOW_TOOL(object):
         #print " "
         print "self.object_type = ",self.object_type
         object_list = self.object_check
-        if self.object_type == "camera" or self.object_type == "VRayLightRectShape" or self.object_type == "spotLight" or self.object_type == "ambientLight" or self.object_type == "directionalLight" or self.object_type == "pointLight" or self.object_type == "VRayMtl" or self.object_type == "blinn" or self.object_type == "phong" or self.object_type == "lambert" or self.object_type == "surfaceShader" or self.object_type == "displacementShader" or self.object_type == "VRayDisplacement" or self.object_type == "place2dTexture" or self.object_type == "file" or self.object_type == "layeredTexture" or self.object_type == "VRayBlendMtl" or self.object_type == "VRayPlaceEnvTex":
+        if self.object_type == "camera" or self.object_type == "VRayLightRectShape" or self.object_type == "spotLight" or self.object_type == "ambientLight" or self.object_type == "directionalLight" or self.object_type == "pointLight" or self.object_type == "VRayMtl" or self.object_type == "blinn" or self.object_type == "phong" or self.object_type == "lambert" or self.object_type == "surfaceShader" or self.object_type == "displacementShader" or self.object_type == "VRayDisplacement" or self.object_type == "place2dTexture" or self.object_type == "file" or self.object_type == "layeredTexture" or self.object_type == "VRayBlendMtl" or self.object_type == "VRayPlaceEnvTex" or self.object_type == "self.multiplyDivide" or self.object_type == "self.remapHsv" or self.object_type == "self.remapColor":
             self.object_list = cmds.ls(type = self.object_type)
         if self.object_type == "VRaySettingsNode":
             self.object_list = []
