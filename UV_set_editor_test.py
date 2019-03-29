@@ -26,7 +26,8 @@ class UV_SET_EDITOR(object):
 
     def evaluate_textures_in_scene(self):
         file_textures = cmds.ls(type = 'file')
-        self.all_textures = file_textures
+        ramp_textures = cmds.ls(type = 'ramp')
+        self.all_textures = file_textures + ramp_textures
 
     def evaluate_UV_sets_in_scene(self):
         self.uv_sets_all = []
@@ -134,7 +135,10 @@ class UV_SET_EDITOR(object):
                     texture_linked_uv_set_address = self.uv_set_name_to_address_dic[selected_uv_set]
                     #print 'linking ' + self.selected_texture_text + ' to set ' + selected_uv_set
                     cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = self.selected_texture_text)
-        print cmds.uvLink( query = True, texture = self.selected_texture_text)
+
+    #def print_links(self):
+        #links = cmds.uvLink( query = True, texture = self.selected_texture_text)
+        #print 'links = ', links
 
     def texture_linker_UI(self):
         window_name = "uv_set_editor"
@@ -168,6 +172,7 @@ class UV_SET_EDITOR(object):
         self.uv_set_listWidget_conflict_detect()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         #self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged", self.populate_texture_window])
+        #self.print_links()
         window.show()
 
 def main():
