@@ -4,11 +4,10 @@ import maya.OpenMayaUI as mui
 from functools import partial
 from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
-print 'UV_set_editor3'
 
 class UV_SET_EDITOR(object):
     def __init__(self):
-        proxy = ''
+        self.selected_texture_text = ''
 
     def clear_layout(self, layout):
         if layout is not None:
@@ -31,92 +30,111 @@ class UV_SET_EDITOR(object):
 
     def evaluate_UV_sets_in_scene(self):
         self.uv_sets_all = []
-        self.uv_sets_all_dic = {}
+        self.uv_set_name_to_address_dic = {}
         transorms_objects = cmds.ls(type = 'shape')
         for object in transorms_objects:
             cmds.select(clear = True)
             cmds.select(object)
             uv_sets = cmds.polyUVSet(allUVSets = True, query = True) or []
-            self.uv_sets_all_dic[object] = uv_sets
             for uv_set in uv_sets:
                 uv_sets_all_string = uv_set + ':' + object
                 self.uv_sets_all.append(uv_sets_all_string)
-
-    def uv_sets_linked_to_texture(self):
-        self.texture_uv_set_dic = {}
-        for texture in self.all_textures:
-            uv_links = cmds.uvLink( query = True, texture = texture )
-            self.texture_uv_set_dic[texture] = uv_links
+            number_of_uv_sets_for_object = len(uv_sets)
+            it = 0
+            while it <= number_of_uv_sets_for_object:
+                i = 0
+                for uv_set in uv_sets:
+                    uv_set_address = object + '.uvSet[' + str(i) + '].uvSetName'
+                    self.uv_set_name_to_address_dic[uv_set + ':' + object] = uv_set_address
+                    i = i + 1
+                it = it + 1
 
     def populate_uv_set_editor_window(self):
+        self.evaluate_textures_in_scene()
+        self.evaluate_UV_sets_in_scene()
         self.clear_layout(self.textures_list_widget)
         self.clear_layout(self.uv_sets_list_widget)
-        id_numbers = []
         for texture in self.all_textures:
             self.textures_list_widget.addItem(texture)
         for uv_set in self.uv_sets_all:
             self.uv_sets_list_widget.addItem(uv_set)
+        self.number_of_uv_sets_in_listWidget = self.uv_sets_list_widget.count()
 
     def texture_press(self,item):
         self.deselect_QListWidget(self.uv_sets_list_widget)
-        self.uv_set_used_from_id_number_all = []
-        uv_sets_potentially_used = []
-        self.uv_sets_linked_to_selected_texture = []
         self.texture_linked_uv_sets = []
         self.selected_texture_text = item.text()
         uv_set_addresses_linked_to_selected_texture = cmds.uvLink( query = True, texture = self.selected_texture_text)
-        for uv_set_address in uv_set_addresses_linked_to_selected_texture:
-            object_uv_sets = []
-            id_number_split_1 = uv_set_address.split('[')
-            id_number_split_1 = id_number_split_1[1]
-            id_number_split_2 = id_number_split_1.split(']')
-            id_number_split_2 = id_number_split_2[0]
-            id_number = int(id_number_split_2)
-            object_name_split = uv_set_address.split('.')
-            object = object_name_split[0]
-            for uv_set_all in self.uv_sets_all:
-                uv_set_name_split = uv_set_all.split(':')
-                uv_set_name = uv_set_name_split[0]
-                if object in uv_set_all:
-                    if uv_set_name not in object_uv_sets:
-                        object_uv_sets.append(uv_set_name)
-            number_of_linked_uv_sets = len(uv_set_addresses_linked_to_selected_texture)
-            iter = 1
-            while iter < int(number_of_linked_uv_sets + 1):
-                it = 0
-                for object_uv_set in object_uv_sets:
-                    if it == id_number:
-                        if object_uv_set not in self.uv_sets_linked_to_selected_texture:
-                            self.uv_sets_linked_to_selected_texture.append(object_uv_set)
-                    it = it + 1
-                iter = iter + 1
-        print 'self.uv_sets_linked_to_selected_texture = ', self.uv_sets_linked_to_selected_texture
+        number_of_linked_uv_sets = len(uv_set_addresses_linked_to_selected_texture)
+        for uv_set_name_to_address in self.uv_set_name_to_address_dic:
+            uv_set_address = self.uv_set_name_to_address_dic[uv_set_name_to_address]
+            if uv_set_address in uv_set_addresses_linked_to_selected_texture:
+                self.texture_linked_uv_sets.append(uv_set_name_to_address)
         self.update_uv_set_listWidget()
 
     def update_uv_set_listWidget(self):
-        for index in range(self.uv_sets_list_widget.count()):
-            item = self.uv_sets_list_widget.item(index)
+        self.deselect_QListWidget(self.uv_sets_list_widget)
+        it = 0
+        while it < self.number_of_uv_sets_in_listWidget:
+            item = self.uv_sets_list_widget.item(it)
             item_text = item.text()
-            item_text_split = item_text.split(':')
-            item_text = item_text_split[0]
-            for uv_set in self.uv_sets_linked_to_selected_texture:
-                if item_text == uv_set:
+            for uv_set in self.texture_linked_uv_sets:
+                if uv_set == item_text:
                     item.setSelected(True)
+            it = it + 1
 
-    #def link_teture_to_uv_set(self):
-        #print 'link_teture_to_uv_set'
-        #selected_uv_set_pointers = self.uv_sets_list_widget.selectedItems()
-        #for uv_set_pointer in selected_uv_set_pointers:
-            #uv_set_name = uv_set_pointer.text()
-            #print 'uv_set_name = ',uv_set_name
-            #for uv_set_address_uv_set_name in self.uv_set_address_uv_set_name_dic:
-                #print 'uv_set_address_uv_set_name = ',uv_set_address_uv_set_name
-                #uv_set_address = self.uv_set_address_uv_set_name_dic[uv_set_address_uv_set_name]
-                #print 'uv_set_address = ',uv_set_address
-                #if uv_set_name == uv_set_address_uv_set_name:
-                    #print uv_set_name
-                    #print 'setting link between' + uv_set_address_texture_name + ' and ' + self.texture_name
-                    #cmds.uvLink( uvSet = uv_set_address, texture = self.texture_name)
+    def uv_set_listWidget_conflict_detect(self):
+        selected_uv_sets_pointers = self.uv_sets_list_widget.selectedItems()
+        uv_set_pointers = []
+        selected_uv_set_pointers = []
+        selected_uv_set_names = []
+        uv_set_object_name_dic = {}
+        uv_set_pointer_dic = {}
+        selected_uv_set_dic = {}
+        selected_uv_set_pointer_dic = {}
+        it = 0
+        while it < self.number_of_uv_sets_in_listWidget:
+            item = self.uv_sets_list_widget.item(it)
+            uv_set_pointers.append(item)
+            item_text = item.text()
+            uv_set_split = item_text.split(':')
+            uv_set_object_name = uv_set_split[1]
+            uv_set_object_name_dic[item_text] = uv_set_object_name
+            uv_set_pointer_dic[item_text] = item
+            it = it + 1
+        for selected_uv_set_pointer in selected_uv_sets_pointers:
+            selected_uv_set_pointers.append(selected_uv_set_pointer)
+            it_text = selected_uv_set_pointer.text()
+            selected_uv_set_names.append(it_text)
+            selected_uv_set_split = it_text.split(':')
+            selected_uv_set_object_name = selected_uv_set_split[1]
+            selected_uv_set_dic[it_text] = selected_uv_set_object_name
+            selected_uv_set_pointer_dic[selected_uv_set_object_name] = selected_uv_set_pointer
+            for uv_set_pointer in uv_set_pointers:
+                if str(uv_set_pointer) != str(selected_uv_set_pointer):
+                    uv_set_name = uv_set_pointer.text()
+                    object_name = uv_set_object_name_dic[uv_set_name]
+                    if object_name == selected_uv_set_object_name:
+                        uv_set_pointer.setSelected(False)
+            selected_uv_set_pointer.setSelected(True)
+
+    def link_texture_to_uv_set(self):
+        selected_uv_sets = []
+        self.uv_set_listWidget_conflict_detect()
+        selected_uv_set_pointers = self.uv_sets_list_widget.selectedItems()
+        for pointer in selected_uv_set_pointers:
+            uv_set_text = pointer.text()
+            selected_uv_sets.append(uv_set_text)
+        for uv_set_name_to_address in self.uv_set_name_to_address_dic:
+            texture_linked_uv_set_address = self.uv_set_name_to_address_dic [uv_set_name_to_address]
+            cmds.uvLink(b = True,uvSet = texture_linked_uv_set_address, texture = self.selected_texture_text)
+        for uv_set_name_to_address in self.uv_set_name_to_address_dic:
+            for selected_uv_set in selected_uv_sets:
+                if selected_uv_set == uv_set_name_to_address:
+                    texture_linked_uv_set_address = self.uv_set_name_to_address_dic[selected_uv_set]
+                    #print 'linking ' + self.selected_texture_text + ' to set ' + selected_uv_set
+                    cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = self.selected_texture_text)
+        print cmds.uvLink( query = True, texture = self.selected_texture_text)
 
     def texture_linker_UI(self):
         window_name = "uv_set_editor"
@@ -142,34 +160,17 @@ class UV_SET_EDITOR(object):
         self.textures_list_widget_layout.addWidget(self.textures_list_widget)
         self.uv_sets_list_widget = QtWidgets.QListWidget()
         self.uv_sets_list_widget.setSelectionMode(self.uv_sets_list_widget.MultiSelection)
+        self.uv_sets_list_widget.selectionModel().selectionChanged.connect(self.link_texture_to_uv_set)
         self.uv_sets_list_widget.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
         self.uv_sets_list_widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        #self.uv_sets_list_widget.selectionModel().selectionChanged.connect(self.link_teture_to_uv_set)
         self.textures_list_widget_layout.addWidget(self.uv_sets_list_widget)
-        #self.texture_thumbnails_listWidget.setIconSize(QtCore.QSize(214, 214))
-        #self.texture_thumbnails_listWidget.setViewMode(QtWidgets.QListView.IconMode)
-        #self.textures_listWidget.itemDoubleClicked.connect(self.fCheckLaunch)
-        #self.textures_listWidget.setFocusPolicy(QtCore.Qt.NoFocus)
-        #swap_textures_button = QtWidgets.QPushButton('swap textures')
-        #swap_textures_button.setFixedHeight(50)
-        #swap_textures_button.setStyleSheet("background-color:rgb(105,110,120)")
-        #swap_textures_button.setFont(QtGui.QFont('SansSerif', 12))
-        #main_vertical_layout.addWidget(swap_textures_button)
-        #swap_textures_button.pressed.connect(partial(self.texture_replace))
         self.populate_uv_set_editor_window()
-        fg = window.frameGeometry()
-        cp = QtWidgets.QDesktopWidget().availableGeometry().center()
-        fg.moveCenter(cp)
-        window.move(fg.topLeft())
+        self.uv_set_listWidget_conflict_detect()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         #self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged", self.populate_texture_window])
         window.show()
 
 def main():
     uv_set_editor = UV_SET_EDITOR()
-    uv_set_editor.evaluate_textures_in_scene()
-    uv_set_editor.evaluate_UV_sets_in_scene()
-    #uv_set_editor.evaluate_textures_in_scene()
-    #uv_set_editor.uv_sets_linked_to_texture()
     uv_set_editor.texture_linker_UI()
 main()
