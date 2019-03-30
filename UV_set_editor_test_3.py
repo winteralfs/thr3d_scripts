@@ -10,6 +10,8 @@ class UV_SET_EDITOR(object):
     def __init__(self):
         self.selected_texture_text = ''
 
+#---------- procedural tools and data gathering methods ----------
+
     def clear_layout(self, layout):
         if layout is not None:
             while layout.count():
@@ -24,6 +26,56 @@ class UV_SET_EDITOR(object):
         for i in range(listwidget.count()):
             item = listwidget.item(i)
             listwidget.setItemSelected(item, False)
+
+    def activate_uv_set_listWidget(self):
+        self.texture_selected_length = len(self.selected_texture_text)
+        if self.texture_selected_length == 0:
+            self.uv_sets_list_widget.setStyleSheet('QListWidget {background-color: #292929; color: #515151;}')
+            it = 0
+            while it < self.number_of_uv_sets_in_listWidget:
+                item = self.uv_sets_list_widget.item(it)
+                item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
+                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                it = it + 1
+        else:
+            self.uv_sets_list_widget.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
+            it = 0
+            while it < self.number_of_uv_sets_in_listWidget:
+                item = self.uv_sets_list_widget.item(it)
+                item.setFlags(item.flags() | Qt.ItemIsSelectable)
+                item.setFlags(item.flags() | Qt.ItemIsEnabled)
+                item.setFlags(item.flags() | Qt.ItemIsEditable)
+                it = it + 1
+
+    def unlock_uv_sets_QListWidget(self):
+        it = 0
+        while it < self.number_of_uv_sets_in_listWidget:
+            item = self.uv_sets_list_widget.item(it)
+            item.setFlags(item.flags() | Qt.ItemIsSelectable)
+            item.setFlags(item.flags() | Qt.ItemIsEnabled)
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
+            it = it + 1
+
+    def lock_selected_uv_sets_QListWidget(self):
+        self.unlock_uv_sets_QListWidget()
+        selected_uv_sets_pointers = self.uv_sets_list_widget.selectedItems()
+        for selected_uv_set_pointer in selected_uv_sets_pointers:
+            item = selected_uv_set_pointer
+            item_text = item.text()
+            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+
+    def populate_uv_set_editor_window(self):
+        self.evaluate_textures_in_scene()
+        self.evaluate_UV_sets_in_scene()
+        self.clear_layout(self.textures_list_widget)
+        self.clear_layout(self.uv_sets_list_widget)
+        for texture in self.all_textures:
+            self.textures_list_widget.addItem(texture)
+        for uv_set in self.uv_sets_all:
+            self.uv_sets_list_widget.addItem(uv_set)
+        self.number_of_uv_sets_in_listWidget = self.uv_sets_list_widget.count()
+        self.activate_uv_set_listWidget()
 
     def evaluate_textures_in_scene(self):
         file_textures = cmds.ls(type = 'file')
@@ -51,44 +103,13 @@ class UV_SET_EDITOR(object):
                     i = i + 1
                 it = it + 1
 
-    def activate_uv_set_layout(self):
-        self.texture_selected_length = len(self.selected_texture_text)
-        if self.texture_selected_length == 0:
-            self.uv_sets_list_widget.setStyleSheet('QListWidget {background-color: #292929; color: #515151;}')
-            it = 0
-            while it < self.number_of_uv_sets_in_listWidget:
-                item = self.uv_sets_list_widget.item(it)
-                item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
-                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-                it = it + 1
-        else:
-            self.uv_sets_list_widget.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
-            it = 0
-            while it < self.number_of_uv_sets_in_listWidget:
-                item = self.uv_sets_list_widget.item(it)
-                item.setFlags(item.flags() | Qt.ItemIsSelectable)
-                item.setFlags(item.flags() | Qt.ItemIsEnabled)
-                item.setFlags(item.flags() | Qt.ItemIsEditable)
-                it = it + 1
-
-    def populate_uv_set_editor_window(self):
-        self.evaluate_textures_in_scene()
-        self.evaluate_UV_sets_in_scene()
-        self.clear_layout(self.textures_list_widget)
-        self.clear_layout(self.uv_sets_list_widget)
-        for texture in self.all_textures:
-            self.textures_list_widget.addItem(texture)
-        for uv_set in self.uv_sets_all:
-            self.uv_sets_list_widget.addItem(uv_set)
-        self.number_of_uv_sets_in_listWidget = self.uv_sets_list_widget.count()
-        self.activate_uv_set_layout()
+#---------- UV set selection methods ----------
 
     def texture_press(self,item):
         self.deselect_QListWidget(self.uv_sets_list_widget)
         self.texture_linked_uv_sets = []
         self.selected_texture_text = item.text()
-        self.activate_uv_set_layout()
+        self.activate_uv_set_listWidget()
         uv_set_addresses_linked_to_selected_texture = cmds.uvLink( query = True, texture = self.selected_texture_text)
         number_of_linked_uv_sets = len(uv_set_addresses_linked_to_selected_texture)
         for uv_set_name_to_address in self.uv_set_name_to_address_dic:
@@ -99,6 +120,7 @@ class UV_SET_EDITOR(object):
 
     def update_uv_set_listWidget(self):
         self.deselect_QListWidget(self.uv_sets_list_widget)
+        self.unlock_uv_sets_QListWidget()
         it = 0
         while it < self.number_of_uv_sets_in_listWidget:
             item = self.uv_sets_list_widget.item(it)
@@ -106,42 +128,8 @@ class UV_SET_EDITOR(object):
             for uv_set in self.texture_linked_uv_sets:
                 if uv_set == item_text:
                     item.setSelected(True)
+                    item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
             it = it + 1
-
-    def uv_set_listWidget_conflict_detect(self):
-        selected_uv_sets_pointers = self.uv_sets_list_widget.selectedItems()
-        uv_set_pointers = []
-        selected_uv_set_pointers = []
-        selected_uv_set_names = []
-        uv_set_object_name_dic = {}
-        #uv_set_pointer_dic = {}
-        #selected_uv_set_dic = {}
-        uv_set_pointer_dic = {}
-        it = 0
-        while it < self.number_of_uv_sets_in_listWidget:
-            item = self.uv_sets_list_widget.item(it)
-            uv_set_pointers.append(item)
-            item_text = item.text()
-            uv_set_split = item_text.split(':')
-            uv_set_object_name = uv_set_split[1]
-            uv_set_object_name_dic[item_text] = uv_set_object_name
-            #uv_set_pointer_dic[item_text] = item
-            it = it + 1
-        for selected_uv_set_pointer in selected_uv_sets_pointers:
-            selected_uv_set_pointers.append(selected_uv_set_pointer)
-            it_text = selected_uv_set_pointer.text()
-            selected_uv_set_names.append(it_text)
-            selected_uv_set_split = it_text.split(':')
-            selected_uv_set_object_name = selected_uv_set_split[1]
-            #selected_uv_set_dic[it_text] = selected_uv_set_object_name
-            selected_uv_set_pointer_dic[selected_uv_set_object_name] = selected_uv_set_pointer
-            for uv_set_pointer in uv_set_pointers:
-                if str(uv_set_pointer) != str(selected_uv_set_pointer):
-                    uv_set_name = uv_set_pointer.text()
-                    object_name = uv_set_object_name_dic[uv_set_name]
-                    if object_name == selected_uv_set_object_name:
-                        uv_set_pointer.setSelected(False)
-            selected_uv_set_pointer.setSelected(True)
 
     def link_texture_to_uv_set(self):
         selected_uv_sets = []
@@ -155,6 +143,39 @@ class UV_SET_EDITOR(object):
                 if selected_uv_set == uv_set_name_to_address:
                     texture_linked_uv_set_address = self.uv_set_name_to_address_dic[selected_uv_set]
                     cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = self.selected_texture_text)
+
+    def uv_set_listWidget_conflict_detect(self):
+        selected_uv_sets_pointers = self.uv_sets_list_widget.selectedItems()
+        uv_set_pointers = []
+        selected_uv_set_pointers = []
+        selected_uv_set_names = []
+        uv_set_object_name_dic = {}
+        uv_set_pointer_dic = {}
+        it = 0
+        while it < self.number_of_uv_sets_in_listWidget:
+            item = self.uv_sets_list_widget.item(it)
+            uv_set_pointers.append(item)
+            item_text = item.text()
+            uv_set_split = item_text.split(':')
+            uv_set_object_name = uv_set_split[1]
+            uv_set_object_name_dic[item_text] = uv_set_object_name
+            it = it + 1
+        for selected_uv_set_pointer in selected_uv_sets_pointers:
+            selected_uv_set_pointers.append(selected_uv_set_pointer)
+            it_text = selected_uv_set_pointer.text()
+            selected_uv_set_names.append(it_text)
+            selected_uv_set_split = it_text.split(':')
+            selected_uv_set_object_name = selected_uv_set_split[1]
+            for uv_set_pointer in uv_set_pointers:
+                if str(uv_set_pointer) != str(selected_uv_set_pointer):
+                    uv_set_name = uv_set_pointer.text()
+                    object_name = uv_set_object_name_dic[uv_set_name]
+                    if object_name == selected_uv_set_object_name:
+                        uv_set_pointer.setSelected(False)
+            self.unlock_uv_sets_QListWidget()
+            selected_uv_set_pointer.setSelected(True)
+            self.lock_selected_uv_sets_QListWidget()
+#---------- window ----------
 
     def texture_linker_UI(self):
         window_name = "uv_set_editor"
