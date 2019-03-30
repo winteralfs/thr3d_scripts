@@ -3,9 +3,8 @@ import os
 import maya.OpenMayaUI as mui
 from functools import partial
 from PySide2 import QtWidgets,QtCore,QtGui
+from PySide2.QtCore import Qt
 import shiboken2
-
-print 'fri night 2'
 
 class UV_SET_EDITOR(object):
     def __init__(self):
@@ -52,6 +51,27 @@ class UV_SET_EDITOR(object):
                     i = i + 1
                 it = it + 1
 
+    def activate_uv_set_layout(self):
+        self.texture_selected_length = len(self.selected_texture_text)
+        if self.texture_selected_length == 0:
+            self.uv_sets_list_widget.setStyleSheet('QListWidget {background-color: #292929; color: #515151;}')
+            it = 0
+            while it < self.number_of_uv_sets_in_listWidget:
+                item = self.uv_sets_list_widget.item(it)
+                item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
+                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                it = it + 1
+        else:
+            self.uv_sets_list_widget.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
+            it = 0
+            while it < self.number_of_uv_sets_in_listWidget:
+                item = self.uv_sets_list_widget.item(it)
+                item.setFlags(item.flags() | Qt.ItemIsSelectable)
+                item.setFlags(item.flags() | Qt.ItemIsEnabled)
+                item.setFlags(item.flags() | Qt.ItemIsEditable)
+                it = it + 1
+
     def populate_uv_set_editor_window(self):
         self.evaluate_textures_in_scene()
         self.evaluate_UV_sets_in_scene()
@@ -62,11 +82,13 @@ class UV_SET_EDITOR(object):
         for uv_set in self.uv_sets_all:
             self.uv_sets_list_widget.addItem(uv_set)
         self.number_of_uv_sets_in_listWidget = self.uv_sets_list_widget.count()
+        self.activate_uv_set_layout()
 
     def texture_press(self,item):
         self.deselect_QListWidget(self.uv_sets_list_widget)
         self.texture_linked_uv_sets = []
         self.selected_texture_text = item.text()
+        self.activate_uv_set_layout()
         uv_set_addresses_linked_to_selected_texture = cmds.uvLink( query = True, texture = self.selected_texture_text)
         number_of_linked_uv_sets = len(uv_set_addresses_linked_to_selected_texture)
         for uv_set_name_to_address in self.uv_set_name_to_address_dic:
@@ -80,10 +102,12 @@ class UV_SET_EDITOR(object):
         it = 0
         while it < self.number_of_uv_sets_in_listWidget:
             item = self.uv_sets_list_widget.item(it)
+            item.setFlags(item.flags() | Qt.ItemIsEnabled)
             item_text = item.text()
             for uv_set in self.texture_linked_uv_sets:
                 if uv_set == item_text:
                     item.setSelected(True)
+                    item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
             it = it + 1
 
     def uv_set_listWidget_conflict_detect(self):
@@ -123,7 +147,6 @@ class UV_SET_EDITOR(object):
 
     def link_texture_to_uv_set(self):
         selected_uv_sets = []
-        number_of_selected_uv_sets = len(selected_uv_sets)
         self.uv_set_listWidget_conflict_detect()
         selected_uv_set_pointers = self.uv_sets_list_widget.selectedItems()
         for pointer in selected_uv_set_pointers:
@@ -133,7 +156,6 @@ class UV_SET_EDITOR(object):
             for selected_uv_set in selected_uv_sets:
                 if selected_uv_set == uv_set_name_to_address:
                     texture_linked_uv_set_address = self.uv_set_name_to_address_dic[selected_uv_set]
-                    print 'linking ' + self.selected_texture_text + ' to set ' + selected_uv_set
                     cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = self.selected_texture_text)
 
     def texture_linker_UI(self):
@@ -167,8 +189,6 @@ class UV_SET_EDITOR(object):
         self.populate_uv_set_editor_window()
         self.uv_set_listWidget_conflict_detect()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        #self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged", self.populate_texture_window])
-        #self.print_links()
         window.show()
 
 def main():
