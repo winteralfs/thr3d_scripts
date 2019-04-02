@@ -6,8 +6,6 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'monday night'
-
 class UV_SET_EDITOR(object):
     def __init__(self):
         self.selected_texture_text = ''
