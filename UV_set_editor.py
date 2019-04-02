@@ -6,6 +6,8 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
+print 'monday night'
+
 class UV_SET_EDITOR(object):
     def __init__(self):
         self.selected_texture_text = ''
@@ -85,16 +87,91 @@ class UV_SET_EDITOR(object):
         self.clear_layout(self.textures_list_widget)
         self.clear_layout(self.uv_sets_list_widget)
         for texture in self.all_textures:
-            if texture != 'gi_std_lgt' and texture != 'reflection_sdt_lgt' and texture != 'refraction_sdt_lgt':
+            if texture != 'gi_std_lgt' or texture != 'reflection_sdt_lgt' or texture != 'refraction_sdt_lgt':
                 self.textures_list_widget.addItem(texture)
         for uv_set in self.uv_sets_all:
-            self.uv_sets_list_widget.addItem(uv_set)
+            if uv_set != 'polySurfaceShape' or uv_set != 'polySurfaceShape1' or uv_set != 'polySurfaceShape2':
+                self.uv_sets_list_widget.addItem(uv_set)
         self.number_of_uv_sets_in_listWidget = self.uv_sets_list_widget.count()
         self.activate_uv_set_listWidget()
 
     def evaluate_textures_in_scene(self):
-        file_textures = cmds.ls(type = 'file')
-        ramp_textures = cmds.ls(type = 'ramp')
+        file_textures_all = cmds.ls(type = 'file')
+        #print 'file_textures_all = ',file_textures_all
+        file_textures = []
+        ramp_textures_all = cmds.ls(type = 'ramp')
+        ramp_textures = []
+        for file in file_textures_all:
+            #print ' '
+            #print 'file = ',file
+            valid_file = 0
+            if file == 'gi_std_lgt' or file == 'reflection_sdt_lgt' or file == 'refraction_sdt_lgt':
+                valid_file = 0
+            file_connections = cmds.listConnections(file,source = False)
+            #print 'file_connections = ',file_connections
+            for connection in file_connections:
+                #print 'connection = ',connection
+                connection_type = cmds.nodeType(connection)
+                #print 'connection_type = ',connection_type
+                if connection_type == 'VRayMtl' or connection_type == 'phong' or connection_type == 'blend' or connection_type == 'layeredTexture' or connection_type == 'remapHsv' or connection_type == 'multiplyDivide' or connection_type == 'remapColor' or connection_type == 'VRayRenderElement':
+                    valid_file = 1
+            if valid_file == 1:
+                #print 'adding ' + file + ' to list'
+                file_textures.append(file)
+        #print 'file_textures = ',file_textures
+        for ramp in ramp_textures_all:
+            light_ramp = 0
+            ramp_connections = cmds.listConnections(ramp, source = False) or []
+            for ramp_connection in ramp_connections:
+                ramp_connection_type = cmds.nodeType(ramp_connection)
+                if ramp_connection_type == 'transform':
+                    ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
+                    for ramp_connection_sub in ramp_connection_subs:
+                        ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
+                        if ramp_connection_sub_type == 'VRayLightRectShape':
+                            light_ramp = 1
+                else:
+                    ramp_connections_1 = cmds.listConnections(ramp_connection, source = False) or []
+                    for ramp_connection in ramp_connections_1:
+                        ramp_connection_type = cmds.nodeType(ramp_connection)
+                        if ramp_connection_type == 'transform':
+                            ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
+                            for ramp_connection_sub in ramp_connection_subs:
+                                ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
+                                if ramp_connection_sub_type == 'VRayLightRectShape':
+                                    light_ramp = 1
+                        else:
+                            ramp_connections_2 = cmds.listConnections(ramp_connection, source = False) or []
+                            for ramp_connection in ramp_connections_2:
+                                ramp_connection_type = cmds.nodeType(ramp_connection)
+                                if ramp_connection_type == 'transform':
+                                    ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
+                                    for ramp_connection_sub in ramp_connection_subs:
+                                        ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
+                                        if ramp_connection_sub_type == 'VRayLightRectShape':
+                                            light_ramp = 1
+                                else:
+                                    ramp_connections_3 = cmds.listConnections(ramp_connection, source = False) or []
+                                    for ramp_connection in ramp_connections_3:
+                                        ramp_connection_type = cmds.nodeType(ramp_connection)
+                                        if ramp_connection_type == 'transform':
+                                            ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
+                                            for ramp_connection_sub in ramp_connection_subs:
+                                                ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
+                                                if ramp_connection_sub_type == 'VRayLightRectShape':
+                                                    light_ramp = 1
+                                        else:
+                                            ramp_connections_4 = cmds.listConnections(ramp_connection, source = False) or []
+                                            for ramp_connection in ramp_connections_4:
+                                                ramp_connection_type = cmds.nodeType(ramp_connection)
+                                                if ramp_connection_type == 'transform':
+                                                    ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
+                                                    for ramp_connection_sub in ramp_connection_subs:
+                                                        ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
+                                                        if ramp_connection_sub_type == 'VRayLightRectShape':
+                                                            light_ramp = 1
+            if light_ramp == 0:
+                ramp_textures.append(ramp)
         self.all_textures = file_textures + ramp_textures
 
     def evaluate_UV_sets_in_scene(self):
@@ -103,9 +180,6 @@ class UV_SET_EDITOR(object):
         self.uv_set_selection_status_dic = {}
         transorms_objects = cmds.ls(type = 'shape')
         transorms_objects_tmp = transorms_objects
-        for object in transorms_objects_tmp:
-            if 'polySurfaceShape' in object:
-                transorms_objects.remove(object)
         for object in transorms_objects:
             cmds.select(clear = True)
             cmds.select(object)
