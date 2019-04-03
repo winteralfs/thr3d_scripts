@@ -157,7 +157,7 @@ class LAYERS_WINDOW_TOOL(object):
                 while it < it_list_count:
                     for attr in attrs:
                         if self.object_type == 'VRayPlaceEnvTex':
-                            print 'attr = ',attr               
+                            print 'attr = ',attr
                         #print '---'
                         #print '---'
                         #print 'attr = ',attr
