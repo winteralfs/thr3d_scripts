@@ -24,11 +24,11 @@ def object_replace():
     reload(object_replace)
     object_replace.main()
 
-def textures_swap():
-    print "textures_swap function"
-    import textures_swap
-    reload(textures_swap)
-    textures_swap.main()
+def texture_swap():
+    print "texture_swap function"
+    import texture_swap
+    reload(texture_swap)
+    texture_swap.main()
 
 def attributes_swapper():
     print "attributes_swapper function"
@@ -72,6 +72,12 @@ def rename_shading_groups():
     reload(rename_shading_groups)
     rename_shading_groups.main()
 
+def UV_set_editor():
+    print "UV_set_editor function"
+    import UV_set_editor
+    reload(UV_set_editor)
+    UV_set_editor.main()
+
 def build_custom_shelf():
     main_shelf = mel.eval('$tempMelVar=$gShelfTopLevel')
     name = "Lighting_Tools"
@@ -94,7 +100,7 @@ def build_custom_shelf():
     annotation = 'Object Replace: Replaces one object with another, transfering most attributes settings and shader assignments'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/objectReplacer_Logo_small.jpg', command = partial(object_replace))
     annotation = 'Texture Swap: Transfers the connections and settings from one set of textures to another'
-    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/texture_swapper_Logo_small.jpg', command = partial(textures_swap))
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/texture_swapper_Logo_small.jpg', command = partial(texture_swap))
     annotation = 'Render Layer Tool: Many useful tools for render layer management'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/layer_tool_Logo_small.jpg', command = partial(layers_tool))
     annotation = 'Hypershade Cleaner: Deletes unused shaders and textures from the hypershade'
@@ -107,3 +113,5 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/shotgun_links_tool_Logo_small.jpg', command = partial(quick_links))
     annotation = 'rename shading groups, add/delete a postfix to materials nodes'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(rename_shading_groups))
+    annotation = 'UV set editor, texture based, faster, and not based on object selection'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(UV_set_editor))
