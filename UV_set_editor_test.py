@@ -109,6 +109,14 @@ class UV_SET_EDITOR(object):
                 self.list_widget_left.addItem(uv_set)
             self.number_of_items_in_left_listWidget = self.list_widget_left.count()
             self.number_of_items_in_right_listWidget = self.list_widget_right.count()
+            i = 0
+            while i < self.number_of_items_in_left_listWidget:
+                item = self.list_widget_left.item(i)
+                item_text = item.text()
+                if item_text == '---':
+                    item.setTextColor(QtGui.QColor("#858585"))
+                    item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                i = i + 1
             self.activate_right_listWidget()
 
     def evaluate_textures_in_scene(self):
@@ -234,11 +242,11 @@ class UV_SET_EDITOR(object):
             self.update_right_listWidget()
         if self.centric_state_text == 'UV-centric':
             print 'uv_centric press'
-            #self.deselect_QListWidget(self.list_widget_right)
-            #print 'self.uv_set_name_to_address_dic = ',self.uv_set_name_to_address_dic
+            self.selected_item_text = item.text()
             print 'self.selected_item_text = ',self.selected_item_text
+            self.activate_right_listWidget()
             selected_uv_set_address = self.uv_set_name_to_address_dic[self.selected_item_text]
-            #print 'selected_uv_set_address = ',selected_uv_set_address
+            print 'selected_uv_set_address = ',selected_uv_set_address
             self.textures_linked_to_selected_uv_set = cmds.uvLink( query=True, uvSet = selected_uv_set_address)
             print 'self.textures_linked_to_selected_uv_set = ',self.textures_linked_to_selected_uv_set
             self.update_right_listWidget()
@@ -337,18 +345,30 @@ class UV_SET_EDITOR(object):
                         cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = self.selected_item_text)
             self.lock_selected_right_QListWidget()
         if self.centric_state_text == 'UV-centric':
+            selected_textures = []
             print 'link_texture_to_uv_set - UV-centric'
             selected_right_pointers = self.list_widget_right.selectedItems()
             print 'selected_right_pointers = ',selected_right_pointers
             #self.deselect_QListWidget(self.list_widget_right)
-            for pointer in selected_right_pointers:
-                pointer_text = pointer.text()
-                print 'pointer_text = ',pointer_text
-                pointer.setSelected(True)
-                print 'setting ' + pointer_text + ' to selected'
+            for selected_pointer in selected_right_pointers:
+                selected_pointer_text = selected_pointer.text()
+                selected_textures.append(selected_pointer_text)
+                print 'selected_pointer_text = ',selected_pointer_text
+                selected_pointer.setSelected(True)
+                print 'setting ' + str(selected_pointer) + ' to selected'
                 selected_uv_set_address = self.uv_set_name_to_address_dic[self.selected_item_text]
-                print 'linking ' + selected_uv_set_address + ' to uv_set ' + pointer_text
-                cmds.uvLink(make = True, uvSet = selected_uv_set_address,texture = pointer_text)
+                print 'linking ' + selected_uv_set_address + ' to uv_set ' + selected_pointer_text
+                cmds.uvLink(make = True, uvSet = selected_uv_set_address,texture = selected_pointer_text)
+            i = 0
+            while i < self.number_of_items_in_right_listWidget:
+                item = self.list_widget_right.item(i)
+                item_text = item.text()
+                if item_text not in selected_textures:
+                    item.setSelected(False)
+                    uv_set_address = self.uv_set_name_to_address_dic[self.selected_item_text]
+                    print 'unlinking ' + item_text + 'from ' + self.selected_item_text
+                    cmds.uvLink(b = True, uvSet = uv_set_address,texture = item_text)
+                i = i + 1
 
 #---------- window ----------
 
