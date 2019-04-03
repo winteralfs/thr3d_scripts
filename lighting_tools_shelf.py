@@ -114,4 +114,4 @@ def build_custom_shelf():
     annotation = 'rename shading groups, add/delete a postfix to materials nodes'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(rename_shading_groups))
     annotation = 'UV set editor, texture based, faster, and not based on object selection'
-    cmds.shelfButton(annotation = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(UV_set_editor))
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(UV_set_editor))

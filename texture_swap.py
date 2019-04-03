@@ -1,3 +1,5 @@
+print 'background color'
+
 import maya.mel as mel
 import maya.cmds as cmds
 import os
@@ -19,7 +21,7 @@ class texture_replacer():
 
     def populate_texture_window(self):
         self.texture_thumbnails_listWidget.clear()
-        placement_range_for_arrow = [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100]
+        placement_range_for_arrow = [0,2,4,7,10,13,16,19,22,25,28,31,34,37,40,43,44,47,50,53,56,59,62,65,68,71,74,77,80,83,86,89,92,95,98,101]
         self.textures_for_swap = []
         self.textures_for_swap_dic = {}
         texture_selections = cmds.ls(sl = True)
@@ -179,5 +181,3 @@ class texture_replacer():
 def main():
     swap = texture_replacer()
     swap.texture_linker_UI()
-
-main()
