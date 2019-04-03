@@ -73,7 +73,7 @@ def rename_shading_groups():
     rename_shading_groups.main()
 
 def UV_set_editor():
-    print "UV_set_editor function"
+    print "rename_shading_groups function"
     import UV_set_editor
     reload(UV_set_editor)
     UV_set_editor.main()
@@ -113,5 +113,5 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/shotgun_links_tool_Logo_small.jpg', command = partial(quick_links))
     annotation = 'rename shading groups, add/delete a postfix to materials nodes'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(rename_shading_groups))
-    annotation = 'UV set editor, texture based, faster, and not based on object selection'
-    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(UV_set_editor))
+    annotation = 'UV set editor, not object selection based, faster'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/uv_set_editor_logo_small.jpg', command = partial(UV_set_editor))
