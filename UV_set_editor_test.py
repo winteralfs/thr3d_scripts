@@ -315,14 +315,23 @@ class UV_SET_EDITOR(object):
                 item_text_selection_status = self.uv_set_selection_status_dic[item_text + ":" + self.selected_item_text]
                 print 'item_text_selection_status = ',item_text_selection_status
                 linked_uv_set_object = ''
+                print 'self.textures_linked_to_selected_uv_set = ',self.textures_linked_to_selected_uv_set
                 for texture in self.textures_linked_to_selected_uv_set:
                     print 'texture = ',texture
                     if texture == item_text:
                         print 'setting ' + item_text + ' to selected'
-                        item.setSelected(True)
                         self.uv_set_selection_status_dic[item_text + ":" + self.selected_item_text] = 1
+                        item.setSelected(True)
+                        selected_item_text_split = self.selected_item_text.split(':')
+                        print 'selected_item_text_split = ',selected_item_text_split
+                        self.selected_item_text_uv_map = selected_item_text_split[1]
+                        print 'self.selected_item_text_uv_map = ',self.selected_item_text_uv_map
+                        if self.selected_item_text_uv_map == 'map1':
+                            print 'setting map1 to unselectable'
+                            #item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
+                            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                 it = it + 1
-        print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            print 'update_right_listWidget -self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
     def right_listWidget_conflict_detect(self):
         print ' '
@@ -359,7 +368,7 @@ class UV_SET_EDITOR(object):
             self.unlock_right_QListWidget()
             selected_uv_set_pointer.setSelected(True)
             self.uv_set_selection_status_dic[self.selected_item_text + ':' + it_text] = 1
-        print 'uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        print 'end of uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
     def link_texture_to_uv_set(self):
         print ' '
@@ -381,17 +390,16 @@ class UV_SET_EDITOR(object):
         if self.centric_state_text == 'UV-centric':
             selected_textures = []
             print 'link_texture_to_uv_set - UV-centric'
-            print '1 self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             print 'selected uv set is ',self.selected_item_text
             selected_right_pointers = self.list_widget_right.selectedItems()
-            print 'selected_right_pointers = ',selected_right_pointers
             for selected_pointer in selected_right_pointers:
                 selected_pointer_text = selected_pointer.text()
                 selected_textures.append(selected_pointer_text)
                 print 'selected_pointer_text = ',selected_pointer_text
-                print 'setting ' + selected_pointer_text + ' to selected'
-                selected_pointer.setSelected(True)
-                self.uv_set_selection_status_dic[selected_pointer_text + ':' + self.selected_item_text] = 1
+                #print 'setting ' + selected_pointer_text + ' to selected'
+                #selected_pointer.setSelected(True)
+                #self.uv_set_selection_status_dic[selected_pointer_text + ':' + self.selected_item_text] = 1
                 selected_uv_set_address = self.uv_set_name_to_address_dic[self.selected_item_text]
                 print 'linking ' + self.selected_item_text + ' to uv_set ' + selected_pointer_text
                 cmds.uvLink(make = True, uvSet = selected_uv_set_address,texture = selected_pointer_text)
@@ -405,22 +413,22 @@ class UV_SET_EDITOR(object):
                 item_text = item.text()
                 print 'item_text =', item_text
                 if item_text not in selected_textures:
-                    selection_status = self.uv_set_selection_status_dic[item_text + ':' + self.selected_item_text]
-                    print 'selection_status = ',selection_status
-                    if selection_status == 0:
-                        print 'setting ' + item_text + ' to unselected'
-                        item.setSelected(False)
-                        print 'item_text = ', item_text
-                        print 'self.selected_item_text = ',self.selected_item_text
-                        print 'setting selection status of ' + (item_text + ':' + self.selected_item_text) + 'to 0'
-                        self.uv_set_selection_status_dic[item_text + ':' + self.selected_item_text] = 0
-                        uv_set_address = self.uv_set_name_to_address_dic[self.selected_item_text]
-                        print 'unlinking ' + item_text + 'from ' + self.selected_item_text
-                        cmds.uvLink(b = True, uvSet = uv_set_address,texture = item_text)
-                    else:
-                        item.setSelected(True)
+                    #selection_status = self.uv_set_selection_status_dic[item_text + ':' + self.selected_item_text]
+                    #print 'selection_status = ',selection_status
+                    #if selection_status == 0:
+                    print 'setting ' + item_text + ' to unselected'
+                    item.setSelected(False)
+                    print 'item_text = ', item_text
+                    print 'self.selected_item_text = ',self.selected_item_text
+                    print 'setting selection status of ' + (item_text + ':' + self.selected_item_text) + ' to 0'
+                    self.uv_set_selection_status_dic[item_text + ':' + self.selected_item_text] = 0
+                    uv_set_address = self.uv_set_name_to_address_dic[self.selected_item_text]
+                    print 'unlinking ' + item_text + 'from ' + self.selected_item_text
+                    cmds.uvLink(b = True, uvSet = uv_set_address,texture = item_text)
+                    #else:
+                        #item.setSelected(True)
                 i = i + 1
-            print '2 self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
 #---------- window ----------
 
