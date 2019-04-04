@@ -328,8 +328,13 @@ class UV_SET_EDITOR(object):
                         print 'self.selected_item_text_uv_map = ',self.selected_item_text_uv_map
                         if self.selected_item_text_uv_map == 'map1':
                             print 'setting map1 to unselectable'
-                            #item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
                             item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                for uv_set_selection_status in self.uv_set_selection_status_dic:
+                    selection_status = self.uv_set_selection_status_dic[item_text + ":" + self.selected_item_text]
+                    print 'selection_status = ',selection_status
+                    if selection_status == 1:
+                        print 'setting ' + item_text + ' to selected'
+                        item.setSelected(True)
                 it = it + 1
             print 'update_right_listWidget -self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
@@ -397,13 +402,13 @@ class UV_SET_EDITOR(object):
                 selected_pointer_text = selected_pointer.text()
                 selected_textures.append(selected_pointer_text)
                 print 'selected_pointer_text = ',selected_pointer_text
-                #print 'setting ' + selected_pointer_text + ' to selected'
-                #selected_pointer.setSelected(True)
-                #self.uv_set_selection_status_dic[selected_pointer_text + ':' + self.selected_item_text] = 1
+                print 'setting selection status of ' + (selected_pointer_text + ':' + self.selected_item_text) + ' to 1'
+                self.uv_set_selection_status_dic[selected_pointer_text + ':' + self.selected_item_text] = 1
                 selected_uv_set_address = self.uv_set_name_to_address_dic[self.selected_item_text]
                 print 'linking ' + self.selected_item_text + ' to uv_set ' + selected_pointer_text
                 cmds.uvLink(make = True, uvSet = selected_uv_set_address,texture = selected_pointer_text)
             i = 0
+            print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             print '---'
             print 'unselecting'
             print 'uv set = ',self.selected_item_text
@@ -412,9 +417,9 @@ class UV_SET_EDITOR(object):
                 item = self.list_widget_right.item(i)
                 item_text = item.text()
                 print 'item_text =', item_text
-                if item_text not in selected_textures:
-                    #selection_status = self.uv_set_selection_status_dic[item_text + ':' + self.selected_item_text]
-                    #print 'selection_status = ',selection_status
+                selection_status = self.uv_set_selection_status_dic[item_text + ':' + self.selected_item_text]
+                print 'selection_status = ',selection_status
+                if item_text not in selected_textures and selection_status == 0:
                     #if selection_status == 0:
                     print 'setting ' + item_text + ' to unselected'
                     item.setSelected(False)
@@ -428,7 +433,7 @@ class UV_SET_EDITOR(object):
                     #else:
                         #item.setSelected(True)
                 i = i + 1
-            print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            print 'end link_texture_to_uv_set self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
 #---------- window ----------
 
