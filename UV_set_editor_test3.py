@@ -303,12 +303,10 @@ class UV_SET_EDITOR(object):
                 if item_text == '---':
                     item.setTextColor(QtGui.QColor("#858585"))
                 if item_text != '---':
-                    #print 'item_text = ',item_text
                     item_text_split = item_text.split(":")
                     item_text_name = item_text_split[1]
                     item_text_object = item_text_split[0]
                     item_text_selection_status = self.uv_set_selection_status_dic[self.selected_item_text + ':' + item_text]
-                    #print 'item_text_selection_status = ',item_text_selection_status
                     linked_uv_set_object = ''
                     for linked_uv_set in self.texture_linked_uv_sets:
                         if linked_uv_set == item_text:
@@ -323,46 +321,44 @@ class UV_SET_EDITOR(object):
                         print 'linked_uv_set_object = ',linked_uv_set_object
                         if item_text_object != linked_uv_set_object:
                             if item_text_selection_status == 0:
-                                #print 'dic deselecting ' + item_text
                                 item.setSelected(False)
                             if item_text_selection_status == 1:
-                                #print 'dic selecting ' + item_text
                                 print 'setting ' + item_text + ' to selected'
                                 print ' '
                                 item.setSelected(True)
                 it = it + 1
         if self.centric_state_text == 'UV-centric':
             print 'update_right_listWidget centric_state uv-centric'
-            print 'start update_right_listWidget self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            print 'self.textures_linked_to_selected_uv_set = ',self.textures_linked_to_selected_uv_set
+            self.deselect_QListWidget(self.list_widget_right)
+            #print 'self.number_of_items_in_right_listWidget = ',self.number_of_items_in_right_listWidget
+            #print 'start update_right_listWidget self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             #selected_textures = []
             #linked_uv_set_object = ''
-            self.selected_items_right_listWidget()
-            self.deselect_QListWidget(self.list_widget_right)
-            print 'selected_items_right_text = ',self.selected_items_right_text
-            it = 0
-            #print 'self.number_of_items_in_right_listWidget = ',self.number_of_items_in_right_listWidget
-            while it < self.number_of_items_in_right_listWidget:
-                #print it
-                item = self.list_widget_right.item(it)
-                item_text = item.text()
+            #self.selected_items_right_listWidget()
+            #print 'selected_items_right_text = ',self.selected_items_right_text
+            #it = 0
+            #while it < self.number_of_items_in_right_listWidget:
+                #item = self.list_widget_right.item(it)
+                #item_text = item.text()
                 #print 'selected item_text = ',self.selected_item_text
                 #print 'item_text = ',item_text
                 #print 'textures_linked_to_selected_uv_set = ',self.textures_linked_to_selected_uv_set
-                for texture in self.textures_linked_to_selected_uv_set:
+                #for texture in self.textures_linked_to_selected_uv_set:
                     #print 'texture = ',texture
-                    if texture == item_text:
+                    #if texture == item_text:
                         #print 'setting ' + item_text + ' to selected'
-                        self.uv_set_selection_status_dic[item_text + ":" + self.selected_item_text] = 1
-                        item.setSelected(True)
-                        item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-                        selected_item_text_split = self.selected_item_text.split(':')
+                        #self.uv_set_selection_status_dic[item_text + ":" + self.selected_item_text] = 1
+                        #item.setSelected(True)
+                        #item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                        #selected_item_text_split = self.selected_item_text.split(':')
                         #print 'selected_item_text_split = ',selected_item_text_split
-                        self.selected_item_text_uv_map = selected_item_text_split[1]
+                        #self.selected_item_text_uv_map = selected_item_text_split[1]
                         #print 'self.selected_item_text_uv_map = ',self.selected_item_text_uv_map
-                        if self.selected_item_text_uv_map == 'map1':
+                        #if self.selected_item_text_uv_map == 'map1':
                             #print 'setting map1 to unselectable'
-                            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-                it = it + 1
+                            #item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                #it = it + 1
                 #for uv_set in self.uv_set_selection_status_dic:
                     #i = 0
                     #selected_item_text_split = self.selected_item_text.split(":")
