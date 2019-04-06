@@ -396,18 +396,34 @@ class UV_SET_EDITOR(object):
                 self.uv_set_selection_status_dic[self.selected_item_text + ':' + it_text] = 1
         print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         if self.centric_state_text == 'UV-centric':
+            print 'selected_item_text = ',self.selected_item_text
+            selected_item_text_split = self.selected_item_text.split(":")
+            selected_item_text_object = selected_item_text_split[0]
+            print 'selected_item_text_object = ',selected_item_text_object
+            selected_item_text_uv_set = selected_item_text_split[1]
             self.selected_items_right_listWidget()
-            #print 'right_listWidget_selection_eval - UV-centric'
-            #print 'start right_listWidget_selection_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-            #print 'selected uv set is ',self.selected_item_text
-            #print 'self.selected_items_right_text = ',self.selected_items_right_text
             for selected_item_right_text in self.selected_items_right_text:
-                #print 'selected_item_right_text =', selected_item_right_text
-                #print 'updating ' + selected_item_right_text + ' in the dic to 1'
                 self.uv_set_selection_status_dic[selected_item_right_text + ':' + self.selected_item_text] = 1
+                for uv_set_selection in self.uv_set_selection_status_dic:
+                    uv_set_selection_split = uv_set_selection.split(":")
+                    uv_set_selection_texture = uv_set_selection_split[0]
+                    uv_set_selection_object = uv_set_selection_split[1]
+                    uv_set = uv_set_selection_split[2]
+                    print 'uv_set_selection = ',uv_set_selection
+                    print 'uv_set_selection_object = ',uv_set_selection_object
+                    if uv_set_selection_object == selected_item_text_object:
+                        print 'matched object'
+                        if uv_set_selection_texture == selected_item_right_text:
+                            print 'matched texture'
+                            print 'setting ' + uv_set_selection + 'to unselected'
+                            if uv_set != selected_item_text_uv_set:
+                                print 'did not match UVs'
+                                print 'setting ' + uv_set_selection + 'to unselected'
+                                self.uv_set_selection_status_dic[uv_set_selection] = 0
             for texture in self.all_textures:
                 if texture not in self.selected_items_right_text:
                     self.uv_set_selection_status_dic[texture + ':' + self.selected_item_text] = 0
+
             print 'end right_listWidget_selection_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             print '-----'
         self.link_texture_to_uv_set()
