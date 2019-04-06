@@ -379,16 +379,17 @@ class UV_SET_EDITOR(object):
             selected_item_text_object = selected_item_text_split[0]
             selected_item_text_uv_set = selected_item_text_split[1]
             self.selected_items_right_listWidget()
-            self.uv_set_selection_status_dic[selected_item_right_text + ':' + self.selected_item_text] = 1
-            for uv_set_selection in self.uv_set_selection_status_dic:
-                uv_set_selection_split = uv_set_selection.split(":")
-                uv_set_selection_texture = uv_set_selection_split[0]
-                uv_set_selection_object = uv_set_selection_split[1]
-                uv_set = uv_set_selection_split[2]
-                if uv_set_selection_object == selected_item_text_object:
-                    if uv_set_selection_texture == selected_item_right_text:
-                        if uv_set != selected_item_text_uv_set:
-                            self.uv_set_selection_status_dic[uv_set_selection] = 0
+            for selected_item_right_text in self.selected_items_right_text:
+                self.uv_set_selection_status_dic[selected_item_right_text + ':' + self.selected_item_text] = 1
+                for uv_set_selection in self.uv_set_selection_status_dic:
+                    uv_set_selection_split = uv_set_selection.split(":")
+                    uv_set_selection_texture = uv_set_selection_split[0]
+                    uv_set_selection_object = uv_set_selection_split[1]
+                    uv_set = uv_set_selection_split[2]
+                    if uv_set_selection_object == selected_item_text_object:
+                        if uv_set_selection_texture == selected_item_right_text:
+                            if uv_set != selected_item_text_uv_set:
+                                self.uv_set_selection_status_dic[uv_set_selection] = 0
             for texture in self.all_textures:
                 if texture not in self.selected_items_right_text:
                     self.uv_set_selection_status_dic[texture + ':' + self.selected_item_text] = 0
@@ -422,12 +423,6 @@ class UV_SET_EDITOR(object):
                                 no_select = 0
                     if no_select == 1:
                         self.uv_set_selection_status_dic[unselected_uv_set_map1] = 1
-            selected_item_text_split = self.selected_item_text.split(":")
-            selected_item_text_uv_map = selected_item_text_split[1]
-            if selected_item_text_uv_map == 'map1':
-                selected_pointers = self.list_widget_right.selectedItems()
-                for selected_pointer in selected_pointers:
-                    selected_pointer.setFlags(selected_pointer.flags() & ~Qt.ItemIsEnabled)
         self.link_texture_to_uv_set()
 
     def link_texture_to_uv_set(self):
