@@ -105,25 +105,8 @@ class UV_SET_EDITOR(object):
         self.list_widget_left.clear()
         self.list_widget_right.clear()
         if self.centric_state_text == 'texture-centric':
-            self.list_widget_left.setViewMode(QtWidgets.QListView.IconMode)
-            self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
-            self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
-                #print 'texture = ',texture
-                attr_string = (texture + '.fileTextureName')
-                #print 'attr_string = ',attr_string
-                file_node_type = cmds.nodeType(texture)
-                if file_node_type == 'file':
-                    image_path = cmds.getAttr(texture + '.fileTextureName')
-                    #print 'image_path =',image_path
-                    texture_item = QtWidgets.QListWidgetItem(texture)
-                    texture_pixmap = QtGui.QPixmap(image_path)
-                    texture_icon = QtGui.QIcon()
-                    texture_icon.addPixmap(texture_pixmap)
-                    texture_item.setIcon(texture_icon)
-                    self.list_widget_left.addItem(texture_item)
-                if file_node_type != 'file':
-                    self.list_widget_right.addItem(texture)
+                self.list_widget_left.addItem(texture)
             for uv_set in self.uv_sets_all:
                 self.list_widget_right.addItem(uv_set)
             self.number_of_items_in_left_listWidget = self.list_widget_left.count()
@@ -131,26 +114,8 @@ class UV_SET_EDITOR(object):
             self.activate_right_listWidget()
             self.initial_uv_set_name_to_address_dic_eval()
         if self.centric_state_text == 'UV-centric':
-            self.list_widget_right.setViewMode(QtWidgets.QListView.IconMode)
-            self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
-            self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
-                #print 'texture = ',texture
-                attr_string = (texture + '.fileTextureName')
-                #print 'attr_string = ',attr_string
-                file_node_type = cmds.nodeType(texture)
-                if file_node_type == 'file':
-                    image_path = cmds.getAttr(texture + '.fileTextureName')
-                    image_path = cmds.getAttr(texture + '.fileTextureName')
-                    print 'image_path =',image_path
-                    texture_item = QtWidgets.QListWidgetItem(texture)
-                    texture_pixmap = QtGui.QPixmap(image_path)
-                    texture_icon = QtGui.QIcon()
-                    texture_icon.addPixmap(texture_pixmap)
-                    texture_item.setIcon(texture_icon)
-                    self.list_widget_right.addItem(texture_item)
-                if file_node_type != 'file':
-                    self.list_widget_right.addItem(texture)
+                self.list_widget_right.addItem(texture)
             for uv_set in self.uv_sets_all:
                 self.list_widget_left.addItem(uv_set)
             self.number_of_items_in_left_listWidget = self.list_widget_left.count()
@@ -336,7 +301,6 @@ class UV_SET_EDITOR(object):
                 if item_text == '---':
                     item.setTextColor(QtGui.QColor("#858585"))
                 if item_text != '---':
-                    print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
                     item_text_selection_status = self.uv_set_selection_status_dic[self.selected_item_text + ':' + item_text]
                     if item_text_selection_status == 1:
                         item.setSelected(True)
@@ -509,23 +473,18 @@ class UV_SET_EDITOR(object):
         self.label_layout.addWidget(self.left_label)
         self.label_layout.addWidget(self.right_label)
         self.list_layout = QtWidgets.QHBoxLayout(main_widget)
-        self.list_layout_left = QtWidgets.QHBoxLayout(main_widget)
-        self.list_layout_right = QtWidgets.QHBoxLayout(main_widget)
         main_vertical_layout.addLayout(self.list_layout)
-        self.list_layout.addLayout(self.list_layout_left)
-        self.list_layout.addLayout(self.list_layout_right)
         self.list_widget_left = QtWidgets.QListWidget()
         self.list_widget_left.itemClicked.connect(partial(self.item_press))
         self.list_widget_left.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
         self.list_widget_left.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.list_layout_left.addWidget(self.list_widget_left)
+        self.list_layout.addWidget(self.list_widget_left)
         self.list_widget_right = QtWidgets.QListWidget()
         self.list_widget_right.setSelectionMode(self.list_widget_right.MultiSelection)
         self.list_widget_right.itemClicked.connect(self.right_listWidget_selection_eval)
         self.list_widget_right.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
         self.list_widget_right.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.list_layout_right.addWidget(self.list_widget_right)
-        self.populate_windows()
+        self.list_layout.addWidget(self.list_widget_right)
         self.populate_windows()
         self.right_listWidget_selection_eval()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)

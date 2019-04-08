@@ -1,3 +1,4 @@
+import maya
 import maya.cmds as cmds
 import os
 import maya.OpenMayaUI as mui
@@ -5,6 +6,8 @@ from functools import partial
 from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
+
+print 'uv_set_editor_icons_test'
 
 class UV_SET_EDITOR(object):
     def __init__(self):
@@ -107,23 +110,38 @@ class UV_SET_EDITOR(object):
         if self.centric_state_text == 'texture-centric':
             self.list_widget_left.setViewMode(QtWidgets.QListView.IconMode)
             self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
+            self.list_widget_left.setWrapping(False)
+            self.list_layout_left.setTextAlignment(QtCore.Qt.AlignLeft)
             self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
-                #print 'texture = ',texture
                 attr_string = (texture + '.fileTextureName')
-                #print 'attr_string = ',attr_string
                 file_node_type = cmds.nodeType(texture)
                 if file_node_type == 'file':
                     image_path = cmds.getAttr(texture + '.fileTextureName')
-                    #print 'image_path =',image_path
+                    length_image_path = len(image_path)
+                    if length_image_path < 1:
+                        image_path = 'empty'
+                    mel_string = "filetest -f " + '"' + image_path + '"'
+                    texture_image_exists = maya.mel.eval(mel_string)
+                    if texture_image_exists == 1:
+                        texture_pixmap = QtGui.QPixmap(image_path)
+                    else:
+                        image_path_no_image = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                    texture_item = QtWidgets.QListWidgetItem(texture)
+                    texture_pixmap = QtGui.QPixmap(image_path_no_image)
+                    texture_icon = QtGui.QIcon()
+                    texture_icon.addPixmap(texture_pixmap)
+                    texture_item.setIcon(texture_icon)
+                    self.list_widget_left.addItem(texture_item)
+                    #self.texture_item.setTextAlignment(QtCore.Qt.AlignLeft)
+                if file_node_type != 'file':
+                    image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_left.addItem(texture_item)
-                if file_node_type != 'file':
-                    self.list_widget_right.addItem(texture)
             for uv_set in self.uv_sets_all:
                 self.list_widget_right.addItem(uv_set)
             self.number_of_items_in_left_listWidget = self.list_widget_left.count()
@@ -135,14 +153,10 @@ class UV_SET_EDITOR(object):
             self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
             self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
-                #print 'texture = ',texture
                 attr_string = (texture + '.fileTextureName')
-                #print 'attr_string = ',attr_string
                 file_node_type = cmds.nodeType(texture)
                 if file_node_type == 'file':
                     image_path = cmds.getAttr(texture + '.fileTextureName')
-                    image_path = cmds.getAttr(texture + '.fileTextureName')
-                    print 'image_path =',image_path
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
