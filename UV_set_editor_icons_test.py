@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'uv_set_editor_icons_test mon night'
+print 'uv_set_editor_icons_test tues'
 
 class UV_SET_EDITOR(object):
     def __init__(self):
@@ -114,10 +114,11 @@ class UV_SET_EDITOR(object):
             self.list_widget_left.setViewMode(QtWidgets.QListView.IconMode)
             #self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
             #self.list_widget_left.setWrapping(False)
+            self.list_widget_left.setSpacing(10)
             self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
                 texture_item = QtWidgets.QListWidgetItem(texture)
-                texture_item.setFont(QtGui.QFont('SansSerif', 15))
+                texture_item.setFont(QtGui.QFont('SansSerif', 7))
                 attr_string = (texture + '.fileTextureName')
                 file_node_type = cmds.nodeType(texture)
                 if file_node_type == 'file':
@@ -131,8 +132,8 @@ class UV_SET_EDITOR(object):
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
                         print 'no texture found,using default'
-                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
-                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/texture_test_4.jpg"
+                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/texture_test_4.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
                     self.list_widget_left.setIconSize(QtCore.QSize(105,105))
@@ -145,6 +146,7 @@ class UV_SET_EDITOR(object):
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
+                    self.list_widget_left.setIconSize(QtCore.QSize(95,95))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_left.addItem(texture_item)
@@ -161,7 +163,7 @@ class UV_SET_EDITOR(object):
             self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
                 texture_item = QtWidgets.QListWidgetItem(texture)
-                texture_item.setFont(QtGui.QFont('SansSerif', 15))
+                texture_item.setFont(QtGui.QFont('SansSerif', 7))
                 attr_string = (texture + '.fileTextureName')
                 file_node_type = cmds.nodeType(texture)
                 if file_node_type == 'file':
@@ -175,8 +177,8 @@ class UV_SET_EDITOR(object):
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
                         print 'no texture found,using default'
-                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
-                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/texture_test_4.jpg"
+                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/texture_test_4.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
                     self.list_widget_right.setIconSize(QtCore.QSize(105,105))
@@ -189,6 +191,7 @@ class UV_SET_EDITOR(object):
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
+                    self.list_widget_left.setIconSize(QtCore.QSize(105,105))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_right.addItem(texture_item)
@@ -293,7 +296,7 @@ class UV_SET_EDITOR(object):
                 cmds.select(object)
                 uv_sets = cmds.polyUVSet(allUVSets = True, query = True) or []
                 number_of_uv_sets = len(uv_sets)
-                if number_of_uv_sets > 1:
+                if number_of_uv_sets > 0:
                     self.uv_sets_all.append('---')
                     for uv_set in uv_sets:
                         uv_sets_all_string = object + ':' + uv_set
@@ -312,6 +315,7 @@ class UV_SET_EDITOR(object):
                             self.uv_set_name_to_address_dic[object + ':' + uv_set] = uv_set_address
                             i = i + 1
                         it = it + 1
+        print 'self.uv_sets_all = ',self.uv_sets_all
         self.map_uv_sets()
 
     def initial_uv_set_name_to_address_dic_eval(self):
