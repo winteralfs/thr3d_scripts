@@ -112,9 +112,11 @@ class UV_SET_EDITOR(object):
         self.list_widget_right.clear()
         if self.centric_state_text == 'texture-centric':
             self.list_widget_left.setViewMode(QtWidgets.QListView.IconMode)
-            #self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
-            #self.list_widget_left.setWrapping(False)
+            self.list_widget_left.setWrapping(True)
+            self.list_widget_right.setWrapping(False)
             self.list_widget_left.setSpacing(10)
+            self.list_widget_right.setSpacing(1)
+            self.list_widget_left.setFlow(QtWidgets.QListView.LeftToRight)
             self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
                 texture_item = QtWidgets.QListWidgetItem(texture)
@@ -131,25 +133,30 @@ class UV_SET_EDITOR(object):
                     if texture_image_exists == 1:
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
-                        print 'no texture found,using default'
-                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
-                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/texture_test_4.jpg"
+                        print 'no texture found,using default no texture '
+                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
                     self.list_widget_left.setIconSize(QtCore.QSize(105,105))
+                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_left.addItem(texture_item)
                     texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
-                    image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    print 'ramp found, using ramp image'
+                    #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
-                    self.list_widget_left.setIconSize(QtCore.QSize(95,95))
+                    self.list_widget_left.setIconSize(QtCore.QSize(105,105))
+                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_left.addItem(texture_item)
+                    texture_item.setTextAlignment(Qt.AlignBottom)
             for uv_set in self.uv_sets_all:
                 self.list_widget_right.addItem(uv_set)
             self.number_of_items_in_left_listWidget = self.list_widget_left.count()
@@ -159,7 +166,11 @@ class UV_SET_EDITOR(object):
             print 'TEXTURE end populate_windows deselect self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         if self.centric_state_text == 'UV-centric':
             self.list_widget_right.setViewMode(QtWidgets.QListView.IconMode)
-            #self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
+            self.list_widget_right.setWrapping(True)
+            self.list_widget_left.setWrapping(False)
+            self.list_widget_right.setSpacing(10)
+            self.list_widget_left.setSpacing(1)
+            self.list_widget_right.setFlow(QtWidgets.QListView.LeftToRight)
             self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
                 texture_item = QtWidgets.QListWidgetItem(texture)
@@ -176,25 +187,30 @@ class UV_SET_EDITOR(object):
                     if texture_image_exists == 1:
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
-                        print 'no texture found,using default'
-                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
-                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/texture_test_4.jpg"
+                        print 'no texture found,using default no texture '
+                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
                     self.list_widget_right.setIconSize(QtCore.QSize(105,105))
+                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_right.addItem(texture_item)
                     texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
-                    image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    print 'ramp found, using ramp image'
+                    #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
-                    self.list_widget_left.setIconSize(QtCore.QSize(105,105))
+                    self.list_widget_right.setIconSize(QtCore.QSize(105,105))
+                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_right.addItem(texture_item)
+                    texture_item.setTextAlignment(Qt.AlignBottom)
             for uv_set in self.uv_sets_all:
                 self.list_widget_left.addItem(uv_set)
             self.number_of_items_in_left_listWidget = self.list_widget_left.count()
@@ -386,11 +402,15 @@ class UV_SET_EDITOR(object):
                     item.setTextColor(QtGui.QColor("#858585"))
                 if item_text != '---':
                     print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+                    print 'item_text = ',item_text
                     item_text_selection_status = self.uv_set_selection_status_dic[self.selected_item_text + ':' + item_text]
+                    print 'item_text_selection_status = ',item_text_selection_status
                     if item_text_selection_status == 1:
+                        print 'setting ' + item_text +' to 1'
                         item.setSelected(True)
                         item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                     if item_text_selection_status == 0:
+                        print 'setting ' + item_text +' to 0'
                         item.setSelected(False)
                 it = it + 1
             print 'end update_right_listWidget self.uv_set_selection_status_dic',self.uv_set_selection_status_dic
@@ -541,14 +561,14 @@ class UV_SET_EDITOR(object):
         window.setWindowTitle(window_name)
         main_widget = QtWidgets.QWidget()
         window.setCentralWidget(main_widget)
-        window.setFixedSize(1000,300)
+        window.setFixedSize(1015,300)
         main_vertical_layout = QtWidgets.QVBoxLayout(main_widget)
         combo_box_layout = QtWidgets.QHBoxLayout(main_widget)
         main_vertical_layout.addLayout(combo_box_layout)
         self.label_layout = QtWidgets.QHBoxLayout(main_widget)
         main_vertical_layout.addLayout(self.label_layout)
         self.texture_based_uv_set_based_combobox = QtWidgets.QComboBox()
-        self.texture_based_uv_set_based_combobox.setMaximumWidth(150)
+        self.texture_based_uv_set_based_combobox.setMaximumWidth(180)
         self.texture_based_uv_set_based_combobox.setMinimumHeight(18)
         combo_box_layout.setAlignment(QtCore.Qt.AlignLeft)
         combo_box_layout.addWidget(self.texture_based_uv_set_based_combobox)
@@ -570,12 +590,14 @@ class UV_SET_EDITOR(object):
         self.list_widget_left.itemClicked.connect(partial(self.item_press))
         self.list_widget_left.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
         self.list_widget_left.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.list_widget_left.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.list_layout_left.addWidget(self.list_widget_left)
         self.list_widget_right = QtWidgets.QListWidget()
         self.list_widget_right.setSelectionMode(self.list_widget_right.MultiSelection)
         self.list_widget_right.itemClicked.connect(self.right_listWidget_selection_eval)
         self.list_widget_right.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
         self.list_widget_right.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.list_widget_right.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.list_layout_right.addWidget(self.list_widget_right)
         self.populate_windows()
         self.populate_windows()
