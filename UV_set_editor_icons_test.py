@@ -134,8 +134,8 @@ class UV_SET_EDITOR(object):
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
                         print 'no texture found,using default no texture '
-                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
-                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
+                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
                     self.list_widget_left.setIconSize(QtCore.QSize(105,105))
@@ -146,8 +146,8 @@ class UV_SET_EDITOR(object):
                     texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
                     print 'ramp found, using ramp image'
-                    #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
-                    image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
+                    image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
@@ -188,8 +188,8 @@ class UV_SET_EDITOR(object):
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
                         print 'no texture found,using default no texture '
-                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
-                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
+                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
                     self.list_widget_right.setIconSize(QtCore.QSize(105,105))
@@ -200,8 +200,8 @@ class UV_SET_EDITOR(object):
                     texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
                     print 'ramp found, using ramp image'
-                    #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
-                    image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
+                    image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
