@@ -1,3 +1,4 @@
+import maya
 import maya.cmds as cmds
 import os
 import maya.OpenMayaUI as mui
@@ -6,15 +7,20 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
+print 'uv_set_editor_icons_test wed'
+
 class UV_SET_EDITOR(object):
     def __init__(self):
         self.selected_item_text = ''
+        self.uv_set_selection_status_dic = {}
+        self.uv_set_selection_status_dic_state_change = {}
 
 
 #---------- procedural tools and data gathering methods ----------
 
     def centric_state(self):
         #print 'centric_state'
+        self.uv_set_selection_status_dic_state_change = self.uv_set_selection_status_dic
         self.centric_state_text = self.texture_based_uv_set_based_combobox.currentText()
         self.right_label.setText('textures')
         if self.centric_state_text == 'texture-centric':
@@ -24,6 +30,7 @@ class UV_SET_EDITOR(object):
             self.left_label.setText('uv sets')
             self.right_label.setText('textures')
         self.selected_item_text = ''
+
         self.populate_windows()
 
     def selected_items_right_listWidget(self):
@@ -37,10 +44,8 @@ class UV_SET_EDITOR(object):
     def deselect_QListWidget(self,listwidget):
         #print 'deselect right list widget items()'
         for i in range(listwidget.count()):
-            #print 'mid deselect self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             item = listwidget.item(i)
             listwidget.setItemSelected(item, False)
-            #print 'end deselect self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
     def activate_right_listWidget(self):
         #print 'activate_right_listWidget()'
@@ -106,24 +111,49 @@ class UV_SET_EDITOR(object):
         self.list_widget_right.clear()
         if self.centric_state_text == 'texture-centric':
             self.list_widget_left.setViewMode(QtWidgets.QListView.IconMode)
-            self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
+            self.list_widget_left.setWrapping(True)
+            self.list_widget_right.setWrapping(False)
+            self.list_widget_left.setSpacing(10)
+            self.list_widget_right.setSpacing(1)
+            self.list_widget_left.setFlow(QtWidgets.QListView.LeftToRight)
             self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
-                #print 'texture = ',texture
+                texture_item = QtWidgets.QListWidgetItem(texture)
+                texture_item.setFont(QtGui.QFont('SansSerif', 7))
                 attr_string = (texture + '.fileTextureName')
-                #print 'attr_string = ',attr_string
                 file_node_type = cmds.nodeType(texture)
                 if file_node_type == 'file':
                     image_path = cmds.getAttr(texture + '.fileTextureName')
-                    #print 'image_path =',image_path
-                    texture_item = QtWidgets.QListWidgetItem(texture)
-                    texture_pixmap = QtGui.QPixmap(image_path)
+                    length_image_path = len(image_path)
+                    if length_image_path < 1:
+                        image_path = 'empty'
+                    mel_string = "filetest -f " + '"' + image_path + '"'
+                    texture_image_exists = maya.mel.eval(mel_string)
+                    if texture_image_exists == 1:
+                        texture_pixmap = QtGui.QPixmap(image_path)
+                    else:
+                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
+                        texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
+                    self.list_widget_left.setIconSize(QtCore.QSize(105,105))
+                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_left.addItem(texture_item)
+                    texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
-                    self.list_widget_right.addItem(texture)
+                    #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
+                    texture_item = QtWidgets.QListWidgetItem(texture)
+                    texture_pixmap = QtGui.QPixmap(image_path)
+                    texture_icon = QtGui.QIcon()
+                    self.list_widget_left.setIconSize(QtCore.QSize(105,105))
+                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
+                    texture_icon.addPixmap(texture_pixmap)
+                    texture_item.setIcon(texture_icon)
+                    self.list_widget_left.addItem(texture_item)
+                    texture_item.setTextAlignment(Qt.AlignBottom)
             for uv_set in self.uv_sets_all:
                 self.list_widget_right.addItem(uv_set)
             self.number_of_items_in_left_listWidget = self.list_widget_left.count()
@@ -132,25 +162,49 @@ class UV_SET_EDITOR(object):
             self.initial_uv_set_name_to_address_dic_eval()
         if self.centric_state_text == 'UV-centric':
             self.list_widget_right.setViewMode(QtWidgets.QListView.IconMode)
-            self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
+            self.list_widget_right.setWrapping(True)
+            self.list_widget_left.setWrapping(False)
+            self.list_widget_right.setSpacing(10)
+            self.list_widget_left.setSpacing(1)
+            self.list_widget_right.setFlow(QtWidgets.QListView.LeftToRight)
             self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
-                #print 'texture = ',texture
+                texture_item = QtWidgets.QListWidgetItem(texture)
+                texture_item.setFont(QtGui.QFont('SansSerif', 7))
                 attr_string = (texture + '.fileTextureName')
-                #print 'attr_string = ',attr_string
                 file_node_type = cmds.nodeType(texture)
                 if file_node_type == 'file':
                     image_path = cmds.getAttr(texture + '.fileTextureName')
-                    image_path = cmds.getAttr(texture + '.fileTextureName')
-                    print 'image_path =',image_path
-                    texture_item = QtWidgets.QListWidgetItem(texture)
-                    texture_pixmap = QtGui.QPixmap(image_path)
+                    length_image_path = len(image_path)
+                    if length_image_path < 1:
+                        image_path = 'empty'
+                    mel_string = "filetest -f " + '"' + image_path + '"'
+                    texture_image_exists = maya.mel.eval(mel_string)
+                    if texture_image_exists == 1:
+                        texture_pixmap = QtGui.QPixmap(image_path)
+                    else:
+                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
+                        texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
+                    self.list_widget_right.setIconSize(QtCore.QSize(105,105))
+                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_right.addItem(texture_item)
+                    texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
-                    self.list_widget_right.addItem(texture)
+                    #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
+                    texture_item = QtWidgets.QListWidgetItem(texture)
+                    texture_pixmap = QtGui.QPixmap(image_path)
+                    texture_icon = QtGui.QIcon()
+                    self.list_widget_right.setIconSize(QtCore.QSize(105,105))
+                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
+                    texture_icon.addPixmap(texture_pixmap)
+                    texture_item.setIcon(texture_icon)
+                    self.list_widget_right.addItem(texture_item)
+                    texture_item.setTextAlignment(Qt.AlignBottom)
             for uv_set in self.uv_sets_all:
                 self.list_widget_left.addItem(uv_set)
             self.number_of_items_in_left_listWidget = self.list_widget_left.count()
@@ -246,12 +300,12 @@ class UV_SET_EDITOR(object):
         transorms_objects = cmds.ls(type = 'shape')
         transorms_objects_tmp = transorms_objects
         for object in transorms_objects:
-            if object != 'polySurfaceShape' and object != 'polySurfaceShape1' and object != 'polySurfaceShape2' and object != 'polySurfaceShape3' and object != 'polySurfaceShape4' and object != 'polySurfaceShape5':
+            if object != 'polySurfaceShape' and object != 'polySurfaceShape1' and object != 'polySurfaceShape2' and object != 'polySurfaceShape3' and object != 'polySurfaceShape4' and object != 'polySurfaceShape5'and object != 'polySurfaceShape6' and object != 'polySurfaceShape7' and object != 'polySurfaceShape8' and object != 'polySurfaceShape9' and object != 'polySurfaceShape10' and object != 'polySurfaceShape11' and object != 'polySurfaceShape12' and object != 'polySurfaceShape13':
                 cmds.select(clear = True)
                 cmds.select(object)
                 uv_sets = cmds.polyUVSet(allUVSets = True, query = True) or []
                 number_of_uv_sets = len(uv_sets)
-                if number_of_uv_sets > 1:
+                if number_of_uv_sets > 0:
                     self.uv_sets_all.append('---')
                     for uv_set in uv_sets:
                         uv_sets_all_string = object + ':' + uv_set
@@ -273,7 +327,7 @@ class UV_SET_EDITOR(object):
         self.map_uv_sets()
 
     def initial_uv_set_name_to_address_dic_eval(self):
-        self.uv_set_selection_status_dic = {}
+        #print 'initial_uv_set_name_to_address_dic_eval'
         assigned_uv_sets = []
         for texture in self.all_textures:
             uv_set_names_linked_to_texture = []
@@ -287,15 +341,25 @@ class UV_SET_EDITOR(object):
                         uv_set_names_linked_to_texture.append(uv_name)
                         for uv_set_name_linked_to_texture in uv_set_names_linked_to_texture:
                             assigned_uv_sets.append(texture + ':' + uv_set_name_linked_to_texture)
-                            #print 'setting ' + texture + ':' + uv_set_name_linked_to_texture + ' to 1'
                             self.uv_set_selection_status_dic[texture + ':' + uv_set_name_linked_to_texture] = 1
+                            self.uv_set_selection_status_dic[texture + ':' + object + ':' + 'map1'] = 0
         for uv_full in self.uv_sets_all:
             if uv_full != '---':
                 for texture in self.all_textures:
                     dic_string_check = texture + ':' + uv_full
                     if dic_string_check not in self.uv_set_selection_status_dic:
                         self.uv_set_selection_status_dic[texture + ":" + uv_full] = 0
-        #print 'intinial self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        for us_set_carry_over in self.uv_set_selection_status_dic_state_change:
+            state = self.uv_set_selection_status_dic_state_change[us_set_carry_over]
+            us_set_carry_over_split = us_set_carry_over.split(":")
+            us_set_carry_over_texture = us_set_carry_over_split[0]
+            us_set_carry_over_object = us_set_carry_over_split[1]
+            us_set_carry_uv_set = us_set_carry_over_split[2]
+            if state == 1:
+                self.uv_set_selection_status_dic[us_set_carry_over] = 1
+                if us_set_carry_uv_set != 'map1':
+                    self.uv_set_selection_status_dic[us_set_carry_over_texture + ":" + us_set_carry_over_object + ":" + 'map1'] = 0
+
 
 #---------- UV set selection methods ----------
 
@@ -320,13 +384,11 @@ class UV_SET_EDITOR(object):
                 selected_uv_set_address = self.uv_set_name_to_address_dic[self.selected_item_text]
                 self.textures_linked_to_selected_uv_set = cmds.uvLink( query=True, uvSet = selected_uv_set_address)
                 self.update_right_listWidget()
-        #print 'end item_press self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
     def deselect_item(self,selected_item):
         selected_item.setSelected(False)
 
     def update_right_listWidget(self):
-        #print 'update_right_listWidget()'
         if self.centric_state_text == 'texture-centric':
             self.unlock_right_QListWidget()
             it = 0
@@ -336,7 +398,6 @@ class UV_SET_EDITOR(object):
                 if item_text == '---':
                     item.setTextColor(QtGui.QColor("#858585"))
                 if item_text != '---':
-                    print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
                     item_text_selection_status = self.uv_set_selection_status_dic[self.selected_item_text + ':' + item_text]
                     if item_text_selection_status == 1:
                         item.setSelected(True)
@@ -362,7 +423,7 @@ class UV_SET_EDITOR(object):
                 it = it + 1
 
     def right_listWidget_selection_eval(self):
-        print 'right_listWidget_selection_eval()'
+        #print 'right_listWidget_selection_eval()'
         if self.centric_state_text == 'texture-centric':
             selected_uv_sets_pointers = self.list_widget_right.selectedItems()
             uv_set_pointers = []
@@ -489,14 +550,14 @@ class UV_SET_EDITOR(object):
         window.setWindowTitle(window_name)
         main_widget = QtWidgets.QWidget()
         window.setCentralWidget(main_widget)
-        window.setFixedSize(1000,300)
+        window.setFixedSize(1015,300)
         main_vertical_layout = QtWidgets.QVBoxLayout(main_widget)
         combo_box_layout = QtWidgets.QHBoxLayout(main_widget)
         main_vertical_layout.addLayout(combo_box_layout)
         self.label_layout = QtWidgets.QHBoxLayout(main_widget)
         main_vertical_layout.addLayout(self.label_layout)
         self.texture_based_uv_set_based_combobox = QtWidgets.QComboBox()
-        self.texture_based_uv_set_based_combobox.setMaximumWidth(150)
+        self.texture_based_uv_set_based_combobox.setMaximumWidth(180)
         self.texture_based_uv_set_based_combobox.setMinimumHeight(18)
         combo_box_layout.setAlignment(QtCore.Qt.AlignLeft)
         combo_box_layout.addWidget(self.texture_based_uv_set_based_combobox)
@@ -518,12 +579,14 @@ class UV_SET_EDITOR(object):
         self.list_widget_left.itemClicked.connect(partial(self.item_press))
         self.list_widget_left.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
         self.list_widget_left.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.list_widget_left.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.list_layout_left.addWidget(self.list_widget_left)
         self.list_widget_right = QtWidgets.QListWidget()
         self.list_widget_right.setSelectionMode(self.list_widget_right.MultiSelection)
         self.list_widget_right.itemClicked.connect(self.right_listWidget_selection_eval)
         self.list_widget_right.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
         self.list_widget_right.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.list_widget_right.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.list_layout_right.addWidget(self.list_widget_right)
         self.populate_windows()
         self.populate_windows()
