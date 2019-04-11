@@ -7,18 +7,20 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'uv_set_editor_icons_test tues'
+print 'uv_set_editor_icons_test wed'
 
 class UV_SET_EDITOR(object):
     def __init__(self):
         self.selected_item_text = ''
         self.uv_set_selection_status_dic = {}
+        self.uv_set_selection_status_dic_state_change = {}
 
 
 #---------- procedural tools and data gathering methods ----------
 
     def centric_state(self):
         print 'centric_state'
+        self.uv_set_selection_status_dic_state_change = self.uv_set_selection_status_dic
         self.centric_state_text = self.texture_based_uv_set_based_combobox.currentText()
         self.right_label.setText('textures')
         if self.centric_state_text == 'texture-centric':
@@ -28,7 +30,7 @@ class UV_SET_EDITOR(object):
             self.left_label.setText('uv sets')
             self.right_label.setText('textures')
         self.selected_item_text = ''
-        print 'end centric_state deselect self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+
         self.populate_windows()
 
     def selected_items_right_listWidget(self):
@@ -42,10 +44,8 @@ class UV_SET_EDITOR(object):
     def deselect_QListWidget(self,listwidget):
         print 'deselect right list widget items()'
         for i in range(listwidget.count()):
-            print 'mid deselect self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             item = listwidget.item(i)
             listwidget.setItemSelected(item, False)
-            print 'end deselect self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
     def activate_right_listWidget(self):
         print 'activate_right_listWidget()'
@@ -105,7 +105,6 @@ class UV_SET_EDITOR(object):
 
     def populate_windows(self):
         print 'populate_windows()'
-        print 'start populate_windows deselect self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         self.evaluate_textures_in_scene()
         self.evaluate_UV_sets_in_scene()
         self.list_widget_left.clear()
@@ -133,7 +132,6 @@ class UV_SET_EDITOR(object):
                     if texture_image_exists == 1:
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
-                        print 'no texture found,using default no texture '
                         #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
                         image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
@@ -145,7 +143,6 @@ class UV_SET_EDITOR(object):
                     self.list_widget_left.addItem(texture_item)
                     texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
-                    print 'ramp found, using ramp image'
                     #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
                     image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                     texture_item = QtWidgets.QListWidgetItem(texture)
@@ -163,7 +160,6 @@ class UV_SET_EDITOR(object):
             self.number_of_items_in_right_listWidget = self.list_widget_right.count()
             self.activate_right_listWidget()
             self.initial_uv_set_name_to_address_dic_eval()
-            print 'TEXTURE end populate_windows deselect self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         if self.centric_state_text == 'UV-centric':
             self.list_widget_right.setViewMode(QtWidgets.QListView.IconMode)
             self.list_widget_right.setWrapping(True)
@@ -187,7 +183,6 @@ class UV_SET_EDITOR(object):
                     if texture_image_exists == 1:
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
-                        print 'no texture found,using default no texture '
                         #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
                         image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
@@ -199,7 +194,6 @@ class UV_SET_EDITOR(object):
                     self.list_widget_right.addItem(texture_item)
                     texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
-                    print 'ramp found, using ramp image'
                     #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
                     image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                     texture_item = QtWidgets.QListWidgetItem(texture)
@@ -223,7 +217,6 @@ class UV_SET_EDITOR(object):
                     item.setTextColor(QtGui.QColor("#858585"))
                     item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                 i = i + 1
-            print 'UV set end populate_windows deselect self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             self.initial_uv_set_name_to_address_dic_eval()
             self.activate_right_listWidget()
 
@@ -331,7 +324,6 @@ class UV_SET_EDITOR(object):
                             self.uv_set_name_to_address_dic[object + ':' + uv_set] = uv_set_address
                             i = i + 1
                         it = it + 1
-        print 'self.uv_sets_all = ',self.uv_sets_all
         self.map_uv_sets()
 
     def initial_uv_set_name_to_address_dic_eval(self):
@@ -350,16 +342,17 @@ class UV_SET_EDITOR(object):
                         uv_set_names_linked_to_texture.append(uv_name)
                         for uv_set_name_linked_to_texture in uv_set_names_linked_to_texture:
                             assigned_uv_sets.append(texture + ':' + uv_set_name_linked_to_texture)
-                            #print 'setting ' + texture + ':' + uv_set_name_linked_to_texture + ' to 1'
                             self.uv_set_selection_status_dic[texture + ':' + uv_set_name_linked_to_texture] = 1
-        print 'intinial self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         for uv_full in self.uv_sets_all:
             if uv_full != '---':
                 for texture in self.all_textures:
                     dic_string_check = texture + ':' + uv_full
                     if dic_string_check not in self.uv_set_selection_status_dic:
                         self.uv_set_selection_status_dic[texture + ":" + uv_full] = 0
-        print 'intinial self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        for us_set_carry_over in self.uv_set_selection_status_dic_state_change:
+            state = self.uv_set_selection_status_dic_state_change[us_set_carry_over]
+            if state == 1:
+                self.uv_set_selection_status_dic[us_set_carry_over] = 1
 
 #---------- UV set selection methods ----------
 
@@ -384,14 +377,11 @@ class UV_SET_EDITOR(object):
                 selected_uv_set_address = self.uv_set_name_to_address_dic[self.selected_item_text]
                 self.textures_linked_to_selected_uv_set = cmds.uvLink( query=True, uvSet = selected_uv_set_address)
                 self.update_right_listWidget()
-        print 'end item_press self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
     def deselect_item(self,selected_item):
         selected_item.setSelected(False)
 
     def update_right_listWidget(self):
-        print 'update_right_listWidget()'
-        print 'start update_right_listWidget self.uv_set_selection_status_dic',self.uv_set_selection_status_dic
         if self.centric_state_text == 'texture-centric':
             self.unlock_right_QListWidget()
             it = 0
@@ -401,21 +391,14 @@ class UV_SET_EDITOR(object):
                 if item_text == '---':
                     item.setTextColor(QtGui.QColor("#858585"))
                 if item_text != '---':
-                    print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-                    print 'item_text = ',item_text
                     item_text_selection_status = self.uv_set_selection_status_dic[self.selected_item_text + ':' + item_text]
-                    print 'item_text_selection_status = ',item_text_selection_status
                     if item_text_selection_status == 1:
-                        print 'setting ' + item_text +' to 1'
                         item.setSelected(True)
                         item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                     if item_text_selection_status == 0:
-                        print 'setting ' + item_text +' to 0'
                         item.setSelected(False)
                 it = it + 1
-            print 'end update_right_listWidget self.uv_set_selection_status_dic',self.uv_set_selection_status_dic
         if self.centric_state_text == 'UV-centric':
-            print 'start update_right_listWidget self.uv_set_selection_status_dic',self.uv_set_selection_status_dic
             it = 0
             while it < self.number_of_items_in_right_listWidget:
                 item = self.list_widget_right.item(it)
@@ -431,7 +414,6 @@ class UV_SET_EDITOR(object):
                     if selected_item_text_uv_set == 'map1':
                         item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                 it = it + 1
-            print 'end update_right_listWidget self.uv_set_selection_status_dic',self.uv_set_selection_status_dic
 
     def right_listWidget_selection_eval(self):
         print 'right_listWidget_selection_eval()'
