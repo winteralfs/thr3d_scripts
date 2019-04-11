@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'uv_set_editor_icons_test wed'
+print 'uv_set_editor'
 
 class UV_SET_EDITOR(object):
     def __init__(self):
@@ -19,7 +19,7 @@ class UV_SET_EDITOR(object):
 #---------- procedural tools and data gathering methods ----------
 
     def centric_state(self):
-        print 'centric_state'
+        #print 'centric_state'
         self.uv_set_selection_status_dic_state_change = self.uv_set_selection_status_dic
         self.centric_state_text = self.texture_based_uv_set_based_combobox.currentText()
         self.right_label.setText('textures')
@@ -42,13 +42,13 @@ class UV_SET_EDITOR(object):
             self.selected_items_right_text.append(selected_right_list_pointer_text)
 
     def deselect_QListWidget(self,listwidget):
-        print 'deselect right list widget items()'
+        #print 'deselect right list widget items()'
         for i in range(listwidget.count()):
             item = listwidget.item(i)
             listwidget.setItemSelected(item, False)
 
     def activate_right_listWidget(self):
-        print 'activate_right_listWidget()'
+        #print 'activate_right_listWidget()'
         self.item_selected_length = len(self.selected_item_text)
         if self.item_selected_length == 0:
             self.list_widget_right.setStyleSheet('QListWidget {background-color: #292929; color: #515151;}')
@@ -68,7 +68,7 @@ class UV_SET_EDITOR(object):
                 it = it + 1
 
     def unlock_right_QListWidget(self):
-        print 'unlock_right_QListWidget()'
+        #print 'unlock_right_QListWidget()'
         it = 0
         while it < self.number_of_items_in_right_listWidget:
             item = self.list_widget_right.item(it)
@@ -84,7 +84,7 @@ class UV_SET_EDITOR(object):
             it = it + 1
 
     def lock_selected_right_QListWidget(self):
-        print 'lock_selected_right_QListWidget()'
+        #print 'lock_selected_right_QListWidget()'
         self.unlock_right_QListWidget()
         selected_uv_sets_pointers = self.list_widget_right.selectedItems()
         for selected_uv_set_pointer in selected_uv_sets_pointers:
@@ -104,7 +104,7 @@ class UV_SET_EDITOR(object):
                         self.uv_sets_maps_all.append(uv_set)
 
     def populate_windows(self):
-        print 'populate_windows()'
+        #print 'populate_windows()'
         self.evaluate_textures_in_scene()
         self.evaluate_UV_sets_in_scene()
         self.list_widget_left.clear()
@@ -327,22 +327,26 @@ class UV_SET_EDITOR(object):
         self.map_uv_sets()
 
     def initial_uv_set_name_to_address_dic_eval(self):
-        print 'initial_uv_set_name_to_address_dic_eval'
-        self.uv_set_selection_status_dic = {}
+        #print 'initial_uv_set_name_to_address_dic_eval'
         assigned_uv_sets = []
         for texture in self.all_textures:
             uv_set_names_linked_to_texture = []
             uv_sets_linked_to_texture = cmds.uvLink(texture = texture, query = True)
-            for uv_name in self.uv_set_name_to_address_dic:
-                uv_address = self.uv_set_name_to_address_dic[uv_name]
-                for uv_set_linked_to_texture in uv_sets_linked_to_texture:
-                    if uv_address == uv_set_linked_to_texture:
-                        uv_address_split = uv_address.split(".")
-                        object = uv_address_split[0]
-                        uv_set_names_linked_to_texture.append(uv_name)
-                        for uv_set_name_linked_to_texture in uv_set_names_linked_to_texture:
-                            assigned_uv_sets.append(texture + ':' + uv_set_name_linked_to_texture)
-                            self.uv_set_selection_status_dic[texture + ':' + uv_set_name_linked_to_texture] = 1
+            for uv_set_all in self.uv_sets_all:
+                if uv_set_all != '---':
+                    uv_set_split = uv_set_all.split(":")
+                    uv_set_object = uv_set_split[0]
+                    uv_set = uv_set_split[1]
+                    uv_set_address_linked_to_texture = cmds.uvLink( query=True, texture = texture,queryObject = uv_set_object)
+                    uv_set_address_linked_to_texture = uv_set_address_linked_to_texture[0]
+                    for uv_set_name in self.uv_set_name_to_address_dic:
+                        address = self.uv_set_name_to_address_dic[uv_set_name]
+                        if address == uv_set_address_linked_to_texture:
+                            uv_set_name_split = uv_set_name.split(":")
+                            name = uv_set_name_split[1]
+                            if name != 'map1':
+                                self.uv_set_selection_status_dic[texture + ':' + uv_set_object + ":" + uv_set] = 1
+                                self.uv_set_selection_status_dic[texture + ':' + uv_set_object + ":" + 'map1'] = 0
         for uv_full in self.uv_sets_all:
             if uv_full != '---':
                 for texture in self.all_textures:
@@ -351,13 +355,20 @@ class UV_SET_EDITOR(object):
                         self.uv_set_selection_status_dic[texture + ":" + uv_full] = 0
         for us_set_carry_over in self.uv_set_selection_status_dic_state_change:
             state = self.uv_set_selection_status_dic_state_change[us_set_carry_over]
+            us_set_carry_over_split = us_set_carry_over.split(":")
+            us_set_carry_over_texture = us_set_carry_over_split[0]
+            us_set_carry_over_object = us_set_carry_over_split[1]
+            us_set_carry_uv_set = us_set_carry_over_split[2]
             if state == 1:
                 self.uv_set_selection_status_dic[us_set_carry_over] = 1
+                if us_set_carry_uv_set != 'map1':
+                    self.uv_set_selection_status_dic[us_set_carry_over_texture + ":" + us_set_carry_over_object + ":" + 'map1'] = 0
+
 
 #---------- UV set selection methods ----------
 
     def item_press(self,item):
-        print 'ITEM PRESS()'
+        #print 'ITEM PRESS()'
         if self.centric_state_text == 'texture-centric':
             self.deselect_QListWidget(self.list_widget_right)
             self.texture_linked_uv_sets = []
@@ -416,7 +427,7 @@ class UV_SET_EDITOR(object):
                 it = it + 1
 
     def right_listWidget_selection_eval(self):
-        print 'right_listWidget_selection_eval()'
+        #print 'right_listWidget_selection_eval()'
         if self.centric_state_text == 'texture-centric':
             selected_uv_sets_pointers = self.list_widget_right.selectedItems()
             uv_set_pointers = []
