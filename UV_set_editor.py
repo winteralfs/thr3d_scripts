@@ -337,18 +337,16 @@ class UV_SET_EDITOR(object):
                     uv_set_split = uv_set_all.split(":")
                     uv_set_object = uv_set_split[0]
                     uv_set = uv_set_split[1]
-                    uv_set_address_linked_to_texture = cmds.uvLink( query=True, texture = texture,queryObject = uv_set_object) or []
-                    len_uv_set_address_linked_to_texture = len(uv_set_address_linked_to_texture)
-                    if len_uv_set_address_linked_to_texture > 0:
-                        uv_set_address_linked_to_texture = uv_set_address_linked_to_texture[0]
-                        for uv_set_name in self.uv_set_name_to_address_dic:
-                            address = self.uv_set_name_to_address_dic[uv_set_name]
-                            if address == uv_set_address_linked_to_texture:
-                                uv_set_name_split = uv_set_name.split(":")
-                                name = uv_set_name_split[1]
-                                if name != 'map1':
-                                    self.uv_set_selection_status_dic[texture + ':' + uv_set_object + ":" + uv_set] = 1
-                                    self.uv_set_selection_status_dic[texture + ':' + uv_set_object + ":" + 'map1'] = 0
+                    uv_set_address_linked_to_texture = cmds.uvLink( query=True, texture = texture,queryObject = uv_set_object)
+                    uv_set_address_linked_to_texture = uv_set_address_linked_to_texture[0]
+                    for uv_set_name in self.uv_set_name_to_address_dic:
+                        address = self.uv_set_name_to_address_dic[uv_set_name]
+                        if address == uv_set_address_linked_to_texture:
+                            uv_set_name_split = uv_set_name.split(":")
+                            name = uv_set_name_split[1]
+                            if name != 'map1':
+                                self.uv_set_selection_status_dic[texture + ':' + uv_set_object + ":" + uv_set] = 1
+                                self.uv_set_selection_status_dic[texture + ':' + uv_set_object + ":" + 'map1'] = 0
         for uv_full in self.uv_sets_all:
             if uv_full != '---':
                 for texture in self.all_textures:
