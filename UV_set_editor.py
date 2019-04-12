@@ -8,7 +8,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'uv_set_editor'
+print 'uv_set_editor FRI afternoon'
 
 class UV_SET_EDITOR(object):
     def __init__(self):
@@ -110,6 +110,8 @@ class UV_SET_EDITOR(object):
         self.evaluate_UV_sets_in_scene()
         self.list_widget_left.clear()
         self.list_widget_right.clear()
+        icon_size = 60
+        font_size = 8
         if self.centric_state_text == 'texture-centric':
             self.list_widget_left.setViewMode(QtWidgets.QListView.IconMode)
             self.list_widget_left.setWrapping(True)
@@ -120,7 +122,7 @@ class UV_SET_EDITOR(object):
             self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
                 texture_item = QtWidgets.QListWidgetItem(texture)
-                texture_item.setFont(QtGui.QFont('SansSerif', 7))
+                texture_item.setFont(QtGui.QFont('SansSerif', font_size))
                 attr_string = (texture + '.fileTextureName')
                 file_node_type = cmds.nodeType(texture)
                 if file_node_type == 'file':
@@ -130,31 +132,24 @@ class UV_SET_EDITOR(object):
                         image_path = 'empty'
                     mel_string = "filetest -f " + '"' + image_path + '"'
                     texture_image_exists = maya.mel.eval(mel_string)
-                    if texture_image_exists == 1:
-                        texture_pixmap = QtGui.QPixmap(image_path)
-                    else:
-                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
-                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
-                        texture_pixmap = QtGui.QPixmap(image_path)
-                    texture_icon = QtGui.QIcon()
-                    self.list_widget_left.setIconSize(QtCore.QSize(105,105))
-                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
-                    texture_icon.addPixmap(texture_pixmap)
-                    texture_item.setIcon(texture_icon)
-                    self.list_widget_left.addItem(texture_item)
-                    texture_item.setTextAlignment(Qt.AlignBottom)
+                    if texture_image_exists != 1:
+                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
+                    image_path_split = image_path.split('.')
+                    length_image_path_split = len(image_path_split)
+                    if image_path_split[length_image_path_split - 1] == 'hdr':
+                        image_path = "U:/cwinters/thumbnails/hdr_texture_found.jpg"
                 if file_node_type != 'file':
-                    #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
-                    image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
-                    texture_item = QtWidgets.QListWidgetItem(texture)
-                    texture_pixmap = QtGui.QPixmap(image_path)
-                    texture_icon = QtGui.QIcon()
-                    self.list_widget_left.setIconSize(QtCore.QSize(105,105))
-                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
-                    texture_icon.addPixmap(texture_pixmap)
-                    texture_item.setIcon(texture_icon)
-                    self.list_widget_left.addItem(texture_item)
-                    texture_item.setTextAlignment(Qt.AlignBottom)
+                    image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
+                texture_pixmap = QtGui.QPixmap(image_path)
+                texture_icon = QtGui.QIcon()
+                self.list_widget_left.setIconSize(QtCore.QSize(icon_size,icon_size))
+                texture_item.setFont(QtGui.QFont('SansSerif', font_size))
+                texture_icon.addPixmap(texture_pixmap)
+                texture_item.setIcon(texture_icon)
+                self.list_widget_left.addItem(texture_item)
+                texture_item.setTextAlignment(Qt.AlignBottom)
             for uv_set in self.uv_sets_all:
                 self.list_widget_right.addItem(uv_set)
             self.number_of_items_in_left_listWidget = self.list_widget_left.count()
@@ -171,7 +166,7 @@ class UV_SET_EDITOR(object):
             self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
                 texture_item = QtWidgets.QListWidgetItem(texture)
-                texture_item.setFont(QtGui.QFont('SansSerif', 7))
+                texture_item.setFont(QtGui.QFont('SansSerif', font_size))
                 attr_string = (texture + '.fileTextureName')
                 file_node_type = cmds.nodeType(texture)
                 if file_node_type == 'file':
@@ -184,24 +179,24 @@ class UV_SET_EDITOR(object):
                     if texture_image_exists == 1:
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
-                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
-                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
+                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
-                    self.list_widget_right.setIconSize(QtCore.QSize(105,105))
-                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
+                    self.list_widget_right.setIconSize(QtCore.QSize(icon_size,icon_size))
+                    texture_item.setFont(QtGui.QFont('SansSerif', font_size))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_right.addItem(texture_item)
                     texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
-                    #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
-                    image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
+                    image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                    #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
-                    self.list_widget_right.setIconSize(QtCore.QSize(105,105))
-                    texture_item.setFont(QtGui.QFont('SansSerif', 10))
+                    self.list_widget_right.setIconSize(QtCore.QSize(icon_size,icon_size))
+                    texture_item.setFont(QtGui.QFont('SansSerif', font_size))
                     texture_icon.addPixmap(texture_pixmap)
                     texture_item.setIcon(texture_icon)
                     self.list_widget_right.addItem(texture_item)
@@ -246,7 +241,7 @@ class UV_SET_EDITOR(object):
                 if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
                     light_ramp = 1
                 if ramp_connection_type == 'transform':
-                    ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
+                    ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True, fullPath = True) or []
                     for ramp_connection_sub in ramp_connection_subs:
                         ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
                         if ramp_connection_sub_type == 'VRayLightRectShape':
@@ -259,7 +254,7 @@ class UV_SET_EDITOR(object):
                         if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
                             light_ramp = 1
                         if ramp_connection_type == 'transform':
-                            ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
+                            ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True, fullPath = True) or []
                             for ramp_connection_sub in ramp_connection_subs:
                                 ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
                                 if ramp_connection_sub_type == 'VRayLightRectShape':
@@ -272,38 +267,38 @@ class UV_SET_EDITOR(object):
                                 if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
                                     light_ramp = 1
                                 if ramp_connection_type == 'transform':
-                                    ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
+                                    ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True, fullPath = True) or []
                                     for ramp_connection_sub in ramp_connection_subs:
                                         ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
                                         if ramp_connection_sub_type == 'VRayLightRectShape':
                                             if ramp_connection_sub_type == 'VRayPlaceEnvTex':
                                                 light_ramp = 1
-                                else:
-                                    ramp_connections_3 = cmds.listConnections(ramp_connection) or []
-                                    for ramp_connection in ramp_connections_3:
-                                        ramp_connection_type = cmds.nodeType(ramp_connection)
-                                        if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
-                                            light_ramp = 1
-                                        if ramp_connection_type == 'transform':
-                                            ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
-                                            for ramp_connection_sub in ramp_connection_subs:
-                                                ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
-                                                if ramp_connection_sub_type == 'VRayLightRectShape':
-                                                    if ramp_connection_sub_type == 'VRayPlaceEnvTex':
-                                                        light_ramp = 1
-                                        else:
-                                            ramp_connections_4 = cmds.listConnections(ramp_connection) or []
-                                            for ramp_connection in ramp_connections_4:
-                                                ramp_connection_type = cmds.nodeType(ramp_connection)
-                                                if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
-                                                    light_ramp = 1
-                                                if ramp_connection_type == 'transform':
-                                                    ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
-                                                    for ramp_connection_sub in ramp_connection_subs:
-                                                        ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
-                                                        if ramp_connection_sub_type == 'VRayLightRectShape':
-                                                            if ramp_connection_sub_type == 'VRayPlaceEnvTex':
-                                                                light_ramp = 1
+                                #else:
+                                    #ramp_connections_3 = cmds.listConnections(ramp_connection) or []
+                                    #for ramp_connection in ramp_connections_3:
+                                        #ramp_connection_type = cmds.nodeType(ramp_connection)
+                                        #if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
+                                            #light_ramp = 1
+                                        #if ramp_connection_type == 'transform':
+                                            #ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True, fullPath = True) or []
+                                            #for ramp_connection_sub in ramp_connection_subs:
+                                                #ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
+                                                #if ramp_connection_sub_type == 'VRayLightRectShape':
+                                                    #if ramp_connection_sub_type == 'VRayPlaceEnvTex':
+                                                        #light_ramp = 1
+                                        #else:
+                                            #ramp_connections_4 = cmds.listConnections(ramp_connection) or []
+                                            #for ramp_connection in ramp_connections_4:
+                                                #ramp_connection_type = cmds.nodeType(ramp_connection)
+                                                #if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
+                                                    #light_ramp = 1
+                                                #if ramp_connection_type == 'transform':
+                                                    #ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True, fullPath = True) or []
+                                                    #for ramp_connection_sub in ramp_connection_subs:
+                                                        #ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
+                                                        #if ramp_connection_sub_type == 'VRayLightRectShape':
+                                                            #if ramp_connection_sub_type == 'VRayPlaceEnvTex':
+                                                                #light_ramp = 1
             if light_ramp == 0:
                 ramp_textures.append(ramp)
         self.all_textures = file_textures + ramp_textures
@@ -316,7 +311,9 @@ class UV_SET_EDITOR(object):
         transorms_objects = cmds.ls(type = 'shape')
         transorms_objects_tmp = transorms_objects
         for object in transorms_objects:
-            if object != 'polySurfaceShape' and object != 'polySurfaceShape1' and object != 'polySurfaceShape2' and object != 'polySurfaceShape3' and object != 'polySurfaceShape4' and object != 'polySurfaceShape5'and object != 'polySurfaceShape6' and object != 'polySurfaceShape7' and object != 'polySurfaceShape8' and object != 'polySurfaceShape9' and object != 'polySurfaceShape10' and object != 'polySurfaceShape11' and object != 'polySurfaceShape12' and object != 'polySurfaceShape13':
+            object_split = object.split('Shape')
+            #if object_split[0] != 'polySurface':
+            if 'polySurface' not in object_split[0]:
                 cmds.select(clear = True)
                 cmds.select(object)
                 uv_sets = cmds.polyUVSet(allUVSets = True, query = True) or []
@@ -620,4 +617,4 @@ class UV_SET_EDITOR(object):
 def main():
     uv_set_editor = UV_SET_EDITOR()
     uv_set_editor.texture_linker_UI()
-main()
+#main()
