@@ -1,3 +1,4 @@
+
 import maya
 import maya.cmds as cmds
 import os
@@ -97,7 +98,7 @@ class UV_SET_EDITOR(object):
         self.uv_sets_maps_all = []
         for uv_set in self.uv_sets_all:
             if uv_set != '---':
-                uv_set_text_split = uv_set.split(":")
+                uv_set_text_split = uv_set.split(':|:')
                 uv_set_name = uv_set_text_split[1]
                 if uv_set_name == 'map1':
                     if uv_set_name not in self.uv_sets_maps_all:
@@ -239,55 +240,70 @@ class UV_SET_EDITOR(object):
                 file_textures.append(file)
         for ramp in ramp_textures_all:
             light_ramp = 0
-            ramp_connections = cmds.listConnections(ramp, source = False) or []
+            ramp_connections = cmds.listConnections(ramp) or []
             for ramp_connection in ramp_connections:
                 ramp_connection_type = cmds.nodeType(ramp_connection)
+                if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
+                    light_ramp = 1
                 if ramp_connection_type == 'transform':
                     ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
                     for ramp_connection_sub in ramp_connection_subs:
                         ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
                         if ramp_connection_sub_type == 'VRayLightRectShape':
-                            light_ramp = 1
+                            if ramp_connection_sub_type == 'VRayPlaceEnvTex':
+                                light_ramp = 1
                 else:
-                    ramp_connections_1 = cmds.listConnections(ramp_connection, source = False) or []
+                    ramp_connections_1 = cmds.listConnections(ramp_connection) or []
                     for ramp_connection in ramp_connections_1:
                         ramp_connection_type = cmds.nodeType(ramp_connection)
+                        if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
+                            light_ramp = 1
                         if ramp_connection_type == 'transform':
                             ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
                             for ramp_connection_sub in ramp_connection_subs:
                                 ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
                                 if ramp_connection_sub_type == 'VRayLightRectShape':
-                                    light_ramp = 1
+                                    if ramp_connection_sub_type == 'VRayPlaceEnvTex':
+                                        light_ramp = 1
                         else:
-                            ramp_connections_2 = cmds.listConnections(ramp_connection, source = False) or []
+                            ramp_connections_2 = cmds.listConnections(ramp_connection) or []
                             for ramp_connection in ramp_connections_2:
                                 ramp_connection_type = cmds.nodeType(ramp_connection)
+                                if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
+                                    light_ramp = 1
                                 if ramp_connection_type == 'transform':
                                     ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
                                     for ramp_connection_sub in ramp_connection_subs:
                                         ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
                                         if ramp_connection_sub_type == 'VRayLightRectShape':
-                                            light_ramp = 1
+                                            if ramp_connection_sub_type == 'VRayPlaceEnvTex':
+                                                light_ramp = 1
                                 else:
-                                    ramp_connections_3 = cmds.listConnections(ramp_connection, source = False) or []
+                                    ramp_connections_3 = cmds.listConnections(ramp_connection) or []
                                     for ramp_connection in ramp_connections_3:
                                         ramp_connection_type = cmds.nodeType(ramp_connection)
+                                        if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
+                                            light_ramp = 1
                                         if ramp_connection_type == 'transform':
                                             ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
                                             for ramp_connection_sub in ramp_connection_subs:
                                                 ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
                                                 if ramp_connection_sub_type == 'VRayLightRectShape':
-                                                    light_ramp = 1
+                                                    if ramp_connection_sub_type == 'VRayPlaceEnvTex':
+                                                        light_ramp = 1
                                         else:
-                                            ramp_connections_4 = cmds.listConnections(ramp_connection, source = False) or []
+                                            ramp_connections_4 = cmds.listConnections(ramp_connection) or []
                                             for ramp_connection in ramp_connections_4:
                                                 ramp_connection_type = cmds.nodeType(ramp_connection)
+                                                if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
+                                                    light_ramp = 1
                                                 if ramp_connection_type == 'transform':
                                                     ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True)
                                                     for ramp_connection_sub in ramp_connection_subs:
                                                         ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
                                                         if ramp_connection_sub_type == 'VRayLightRectShape':
-                                                            light_ramp = 1
+                                                            if ramp_connection_sub_type == 'VRayPlaceEnvTex':
+                                                                light_ramp = 1
             if light_ramp == 0:
                 ramp_textures.append(ramp)
         self.all_textures = file_textures + ramp_textures
@@ -308,20 +324,20 @@ class UV_SET_EDITOR(object):
                 if number_of_uv_sets > 0:
                     self.uv_sets_all.append('---')
                     for uv_set in uv_sets:
-                        uv_sets_all_string = object + ':' + uv_set
+                        uv_sets_all_string = object + ':|:' + uv_set
                         self.uv_sets_all.append(uv_sets_all_string)
                         for texture in self.all_textures:
                             if uv_set == 'map1':
-                                self.uv_set_selection_status_dic[texture + ':' + uv_sets_all_string] = 1
+                                self.uv_set_selection_status_dic[texture + ':|:' + uv_sets_all_string] = 1
                             else:
-                                self.uv_set_selection_status_dic[texture + ':' + uv_sets_all_string] = 0
+                                self.uv_set_selection_status_dic[texture + ':|:' + uv_sets_all_string] = 0
                     number_of_uv_sets_for_object = len(uv_sets)
                     it = 0
                     while it <= number_of_uv_sets_for_object:
                         i = 0
                         for uv_set in uv_sets:
                             uv_set_address = object + '.uvSet[' + str(i) + '].uvSetName'
-                            self.uv_set_name_to_address_dic[object + ':' + uv_set] = uv_set_address
+                            self.uv_set_name_to_address_dic[object + ':|:' + uv_set] = uv_set_address
                             i = i + 1
                         it = it + 1
         self.map_uv_sets()
@@ -331,39 +347,42 @@ class UV_SET_EDITOR(object):
         assigned_uv_sets = []
         for texture in self.all_textures:
             uv_set_names_linked_to_texture = []
-            uv_sets_linked_to_texture = cmds.uvLink(texture = texture, query = True)
+            uv_sets_linked_to_texture = cmds.uvLink(texture = texture, query = True) or []
             for uv_set_all in self.uv_sets_all:
                 if uv_set_all != '---':
-                    uv_set_split = uv_set_all.split(":")
+                    uv_set_split = uv_set_all.split(':|:')
                     uv_set_object = uv_set_split[0]
                     uv_set = uv_set_split[1]
-                    uv_set_address_linked_to_texture = cmds.uvLink( query=True, texture = texture,queryObject = uv_set_object)
-                    uv_set_address_linked_to_texture = uv_set_address_linked_to_texture[0]
-                    for uv_set_name in self.uv_set_name_to_address_dic:
-                        address = self.uv_set_name_to_address_dic[uv_set_name]
-                        if address == uv_set_address_linked_to_texture:
-                            uv_set_name_split = uv_set_name.split(":")
-                            name = uv_set_name_split[1]
-                            if name != 'map1':
-                                self.uv_set_selection_status_dic[texture + ':' + uv_set_object + ":" + uv_set] = 1
-                                self.uv_set_selection_status_dic[texture + ':' + uv_set_object + ":" + 'map1'] = 0
+                    uv_set_address_linked_to_texture = cmds.uvLink( query=True, texture = texture,queryObject = uv_set_object) or []
+                    len_uv_set_address_linked_to_texture = len(uv_set_address_linked_to_texture)
+                    if len_uv_set_address_linked_to_texture > 0:
+                        uv_set_address_linked_to_texture = uv_set_address_linked_to_texture[0]
+                        for uv_set_name in self.uv_set_name_to_address_dic:
+                            address = self.uv_set_name_to_address_dic[uv_set_name]
+                            if address == uv_set_address_linked_to_texture:
+                                uv_set_name_split = uv_set_name.split(':|:')
+                                name = uv_set_name_split[1]
+                                if name != 'map1':
+                                    uv_set_name_split = uv_set_name.split(':|:')
+                                    uv_set_name = uv_set_name_split[1]
+                                    self.uv_set_selection_status_dic[texture + ':|:' + uv_set_object + ':|:' + uv_set_name] = 1
+                                    self.uv_set_selection_status_dic[texture + ':|:' + uv_set_object + ':|:' + 'map1'] = 0
         for uv_full in self.uv_sets_all:
             if uv_full != '---':
                 for texture in self.all_textures:
-                    dic_string_check = texture + ':' + uv_full
+                    dic_string_check = texture + ':|:' + uv_full
                     if dic_string_check not in self.uv_set_selection_status_dic:
-                        self.uv_set_selection_status_dic[texture + ":" + uv_full] = 0
+                        self.uv_set_selection_status_dic[texture + ':|:' + uv_full] = 0
         for us_set_carry_over in self.uv_set_selection_status_dic_state_change:
             state = self.uv_set_selection_status_dic_state_change[us_set_carry_over]
-            us_set_carry_over_split = us_set_carry_over.split(":")
+            us_set_carry_over_split = us_set_carry_over.split(':|:')
             us_set_carry_over_texture = us_set_carry_over_split[0]
             us_set_carry_over_object = us_set_carry_over_split[1]
             us_set_carry_uv_set = us_set_carry_over_split[2]
             if state == 1:
                 self.uv_set_selection_status_dic[us_set_carry_over] = 1
                 if us_set_carry_uv_set != 'map1':
-                    self.uv_set_selection_status_dic[us_set_carry_over_texture + ":" + us_set_carry_over_object + ":" + 'map1'] = 0
-
+                    self.uv_set_selection_status_dic[us_set_carry_over_texture + ':|:' + us_set_carry_over_object + ':|:' + 'map1'] = 0
 
 #---------- UV set selection methods ----------
 
@@ -402,7 +421,7 @@ class UV_SET_EDITOR(object):
                 if item_text == '---':
                     item.setTextColor(QtGui.QColor("#858585"))
                 if item_text != '---':
-                    item_text_selection_status = self.uv_set_selection_status_dic[self.selected_item_text + ':' + item_text]
+                    item_text_selection_status = self.uv_set_selection_status_dic[self.selected_item_text + ':|:' + item_text]
                     if item_text_selection_status == 1:
                         item.setSelected(True)
                         item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
@@ -415,12 +434,12 @@ class UV_SET_EDITOR(object):
                 item = self.list_widget_right.item(it)
                 item.setFlags(item.flags() | Qt.ItemIsEnabled)
                 item_text = item.text()
-                item_text_selection_status = self.uv_set_selection_status_dic[item_text + ':' + self.selected_item_text]
+                item_text_selection_status = self.uv_set_selection_status_dic[item_text + ':|:' + self.selected_item_text]
                 if item_text_selection_status == 0:
                     item.setSelected(False)
                 if item_text_selection_status == 1:
                     item.setSelected(True)
-                    selected_item_text_split = self.selected_item_text.split(":")
+                    selected_item_text_split = self.selected_item_text.split(':|:')
                     selected_item_text_uv_set = selected_item_text_split[1]
                     if selected_item_text_uv_set == 'map1':
                         item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
@@ -442,7 +461,7 @@ class UV_SET_EDITOR(object):
                     item = self.list_widget_right.item(it)
                     uv_set_pointers.append(item)
                     item_text = item.text()
-                    uv_set_split = item_text.split(':')
+                    uv_set_split = item_text.split(':|:')
                     uv_set_object_name = uv_set_split[0]
                     uv_set_object_name_dic[item_text] = uv_set_object_name
                     it = it + 1
@@ -450,7 +469,7 @@ class UV_SET_EDITOR(object):
                     selected_right_pointers.append(selected_uv_set_pointer)
                     it_text = selected_uv_set_pointer.text()
                     selected_uv_set_names.append(it_text)
-                    selected_uv_set_split = it_text.split(':')
+                    selected_uv_set_split = it_text.split(':|:')
                     selected_uv_set_object_name = selected_uv_set_split[0]
                     for uv_set_pointer in uv_set_pointers:
                         if str(uv_set_pointer) != str(selected_uv_set_pointer):
@@ -458,22 +477,22 @@ class UV_SET_EDITOR(object):
                             object_name = uv_set_object_name_dic[uv_set_name]
                             if object_name == selected_uv_set_object_name:
                                 uv_set_pointer.setSelected(False)
-                                self.uv_set_selection_status_dic[self.selected_item_text + ':' + uv_set_name] = 0
+                                self.uv_set_selection_status_dic[self.selected_item_text + ':|:' + uv_set_name] = 0
                     self.unlock_right_QListWidget()
                     selected_uv_set_pointer.setSelected(True)
-                    self.uv_set_selection_status_dic[self.selected_item_text + ':' + it_text] = 1
+                    self.uv_set_selection_status_dic[self.selected_item_text + ':|:' + it_text] = 1
                 self.link_texture_to_uv_set()
         if self.centric_state_text == 'UV-centric':
             size_of_left_selection = len(self.selected_item_text)
             if size_of_left_selection > 0:
-                selected_item_text_split = self.selected_item_text.split(":")
+                selected_item_text_split = self.selected_item_text.split(':|:')
                 selected_item_text_object = selected_item_text_split[0]
                 selected_item_text_uv_set = selected_item_text_split[1]
                 self.selected_items_right_listWidget()
                 for selected_item_right_text in self.selected_items_right_text:
-                    self.uv_set_selection_status_dic[selected_item_right_text + ':' + self.selected_item_text] = 1
+                    self.uv_set_selection_status_dic[selected_item_right_text + ':|:' + self.selected_item_text] = 1
                     for uv_set_selection in self.uv_set_selection_status_dic:
-                        uv_set_selection_split = uv_set_selection.split(":")
+                        uv_set_selection_split = uv_set_selection.split(':|:')
                         uv_set_selection_texture = uv_set_selection_split[0]
                         uv_set_selection_object = uv_set_selection_split[1]
                         uv_set = uv_set_selection_split[2]
@@ -483,7 +502,7 @@ class UV_SET_EDITOR(object):
                                     self.uv_set_selection_status_dic[uv_set_selection] = 0
                 for texture in self.all_textures:
                     if texture not in self.selected_items_right_text:
-                        self.uv_set_selection_status_dic[texture + ':' + self.selected_item_text] = 0
+                        self.uv_set_selection_status_dic[texture + ':|:' + self.selected_item_text] = 0
                 selected_dics = []
                 unselected_dics = []
                 for uv_set_selection in self.uv_set_selection_status_dic:
@@ -495,7 +514,7 @@ class UV_SET_EDITOR(object):
                         if uv_set_selection not in unselected_dics:
                             unselected_dics.append(uv_set_selection)
                 for unselected_uv_set in unselected_dics:
-                    uv_set_selection_split = unselected_uv_set.split(":")
+                    uv_set_selection_split = unselected_uv_set.split(':|:')
                     unselected_texture = uv_set_selection_split[0]
                     unselected_object = uv_set_selection_split[1]
                     unselected_uv = uv_set_selection_split[2]
@@ -505,7 +524,7 @@ class UV_SET_EDITOR(object):
                         map1_object = unselected_object
                         no_select = 1
                         for selected_dic in selected_dics:
-                            selected_dic_split = selected_dic.split(":")
+                            selected_dic_split = selected_dic.split(':|:')
                             selected_dic_texture = selected_dic_split[0]
                             selected_dic_object = selected_dic_split[1]
                             selected_dic_uv_set = selected_dic_split[2]
@@ -514,7 +533,7 @@ class UV_SET_EDITOR(object):
                                     no_select = 0
                         if no_select == 1:
                             self.uv_set_selection_status_dic[unselected_uv_set_map1] = 1
-                selected_item_text_split = self.selected_item_text.split(':')
+                selected_item_text_split = self.selected_item_text.split(':|:')
                 uv_set = selected_item_text_split[1]
                 if selected_item_text_uv_set == 'map1':
                     selected_right_pointers = self.list_widget_right.selectedItems()
@@ -527,18 +546,18 @@ class UV_SET_EDITOR(object):
         for uv_set_selection in self.uv_set_selection_status_dic:
             selection_status = self.uv_set_selection_status_dic[uv_set_selection]
             if selection_status == 0:
-                uv_set_selection_split = uv_set_selection.split(":")
+                uv_set_selection_split = uv_set_selection.split(':|:')
                 texture = uv_set_selection_split[0]
                 object = uv_set_selection_split[1]
                 uv_set = uv_set_selection_split[2]
-                texture_linked_uv_set_address = self.uv_set_name_to_address_dic[object + ':' + uv_set]
+                texture_linked_uv_set_address = self.uv_set_name_to_address_dic[object + ':|:' + uv_set]
                 cmds.uvLink(b = True, uvSet = texture_linked_uv_set_address,texture = texture)
             if selection_status == 1:
-                uv_set_selection_split = uv_set_selection.split(":")
+                uv_set_selection_split = uv_set_selection.split(':|:')
                 texture = uv_set_selection_split[0]
                 object = uv_set_selection_split[1]
                 uv_set = uv_set_selection_split[2]
-                texture_linked_uv_set_address = self.uv_set_name_to_address_dic[object + ':' + uv_set]
+                texture_linked_uv_set_address = self.uv_set_name_to_address_dic[object + ':|:' + uv_set]
                 cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = texture)
 
 #---------- window ----------
