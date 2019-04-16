@@ -105,8 +105,8 @@ class LAYERS_WINDOW_TOOL(object):
 
     def attr_override_detect(self,object_label):
         for object in self.object_list:
-            print ' '
-            print 'object = ',object
+            #print ' '
+            #print 'object = ',object
             layered_texture_overrides = []
             default_ramp = "none"
             override_ramp = "none"
@@ -156,8 +156,8 @@ class LAYERS_WINDOW_TOOL(object):
                     it_list_count = 1
                 while it < it_list_count:
                     for attr in attrs:
-                        if self.object_type == 'VRayPlaceEnvTex':
-                            print 'attr = ',attr
+                        #if self.object_type == 'VRayPlaceEnvTex':
+                            #print 'attr = ',attr
                         #print '---'
                         #print '---'
                         #print 'attr = ',attr
@@ -166,12 +166,12 @@ class LAYERS_WINDOW_TOOL(object):
                             attr_string = object + "." + (attr_split[0] + '[' + str(it) + ']' + '.' + attr_split[1])
                         else:
                             attr_string = object + "." + attr
-                        if self.object_type == 'VRayPlaceEnvTex':
-                            print 'attr_string = ',attr_string
+                        #if self.object_type == 'VRayPlaceEnvTex':
+                            #print 'attr_string = ',attr_string
                         cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
                         default_attr_value = cmds.getAttr(attr_string)
-                        if self.object_type == 'VRayPlaceEnvTex':
-                            print 'default_attr_value = ',default_attr_value
+                        #if self.object_type == 'VRayPlaceEnvTex':
+                            #print 'default_attr_value = ',default_attr_value
                         attr_connections = cmds.listConnections(attr_string,destination = False) or []
                         default_ramp_found = 0
                         for connection in attr_connections:
@@ -180,8 +180,8 @@ class LAYERS_WINDOW_TOOL(object):
                                 default_ramp_found = 1
                                 default_ramp = connection
                         for render_layer in self.render_layers:
-                            if self.object_type == 'VRayPlaceEnvTex':
-                                print 'render_layer = ',render_layer
+                            #if self.object_type == 'VRayPlaceEnvTex':
+                                #print 'render_layer = ',render_layer
                             if render_layer != "defaultRenderLayer":
                                 cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
                                 cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
@@ -193,8 +193,8 @@ class LAYERS_WINDOW_TOOL(object):
                                         override_ramp_found = 1
                                         override_ramp = attr_connection
                                 override_attr_value = cmds.getAttr(attr_string)
-                                if self.object_type == 'VRayPlaceEnvTex':
-                                    print 'override_attr_value = ',override_attr_value
+                                #if self.object_type == 'VRayPlaceEnvTex':
+                                    #print 'override_attr_value = ',override_attr_value
                                 if self.object_type == "layeredTexture" and attr != 'alphaIsLuminance':
                                     attr_split = attr.split('.')
                                     attr_layered_texture_string = attr_split[0] + '[' + str(it) + ']' + '.' + attr_split[1]
@@ -234,8 +234,8 @@ class LAYERS_WINDOW_TOOL(object):
                                                 if attr_dic_string not in self.attr_overrides_dic and override_ramp in override_Attr:
                                                     self.attr_overrides_dic[attr_dic_string] = override_value
                     it = it + 1
-        print 'attr_override_detect = self.attr_overrides_dic = ',self.attr_overrides_dic
-        print ' '
+        #print 'attr_override_detect = self.attr_overrides_dic = ',self.attr_overrides_dic
+        #print ' '
         return(self.attr_overrides_dic)
 
     def translations(self):
@@ -474,7 +474,6 @@ class LAYERS_WINDOW_TOOL(object):
         self.attr_override_detect(object_label)
 
         object_type = "VRayPlaceEnvTex"
-        print 'running VRayPlaceEnvTex check'
         remove_attr_List = ['message','caching','frozen','isHistoricallyInteresting','nodeState','binMembership','mappingType','horFlip','verFlip','horRotation','verRotation','outUV','outU','outV','outApiType','outApiClassification','useTransform','transform','groundOn','groundPosition','groundPosition0','groundPosition1','groundPosition2','groundRadius']
         attr_check = ['horRotation','verRotation']
         for attr in attr_check:
