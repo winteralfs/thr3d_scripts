@@ -48,11 +48,11 @@ def ramp_generator():
     reload(ramp_generator)
     ramp_generator.main()
 
-def layers_tool():
-    print "layers_tool function"
-    import layers_tool
-    reload(layers_tool)
-    layers_tool.main()
+def rebuild_layers():
+    print "rebuild_layers function"
+    import rebuild_layers
+    reload(rebuild_layers)
+    rebuild_layers.main()
 
 def uv_editor():
     print "uv_editor function"
@@ -73,10 +73,16 @@ def rename_shading_groups():
     rename_shading_groups.main()
 
 def UV_set_editor():
-    print "rename_shading_groups function"
+    print "UV_set_editor"
     import UV_set_editor
     reload(UV_set_editor)
     UV_set_editor.main()
+
+def standard_lighting_tool_rotation_fix():
+    print "standard_lighting_tool_rotation_fix"
+    import standard_lighting_tool_rotation_fix
+    reload(standard_lighting_tool_rotation_fix)
+    standard_lighting_tool_rotation_fix.main()
 
 def build_custom_shelf():
     main_shelf = mel.eval('$tempMelVar=$gShelfTopLevel')
@@ -101,8 +107,8 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/objectReplacer_Logo_small.jpg', command = partial(object_replace))
     annotation = 'Texture Swap: Transfers the connections and settings from one set of textures to another'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/texture_swapper_Logo_small.jpg', command = partial(texture_swap))
-    annotation = 'Render Layer Tool: Many useful tools for render layer management'
-    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/layer_tool_Logo_small.jpg', command = partial(layers_tool))
+    annotation = 'Rebuild layers Tool: Many useful tools for render layer management'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/layer_tool_Logo_small.jpg', command = partial(rebuild_layers))
     annotation = 'Hypershade Cleaner: Deletes unused shaders and textures from the hypershade'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/cleaner_Logo_small.jpg', command = partial(cleaner))
     annotation = 'Ramp Generator: generates a variety of ramp texures'
@@ -115,3 +121,5 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(rename_shading_groups))
     annotation = 'UV set editor, not object selection based, faster'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/uv_set_editor_logo_small.jpg', command = partial(UV_set_editor))
+    annotation = 'rebuilds the standard lighting rig dome rotations'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/standard_lighting_tool_rotation_fix_thumb.jpg', command = partial(standard_lighting_tool_rotation_fix))

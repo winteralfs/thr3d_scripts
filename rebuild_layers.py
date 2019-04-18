@@ -54,7 +54,6 @@ class LAYERS_WINDOW_TOOL(object):
 #---
 
     def overides_information_function(self):
-        #print 'overides_information_function'
         vray_settings_overrides_dic = {}
         transform_layer_overrides = {}
         material_assignment_overrides = {}
@@ -63,29 +62,16 @@ class LAYERS_WINDOW_TOOL(object):
         light_overrides_dic = {}
         render_stat_overrides = {}
         vray_object_property_overrides = {}
-        #vray_settings_overrides_dic = self.vray_settings_overrides()
         object_translations = self.translations()
-        #print 'object_translations = ',object_translations
         transform_layer_overrides = object_translations[3]
-        #print 'transform_layer_overrides = ',transform_layer_overrides
         self.material_assignments = self.material_assignments()
-        #print 'OBJ_1_self.material_assignments = ',OBJ_1_self.material_assignments
         self.material_assignment_overrides = self.material_assignments[3]
-        #print 'material_assignment_overrides = ',material_assignment_overrides
         self.material_overrides_dic = self.material_overrides()
-        #print 'overides_information_function = self.material_overrides_dic = ',self.material_overrides_dic
         self.ramp_overrides = self.ramp_overrides_method()
         camera_overrides_dic = self.camera_overides()
         light_overrides_dic = self.light_overrides()
         render_stat_overrides = self.render_stat_overrides()
         vray_object_property_overrides = self.vray_object_prop_overrides()
-        #print 'vray_settings_overrides_dic = ',vray_settings_overrides_dic
-        #print 'transform_layer_overrides = ',transform_layer_overrides
-        #print 'self.material_overrides_dic = ',self.material_overrides_dic
-        #print 'light_overrides_dic = ',light_overrides_dic
-        #print 'render_stat_overrides = ',render_stat_overrides
-        #print 'vray_object_property_overrides = ',vray_object_property_overrides
-        #print 'camera_overrides_dic = ',camera_overrides_dic
         return(vray_settings_overrides_dic,transform_layer_overrides,self.material_overrides_dic,light_overrides_dic,render_stat_overrides,vray_object_property_overrides,camera_overrides_dic)
 
     def overides_information_summary(self,object_type,remove_attr_List,attr_overrides_dic,object_label):
@@ -105,8 +91,6 @@ class LAYERS_WINDOW_TOOL(object):
 
     def attr_override_detect(self,object_label):
         for object in self.object_list:
-            #print ' '
-            #print 'object = ',object
             layered_texture_overrides = []
             default_ramp = "none"
             override_ramp = "none"
@@ -117,14 +101,24 @@ class LAYERS_WINDOW_TOOL(object):
             node_type = cmds.nodeType(object)
             if node_type == self.object_type:
                 attrs = cmds.listAttr(object)
-                #print 'attrs = ',attrs
                 for remove_attr in self.remove_attr_List:
-                    #print 'remove_attr = ',remove_attr
                     attrs.remove(remove_attr)
                 if self.object_type == "layeredTexture":
                     current_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
                     overrides = cmds.editRenderLayerAdjustment(current_layer, query = True, layer = True)
                     count_overrides_base = 0
+                    num_list = cmds.listAttr(object, multi = True)
+                    layer_tex_nums = []
+                    inputs =  cmds.listAttr('layeredTexture9.inputs', multi = True)
+                    print 'inputs = ',inputs
+                    for input in inputs:
+                        input_split_1 = input.split('[')
+                        input_split_1 = input_split_1[1]
+                        input_split_2 = input_split_1.split(']')
+                        num = input_split_2[0]
+                        if num not in layer_tex_nums:
+                            layer_tex_nums.append(num)
+                    print 'layer_tex_nums = ',layer_tex_nums
                     for render_layer in self.render_layers:
                         layered_texture_overrides = []
                         count_overrides = cmds.editRenderLayerAdjustment(render_layer, query = True, layer = True)
@@ -152,26 +146,21 @@ class LAYERS_WINDOW_TOOL(object):
                 it = 0
                 if self.object_type == 'layeredTexture':
                     it_list_count = count_overrides_base
+                    print 'it_list_count = ',it_list_count
                 else:
                     it_list_count = 1
                 while it < it_list_count:
+                    print 'it = ',it
                     for attr in attrs:
-                        #if self.object_type == 'VRayPlaceEnvTex':
-                            #print 'attr = ',attr
-                        #print '---'
-                        #print '---'
-                        #print 'attr = ',attr
                         if self.object_type == "layeredTexture" and attr != 'alphaIsLuminance':
                             attr_split = attr.split('.')
-                            attr_string = object + "." + (attr_split[0] + '[' + str(it) + ']' + '.' + attr_split[1])
+                            num = layer_tex_nums[it]
+                            attr_string = object + "." + (attr_split[0] + '[' + str(num) + ']' + '.' + attr_split[1])
                         else:
                             attr_string = object + "." + attr
-                        #if self.object_type == 'VRayPlaceEnvTex':
-                            #print 'attr_string = ',attr_string
+                        print 'attr_string = ',attr_string
                         cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
                         default_attr_value = cmds.getAttr(attr_string)
-                        #if self.object_type == 'VRayPlaceEnvTex':
-                            #print 'default_attr_value = ',default_attr_value
                         attr_connections = cmds.listConnections(attr_string,destination = False) or []
                         default_ramp_found = 0
                         for connection in attr_connections:
@@ -180,8 +169,6 @@ class LAYERS_WINDOW_TOOL(object):
                                 default_ramp_found = 1
                                 default_ramp = connection
                         for render_layer in self.render_layers:
-                            #if self.object_type == 'VRayPlaceEnvTex':
-                                #print 'render_layer = ',render_layer
                             if render_layer != "defaultRenderLayer":
                                 cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
                                 cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
@@ -193,11 +180,10 @@ class LAYERS_WINDOW_TOOL(object):
                                         override_ramp_found = 1
                                         override_ramp = attr_connection
                                 override_attr_value = cmds.getAttr(attr_string)
-                                #if self.object_type == 'VRayPlaceEnvTex':
-                                    #print 'override_attr_value = ',override_attr_value
                                 if self.object_type == "layeredTexture" and attr != 'alphaIsLuminance':
                                     attr_split = attr.split('.')
-                                    attr_layered_texture_string = attr_split[0] + '[' + str(it) + ']' + '.' + attr_split[1]
+                                    num = layer_tex_nums[it]
+                                    attr_layered_texture_string = attr_split[0] + '[' + str(num) + ']' + '.' + attr_split[1]
                                     attr_dic_string = object_label + "_overide*" + object + '.' + attr_layered_texture_string + "**" + render_layer + "_"
                                 else:
                                     attr_dic_string = object_label + "_overide*" + object + "." + attr + "**" + render_layer + "_"
@@ -234,8 +220,6 @@ class LAYERS_WINDOW_TOOL(object):
                                                 if attr_dic_string not in self.attr_overrides_dic and override_ramp in override_Attr:
                                                     self.attr_overrides_dic[attr_dic_string] = override_value
                     it = it + 1
-        #print 'attr_override_detect = self.attr_overrides_dic = ',self.attr_overrides_dic
-        #print ' '
         return(self.attr_overrides_dic)
 
     def translations(self):
@@ -247,7 +231,6 @@ class LAYERS_WINDOW_TOOL(object):
         cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
         render_layer = cmds.editRenderLayerGlobals(q = True, currentRenderLayer = True)
         for object in self.object_check_transform:
-            #print 'object = ',object
             string_translateX = object + ".translateX"
             translateX = cmds.getAttr(string_translateX)
             var = object + "$" + render_layer + "$translateX"
@@ -284,7 +267,6 @@ class LAYERS_WINDOW_TOOL(object):
             scaleZ = cmds.getAttr(string_scaleZ)
             var = object + "$" + render_layer + "$scaleZ"
             transform_default_values_dic[var] = scaleZ
-        #print 'transform_default_values_dic = ',transform_default_values_dic
         for object in self.object_check_transform:
             for render_layer in self.render_layers:
                 cmds.editRenderLayerGlobals( currentRenderLayer = render_layer )
@@ -326,7 +308,6 @@ class LAYERS_WINDOW_TOOL(object):
                     scaleZ = cmds.getAttr(string_scaleZ)
                     var = object + "$" + render_layer + "$scaleZ"
                     transform_override_values_dic[var] = scaleZ
-        #print 'transform_override_values_dic = ',transform_override_values_dic
         for transform_value in transform_override_values_dic:
             transform_values_split = transform_value.split("$")
             for transform_defualt_value in transform_default_values_dic:
@@ -337,7 +318,6 @@ class LAYERS_WINDOW_TOOL(object):
                     if value != value_default:
                         transform_layer_overrides.append(transform_value)
                         transform_layer_dic["transO$" + transform_value] = value
-
         return transform_default_values_dic,transform_override_values_dic,transform_layer_overrides,transform_layer_dic
 
     def material_assignments(self):
@@ -465,7 +445,6 @@ class LAYERS_WINDOW_TOOL(object):
         self.attr_override_detect(object_label)
 
         object_type = "gammaCorrect"
-        #print 'running gamma correct'
         remove_attr_List = ['message','caching','frozen','isHistoricallyInteresting','nodeState','binMembership','value','valueX','valueY','valueZ','gamma','gammaX','gammaY','gammaZ','renderPassMode','outValue','outValueX','outValueY','outValueZ','aiUserOptions','aiValue','aiValueX','aiValueY','aiValueZ','aiGamma','aiGammaX','aiGammaY','aiGammaZ']
         attr_check = ['value','gammaX','gammaY','gammaZ']
         for attr in attr_check:
@@ -520,24 +499,14 @@ class LAYERS_WINDOW_TOOL(object):
         for render_layer in self.render_layers:
             cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
             self.overrides =  cmds.editRenderLayerAdjustment(render_layer, query = True, layer = True) or []
-            #print 'self.overrides = ',self.overrides
             for ramp in self.ramp_nodes:
-                #print 'ramp = ',ramp
                 for override in self.overrides:
-                    #print 'override = ',override
                     if ramp in override:
-                        #print 'override = ',override
                         override_value = cmds.getAttr(override)
                         override_value_type = type(override_value) is list
-                        #print 'anal override_value = ',override_value
-                        #print 'anal override_value_type = ',override_value_type
                         if override_value_type == 1:
                             override_value = override_value[0]
-                            #print 'list = ', override_value
-                        #else:
-                            #print 'non list = ', override_value
                         ramp_override_string = render_layer + '&&' + ramp  + '&&' + override + '&&' + str(override_value)
-                        #print 'ramp_override_string = ',ramp_override_string
                         self.ramp_overrides.append(ramp_override_string)
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
         return(self.ramp_overrides)
@@ -547,7 +516,7 @@ class LAYERS_WINDOW_TOOL(object):
         attr_overrides_dic = camera_overrides_dic
         object_label = "camera_overide"
         object_type = "camera"
-        remove_attr_List =  ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "hyperLayout", "isCollapsed", "blackBox", "borderConnections", "isHierarchicalConnection", "publishedNodeInfo", "publishedNodeInfo.publishedNode", "publishedNodeInfo.isHierarchicalNode", "publishedNodeInfo.publishedNodeType", "rmbCommand", "templateName", "templatePath", "viewName", "iconName", "viewMode", "templateVersion", "uiTreatment", "customTreatment", "creator", "creationDate", "containerType", "boundingBox", "boundingBoxMin", "boundingBoxMinX", "boundingBoxMinY", "boundingBoxMinZ", "boundingBoxMax", "boundingBoxMaxX", "boundingBoxMaxY", "boundingBoxMaxZ", "boundingBoxSize", "boundingBoxSizeX", "boundingBoxSizeY", "boundingBoxSizeZ", "center", "boundingBoxCenterX", "boundingBoxCenterY", "boundingBoxCenterZ", "matrix", "inverseMatrix", "worldMatrix", "worldInverseMatrix", "parentMatrix", "parentInverseMatrix", "visibility", "intermediateObject", "template", "ghosting", "instObjGroups", "instObjGroups.objectGroups", "instObjGroups.objectGroups.objectGrpCompList", "instObjGroups.objectGroups.objectGroupId", "instObjGroups.objectGroups.objectGrpColor", "objectColorRGB", "objectColorR", "objectColorG", "objectColorB", "useObjectColor", "objectColor", "drawOverride", "overrideDisplayType", "overrideLevelOfDetail", "overrideShading", "overrideTexturing", "overridePlayback", "overrideEnabled", "overrideVisibility", "overrideColor", "lodVisibility", "selectionChildHighlighting", "renderInfo", "identification", "layerRenderable", "layerOverrideColor", "renderLayerInfo", "renderLayerInfo.renderLayerId", "renderLayerInfo.renderLayerRenderable", "renderLayerInfo.renderLayerColor", "ghostingControl", "ghostCustomSteps", "ghostPreSteps", "ghostPostSteps", "ghostStepSize", "ghostFrames", "ghostColorPreA", "ghostColorPre", "ghostColorPreR", "ghostColorPreG", "ghostColorPreB", "ghostColorPostA", "ghostColorPost", "ghostColorPostR", "ghostColorPostG", "ghostColorPostB", "ghostRangeStart", "ghostRangeEnd", "ghostDriver", "hiddenInOutliner", "renderable", "cameraAperture", "horizontalFilmAperture", "verticalFilmAperture", "shakeOverscan", "shakeOverscanEnabled", "filmOffset", "horizontalFilmOffset", "verticalFilmOffset", "shakeEnabled", "shake", "horizontalShake", "verticalShake", "stereoHorizontalImageTranslateEnabled", "stereoHorizontalImageTranslate", "postProjection", "preScale", "filmTranslate", "filmTranslateH", "filmTranslateV", "filmRollControl", "filmRollPivot", "horizontalRollPivot", "verticalRollPivot", "filmRollValue", "filmRollOrder", "postScale", "filmFit", "filmFitOffset", "overscan", "panZoomEnabled", "renderPanZoom", "pan", "horizontalPan", "verticalPan", "zoom", "focalLength", "lensSqueezeRatio", "cameraScale", "triggerUpdate", "nearClipPlane", "farClipPlane", "fStop", "focusDistance", "shutterAngle", "centerOfInterest", "orthographicWidth", "imageName", "depthName", "maskName", "tumblePivot", "tumblePivotX", "tumblePivotY", "tumblePivotZ", "usePivotAsLocalSpace", "imagePlane", "homeCommand", "bookmarks", "locatorScale", "displayGateMaskOpacity", "displayGateMask", "displayFilmGate", "displayResolution", "displaySafeAction", "displaySafeTitle", "displayFieldChart", "displayFilmPivot", "displayFilmOrigin", "clippingPlanes", "bestFitClippingPlanes", "depthOfField", "motionBlur", "orthographic", "journalCommand", "image", "depth", "transparencyBasedDepth", "threshold", "depthType", "useExploreDepthFormat", "mask", "displayGateMaskColor", "displayGateMaskColorR", "displayGateMaskColorG", "displayGateMaskColorB", "backgroundColor", "backgroundColorR", "backgroundColorG", "backgroundColorB", "focusRegionScale", "displayCameraNearClip", "displayCameraFarClip", "displayCameraFrustum", "cameraPrecompTemplate", "vraySeparator_vray_cameraPhysical", "vrayCameraPhysicalOn", "vrayCameraPhysicalType", "vrayCameraPhysicalFilmWidth", "vrayCameraPhysicalFocalLength", "vrayCameraPhysicalSpecifyFOV", "vrayCameraPhysicalFOV", "vrayCameraPhysicalZoomFactor", "vrayCameraPhysicalDistortionType", "vrayCameraPhysicalDistortion", "vrayCameraPhysicalLensFile", "vrayCameraPhysicalDistortionMap", "vrayCameraPhysicalDistortionMapR", "vrayCameraPhysicalDistortionMapG", "vrayCameraPhysicalDistortionMapB", "vrayCameraPhysicalFNumber", "vrayCameraPhysicalHorizLensShift", "vrayCameraPhysicalLensShift", "vrayCameraPhysicalLensAutoVShift", "vrayCameraPhysicalShutterSpeed", "vrayCameraPhysicalShutterAngle", "vrayCameraPhysicalShutterOffset", "vrayCameraPhysicalLatency", "vrayCameraPhysicalISO", "vrayCameraPhysicalSpecifyFocus", "vrayCameraPhysicalFocusDistance", "vrayCameraPhysicalExposure", "vrayCameraPhysicalWhiteBalance", "vrayCameraPhysicalWhiteBalanceR", "vrayCameraPhysicalWhiteBalanceG", "vrayCameraPhysicalWhiteBalanceB", "vrayCameraPhysicalVignetting", "vrayCameraPhysicalVignettingAmount", "vrayCameraPhysicalBladesEnable", "vrayCameraPhysicalBladesNum", "vrayCameraPhysicalBladesRotation", "vrayCameraPhysicalCenterBias", "vrayCameraPhysicalAnisotropy", "vrayCameraPhysicalUseDof", "vrayCameraPhysicalUseMoBlur", "vrayCameraPhysicalApertureMap", "vrayCameraPhysicalApertureMapR", "vrayCameraPhysicalApertureMapG", "vrayCameraPhysicalApertureMapB", "vrayCameraPhysicalApertureMapAffectsExposure", "vrayCameraPhysicalOpticalVignetting", "vraySeparator_vray_cameraOverrides", "vrayCameraOverridesOn", "vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist", "vrayCameraCurve"]
+        remove_attr_List =  ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "hyperLayout", "isCollapsed", "blackBox", "borderConnections", "isHierarchicalConnection", "publishedNodeInfo", "publishedNodeInfo.publishedNode", "publishedNodeInfo.isHierarchicalNode", "publishedNodeInfo.publishedNodeType", "rmbCommand", "templateName", "templatePath", "viewName", "iconName", "viewMode", "templateVersion", "uiTreatment", "customTreatment", "creator", "creationDate", "containerType", "boundingBox", "boundingBoxMin", "boundingBoxMinX", "boundingBoxMinY", "boundingBoxMinZ", "boundingBoxMax", "boundingBoxMaxX", "boundingBoxMaxY", "boundingBoxMaxZ", "boundingBoxSize", "boundingBoxSizeX", "boundingBoxSizeY", "boundingBoxSizeZ", "center", "boundingBoxCenterX", "boundingBoxCenterY", "boundingBoxCenterZ", "matrix", "inverseMatrix", "worldMatrix", "worldInverseMatrix", "parentMatrix", "parentInverseMatrix", "visibility", "intermediateObject", "template", "ghosting", "instObjGroups", "instObjGroups.objectGroups", "instObjGroups.objectGroups.objectGrpCompList", "instObjGroups.objectGroups.objectGroupId", "instObjGroups.objectGroups.objectGrpColor", "objectColorRGB", "objectColorR", "objectColorG", "objectColorB", "useObjectColor", "objectColor", "drawOverride", "overrideDisplayType", "overrideLevelOfDetail", "overrideShading", "overrideTexturing", "overridePlayback", "overrideEnabled", "overrideVisibility", "overrideColor", "lodVisibility", "selectionChildHighlighting", "renderInfo", "identification", "layerRenderable", "layerOverrideColor", "renderLayerInfo", "renderLayerInfo.renderLayerId", "renderLayerInfo.renderLayerRenderable", "renderLayerInfo.renderLayerColor", "ghostingControl", "ghostCustomSteps", "ghostPreSteps", "ghostPostSteps", "ghostStepSize", "ghostFrames", "ghostColorPreA", "ghostColorPre", "ghostColorPreR", "ghostColorPreG", "ghostColorPreB", "ghostColorPostA", "ghostColorPost", "ghostColorPostR", "ghostColorPostG", "ghostColorPostB", "ghostRangeStart", "ghostRangeEnd", "ghostDriver", "hiddenInOutliner", "renderable", "cameraAperture", "horizontalFilmAperture", "verticalFilmAperture", "shakeOverscan", "shakeOverscanEnabled", "filmOffset", "horizontalFilmOffset", "verticalFilmOffset", "shakeEnabled", "shake", "horizontalShake", "verticalShake", "stereoHorizontalImageTranslateEnabled", "stereoHorizontalImageTranslate", "postProjection", "preScale", "filmTranslate", "filmTranslateH", "filmTranslateV", "filmRollControl", "filmRollPivot", "horizontalRollPivot", "verticalRollPivot", "filmRollValue", "filmRollOrder", "postScale", "filmFit", "filmFitOffset", "overscan", "panZoomEnabled", "renderPanZoom", "pan", "horizontalPan", "verticalPan", "zoom", "focalLength", "lensSqueezeRatio", "cameraScale", "triggerUpdate", "nearClipPlane", "farClipPlane", "fStop", "focusDistance", "shutterAngle", "centerOfInterest", "orthographicWidth", "imageName", "depthName", "maskName", "tumblePivot", "tumblePivotX", "tumblePivotY", "tumblePivotZ", "usePivotAsLocalSpace", "imagePlane", "homeCommand", "bookmarks", "locatorScale", "displayGateMaskOpacity", "displayGateMask", "displayFilmGate", "displayResolution", "displaySafeAction", "displaySafeTitle", "displayFieldChart", "displayFilmPivot", "displayFilmOrigin", "clippingPlanes", "bestFitClippingPlanes", "depthOfField", "motionBlur", "orthographic", "journalCommand", "image", "depth", "transparencyBasedDepth", "threshold", "depthType", "useExploreDepthFormat", "mask", "displayGateMaskColor", "displayGateMaskColorR", "displayGateMaskColorG", "displayGateMaskColorB", "backgroundColor", "backgroundColorR", "backgroundColorG", "backgroundColorB", "focusRegionScale", "displayCameraNearClip", "displayCameraFarClip", "displayCameraFrustum", "cameraPrecompTemplate", "vraySeparator_vray_cameraPhysical", "vrayCameraPhysicalOn", "vrayCameraPhysicalType", "vrayCameraPhysicalFilmWidth", "vrayCameraPhysicalFocalLength", "vrayCameraPhysicalSpecifyFOV", "vrayCameraPhysicalFOV", "vrayCameraPhysicalZoomFactor", "vrayCameraPhysicalDistortionType", "vrayCameraPhysicalDistortion", "vrayCameraPhysicalLensFile", "vrayCameraPhysicalDistortionMap", "vrayCameraPhysicalDistortionMapR", "vrayCameraPhysicalDistortionMapG", "vrayCameraPhysicalDistortionMapB", "vrayCameraPhysicalFNumber", "vrayCameraPhysicalHorizLensShift", "vrayCameraPhysicalLensShift", "vrayCameraPhysicalLensAutoVShift", "vrayCameraPhysicalShutterSpeed", "vrayCameraPhysicalShutterAngle", "vrayCameraPhysicalShutterOffset", "vrayCameraPhysicalLatency", "vrayCameraPhysicalISO", "vrayCameraPhysicalSpecifyFocus", "vrayCameraPhysicalFocusDistance", "vrayCameraPhysicalExposure", "vrayCameraPhysicalWhiteBalance", "vrayCameraPhysicalWhiteBalanceR", "vrayCameraPhysicalWhiteBalanceG", "vrayCameraPhysicalWhiteBalanceB", "vrayCameraPhysicalVignetting", "vrayCameraPhysicalVignettingAmount", "vrayCameraPhysicalBladesEnable", "vrayCameraPhysicalBladesNum", "vrayCameraPhysicalBladesRotation", "vrayCameraPhysicalCenterBias", "vrayCameraPhysicalAnisotropy", "vrayCameraPhysicalUseDof", "vrayCameraPhysicalUseMoBlur", "vrayCameraPhysicalApertureMap", "vrayCameraPhysicalApertureMapR", "vrayCameraPhysicalApertureMapG", "vrayCameraPhysicalApertureMapB", "vrayCameraPhysicalApertureMapAffectsExposure", "vrayCameraPhysicalOpticalVignetting", "vraySeparator_vray_cameraOverrides", "vrayCameraOverridesOn", "vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist", "vrayCameraCurve",'aiFiltermap','aiShutterCurve.aiShutterCurveX','aiShutterCurve.aiShutterCurveY','aiPosition.aiPositionX','aiPosition.aiPositionY','aiPosition.aiPositionZ','aiLookAt.aiLookAtX','aiLookAt.aiLookAtY','aiLookAt.aiLookAtZ','aiUp.aiUpX','aiUp.aiUpY','aiUp.aiUpZ','aiScreenWindowMin.aiScreenWindowMinX','aiScreenWindowMin.aiScreenWindowMinY','aiScreenWindowMax.aiScreenWindowMaxX','aiScreenWindowMax.aiScreenWindowMaxY']
         #'aiFiltermap','aiShutterCurve.aiShutterCurveX','aiShutterCurve.aiShutterCurveY','aiPosition.aiPositionX','aiPosition.aiPositionY','aiPosition.aiPositionZ','aiLookAt.aiLookAtX','aiLookAt.aiLookAtY','aiLookAt.aiLookAtZ','aiUp.aiUpX','aiUp.aiUpY','aiUp.aiUpZ','aiScreenWindowMin.aiScreenWindowMinX','aiScreenWindowMin.aiScreenWindowMinY','aiScreenWindowMax.aiScreenWindowMaxX','aiScreenWindowMax.aiScreenWindowMaxY'
         attr_check = ["vraySeparator_vray_cameraPhysical","vrayCameraPhysicalOn","vrayCameraPhysicalType","vrayCameraPhysicalFilmWidth","vrayCameraPhysicalFocalLength","vrayCameraPhysicalSpecifyFOV","vrayCameraPhysicalFOV","vrayCameraPhysicalZoomFactor","vrayCameraPhysicalDistortionType","vrayCameraPhysicalDistortion","vrayCameraPhysicalLensFile","vrayCameraPhysicalDistortionMap","vrayCameraPhysicalDistortionMapR",
         "vrayCameraPhysicalDistortionMapG","vrayCameraPhysicalDistortionMapB","vrayCameraPhysicalFNumber","vrayCameraPhysicalHorizLensShift","vrayCameraPhysicalLensShift","vrayCameraPhysicalLensAutoVShift","vrayCameraPhysicalShutterSpeed","vrayCameraPhysicalShutterAngle","vrayCameraPhysicalShutterOffset","vrayCameraPhysicalLatency","vrayCameraPhysicalISO","vrayCameraPhysicalSpecifyFocus","vrayCameraPhysicalFocusDistance",
@@ -865,40 +834,22 @@ class LAYERS_WINDOW_TOOL(object):
                                     else:
                                         cmds.connectAttr((value + ".outColor"),lo,force = True)
                 for mo in material_overrides:
-                    #print ' '
-                    #print ' '
-                    #print 'material_overrides = ',material_overrides
-                    #print 'rebuilding layers MO '
-                    #print 'mo = ',mo
                     if "material_overide" in mo:
                         ramp_removed_found = 0
                         if "ramp_removed" in mo:
-                            #print 'ramp_removed'
                             ramp_removed_found = 1
                         mo_original = mo
-                        #print 'mo_original = ',mo_original
                         mo_split = mo.split("**")
-                        #print 'mo_split = ',mo_split
                         layer = mo_split[1]
-                        #print '[1] layer = ',layer
                         layer = layer[:-1]
-                        #print 'after :-1 layer = ',layer
                         mo_split_two = mo.split("*")
                         mo = mo_split_two[1]
-                        #print 'mo = ',mo
                         mo_object_split = mo.split(".")
                         for material in self.materials:
-                            #print 'material = ',material
                             if material == mo_object_split[0]:
-                                #print 'mo_object_split[0] = ',mo_object_split[0]
-                                #print 'layer = ',layer
-                                #print 'render_layer = ',render_layer
                                 if layer == render_layer:
-                                    #print 'layer = render_layer'
                                     value = material_overrides[mo_original]
-                                    #print 'value = ',value
                                     typ = type(value)
-                                    #print 'typ = ',typ
                                     kind_list = type(value) is list
                                     kind_int = type(value) is int
                                     kind_float = type(value) is float
@@ -911,19 +862,14 @@ class LAYERS_WINDOW_TOOL(object):
                                         value_c = value_sub[2]
                                         cmds.editRenderLayerAdjustment(mo)
                                         if ramp_removed_found == 1:
-                                            #print 'ramp_removed_found = 1'
                                             a = 1
                                             destination_connections = cmds.listConnections(mo_split_two[1], destination = False, plugs = True, connections = True) or []
                                             destination_connections_size = len(destination_connections)
-                                            #print 'destination_connections_size = ',destination_connections_size
                                             while a < destination_connections_size:
-                                                #print 'disconnectAttr connections ',destination_connections[1] + ' ' + destination_connections[0]
                                                 cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                                 a = a + 1
-                                        #print 'setting ',mo_split_two[1] + str(value_a) + str(value_b) + str(value_c)
                                         cmds.setAttr(mo_split_two[1],value_a,value_b,value_c)
                                     if kind_float == 1 or kind_int == 1 or kind_bool == 1:
-                                        #print 'kind = float, int, or bool'
                                         cmds.editRenderLayerAdjustment(mo,layer = render_layer)
                                         if ramp_removed_found == 1:
                                             a = 1
@@ -932,7 +878,6 @@ class LAYERS_WINDOW_TOOL(object):
                                             while a < destination_connections_size:
                                                 cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                                 a = a + 1
-                                        #print 'setting ',mo_split_two[1] + str(value)
                                         cmds.setAttr(mo_split_two[1],value)
                                     if kind_unicode == 1:
                                         cmds.editRenderLayerAdjustment(mo)
@@ -1075,21 +1020,14 @@ class LAYERS_WINDOW_TOOL(object):
                                             a = a + 1
                                     cmds.connectAttr((value + ".outColor"),vray_render_setting_full, force = True)
                 for ramp_override in self.ramp_overrides:
-                    #print 'ramp_override = ',ramp_override
                     ramp_override_split = ramp_override.split('&&')
-                    #print 'ramp_override_split = ',ramp_override_split
                     ramp_override_layer = ramp_override_split[0]
-                    #print 'ramp_override_layer = ',ramp_override_layer
                     ramp_override_ramp = ramp_override_split[1]
-                    #print 'ramp_override_ramp = ',ramp_override_ramp
                     ramp_override_attr = ramp_override_split[2]
-                    #print 'ramp_override_attr = ',ramp_override_attr
                     ramp_override_value = ramp_override_split[3]
-                    #print 'ramp_override_value = ',ramp_override_value
                     cmds.editRenderLayerAdjustment(ramp_override_attr)
                     if ramp_override_layer == render_layer:
                         override_value_split = ramp_override_value.split(',')
-                        #print 'override_value_split = ',override_value_split
                         size_of_override_value = len(override_value_split)
                         if size_of_override_value > 1:
                             override_value_split[0] = override_value_split[0].replace('(','')
@@ -1097,17 +1035,9 @@ class LAYERS_WINDOW_TOOL(object):
                             override_value_split[0] = float(override_value_split[0])
                             override_value_split[1] = float(override_value_split[1])
                             override_value_split[2] = float(override_value_split[2])
-                            #print 'ramp_override_attr = ',ramp_override_attr
-                            #print 'override_value_split[0] = ',override_value_split[0]
-                            #print 'override_value_split[2] = ',override_value_split[2]
-                            #print 'override_value_split[0] = ',override_value_split[0]
-                            #print 'override_value_split[1] = ',override_value_split[1]
-                            #print 'override_value_split[2] = ',override_value_split[2]
                             cmds.setAttr(ramp_override_attr,override_value_split[0],override_value_split[1],override_value_split[2], type = 'double3')
                         if size_of_override_value < 2:
                             ramp_override_value = float(ramp_override_value)
-                            #print 'ramp_override_attr = ',ramp_override_attr
-                            #print 'ramp_override_value = ',ramp_override_value
                             cmds.setAttr(ramp_override_attr,ramp_override_value)
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
         self.fix_cam_layer_assignments()
@@ -1132,8 +1062,6 @@ class LAYERS_WINDOW_TOOL(object):
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
 
     def make_object_visible_in_all_layers(self):
-        #for mPanel in self.panels:
-            #cmds.modelEditor(mPanel, edit = True, allObjects = 0)
         selected_objects = cmds.ls(sl = True)
         for selected_object in selected_objects:
             for render_layer in self.render_layers:
@@ -1144,8 +1072,6 @@ class LAYERS_WINDOW_TOOL(object):
 
 
     def hide_object_in_all_layers(self):
-        #for mPanel in self.panels:
-            #cmds.modelEditor(mPanel, edit = True, allObjects = 0)
         selected_objects = cmds.ls(sl = True)
         for selected_object in selected_objects:
             for render_layer in self.render_layers:
@@ -1196,9 +1122,6 @@ class LAYERS_WINDOW_TOOL(object):
             cmds.setAttr(parent_node + ".renderable", lock = 0)
 
     def evaluate_objects_in_render_layers(self):
-        #print 'evaluate_objects_in_render_layers'
-        #for mPanel in self.panels:
-            #cmds.modelEditor(mPanel, edit = True, allObjects = 0)
         selected_objects = cmds.ls(sl = True)
         for OIL_button in self.OIL_button_pointer_dic:
             for render_layer in self.render_layers:
@@ -1208,18 +1131,13 @@ class LAYERS_WINDOW_TOOL(object):
                     for object in selected_objects:
                         object_in_render_layer_check = cmds.editRenderLayerMembers(render_layer, object, query = True) or []
                         if object in object_in_render_layer_check:
-                            #print 'setting OIL button for layer: ' + render_layer + ' to False'
                             OIL_button.setChecked(False)
                         else:
-                            #print 'setting OIL button for layer: ' + render_layer + ' to True'
                             OIL_button.setChecked(True)
         cmds.editRenderLayerGlobals(currentRenderLayer = 'defaultRenderLayer')
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
 
     def evaluate_objects_visible_in_render_layers(self):
-        #print 'evaluate_objects_visible_in_render_layers'
-        #for mPanel in self.panels:
-            #cmds.modelEditor(mPanel, edit = True, allObjects = 0)
         selected_objects = cmds.ls(sl = True)
         for OVL_button in self.OVL_button_pointer_dic:
             for render_layer in self.render_layers:
@@ -1236,9 +1154,6 @@ class LAYERS_WINDOW_TOOL(object):
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
 
     def OIL_toggle_object_in_render_layer(self,OIL_button):
-        #print 'OIL_toggle_object_in_render_layer'
-        #for mPanel in self.panels:
-            #cmds.modelEditor(mPanel, edit = True, allObjects = 0)
         selected_objects = cmds.ls(sl = True)
         for render_layer in self.render_layers:
             render_layer_linked_to_button = self.OIL_button_pointer_dic[OIL_button]
@@ -1256,9 +1171,6 @@ class LAYERS_WINDOW_TOOL(object):
 
 
     def OVL_object_toggle_visibility_in_render_layer(self,OVL_button):
-        #print 'OVL_toggle_visible_in_render_layer'
-        #for mPanel in self.panels:
-            #cmds.modelEditor(mPanel, edit = True, allObjects = 0)
         selected_objects = cmds.ls(sl = True)
         for render_layer in self.render_layers:
             render_layer_linked_to_button = self.OVL_button_pointer_dic[OVL_button]
@@ -1276,7 +1188,6 @@ class LAYERS_WINDOW_TOOL(object):
         self.populate_gui()
 
     def fix_cam_layer_assignments(self):
-        #print 'button_fix_cam_layer_assignments'
         camera_list_modified = cmds.ls(type = "camera")
         camera_list_modified.append("perspShape")
         camera_list_modified.append("topShape")
@@ -1355,7 +1266,6 @@ class LAYERS_WINDOW_TOOL(object):
                     cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
 
     def evaluate_cameras(self):
-        #print 'evaluate cameras'
         self.renderable_cameras_dic = {}
         for render_layer in self.render_layers:
             renderable_cameras = []
@@ -1368,7 +1278,6 @@ class LAYERS_WINDOW_TOOL(object):
             cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
 
     def set_render_camera(self):
-        #print 'set_render_camera'
         for render_layer in self.render_layers:
             camera_comboBox_pointer = self.render_layer_camera_comboBox_dic[render_layer]
             chosen_camera = camera_comboBox_pointer.currentText()
@@ -1383,7 +1292,6 @@ class LAYERS_WINDOW_TOOL(object):
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
 
     def populate_gui(self):
-        #print 'populate_gui'
         self.panels = cmds.getPanel( type = "modelPanel" )
         self.render_layer_camera_comboBox_dic = {}
         self.render_layer_button_pointer_dic = {}
@@ -1496,7 +1404,6 @@ class LAYERS_WINDOW_TOOL(object):
         self.evaluate_objects_visible_in_render_layers()
 
     def window_gen(self):
-        #print 'window_gen'
         self.window_name = "render layers tool"
         if cmds.window(self.window_name,exists = True):
             cmds.deleteUI(self.window_name, wnd = True)

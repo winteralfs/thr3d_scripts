@@ -1,4 +1,3 @@
-
 import maya
 import maya.cmds as cmds
 import os
@@ -8,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'uv_set_editor FRI afternoon'
+print 'uv_set_editor'
 
 class UV_SET_EDITOR(object):
     def __init__(self):
@@ -273,32 +272,6 @@ class UV_SET_EDITOR(object):
                                         if ramp_connection_sub_type == 'VRayLightRectShape':
                                             if ramp_connection_sub_type == 'VRayPlaceEnvTex':
                                                 light_ramp = 1
-                                #else:
-                                    #ramp_connections_3 = cmds.listConnections(ramp_connection) or []
-                                    #for ramp_connection in ramp_connections_3:
-                                        #ramp_connection_type = cmds.nodeType(ramp_connection)
-                                        #if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
-                                            #light_ramp = 1
-                                        #if ramp_connection_type == 'transform':
-                                            #ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True, fullPath = True) or []
-                                            #for ramp_connection_sub in ramp_connection_subs:
-                                                #ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
-                                                #if ramp_connection_sub_type == 'VRayLightRectShape':
-                                                    #if ramp_connection_sub_type == 'VRayPlaceEnvTex':
-                                                        #light_ramp = 1
-                                        #else:
-                                            #ramp_connections_4 = cmds.listConnections(ramp_connection) or []
-                                            #for ramp_connection in ramp_connections_4:
-                                                #ramp_connection_type = cmds.nodeType(ramp_connection)
-                                                #if ramp_connection_type == 'VRayLightRectShape' or ramp_connection_type == 'VRayPlaceEnvTex':
-                                                    #light_ramp = 1
-                                                #if ramp_connection_type == 'transform':
-                                                    #ramp_connection_subs = cmds.listRelatives(ramp_connection,children = True, fullPath = True) or []
-                                                    #for ramp_connection_sub in ramp_connection_subs:
-                                                        #ramp_connection_sub_type = cmds.nodeType(ramp_connection_sub)
-                                                        #if ramp_connection_sub_type == 'VRayLightRectShape':
-                                                            #if ramp_connection_sub_type == 'VRayPlaceEnvTex':
-                                                                #light_ramp = 1
             if light_ramp == 0:
                 ramp_textures.append(ramp)
         self.all_textures = file_textures + ramp_textures
@@ -312,11 +285,8 @@ class UV_SET_EDITOR(object):
         transorms_objects_tmp = transorms_objects
         for object in transorms_objects:
             object_split = object.split('Shape')
-            #if object_split[0] != 'polySurface':
             if 'polySurface' not in object_split[0]:
-                cmds.select(clear = True)
-                cmds.select(object)
-                uv_sets = cmds.polyUVSet(allUVSets = True, query = True) or []
+                uv_sets = cmds.polyUVSet(object,allUVSets = True, query = True) or []
                 number_of_uv_sets = len(uv_sets)
                 if number_of_uv_sets > 0:
                     self.uv_sets_all.append('---')
@@ -329,11 +299,16 @@ class UV_SET_EDITOR(object):
                             else:
                                 self.uv_set_selection_status_dic[texture + ':|:' + uv_sets_all_string] = 0
                     number_of_uv_sets_for_object = len(uv_sets)
+                    uv_set_index_nums = cmds.polyUVSet(object,query=True, allUVSetsIndices=True)
+                    for uv_set_index_num in uv_set_index_nums:
+                        uv_set_index_num = str(uv_set_index_num)
+                        uv_set_index_num.replace('L','')
                     it = 0
                     while it <= number_of_uv_sets_for_object:
                         i = 0
                         for uv_set in uv_sets:
-                            uv_set_address = object + '.uvSet[' + str(i) + '].uvSetName'
+                            uv_set_index = uv_set_index_nums[i]
+                            uv_set_address = object + '.uvSet[' + str(uv_set_index) + '].uvSetName'
                             self.uv_set_name_to_address_dic[object + ':|:' + uv_set] = uv_set_address
                             i = i + 1
                         it = it + 1
@@ -409,6 +384,7 @@ class UV_SET_EDITOR(object):
         selected_item.setSelected(False)
 
     def update_right_listWidget(self):
+        #print 'update_right_listWidget()'
         if self.centric_state_text == 'texture-centric':
             self.unlock_right_QListWidget()
             it = 0
@@ -478,7 +454,11 @@ class UV_SET_EDITOR(object):
                     self.unlock_right_QListWidget()
                     selected_uv_set_pointer.setSelected(True)
                     self.uv_set_selection_status_dic[self.selected_item_text + ':|:' + it_text] = 1
-                self.link_texture_to_uv_set()
+            selected_uv_sets_pointers = self.list_widget_right.selectedItems()
+            for selected_uv_sets_pointer in selected_uv_sets_pointers:
+                pointer_text = selected_uv_sets_pointer.text()
+                selected_uv_sets_pointer.setFlags(selected_uv_sets_pointer.flags() & ~Qt.ItemIsEnabled)
+            self.link_texture_to_uv_set()
         if self.centric_state_text == 'UV-centric':
             size_of_left_selection = len(self.selected_item_text)
             if size_of_left_selection > 0:
