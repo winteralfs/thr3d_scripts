@@ -67,7 +67,7 @@ class ASSET_TRACKER(object):
         main_horizontal_layout = QtWidgets.QHBoxLayout(main_widget)
         main_vertical_layout.addLayout(label_horizontal_layout)
         main_vertical_layout.addLayout(main_horizontal_layout)
-        labels = QtWidgets.QLabel('                                             name                                                          ver   latest ver             entity name                                                                                                                 path')
+        labels = QtWidgets.QLabel('  Name                                                                                                     C-ver  L-ver     Entity Name                                Path')
         #labels.setAlignment(QtCore.Qt.AlignLeft)
         label_horizontal_layout.addWidget(labels)
         spacing = 3
