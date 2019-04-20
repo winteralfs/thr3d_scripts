@@ -5,11 +5,22 @@ import maya.OpenMayaUI as mui
 from functools import partial
 from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
+import subprocess
+import webbrowser
 import shiboken2
 
 class ASSET_TRACKER(object):
     def __init__(self):
         ph = 'chris'
+
+    def deactivate_listWidget(self,listWidget):
+        listWidget_length = listWidget.count()
+        it = 0
+        while it < listWidget_length:
+            item = listWidget.item(it)
+            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            it = it + 1
 
     def nodes_in_scene(self):
         transforms = cmds.ls(type = 'transform')
@@ -66,7 +77,6 @@ class ASSET_TRACKER(object):
                     highest_version = 0
                     for file in files:
                         version_number = file[-1]
-                        print 'version_number = ',version_number
                         if version_number > highest_version:
                             highest_version = version_number
                             self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
@@ -104,6 +114,7 @@ class ASSET_TRACKER(object):
             highest_version_item = self.highest_version_listWidget.item(i)
             highest_version_item_text = highest_version_item.text()
             highest_version_item_int = int(highest_version_item_text)
+            highest_version_item.setTextColor('light blue')
             if highest_version_item_int > current_version_item_int:
                 object_item.setTextColor('red')
                 current_version_item.setTextColor('red')
@@ -111,6 +122,41 @@ class ASSET_TRACKER(object):
                 object_item.setTextColor('light blue')
                 current_version_item.setTextColor('light blue')
             i = i + 1
+        self.deactivate_listWidget(self.node_name_listWidget)
+        self.deactivate_listWidget(self.current_version_listWidget)
+        self.deactivate_listWidget(self.highest_version_listWidget)
+
+    def entity_name_item_press(self,item):
+        item_text = item.text()
+        for asset_attr in self.asset_attr_dic:
+            value = self.asset_attr_dic[asset_attr]
+            if value == item_text:
+                asset_attr_split = asset_attr.split('&&')
+                asset_name = asset_attr_split[0]
+                entity_id = self.asset_attr_dic[asset_name + '&&' + 'entity_id']
+        shotgun_path = 'https://thr3dcgi.shotgunstudio.com/detail/Asset/'
+        shotgun_path = shotgun_path + entity_id
+        webbrowser.open(shotgun_path)
+        self.entity_name_listWidget.clearSelection()
+        self.entity_name_listWidget.setCurrentIndex(QtCore.QModelIndex())
+
+    def publish_path_item_press(self,item):
+        item_text = item.text()
+        item_text_split = item_text.split('/')
+        item_text_split_length = len(item_text_split)
+        i = 1
+        item_path = ''
+        while i < (item_text_split_length - 1):
+            item_path = item_path + '/' + item_text_split[i]
+            i = i + 1
+        item_path = item_path + '/'
+        print 'item_path = ',item_path
+        #subprocess.Popen('Finder item_text')
+        subprocess.call(["open", "-R", item_path])
+        self.publish_path_listWidget.clearSelection()
+        self.publish_path_listWidget.setCurrentIndex(QtCore.QModelIndex())
+
+
 #---------- window ----------
 
     def asset_tracker_UI(self):
@@ -124,42 +170,42 @@ class ASSET_TRACKER(object):
         window.setWindowTitle(window_name)
         main_widget = QtWidgets.QWidget()
         window.setCentralWidget(main_widget)
-        window.setFixedSize(1300,300)
-        main_vertical_layout =  QtWidgets.QVBoxLayout(main_widget)
-        label_horizontal_layout = QtWidgets.QHBoxLayout(main_widget)
-        #label_horizontal_layout.setAlignment('Alignleft')
-        main_horizontal_layout = QtWidgets.QHBoxLayout(main_widget)
-        main_vertical_layout.addLayout(label_horizontal_layout)
-        main_vertical_layout.addLayout(main_horizontal_layout)
-        labels = QtWidgets.QLabel('  Name                                                                                                     C-ver  L-ver     Entity Name                                Path')
-        #labels.setAlignment(QtCore.Qt.AlignLeft)
-        label_horizontal_layout.addWidget(labels)
+        window.setFixedSize(1450,300)
+        main_grid_layout = QtWidgets.QGridLayout(main_widget)
+        titles = ['Name','C-ver','L-ver','Entity Name','Path']
+        i = 0
+        for title in titles:
+            label = QtWidgets.QLabel(title)
+            main_grid_layout.addWidget(label,0,i)
+            i = i + 1
         spacing = 3
         self.node_name_listWidget = QtWidgets.QListWidget()
         self.node_name_listWidget.setSpacing(spacing)
         self.node_name_listWidget.setMaximumWidth(325)
         self.node_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.node_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        main_horizontal_layout.addWidget(self.node_name_listWidget)
+        main_grid_layout.addWidget(self.node_name_listWidget,1,0)
         self.current_version_listWidget = QtWidgets.QListWidget()
         self.current_version_listWidget.setSpacing(spacing)
         self.current_version_listWidget.setMaximumWidth(30)
-        main_horizontal_layout.addWidget(self.current_version_listWidget)
+        main_grid_layout.addWidget(self.current_version_listWidget)
         self.highest_version_listWidget = QtWidgets.QListWidget()
         self.highest_version_listWidget.setSpacing(spacing)
         self.highest_version_listWidget.setMaximumWidth(30)
-        main_horizontal_layout.addWidget(self.highest_version_listWidget)
+        main_grid_layout.addWidget(self.highest_version_listWidget)
         self.entity_name_listWidget = QtWidgets.QListWidget()
         self.entity_name_listWidget.setSpacing(spacing)
         self.entity_name_listWidget.setMaximumWidth(150)
+        self.entity_name_listWidget.itemClicked.connect(partial(self.entity_name_item_press))
         self.entity_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.entity_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        main_horizontal_layout.addWidget(self.entity_name_listWidget)
+        main_grid_layout.addWidget(self.entity_name_listWidget)
         self.publish_path_listWidget = QtWidgets.QListWidget()
         self.publish_path_listWidget.setSpacing(spacing)
+        self.publish_path_listWidget.itemClicked.connect(partial(self.publish_path_item_press))
         self.publish_path_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.publish_path_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        main_horizontal_layout.addWidget(self.publish_path_listWidget)
+        main_grid_layout.addWidget(self.publish_path_listWidget)
         self.nodes_in_scene()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         window.show()
