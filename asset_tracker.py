@@ -18,6 +18,7 @@ class ASSET_TRACKER(object):
           entity_id_attr_exists = cmds.attributeQuery('entity_id',node = object,exists = True)
           if entity_id_attr_exists == 1:
               self.trackable_objects.append(object)
+        self.number_of_trackable_object = len(self.trackable_objects)
         self.gather_attributes()
 
     def gather_attributes(self):
@@ -27,7 +28,23 @@ class ASSET_TRACKER(object):
             for attr in attrs:
                 value = cmds.getAttr(object + '.' + attr)
                 self.asset_attr_dic[object + '&&' + attr] = str(value)
-        print 'self.asset_attr_dic = ',self.asset_attr_dic
+                if attr == 'publish_path':
+                    publish_path_value_split = value.split('/')
+                    publish_path_value_split_length = len(publish_path_value_split)
+                    publish_path_value_split_length = publish_path_value_split_length - 1
+                    publish_path_value_dir = ''
+                    i = 1
+                    while i < publish_path_value_split_length:
+                        publish_path_value_dir = publish_path_value_dir + '/' + publish_path_value_split[i]
+                        i = i + 1
+                    publish_path_value_dir = publish_path_value_dir + '/'
+                    files = cmds.getFileList(folder = publish_path_value_dir,filespec = '*.mb')
+                    highest_version = 0
+                    for file in files:
+                        version_number = file[-4]
+                        if version_number > highest_version:
+                            highest_version = version_number
+                            self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
         self.populate_window()
 
     def populate_window(self):
@@ -39,14 +56,36 @@ class ASSET_TRACKER(object):
                 attr = asset_name_split[1]
                 if asset_name == node:
                     if attr == 'version':
-                        value_version = self.asset_attr_dic[asset]
+                        version_value = self.asset_attr_dic[asset]
+                        self.current_version_listWidget.addItem(version_value)
+                    if attr == 'highest_version':
+                        highest_version_value = self.asset_attr_dic[asset]
+                        self.highest_version_listWidget.addItem(highest_version_value)
                     if attr == 'entity_name':
                         entity_name_value = self.asset_attr_dic[asset]
+                        self.entity_name_listWidget.addItem(entity_name_value)
                     if attr == 'publish_path':
                         publish_path_value = self.asset_attr_dic[asset]
-            self.current_version_listWidget.addItem(value_version)
-            self.entity_name_listWidget.addItem(entity_name_value)
-            self.publish_path_listWidget.addItem(publish_path_value)
+                        self.publish_path_listWidget.addItem(publish_path_value)
+        self.evaluate_versions()
+
+    def evaluate_versions(self):
+        i = 0
+        while i < self.number_of_trackable_object:
+            current_version_item = self.current_version_listWidget.item(i)
+            object_item = self.node_name_listWidget.item(i)
+            current_version_item_text = current_version_item.text()
+            current_version_item_int = int(current_version_item_text)
+            highest_version_item = self.highest_version_listWidget.item(i)
+            highest_version_item_text = highest_version_item.text()
+            highest_version_item_int = int(highest_version_item_text)
+            if highest_version_item_int > current_version_item_int:
+                object_item.setTextColor('red')
+                current_version_item.setTextColor('red')
+            else:
+                object_item.setTextColor('light blue')
+                current_version_item.setTextColor('light blue')
+            i = i + 1
 #---------- window ----------
 
     def asset_tracker_UI(self):
@@ -60,7 +99,7 @@ class ASSET_TRACKER(object):
         window.setWindowTitle(window_name)
         main_widget = QtWidgets.QWidget()
         window.setCentralWidget(main_widget)
-        window.setFixedSize(1200,300)
+        window.setFixedSize(1300,300)
         main_vertical_layout =  QtWidgets.QVBoxLayout(main_widget)
         label_horizontal_layout = QtWidgets.QHBoxLayout(main_widget)
         #label_horizontal_layout.setAlignment('Alignleft')
@@ -81,10 +120,10 @@ class ASSET_TRACKER(object):
         self.current_version_listWidget.setSpacing(spacing)
         self.current_version_listWidget.setMaximumWidth(30)
         main_horizontal_layout.addWidget(self.current_version_listWidget)
-        self.newest_version_listWidget = QtWidgets.QListWidget()
-        self.newest_version_listWidget.setSpacing(spacing)
-        self.newest_version_listWidget.setMaximumWidth(30)
-        main_horizontal_layout.addWidget(self.newest_version_listWidget)
+        self.highest_version_listWidget = QtWidgets.QListWidget()
+        self.highest_version_listWidget.setSpacing(spacing)
+        self.highest_version_listWidget.setMaximumWidth(30)
+        main_horizontal_layout.addWidget(self.highest_version_listWidget)
         self.entity_name_listWidget = QtWidgets.QListWidget()
         self.entity_name_listWidget.setSpacing(spacing)
         self.entity_name_listWidget.setMaximumWidth(150)
