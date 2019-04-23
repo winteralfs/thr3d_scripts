@@ -15,16 +15,6 @@ class ASSET_TRACKER(object):
     def __init__(self):
         ph = 'chris'
 
-    def clearLayout(self, layout):
-        if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.setParent(None)
-                else:
-                    self.clearLayout(item.layout())
-
     def deactivate_listWidget(self,listWidget):
         listWidget_length = listWidget.count()
         it = 0
@@ -35,8 +25,12 @@ class ASSET_TRACKER(object):
             it = it + 1
 
     def nodes_in_scene(self):
-        print 'nodes in scene'
-        self.clearLayout(self.main_grid_layout)
+        #print 'nodes in scene'
+        self.node_name_listWidget.clear()
+        self.current_version_listWidget.clear()
+        self.highest_version_listWidget.clear()
+        self.entity_name_listWidget.clear()
+        self.publish_path_listWidget.clear()
         transforms = cmds.ls(type = 'transform')
         file_nodes = cmds.ls(type = 'file')
         objects = transforms + file_nodes
@@ -49,10 +43,10 @@ class ASSET_TRACKER(object):
         self.gather_attributes()
 
     def gather_attributes(self):
-        print 'gather_attributes'
+        #print 'gather_attributes'
         self.asset_attr_dic = {}
         attrs = ['publish_type','publish_id','entity_id','version','publish_path','entity_name','task_type','task_id','publish_file']
-        print 'trackable_objects = ',self.trackable_objects
+        #print 'trackable_objects = ',self.trackable_objects
         for object in self.trackable_objects:
             node_type = cmds.nodeType(object)
             for attr in attrs:
@@ -60,23 +54,23 @@ class ASSET_TRACKER(object):
                 value = cmds.getAttr(object + '.' + attr)
                 self.asset_attr_dic[object + '&&' + attr] = str(value)
                 if attr == 'publish_path' and node_type != 'file':
-                    print 'publish_path = ',value
+                    #print 'publish_path = ',value
                     publish_path_value_split = value.split('\\')
-                    print 'publish_path_value_split = ',publish_path_value_split
+                    #print 'publish_path_value_split = ',publish_path_value_split
                     publish_path_value_split_length = len(publish_path_value_split)
-                    print 'publish_path_value_split_length = ',publish_path_value_split_length
+                    #print 'publish_path_value_split_length = ',publish_path_value_split_length
                     publish_path_value_split_length = publish_path_value_split_length - 1
-                    print 'publish_path_value_split_length = ',publish_path_value_split_length
+                    #print 'publish_path_value_split_length = ',publish_path_value_split_length
                     publish_path_value_dir = ''
                     i = 1
                     while i < publish_path_value_split_length:
                         publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
-                        print '1 publish_path_value_dir = ',publish_path_value_dir
+                        #print '1 publish_path_value_dir = ',publish_path_value_dir
                         i = i + 1
                     publish_path_value_dir = publish_path_value_dir + '\\'
-                    print '2 publish_path_value_dir = ',publish_path_value_dir
+                    #print '2 publish_path_value_dir = ',publish_path_value_dir
                     files = cmds.getFileList(folder = publish_path_value_dir,filespec = '*.mb')
-                    print 'files = ',files
+                    #print 'files = ',files
                     highest_version = 0
                     for file in files:
                         version_number = file[-4]
@@ -104,11 +98,11 @@ class ASSET_TRACKER(object):
                         if version_number > highest_version:
                             highest_version = version_number
                             self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
-        print 'asset_attr_dic = ',self.asset_attr_dic
+        #print 'asset_attr_dic = ',self.asset_attr_dic
         self.populate_window()
 
     def populate_window(self):
-        print 'populate_window'
+        #print 'populate_window'
         for node in self.trackable_objects:
             self.node_name_listWidget.addItem(node)
             for asset in self.asset_attr_dic:
@@ -131,18 +125,18 @@ class ASSET_TRACKER(object):
         self.evaluate_versions()
 
     def evaluate_versions(self):
-        print 'evaluate_versions'
+        #print 'evaluate_versions'
         i = 0
-        print 'number_of_trackable_object = ',self.number_of_trackable_object
+        #print 'number_of_trackable_object = ',self.number_of_trackable_object
         while i < self.number_of_trackable_object:
             current_version_item = self.current_version_listWidget.item(i)
-            print 'current_version_item = ',current_version_item
+            #print 'current_version_item = ',current_version_item
             object_item = self.node_name_listWidget.item(i)
             current_version_item_text = current_version_item.text()
-            print 'current_version_item_text = ',current_version_item_text
+            #print 'current_version_item_text = ',current_version_item_text
             current_version_item_int = int(current_version_item_text)
             highest_version_item = self.highest_version_listWidget.item(i)
-            print 'highest_version_item = ',highest_version_item
+            #print 'highest_version_item = ',highest_version_item
             highest_version_item_text = highest_version_item.text()
             highest_version_item_int = int(highest_version_item_text)
             highest_version_item.setTextColor('light blue')
@@ -181,7 +175,7 @@ class ASSET_TRACKER(object):
             item_path = item_path + '\\' + item_text_split[i]
             i = i + 1
         #item_path = item_path + '\\'
-        print 'item_path = ',item_path
+        #print 'item_path = ',item_path
         subprocess_string = 'explorer ' + item_path
         subprocess.Popen(subprocess_string)
         #subprocess.call(["open", "-R", item_path])
@@ -203,12 +197,12 @@ class ASSET_TRACKER(object):
         main_widget = QtWidgets.QWidget()
         window.setCentralWidget(main_widget)
         window.setFixedSize(1450,300)
-        main_grid_layout = QtWidgets.QGridLayout(main_widget)
+        self.main_grid_layout = QtWidgets.QGridLayout(main_widget)
         titles = ['Name','C-ver','L-ver','Entity Name','Path']
         i = 0
         for title in titles:
             label = QtWidgets.QLabel(title)
-            main_grid_layout.addWidget(label,0,i)
+            self.main_grid_layout.addWidget(label,0,i)
             i = i + 1
         spacing = 3
         self.node_name_listWidget = QtWidgets.QListWidget()
@@ -216,32 +210,33 @@ class ASSET_TRACKER(object):
         self.node_name_listWidget.setMaximumWidth(325)
         self.node_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.node_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        main_grid_layout.addWidget(self.node_name_listWidget,1,0)
+        self.main_grid_layout.addWidget(self.node_name_listWidget,1,0)
         self.current_version_listWidget = QtWidgets.QListWidget()
         self.current_version_listWidget.setSpacing(spacing)
         self.current_version_listWidget.setMaximumWidth(30)
-        main_grid_layout.addWidget(self.current_version_listWidget)
+        self.main_grid_layout.addWidget(self.current_version_listWidget)
         self.highest_version_listWidget = QtWidgets.QListWidget()
         self.highest_version_listWidget.setSpacing(spacing)
         self.highest_version_listWidget.setMaximumWidth(30)
-        main_grid_layout.addWidget(self.highest_version_listWidget)
+        self.main_grid_layout.addWidget(self.highest_version_listWidget)
         self.entity_name_listWidget = QtWidgets.QListWidget()
         self.entity_name_listWidget.setSpacing(spacing)
         self.entity_name_listWidget.setMaximumWidth(150)
         self.entity_name_listWidget.itemClicked.connect(partial(self.entity_name_item_press))
         self.entity_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.entity_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        main_grid_layout.addWidget(self.entity_name_listWidget)
+        self.main_grid_layout.addWidget(self.entity_name_listWidget)
         self.publish_path_listWidget = QtWidgets.QListWidget()
         self.publish_path_listWidget.setSpacing(spacing)
         self.publish_path_listWidget.itemClicked.connect(partial(self.publish_path_item_press))
         self.publish_path_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.publish_path_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        main_grid_layout.addWidget(self.publish_path_listWidget)
-        self.myScriptJobID = cmds.scriptJob(p = windowName, event=["renderLayerManagerChange", self.nodes_in_scene])
-        self.myScriptJobID = cmds.scriptJob(p = windowName, event=["renderLayerChange", self.nodes_in_scene])
-        self.myScriptJobID = cmds.scriptJob(p = windowName, event=["SelectionChanged", self.nodes_in_scene])
-        self.myScriptJobID = cmds.scriptJob(p = windowName, event=["SceneOpened", self.nodes_in_scene])
+        self.main_grid_layout.addWidget(self.publish_path_listWidget)
+        self.myScriptJobID = cmds.scriptJob(p = window_name, event=["renderLayerManagerChange", self.nodes_in_scene])
+        self.myScriptJobID = cmds.scriptJob(p = window_name, event=["renderLayerChange", self.nodes_in_scene])
+        self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged", self.nodes_in_scene])
+        self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SceneOpened", self.nodes_in_scene])
+        self.myScriptJobID = cmds.scriptJob(p = window_name, event=["NameChanged", self.nodes_in_scene])
         self.nodes_in_scene()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         window.show()

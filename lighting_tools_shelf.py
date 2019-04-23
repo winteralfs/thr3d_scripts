@@ -84,6 +84,12 @@ def standard_lighting_tool_rotation_fix():
     reload(standard_lighting_tool_rotation_fix)
     standard_lighting_tool_rotation_fix.main()
 
+def asset_tracker():
+    print "asset_tracker"
+    import asset_tracker
+    reload(asset_tracker)
+    asset_tracker.main()
+
 def build_custom_shelf():
     main_shelf = mel.eval('$tempMelVar=$gShelfTopLevel')
     name = "Lighting_Tools"
@@ -123,3 +129,5 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/uv_set_editor_logo_small.jpg', command = partial(UV_set_editor))
     annotation = 'rebuilds the standard lighting rig dome rotations'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/standard_lighting_tool_rotation_fix_thumb.jpg', command = partial(standard_lighting_tool_rotation_fix))
+    annotation = 'shows the latest version of assets available and your current version'
+    cmds.shelfButton(annotation  = annotation, image = '', command = partial(asset_tracker))
