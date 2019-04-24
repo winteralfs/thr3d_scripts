@@ -54,23 +54,23 @@ class ASSET_TRACKER(object):
                 value = cmds.getAttr(object + '.' + attr)
                 self.asset_attr_dic[object + '&&' + attr] = str(value)
                 if attr == 'publish_path' and node_type != 'file':
-                    #print 'publish_path = ',value
+                    print 'publish_path = ',value
                     publish_path_value_split = value.split('\\')
                     #print 'publish_path_value_split = ',publish_path_value_split
                     publish_path_value_split_length = len(publish_path_value_split)
                     #print 'publish_path_value_split_length = ',publish_path_value_split_length
                     publish_path_value_split_length = publish_path_value_split_length - 1
-                    #print 'publish_path_value_split_length = ',publish_path_value_split_length
+                    print 'publish_path_value_split_length = ',publish_path_value_split_length
                     publish_path_value_dir = ''
                     i = 1
                     while i < publish_path_value_split_length:
                         publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
-                        #print '1 publish_path_value_dir = ',publish_path_value_dir
+                        print '1 publish_path_value_dir = ',publish_path_value_dir
                         i = i + 1
                     publish_path_value_dir = publish_path_value_dir + '\\'
-                    #print '2 publish_path_value_dir = ',publish_path_value_dir
+                    print '2 publish_path_value_dir = ',publish_path_value_dir
                     files = cmds.getFileList(folder = publish_path_value_dir,filespec = '*.mb')
-                    #print 'files = ',files
+                    print 'files = ',files
                     highest_version = 0
                     for file in files:
                         version_number = file[-4]
@@ -87,17 +87,25 @@ class ASSET_TRACKER(object):
                         publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
                         i = i + 1
                     publish_path_value_dir = publish_path_value_dir + '\\'
-                    raw_files = cmds.getFileList(folder = publish_path_value_dir)
-                    files = []
-                    for raw_file in raw_files:
-                        if raw_file.startswith('v'):
-                            files.append(raw_file)
-                    highest_version = 0
-                    for file in files:
-                        version_number = file[-1]
-                        if version_number > highest_version:
-                            highest_version = version_number
-                            self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
+                    print 'publish_path_value_dir = ',publish_path_value_dir
+                    raw_files = cmds.getFileList(folder = publish_path_value_dir) or []
+                    print 'raw_files = ',raw_files
+                    number_of_raw_files = len(raw_files)
+                    if number_of_raw_files == 0:
+                        files = ['X']
+                        self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
+                    if number_of_raw_files != 0:
+                        files = []
+                        for raw_file in raw_files:
+                            print 'raw_file = ',raw_file
+                            if raw_file.startswith('v'):
+                                files.append(raw_file)
+                        highest_version = 0
+                        for file in files:
+                            version_number = file[-1]
+                            if version_number > highest_version:
+                                highest_version = version_number
+                                self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
         #print 'asset_attr_dic = ',self.asset_attr_dic
         self.populate_window()
 
@@ -138,11 +146,12 @@ class ASSET_TRACKER(object):
             highest_version_item = self.highest_version_listWidget.item(i)
             #print 'highest_version_item = ',highest_version_item
             highest_version_item_text = highest_version_item.text()
-            highest_version_item_int = int(highest_version_item_text)
-            highest_version_item.setTextColor('light blue')
-            if highest_version_item_int > current_version_item_int:
-                object_item.setTextColor('red')
-                current_version_item.setTextColor('red')
+            if highest_version_item_text != 'X':
+                highest_version_item_int = int(highest_version_item_text)
+                highest_version_item.setTextColor('light blue')
+                if highest_version_item_int > current_version_item_int:
+                    object_item.setTextColor('red')
+                    current_version_item.setTextColor('red')
             else:
                 object_item.setTextColor('light blue')
                 current_version_item.setTextColor('light blue')
