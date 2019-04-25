@@ -1,0 +1,96 @@
+from PySide2 import QtCore, QtGui, QtWidgets
+
+HeightRole = QtCore.Qt.UserRole + 100
+
+class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(AlignDelegate, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignLeft | QtCore.Qt.AlignBottom
+
+class IconAlignDelegate(AlignDelegate):
+    def sizeHint(self, option, index):
+        s = super(IconAlignDelegate, self).sizeHint(option, index)
+        row_parent = index.parent().row()
+        r, model = index.row(), index.model()
+        for i in range(model.rowCount()):
+            if i != row_parent:
+                root_ix = model.index(i, 0)
+                child_ix = model.index(r, 0, root_ix)
+                model.setData(child_ix, s.height(), HeightRole)
+        return s
+
+class OtherDelegate(AlignDelegate):
+    def sizeHint(self, option, index):
+        s = super(OtherDelegate, self).sizeHint(option, index)
+        height = index.data(HeightRole)
+        if height is not None:
+            s.setHeight(height)
+        return s
+
+class Widget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(Widget, self).__init__(parent)
+        lay = QtWidgets.QVBoxLayout(self)
+
+        datas = [
+            # icon, name, c_ver, l_ver, entity_name, path
+            {"data": ["name1", "1", "1", "entity1", "path1"]},
+            {"data": ["name2", "2", "2", "entity2", "path2"]},
+            {"data": ["name3", "3", "3", "entity3", "path3"]},
+            {
+                "icon": "img2.png",
+                "data": ["name4", "4", "4", "entity4", "path4"],
+            },
+            {"data": ["name5", "5", "5", "entity5", "path5"]},
+        ]
+
+        titles = ("Name", "C-ver", "L-ver", "Entity Name", "Path")
+
+        model = QtGui.QStandardItemModel(5, 1, self)
+        for i, title in enumerate(titles):
+            it = QtGui.QStandardItem(title)
+            model.setItem(i, 0, it)
+
+        for r, data in enumerate(datas):
+            path_icon = data.get("icon")
+            for c, text in enumerate(data["data"]):
+                it = QtGui.QStandardItem(text)
+                if c == 0 and path_icon is not None:
+                    it.setIcon(QtGui.QIcon(path_icon))
+                parent_item = model.item(c, 0)
+                parent_item.setChild(r, 0, it)
+
+        splitter = QtWidgets.QSplitter()
+        lay.addWidget(splitter)
+
+        for i in range(model.rowCount()):
+            lv = QtWidgets.QListView()
+            if i == 0:
+                lv.setIconSize(QtCore.QSize(64, 64))
+                delegate = IconAlignDelegate(lv)
+            else:
+                delegate = OtherDelegate(lv)
+            lv.setItemDelegate(delegate)
+            lv.setModel(model)
+            root_index = model.index(i, 0)
+            title = root_index.data()
+            lv.setRootIndex(root_index)
+            w = QtWidgets.QWidget()
+            vlay = QtWidgets.QVBoxLayout(w)
+            vlay.addWidget(QtWidgets.QLabel(title))
+            vlay.addWidget(lv)
+            splitter.addWidget(w)
+        # To understand better the structure of the model
+        # uncomment the following lines
+        # treeview = QtWidgets.QTreeView()
+        # treeview.setModel(model)
+        # treeview.expandAll()
+        # lay.addWidget(treeview, 2, 0, 1, 5)
+
+if __name__ == "__main__":
+    import sys
+
+    app = QtWidgets.QApplication(sys.argv)
+    w = Widget()
+    w.show()
+    sys.exit(app.exec_())

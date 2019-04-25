@@ -46,19 +46,15 @@ class ASSET_TRACKER(object):
         #print 'gather_attributes'
         self.asset_attr_dic = {}
         attrs = ['publish_type','publish_id','entity_id','version','publish_path','entity_name','task_type','task_id','publish_file']
-        #print 'trackable_objects = ',self.trackable_objects
         for object in self.trackable_objects:
             node_type = cmds.nodeType(object)
             for attr in attrs:
-                #print 'attr = ',attr
                 value = cmds.getAttr(object + '.' + attr)
                 self.asset_attr_dic[object + '&&' + attr] = str(value)
                 if attr == 'publish_path' and node_type != 'file':
                     print 'publish_path = ',value
                     publish_path_value_split = value.split('\\')
-                    #print 'publish_path_value_split = ',publish_path_value_split
                     publish_path_value_split_length = len(publish_path_value_split)
-                    #print 'publish_path_value_split_length = ',publish_path_value_split_length
                     publish_path_value_split_length = publish_path_value_split_length - 1
                     print 'publish_path_value_split_length = ',publish_path_value_split_length
                     publish_path_value_dir = ''
@@ -71,12 +67,17 @@ class ASSET_TRACKER(object):
                     print '2 publish_path_value_dir = ',publish_path_value_dir
                     files = cmds.getFileList(folder = publish_path_value_dir,filespec = '*.mb')
                     print 'files = ',files
-                    highest_version = 0
-                    for file in files:
-                        version_number = file[-4]
-                        if version_number > highest_version:
-                            highest_version = version_number
-                            self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
+                    number_of_files = len(files)
+                    if number_of_files == 0:
+                        files = ['X']
+                    self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
+                    if number_of_files != 0:
+                        highest_version = 0
+                        for file in files:
+                            version_number = file[-4]
+                            if version_number > highest_version:
+                                highest_version = version_number
+                                self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
                 if attr == 'publish_path' and node_type == 'file':
                     publish_path_value_split = value.split('\\')
                     publish_path_value_split_length = len(publish_path_value_split)
@@ -106,7 +107,6 @@ class ASSET_TRACKER(object):
                             if version_number > highest_version:
                                 highest_version = version_number
                                 self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
-        #print 'asset_attr_dic = ',self.asset_attr_dic
         self.populate_window()
 
     def populate_window(self):
@@ -135,17 +135,14 @@ class ASSET_TRACKER(object):
     def evaluate_versions(self):
         #print 'evaluate_versions'
         i = 0
-        #print 'number_of_trackable_object = ',self.number_of_trackable_object
         while i < self.number_of_trackable_object:
-            current_version_item = self.current_version_listWidget.item(i)
-            #print 'current_version_item = ',current_version_item
             object_item = self.node_name_listWidget.item(i)
+            current_version_item = self.current_version_listWidget.item(i)
             current_version_item_text = current_version_item.text()
-            #print 'current_version_item_text = ',current_version_item_text
             current_version_item_int = int(current_version_item_text)
             highest_version_item = self.highest_version_listWidget.item(i)
-            #print 'highest_version_item = ',highest_version_item
             highest_version_item_text = highest_version_item.text()
+            publish_path_item = self.publish_path_listWidget.item(i)
             if highest_version_item_text != 'X':
                 highest_version_item_int = int(highest_version_item_text)
                 highest_version_item.setTextColor('light blue')
@@ -155,6 +152,10 @@ class ASSET_TRACKER(object):
             else:
                 object_item.setTextColor('light blue')
                 current_version_item.setTextColor('light blue')
+            if highest_version_item_text == 'X':
+                current_version_item.setTextColor('red')
+                highest_version_item.setTextColor('red')
+                publish_path_item.setTextColor('red')
             i = i + 1
         self.deactivate_listWidget(self.node_name_listWidget)
         self.deactivate_listWidget(self.current_version_listWidget)
@@ -183,11 +184,8 @@ class ASSET_TRACKER(object):
         while i < (item_text_split_length - 1):
             item_path = item_path + '\\' + item_text_split[i]
             i = i + 1
-        #item_path = item_path + '\\'
-        #print 'item_path = ',item_path
         subprocess_string = 'explorer ' + item_path
         subprocess.Popen(subprocess_string)
-        #subprocess.call(["open", "-R", item_path])
         self.publish_path_listWidget.clearSelection()
         self.publish_path_listWidget.setCurrentIndex(QtCore.QModelIndex())
 
@@ -205,7 +203,7 @@ class ASSET_TRACKER(object):
         window.setWindowTitle(window_name)
         main_widget = QtWidgets.QWidget()
         window.setCentralWidget(main_widget)
-        window.setFixedSize(1450,300)
+        window.setFixedSize(1450,450)
         self.main_grid_layout = QtWidgets.QGridLayout(main_widget)
         titles = ['Name','C-ver','L-ver','Entity Name','Path']
         i = 0
@@ -217,7 +215,7 @@ class ASSET_TRACKER(object):
         self.node_name_listWidget = QtWidgets.QListWidget()
         self.node_name_listWidget.setSpacing(spacing)
         self.node_name_listWidget.setMaximumWidth(325)
-        self.node_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.node_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.node_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.main_grid_layout.addWidget(self.node_name_listWidget,1,0)
         self.current_version_listWidget = QtWidgets.QListWidget()
@@ -232,13 +230,13 @@ class ASSET_TRACKER(object):
         self.entity_name_listWidget.setSpacing(spacing)
         self.entity_name_listWidget.setMaximumWidth(150)
         self.entity_name_listWidget.itemClicked.connect(partial(self.entity_name_item_press))
-        self.entity_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.entity_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.entity_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.main_grid_layout.addWidget(self.entity_name_listWidget)
         self.publish_path_listWidget = QtWidgets.QListWidget()
         self.publish_path_listWidget.setSpacing(spacing)
         self.publish_path_listWidget.itemClicked.connect(partial(self.publish_path_item_press))
-        self.publish_path_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.publish_path_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.publish_path_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.main_grid_layout.addWidget(self.publish_path_listWidget)
         self.myScriptJobID = cmds.scriptJob(p = window_name, event=["renderLayerManagerChange", self.nodes_in_scene])
