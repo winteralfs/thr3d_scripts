@@ -1348,6 +1348,7 @@ class LAYERS_WINDOW_TOOL(object):
             self.cameras_combobox.activated[str].connect(lambda:self.set_render_camera())
             self.cameras_combobox.setFixedSize(150,21)
             self.cameras_combobox.clear()
+            self.cameras_combobox.addItem('NONE')
             self.render_layer_layout.addWidget(self.cameras_combobox)
             for camera in self.cameras:
                 self.cameras_combobox.addItem(camera)
@@ -1357,8 +1358,14 @@ class LAYERS_WINDOW_TOOL(object):
             for camera in self.cameras:
                 if number_of_renderable_cameras > 0:
                     if camera == renderable_cameras[0]:
-                        self.cameras_combobox.setCurrentIndex(i)
+                        #item = self.cameras_combobox
+                        #camera_text = self.cameras_combobox.text(item)
+                        #print 'setting active camera to ',i
+                        self.cameras_combobox.setCurrentIndex(i+1)
                 i = i + 1
+            if number_of_renderable_cameras == 0:
+                #self.cameras_combobox.setCurrentIndex(i)
+                self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
             if number_of_renderable_cameras > 1:
                 self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
             if number_of_renderable_cameras > 0:

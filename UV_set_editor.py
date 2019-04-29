@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'uv_set_editor'
+print 'uv_set_editor_testing'
 
 class UV_SET_EDITOR(object):
     def __init__(self):
@@ -132,7 +132,7 @@ class UV_SET_EDITOR(object):
                     mel_string = "filetest -f " + '"' + image_path + '"'
                     texture_image_exists = maya.mel.eval(mel_string)
                     if texture_image_exists != 1:
-                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found_texture.jpg"
                         #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                     image_path_split = image_path.split('.')
                     length_image_path_split = len(image_path_split)
@@ -140,10 +140,10 @@ class UV_SET_EDITOR(object):
                         image_path = "U:/cwinters/thumbnails/hdr_texture_found.jpg"
                 if file_node_type != 'file':
                     if file_node_type == 'noise':
-                        image_path = '/Users/alfredwinters/Desktop/python/thumbnails/generic_noise_thumbnail_texture_size.jpg'
+                        image_path = 'U:/cwinters/thumbnails/generic_noise_texture.jpg'
                         #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
                     else:
-                        image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                        image_path = 'U:/cwinters/thumbnails/generic_ramp_texture.jpg'
                         #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                 texture_pixmap = QtGui.QPixmap(image_path)
                 texture_icon = QtGui.QIcon()
@@ -182,7 +182,7 @@ class UV_SET_EDITOR(object):
                     if texture_image_exists == 1:
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
-                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found.jpg"
+                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found_texture.jpg"
                         #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
@@ -194,10 +194,9 @@ class UV_SET_EDITOR(object):
                     texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
                     if file_node_type == 'noise':
-                        image_path = '/Users/alfredwinters/Desktop/python/thumbnails/generic_noise_thumbnail_texture_size.jpg'
-                        #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                        image_path = 'U:/cwinters/thumbnails/generic_noise_texture.jpg'
                     else:
-                        image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
+                        image_path = 'U:/cwinters/thumbnails/generic_ramp_texture.jpg'
                     #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                     texture_item = QtWidgets.QListWidgetItem(texture)
                     texture_pixmap = QtGui.QPixmap(image_path)
@@ -235,7 +234,7 @@ class UV_SET_EDITOR(object):
             valid_file = 0
             if file == 'gi_std_lgt' or file == 'reflection_sdt_lgt' or file == 'refraction_sdt_lgt':
                 valid_file = 0
-            file_connections = cmds.listConnections(file,source = False) or []
+            file_connections = cmds.listConnections(file) or []
             for connection in file_connections:
                 connection_type = cmds.nodeType(connection)
                 if connection_type == 'VRayMtl' or connection_type == 'phong' or connection_type == 'blend' or connection_type == 'layeredTexture' or connection_type == 'remapHsv' or connection_type == 'multiplyDivide' or connection_type == 'remapColor' or connection_type == 'VRayRenderElement':
@@ -247,7 +246,7 @@ class UV_SET_EDITOR(object):
             non_file_texture_connections = cmds.listConnections(non_file_texture,source = False) or []
             for non_file_texture_connection in non_file_texture_connections:
                 non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
-                if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform':
+                if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
                     light_ramp = 1
                 if non_file_texture_connection_type == 'transform':
                     non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []
@@ -260,7 +259,7 @@ class UV_SET_EDITOR(object):
                     non_file_texture_connections_1 = cmds.listConnections(non_file_texture_connection,source = False) or []
                     for non_file_texture_connection in non_file_texture_connections_1:
                         non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
-                        if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform':
+                        if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
                             light_ramp = 1
                         if non_file_texture_connection_type == 'transform':
                             non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []
@@ -273,7 +272,7 @@ class UV_SET_EDITOR(object):
                             non_file_texture_connections_2 = cmds.listConnections(non_file_texture_connection,source = False) or []
                             for non_file_texture_connection in non_file_texture_connections_2:
                                 non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
-                                if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform':
+                                if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
                                     light_ramp = 1
                                 if non_file_texture_connection_type == 'transform':
                                     non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []

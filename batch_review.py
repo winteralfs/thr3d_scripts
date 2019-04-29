@@ -8,9 +8,11 @@ from datetime import datetime
 global cancel
 cancel = 0
 
+print 'batch_review'
+
 def no_cam_window_popup(no_cam_set_list):
     #print no_cam_set_list
-    cmds.window(title = 'NO CAM SET WARNING', width = 300, height = 75, sizeable = False)
+    cmds.window(title = 'WARNING: NO CAMERAS LINKED TO LAYERS', width = 300, height = 75, sizeable = False)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 15, parent = "mainColumn")
     cmds.text(label = ("no cam set for layers:"))
@@ -94,12 +96,9 @@ def renderThumbs(checkBoxLow,checkBoxMid,checkBoxHigh,checkBoxRenderRegion,intFi
                     if camState == 1:
                         rrState = cmds.checkBox(checkBoxRenderRegion,value = True,query = True)
                         reg = cmds.vray("vfbControl","-getregion")
-                        #print "rrState ",rrState
                         if  rrState == 0:
-                            #print "turning OFF render region"
                             cmds.vray("vfbControl","-setregion","reset")
                         if  rrState == 1:
-                            #print "turning ON render region"
                             cmds.vray("vfbControl","-setregionenabled",1)
                             cmds.vray("vfbControl","-setregion",reg[0],reg[1],reg[2],reg[3])
                         mayaString = "renderWindowRenderCamera render renderView " + cam
@@ -113,16 +112,13 @@ def renderThumbs(checkBoxLow,checkBoxMid,checkBoxHigh,checkBoxRenderRegion,intFi
                         print " "
                         found_cam = 1
                 if found_cam == 0:
-                    print 'no cam found, using persp cam for ',rl
+                    print 'no camera link found, using persp cam for ',rl
                     cam = 'persp'
                     rrState = cmds.checkBox(checkBoxRenderRegion,value = True,query = True)
                     reg = cmds.vray("vfbControl","-getregion")
-                    #print "rrState ",rrState
                     if  rrState == 0:
-                       #print "turning OFF render region"
                         cmds.vray("vfbControl","-setregion","reset")
                     if  rrState == 1:
-                        #print "turning ON render region"
                         cmds.vray("vfbControl","-setregionenabled",1)
                         cmds.vray("vfbControl","-setregion",reg[0],reg[1],reg[2],reg[3])
                     mayaString = "renderWindowRenderCamera render renderView " + cam
@@ -134,8 +130,8 @@ def renderThumbs(checkBoxLow,checkBoxMid,checkBoxHigh,checkBoxRenderRegion,intFi
                     cmds.vray("vfbControl", "-historycomment", editStr)
                     popup_win = 1
                     no_cam_set_list.append(rl)
-    if popup_win == 1:
-        no_cam_window_popup(no_cam_set_list)
+    #if popup_win == 1:
+        #no_cam_window_popup(no_cam_set_list)
 
 
 def checkBoxCheckLow(checkBoxLow,checkBoxMid,checkBoxHigh,intField_res,floatField_thrhld,*args):

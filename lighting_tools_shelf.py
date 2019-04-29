@@ -130,4 +130,4 @@ def build_custom_shelf():
     annotation = 'rebuilds the standard lighting rig dome rotations'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/standard_lighting_tool_rotation_fix_thumb.jpg', command = partial(standard_lighting_tool_rotation_fix))
     annotation = 'shows the latest version of assets available and your current version'
-    cmds.shelfButton(annotation  = annotation, image = '', command = partial(asset_tracker))
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/asset_tracker_logo_small.jpg', command = partial(asset_tracker))
