@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 import re
 
-print 'tuesday'
+print 'tuesday afternoon'
 
 class LAYERS_WINDOW_TOOL(object):
     def __init__(self):
@@ -1438,7 +1438,7 @@ class LAYERS_WINDOW_TOOL(object):
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerManagerChange", self.populate_gui])
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["SelectionChanged", self.populate_gui])
-        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["idle", self.populate_gui])
+        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["SetModified", self.populate_gui])
         self.populate_gui()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         window.show()
