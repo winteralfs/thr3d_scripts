@@ -1289,6 +1289,10 @@ class LAYERS_WINDOW_TOOL(object):
                 else:
                     cmds.editRenderLayerAdjustment((camera + '.renderable'),remove = True)
                     cmds.setAttr(camera + '.renderable', 0)
+            if chosen_camera == 'NONE':
+                for camera in self.cameras:
+                    cmds.editRenderLayerAdjustment((camera + '.renderable'),remove = True)
+                    cmds.setAttr(camera + '.renderable', 0)
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
 
     def populate_gui(self):
