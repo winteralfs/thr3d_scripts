@@ -7,8 +7,6 @@ from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 import re
 
-print 'tuesday'
-
 class LAYERS_WINDOW_TOOL(object):
     def __init__(self):
         self.light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
@@ -112,7 +110,6 @@ class LAYERS_WINDOW_TOOL(object):
                     num_list = cmds.listAttr(object, multi = True)
                     layer_tex_nums = []
                     inputs =  cmds.listAttr('layeredTexture9.inputs', multi = True)
-                    print 'inputs = ',inputs
                     for input in inputs:
                         input_split_1 = input.split('[')
                         input_split_1 = input_split_1[1]
@@ -120,7 +117,6 @@ class LAYERS_WINDOW_TOOL(object):
                         num = input_split_2[0]
                         if num not in layer_tex_nums:
                             layer_tex_nums.append(num)
-                    print 'layer_tex_nums = ',layer_tex_nums
                     for render_layer in self.render_layers:
                         layered_texture_overrides = []
                         count_overrides = cmds.editRenderLayerAdjustment(render_layer, query = True, layer = True)
@@ -148,11 +144,9 @@ class LAYERS_WINDOW_TOOL(object):
                 it = 0
                 if self.object_type == 'layeredTexture':
                     it_list_count = count_overrides_base
-                    print 'it_list_count = ',it_list_count
                 else:
                     it_list_count = 1
                 while it < it_list_count:
-                    print 'it = ',it
                     for attr in attrs:
                         if self.object_type == "layeredTexture" and attr != 'alphaIsLuminance':
                             attr_split = attr.split('.')
@@ -160,7 +154,6 @@ class LAYERS_WINDOW_TOOL(object):
                             attr_string = object + "." + (attr_split[0] + '[' + str(num) + ']' + '.' + attr_split[1])
                         else:
                             attr_string = object + "." + attr
-                        print 'attr_string = ',attr_string
                         cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
                         default_attr_value = cmds.getAttr(attr_string)
                         attr_connections = cmds.listConnections(attr_string,destination = False) or []
@@ -704,7 +697,6 @@ class LAYERS_WINDOW_TOOL(object):
         vraySettings_overrides =  overrides[0] or []
         transform_overrides = overrides[1] or []
         material_overrides = overrides[2] or []
-        print 'material_overrides = ',material_overrides
         camera_overrides = overrides[6] or []
         light_overrides = overrides[3] or []
         render_stats_overrides = overrides[4] or []
@@ -758,11 +750,9 @@ class LAYERS_WINDOW_TOOL(object):
                                     cmds.editRenderLayerAdjustment(object + ".scale")
                                     cmds.setAttr((object + "." + transform_override_split[3]),value)
                 for lo in light_overrides:
-                    #print 'lo = ',lo
                     ramp_removed_found = 0
                     if "ramp_removed" in lo or "ramp_mismatch" in lo:
                         ramp_removed_found = 1
-                    #print 'ramp_removed_found = ',ramp_removed_found
                     light_override_original = lo
                     light_override_original_split = lo.split("**")
                     lo = light_override_original_split[0]
@@ -797,20 +787,10 @@ class LAYERS_WINDOW_TOOL(object):
                                         while a < destination_connections_size:
                                             cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                             a = a + 1
-                                    #print 'object = ',object
-                                    #print 'typ = ',typ
-                                    #print 'kind_list = ',kind_list
-                                    #print 'light_override_original_split[1] = ',light_override_original_split[1]
-                                    #print 'value_a = ',value_a
-                                    #print 'value_b = ',value_b
-                                    #print 'value_c = ',value_c
                                     check_for_rectText_split = light_override_original_split[1].split('.')
-                                    #print 'check_for_rectText_split = ',check_for_rectText_split
                                     check_for_rectText = check_for_rectText_split[1]
-                                    #print 'check_for_rectText = ',check_for_rectText
                                     if ramp_removed_found == 0:
                                         if check_for_rectText != 'rectTex':
-                                            #print 'executing setAttr'
                                             cmds.setAttr(light_override_original_split[1],value_a,value_b,value_c)
                                 if kind_float == 1 or kind_int == 1 or kind_bool == 1:
                                     cmds.editRenderLayerAdjustment(lo)
@@ -1364,13 +1344,9 @@ class LAYERS_WINDOW_TOOL(object):
             for camera in self.cameras:
                 if number_of_renderable_cameras > 0:
                     if camera == renderable_cameras[0]:
-                        #item = self.cameras_combobox
-                        #camera_text = self.cameras_combobox.text(item)
-                        #print 'setting active camera to ',i
                         self.cameras_combobox.setCurrentIndex(i+1)
                 i = i + 1
             if number_of_renderable_cameras == 0:
-                #self.cameras_combobox.setCurrentIndex(i)
                 self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
             if number_of_renderable_cameras > 1:
                 self.cameras_combobox.setStyleSheet("background-color: rgb(130, 10, 10);")
@@ -1438,7 +1414,6 @@ class LAYERS_WINDOW_TOOL(object):
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerManagerChange", self.populate_gui])
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
         self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["SelectionChanged", self.populate_gui])
-        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["idle", self.populate_gui])
         self.populate_gui()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         window.show()

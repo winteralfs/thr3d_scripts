@@ -1,7 +1,12 @@
+"""
+lighting_shelf: standard_lighting_tool_rotation_fix
+***************************************************
+"""
+
 import maya.cmds as cmds
 import maya.mel as mel
 
-def main():
+def main ():
     curRenLay = cmds.editRenderLayerGlobals(currentRenderLayer = True, query = True)
     exp1e = cmds.objExists("expression1")
     exp2e = cmds.objExists("expression2")

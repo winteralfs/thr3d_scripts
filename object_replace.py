@@ -2,6 +2,8 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
+print 'thurs'
+
 def look_for_duplicate_nodes():
     duplicate_node_names = []
     all_nodes = cmds.ls()
@@ -1253,14 +1255,16 @@ def objectChooseWin():
                     secConList = []
                     thirdConList = []
                     fourthConList = []
+                    #print ' '
                     #print 'filename = ',fileName
                     firstCon = cmds.listConnections(fileName, destination = False)
                     #print 'firstCon = ',firstCon
                     for f in firstCon:
                         if f not in firstConList:
                             if f not in firstConList:
-                                firstConList.append(f)
-                    print 'firstConList = ',firstConList
+                                if f not in firstConList:
+                                    firstConList.append(f)
+                    #print '1 firstConList = ',firstConList
                     for first_connection in firstConList:
                         first = first_connection
                         #print 'first = ',first
@@ -1268,12 +1272,12 @@ def objectChooseWin():
                         #print 'fType = ',fType
                         if fType == "uvChooser":
                             firstConList = cmds.listConnections(first, destination = False, plugs = True) or []
+                            #print '2a firstConList = ',firstConList
                         if fType != "uvChooser":
                             firstConList = cmds.listConnections(first, destination = False) or []
+                            #print '2b firstConList = ',firstConList
                     siz = len(firstConList)
-                    #print ' '
-                    #print '*** firstConList = ***',firstConList
-                    #print ' '
+                    #print '2 firstConList = ',firstConList
                     #print 'siz =',siz
                     if siz > 0:
                         #print 'size > 0'
@@ -1282,16 +1286,18 @@ def objectChooseWin():
                         #print 'second =',second
                         fType = cmds.nodeType(second)
 
-                    if fType == "uvChooser":
-                        secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
-                        UVmapAddressOLD = secondConList[0]
-                        UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
-                        #print " "
-                        #print "linking " + fileName + " to " + UVmapAddressNEW
-                        #print " "
-                        cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
-                    else:
-                        secondConList = cmds.listConnections(second, destination = False) or []
+                        if fType == "uvChooser":
+                            secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
+                            UVmapAddressOLD = secondConList[0]
+                            UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
+                            #print " "
+                            #print "linking " + fileName + " to " + UVmapAddressNEW
+                            #print " "
+                            cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
+                        else:
+                            #print 'else 1296'
+                            #print 'second = ',second
+                            secondConList = cmds.listConnections(second, destination = False) or []
                     shadEx2 = cmds.objExists("tempShader")
                     if shadEx2 == 1:
                         cmds.delete("tempShader")
@@ -1380,22 +1386,22 @@ def objectChooseWin():
                             #print 'second = ',second
                             fType = cmds.nodeType(second)
                             #print 'fType = ',fType
-                        if fType == "uvChooser":
-                            #print 'fType = uvChooser'
-                            #print 'fType = ',fType
-                            secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
-                            #print 'secondConList = ',secondConList
-                            UVmapAddressOLD = secondConList[0]
-                            #print 'UVmapAddressOLD = ',UVmapAddressOLD
-                            UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
-                            #print " "
-                            #print "linking " + fileName + " to " + UVmapAddressNEW
-                            #print " "
-                            cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
-                        else:
-                            siz = len(second)
-                            if siz != 0:
-                                secondConList = cmds.listConnections(second, destination = False) or []
+                            if fType == "uvChooser":
+                                #print 'fType = uvChooser'
+                                #print 'fType = ',fType
+                                secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
+                                #print 'secondConList = ',secondConList
+                                UVmapAddressOLD = secondConList[0]
+                                #print 'UVmapAddressOLD = ',UVmapAddressOLD
+                                UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
+                                #print " "
+                                #print "linking " + fileName + " to " + UVmapAddressNEW
+                                #print " "
+                                cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
+                            else:
+                                siz = len(second)
+                                if siz != 0:
+                                    secondConList = cmds.listConnections(second, destination = False) or []
                                 #print 'secondConList = ',secondConList
             #print 'vrayDisplacement_filePath =',vrayDisplacement_filePath
             #print 'def_vrayDisplacementAmount =',def_vrayDisplacementAmount

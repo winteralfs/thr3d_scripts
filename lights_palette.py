@@ -1,3 +1,9 @@
+"""
+lighting_shelf: lights_palette
+********************************************
+"""
+
+
 import sys
 sys.path.append("C:/Users/Chris.Winters/Desktop/PythonTesting/")
 import maya.cmds as cmds

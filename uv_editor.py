@@ -1,3 +1,9 @@
+"""
+lighting_shelf: uv_editor
+********************************************
+"""
+
+
 import maya.cmds as cmds
 from functools import partial
 import random

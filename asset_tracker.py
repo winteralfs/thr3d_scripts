@@ -1,3 +1,8 @@
+"""
+lighting_shelf: asset_tracker
+********************************************
+"""
+
 import maya
 import maya.cmds as cmds
 import os
@@ -8,8 +13,6 @@ from PySide2.QtCore import Qt
 import subprocess
 import webbrowser
 import shiboken2
-
-#print 'thursday'
 
 class ASSET_TRACKER(object):
     def __init__(self):

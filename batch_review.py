@@ -1,3 +1,75 @@
+"""
+lighting_tools_shelf: batch_review
+********************************************
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui.JPG
+   :align: center
+   :scale: 75%
+
+batch_review is a tool that launches a sequence of renders to the V-ray frame buffer, one for each render layer,
+as a convenient way to visually review each camera angle before publishing.
+
+batch_review can be launched in two different ways, either from the lighting_tool_shelf:
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/lighting_tools_shelf_batch_review.JPG
+   :align: center
+   :scale: 75%
+
+or from the Thr3d drop down menu in Maya:
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/drop_down_menu.JPG
+   :align: center
+   :scale: 75%
+
+------
+
+the sequence of renders are launched by pressing the button labeled 'render', and you can interupt the sequence by pressing the button labeled 'cancel renders.'
+The frame that is currently rendering will complete, but you can stop that as well by pressing the 'esc' button on the keyboard.
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_render_and_cancel_buttons.JPG
+   :align: center
+   :scale: 75%
+
+there are three preset settings available for quickly setting the quality of the renders, and there are also inputs for manually setting the resolution and
+threshold of the renders. The higher the resolution, the higher the quality of the image, and the lower the threshold, the higher the quality of the image.
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_preset_quality.JPG
+   :align: center
+   :scale: 75%
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_resolution.JPG
+   :align: center
+   :scale: 75%
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_threshold.JPG
+  :align: center
+  :scale: 75%
+
+batch_review also has a checkbox to utilize the V-ray framebuffer render region function. If the checkbox is switched on, onlu the region defined by the
+marquee will be rendered for each render layer.
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_use_render_region.JPG
+  :align: center
+  :scale: 75%
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_use_render_region_example.JPG
+  :align: center
+  :scale: 75%
+
+lastly, batch_review has a checkbox option to turn on and off the render elements for the frames.  Switching them off will speed up processing time, but you
+will not be able to evaluate the different render passes such as: reflection, refraction, and bump maps.
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_elements.JPG
+  :align: center
+  :scale: 75%
+
+.. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_elements_example_2.JPG
+:align: center
+:scale: 75%
+
+
+"""
+
 import maya
 import maya.cmds as cmds
 import re

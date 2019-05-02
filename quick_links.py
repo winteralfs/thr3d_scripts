@@ -1,3 +1,9 @@
+"""
+lighting_shelf: quick_links
+********************************************
+"""
+
+
 import maya.cmds as cmds
 import maya.mel as mel
 import os
@@ -70,4 +76,4 @@ def browser_link_gui():
 def main():
     browser_link_gui()
 
-main()
+#main()

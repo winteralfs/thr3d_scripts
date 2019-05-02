@@ -72,17 +72,17 @@ def rename_shading_groups():
     reload(rename_shading_groups)
     rename_shading_groups.main()
 
-def UV_set_editor():
-    print "UV_set_editor"
-    import UV_set_editor
-    reload(UV_set_editor)
-    UV_set_editor.main()
-
 def standard_lighting_tool_rotation_fix():
     print "standard_lighting_tool_rotation_fix"
     import standard_lighting_tool_rotation_fix
     reload(standard_lighting_tool_rotation_fix)
     standard_lighting_tool_rotation_fix.main()
+
+def uv_set_editor():
+    print 'uv_set_editor'
+    import uv_set_editor
+    reload(uv_set_editor)
+    uv_set_editor.main()
 
 def asset_tracker():
     print "asset_tracker"
@@ -125,9 +125,9 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/shotgun_links_tool_Logo_small.jpg', command = partial(quick_links))
     annotation = 'rename shading groups, add/delete a postfix to materials nodes'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/rename_shading_groups_Logo_small.jpg', command = partial(rename_shading_groups))
-    annotation = 'UV set editor, not object selection based, faster'
-    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/uv_set_editor_logo_small.jpg', command = partial(UV_set_editor))
     annotation = 'rebuilds the standard lighting rig dome rotations'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/standard_lighting_tool_rotation_fix_thumb.jpg', command = partial(standard_lighting_tool_rotation_fix))
+    annotation = 'UV set editor, not object selection based, faster'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/uv_set_editor_logo_small.jpg', command = partial(uv_set_editor))
     annotation = 'shows the latest version of assets available and your current version'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/asset_tracker_logo_small.jpg', command = partial(asset_tracker))

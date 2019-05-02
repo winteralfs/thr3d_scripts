@@ -7,7 +7,11 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'uv_set_editor_testing'
+#"""
+#lighting_shelf: UV_set_editor
+#********************************************
+#"""
+
 
 class UV_SET_EDITOR(object):
     def __init__(self):
