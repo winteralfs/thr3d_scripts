@@ -48,6 +48,7 @@ class ASSET_TRACKER(object):
     def gather_attributes(self):
         #print 'gather_attributes'
         self.asset_attr_dic = {}
+        int_check = ['0','1','2','3','4','5','6','7','8','9']
         attrs = ['publish_type','publish_id','entity_id','version','publish_path','entity_name','task_type','task_id','publish_file']
         for object in self.trackable_objects:
             node_type = cmds.nodeType(object)
@@ -78,9 +79,10 @@ class ASSET_TRACKER(object):
                         highest_version = 0
                         for file in files:
                             version_number = file[-4]
-                            if version_number > highest_version:
-                                highest_version = version_number
-                                self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
+                            if version_number in int_check:
+                                if version_number > highest_version:
+                                    highest_version = version_number
+                                    self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
                 if attr == 'publish_path' and node_type == 'file':
                     publish_path_value_split = value.split('\\')
                     publish_path_value_split_length = len(publish_path_value_split)
