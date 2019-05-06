@@ -1,3 +1,82 @@
+"""
+object_replace
+********************************************
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui.JPG
+   :align: center
+   :scale: 75%
+
+object_replace is a tool for swapping one object in the scene with another. It is useful for updating a model to a newer published
+version, or swapping in one similar model for an existing asset in the scene. The tool will do its best to transfer all the connections
+and settings from the old asset to the new one.
+
+object_replace is launched from the lighting_tools_shelf:
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_lighting_shelf.JPG
+   :align: center
+   :scale: 75%
+
+------
+
+The tool requires that nothing in the scene in named the same name, the best stategy is to rename the 'old' object as its current name
+with the suffix '_old' added.  Similarly, the suffix '_new' should be added to the object to be swapped in for the older asset.
+
+It is important that no group node has the same name as any object in the scene, and it may be nessisary to add the suffix '_grp'
+to the name of certain group nodes to avoid this.
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_object_old_object_newJPG.JPG
+   :align: center
+   :scale: 75%
+
+after editing the 'object_Old' and 'object_New' fields to reflect the appropriate assets, you press the 'replace' button to initiate the
+swapping process.
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_replace_button.JPG
+   :align: center
+   :scale: 75%
+
+the script ediotr will show you information as to what attributes were transfered and when the script is finished running.
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_script_editor.JPG
+   :align: center
+   :scale: 75%
+
+once finished, the tool leaves the 'old_asset' in the outliner, but hidden.  You can delete it if you no longer need it in the scnee.
+The '_new' suffix can also be removed from the swapped asset's name.
+
+ .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_outliner.JPG
+    :align: center
+    :scale: 75%
+
+one common issue is when the UV sets are renamed or changed with the newer object, the script will not transfer those assignments. those
+connection will have to be updated by hand. If the UV set names do not change, the script will pick up the assignments.
+
+ .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_UV_set_editor.JPG
+    :align: center
+    :scale: 75%
+
+if you only want to transfer certain categories of attributes, such as only lightlinking or translations, you can uncheck and check
+various categories and run the swapping tool on only those category of attributes. By default all categories are 'on.'
+
+ .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui_categories.JPG
+    :align: center
+    :scale: 75%
+
+lastly, if there are duplicate objects in the scene, the script will error out, but you can open the script editor and which objects
+have the same name. You can then easily rename them and run the script again.
+
+ .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_script_editor_dup_objects.JPG
+    :align: center
+    :scale: 75%
+
+
+
+
+
+"""
+
+
+
 import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
