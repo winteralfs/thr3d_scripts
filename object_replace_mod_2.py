@@ -20,18 +20,32 @@ def look_for_duplicate_nodes():
     return(duplicate_node_names)
 
 def objectChooseWin():
+    print 'objectChooseWin = '
     name = "object_replace"
     windowSize = (300,100)
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
-    window = cmds.window(name, title = name, width = 70, height = 30, sizeable = False)
+    window = cmds.window(name, title = name, width = 30, height = 10, sizeable = False)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "object_old  ")
-    object_Old_Path = cmds.textField(tx = "object_old",width = 250)
-    cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "object_new")
     object_New_Path = cmds.textField(tx = "object_new", width = 250)
+    cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
+    cmds.text(label = "object_old  ")
+    object_Old_Path = cmds.textField(tx = "object_old",width = 250)
+
+    def text_fields_selected_objects():
+        #cmds.textField(object_Old_Path, text = 'object_old', edit = True)
+        #cmds.textField(object_New_Path, text = 'object_new', edit = True)
+        selected_objects = cmds.ls(sl = True)
+        number_of_selected_objects = len(selected_objects)
+        if number_of_selected_objects == 2:
+            cmds.textField(object_New_Path, text = selected_objects[0], edit = True)
+            cmds.textField(object_Old_Path, text = selected_objects[1], edit = True)
+        print 'object_Old_Path = ',object_Old_Path
+        print 'object_New_Path = ',object_New_Path
+
+    myScriptJobID = cmds.scriptJob(p = window, event=["SelectionChanged", text_fields_selected_objects])
 
     def objects_CB(*args):
         object_Old = cmds.textField(object_Old_Path,q=1,tx=1)
@@ -51,7 +65,7 @@ def objectChooseWin():
     #checkBoxALL = cmds.checkBox(label = "ALL+", value = True)
     cmds.rowLayout("nameRowLayout4.5", numberOfColumns = 10, parent = "mainColumn")
     cmds.rowLayout("nameRowLayout05", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "                      ")
+    cmds.text(label = "                   ")
     cmds.button(label = "replace", width = 150,command = (objects_CB))
     cmds.showWindow()
 

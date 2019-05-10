@@ -868,6 +868,7 @@ class LAYERS_WINDOW_TOOL(object):
                                                 a = a + 1
                                         cmds.setAttr(mo_split_two[1],value_a,value_b,value_c)
                                     if kind_float == 1 or kind_int == 1 or kind_bool == 1:
+                                        print 'kind = float'
                                         cmds.editRenderLayerAdjustment(mo,layer = render_layer)
                                         if ramp_removed_found == 1:
                                             a = 1
@@ -880,6 +881,11 @@ class LAYERS_WINDOW_TOOL(object):
                                                 print 'destination_connections[1],destination_connections[0] = ',destination_connections[1],destination_connections[0]
                                                 cmds.disconnectAttr(destination_connections[1],destination_connections[0])
                                                 a = a + 1
+                                        print 'mo_split_two = ',mo_split_two
+                                        print 'mo_split_two[1] = ',mo_split_two[1]
+                                        print 'value = ',value
+                                        if material == 'place_env_rot_sdt_lgt':
+                                            print cmds.listConnecions(material)
                                         cmds.setAttr(mo_split_two[1],value)
                                     if kind_unicode == 1:
                                         cmds.editRenderLayerAdjustment(mo)
