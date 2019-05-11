@@ -466,6 +466,9 @@ class UV_SET_EDITOR(object):
                                 self.uv_set_selection_status_dic[self.selected_item_text + ':|:' + uv_set_name] = 0
                     self.unlock_right_QListWidget()
                     selected_uv_set_pointer.setSelected(True)
+                    print 'self.selected_item_text = ',self.selected_item_text
+                    print ':|:'
+                    print 'it_text = ',it_text
                     self.uv_set_selection_status_dic[self.selected_item_text + ':|:' + it_text] = 1
             selected_uv_sets_pointers = self.list_widget_right.selectedItems()
             for selected_uv_sets_pointer in selected_uv_sets_pointers:
