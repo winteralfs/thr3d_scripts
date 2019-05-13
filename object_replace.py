@@ -28,11 +28,11 @@ def objectChooseWin():
     window = cmds.window(name, title = name, width = 30, height = 10, sizeable = False)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "object_new")
-    object_New_Path = cmds.textField(tx = "object_new", width = 250)
+    cmds.text(label = "new_object")
+    object_New_Path = cmds.textField(tx = "new_object", width = 250)
     cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "object_old  ")
-    object_Old_Path = cmds.textField(tx = "object_old",width = 250)
+    cmds.text(label = "old_object")
+    object_Old_Path = cmds.textField(tx = "old_object",width = 250)
 
     def text_fields_selected_objects():
         #cmds.textField(object_Old_Path, text = 'object_old', edit = True)

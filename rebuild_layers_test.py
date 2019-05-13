@@ -885,7 +885,9 @@ class LAYERS_WINDOW_TOOL(object):
                                         print 'mo_split_two[1] = ',mo_split_two[1]
                                         print 'value = ',value
                                         if material == 'place_env_rot_sdt_lgt':
-                                            print cmds.listConnecions(material)
+                                            print 'material = ',material
+                                            #mat_cons = cmds.listConnecions(material)
+                                            #print 'mat_cons = ',mat_cons
                                         cmds.setAttr(mo_split_two[1],value)
                                     if kind_unicode == 1:
                                         cmds.editRenderLayerAdjustment(mo)

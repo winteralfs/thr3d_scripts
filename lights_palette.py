@@ -205,7 +205,6 @@ class lightsPalette():
                                 self.sel_button_toggle_override.setText("no overrides")
                                 self.sel_button_toggle_override.setStyleSheet("QPushButton {background:rgb(100,100,100);} QPushButton::checked{background-color: rgb(100, 100, 100);""border:0px solid rgb(80, 170, 20)};")
                                 self.sel_button_toggle_override.setFixedHeight(20)
-        print self.sel_button_toggle_override.isChecked()
 
 # a method to to hide all the lights in the scene
 
@@ -221,6 +220,37 @@ class lightsPalette():
             self.button_show_lights.setFixedHeight(20)
             for mPanel in panels:
                 cmds.modelEditor(mPanel, edit = True, lt = 1, lc = 1)
+
+    def Vray_smooth(self,checked):
+        selected_objects = cmds.ls(sl = True)
+        objects_to_run = []
+        for object in selected_objects:
+            if 'Shape' in object:
+                if object not in objects_to_run:
+                    objects_to_run.append(object)
+            else:
+                object_children = cmds.listRelatives(children = True) or []
+                for child in object_children:
+                    if 'Shape' in child:
+                        if child not in objects_to_run:
+                            objects_to_run.append(child)
+        for object in objects_to_run:
+            node_type = cmds.nodeType(object)
+            if node_type == 'mesh':
+                if checked == 1:
+                    cmds.vray("addAttributesFromGroup", object, "vray_subdivision", 1)
+                if checked == 0:
+                    cmds.vray("addAttributesFromGroup", object, "vray_subdivision", 0)
+        smoothing_exists = 0
+        for object in objects_to_run:
+            node_type = cmds.nodeType(object)
+            if node_type == 'mesh':
+                smoothing_exists = cmds.objExists(object + '.vraySubdivUVs')
+        if smoothing_exists == 1:
+            self.button_Vray_smooth.setChecked(True)
+        if smoothing_exists == 0:
+            self.button_Vray_smooth.setChecked(False)
+                    #self.button_Vray_smooth.setChecked(False)
 
 # a method to detect render layer names and query for render layer overrides
 
@@ -315,8 +345,12 @@ class lightsPalette():
         self.button_show_lights.setFixedHeight(20)
         self.button_show_lights.setCheckable(True)
         self.button_show_lights.toggled.connect(partial(self.hide_lights))
-        self.button_show_lights.setStyleSheet("QPushButton::checked{color: rgb(249, 0, 0);""border:1px solid rgb(249, 0, 0)};")
-        self.grid_layout_top.addWidget(self.button_show_lights,5,0,1,2)
+        self.button_Vray_smooth = QtWidgets.QPushButton("v-ray_smooth")
+        self.button_Vray_smooth.setFixedHeight(20)
+        self.button_Vray_smooth.setCheckable(True)
+        self.button_Vray_smooth.toggled.connect(partial(self.Vray_smooth))
+        self.button_Vray_smooth.setStyleSheet("QPushButton::checked{color: rgb(0, 200, 50);""border:1px solid rgb(0, 200, 50)};")
+        self.grid_layout_top.addWidget(self.button_Vray_smooth,6,0,1,2)
         render_layers_label = QtWidgets.QLabel("render layers")
         self.grid_layout_top.addWidget(render_layers_label,7,0)
         self.render_layer_QListWidget = QtWidgets.QListWidget()
@@ -331,6 +365,7 @@ class lightsPalette():
         selected_nodes = cmds.ls(sl = True)
         self.render_layers_scan()
         master_override_found = 0
+        master_smoothing_attribute_found = 0
         self.sel_button_toggle_override.setEnabled(False)
         self.sel_button_toggle_override.setFixedHeight(20)
         if self.current_render_layer != "defaultRenderLayer":
@@ -357,10 +392,34 @@ class lightsPalette():
             self.sel_button_toggle_override.setText("no overrides")
             self.sel_button_toggle_override.setFixedHeight(20)
         if master_override_found == 1:
-            self.sel_button_toggle_override.setStyleSheet("QPushButton{background-color: rgb(200, 100, 0);""border:2px solid rgb(200, 100, 0)};")
+            self.sel_button_toggle_override.setStyleSheet("QPushButton{background-color: rgb(200, 0, 0);""border:2px solid rgb(200,0,0)};")
             self.sel_button_toggle_override.setText("overrides set")
             self.sel_button_toggle_override.setChecked(True)
         self.sel_button_toggle_override.toggled.connect(partial(self.sel_toggle_overrides))
+        selected_objects = cmds.ls(sl = True)
+        objects_to_run = []
+        for object in selected_objects:
+            if 'Shape' in object:
+                if object not in objects_to_run:
+                    objects_to_run.append(object)
+            else:
+                object_children = cmds.listRelatives(children = True) or []
+                for child in object_children:
+                    if 'Shape' in child:
+                        if child not in objects_to_run:
+                            objects_to_run.append(child)
+        smoothing_exists = 0
+        for object in objects_to_run:
+            node_type = cmds.nodeType(object)
+            if node_type == 'mesh':
+                smoothing_exists = cmds.objExists(object + '.vraySubdivUVs')
+        if smoothing_exists == 1:
+            self.button_Vray_smooth.setText("vray smoothing on at least one selected node")
+            self.button_Vray_smooth.setFont(QtGui.QFont('SansSerif', 8))
+            self.button_Vray_smooth.setChecked(True)
+        if smoothing_exists == 0:
+            self.button_Vray_smooth.setText("no vray smoothing")
+            self.button_Vray_smooth.setChecked(False)
 
 # a method that builds the light pallete window and creates the layouts
 
