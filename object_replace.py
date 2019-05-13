@@ -1,76 +1,3 @@
-"""
-object_replace
-********************************************
-
-.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui.JPG
-   :align: center
-   :scale: 75%
-
-object_replace is a tool for swapping one object in the scene with another. It is useful for updating a model to a newer published
-version, or swapping in one similar model for an existing asset in the scene. The tool will do its best to transfer all the connections
-and settings from the old asset to the new one.
-
-object_replace is launched from the lighting_tools_shelf:
-
-.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_lighting_shelf.JPG
-   :align: center
-   :scale: 75%
-
-------
-
-The tool requires that nothing in the scene in named the same name, the best stategy is to rename the 'old' object as its current name
-with the suffix '_old' added.  Similarly, the suffix '_new' should be added to the object to be swapped in for the older asset.
-
-It is important that no group node has the same name as any object in the scene, and it may be nessisary to add the suffix '_grp'
-to the name of certain group nodes to avoid this.
-
-.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_object_old_object_newJPG.JPG
-   :align: center
-   :scale: 75%
-
-after editing the 'object_Old' and 'object_New' fields to reflect the appropriate assets, you press the 'replace' button to initiate the
-swapping process.
-
-.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_replace_button.JPG
-   :align: center
-   :scale: 75%
-
-the script ediotr will show you information as to what attributes were transfered and when the script is finished running.
-
-.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_script_editor.JPG
-   :align: center
-   :scale: 75%
-
-once finished, the tool leaves the 'old_asset' in the outliner, but hidden.  You can delete it if you no longer need it in the scnee.
-The '_new' suffix can also be removed from the swapped asset's name.
-
- .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_outliner.JPG
-    :align: center
-    :scale: 75%
-
-one common issue is when the UV sets are renamed or changed with the newer object, the script will not transfer those assignments. those
-connection will have to be updated by hand. If the UV set names do not change, the script will pick up the assignments.
-
- .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_UV_set_editor.JPG
-    :align: center
-    :scale: 75%
-
-if you only want to transfer certain categories of attributes, such as only lightlinking or translations, you can uncheck and check
-various categories and run the swapping tool on only those category of attributes. By default all categories are 'on.'
-
- .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui_categories.JPG
-    :align: center
-    :scale: 75%
-
-lastly, if there are duplicate objects in the scene, the script will error out, but you can open the script editor and which objects
-have the same name. You can then easily rename them and run the script again.
-
- .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_script_editor_dup_objects.JPG
-    :align: center
-    :scale: 75%
-
-"""
-
 import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
@@ -93,18 +20,32 @@ def look_for_duplicate_nodes():
     return(duplicate_node_names)
 
 def objectChooseWin():
+    print 'objectChooseWin = '
     name = "object_replace"
     windowSize = (300,100)
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
-    window = cmds.window(name, title = name, width = 70, height = 30, sizeable = False)
+    window = cmds.window(name, title = name, width = 30, height = 10, sizeable = False)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "object_old  ")
-    object_Old_Path = cmds.textField(tx = "object_old",width = 250)
-    cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "object_new")
     object_New_Path = cmds.textField(tx = "object_new", width = 250)
+    cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
+    cmds.text(label = "object_old  ")
+    object_Old_Path = cmds.textField(tx = "object_old",width = 250)
+
+    def text_fields_selected_objects():
+        #cmds.textField(object_Old_Path, text = 'object_old', edit = True)
+        #cmds.textField(object_New_Path, text = 'object_new', edit = True)
+        selected_objects = cmds.ls(sl = True)
+        number_of_selected_objects = len(selected_objects)
+        if number_of_selected_objects == 2:
+            cmds.textField(object_New_Path, text = selected_objects[0], edit = True)
+            cmds.textField(object_Old_Path, text = selected_objects[1], edit = True)
+        print 'object_Old_Path = ',object_Old_Path
+        print 'object_New_Path = ',object_New_Path
+
+    myScriptJobID = cmds.scriptJob(p = window, event=["SelectionChanged", text_fields_selected_objects])
 
     def objects_CB(*args):
         object_Old = cmds.textField(object_Old_Path,q=1,tx=1)
@@ -124,17 +65,28 @@ def objectChooseWin():
     #checkBoxALL = cmds.checkBox(label = "ALL+", value = True)
     cmds.rowLayout("nameRowLayout4.5", numberOfColumns = 10, parent = "mainColumn")
     cmds.rowLayout("nameRowLayout05", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "                      ")
+    cmds.text(label = "                   ")
     cmds.button(label = "replace", width = 150,command = (objects_CB))
     cmds.showWindow()
 
     def objects(object_Old,object_New):
         duplicate_node_names = look_for_duplicate_nodes()
         number_of_dup_nodes = len(duplicate_node_names)
+        nums = [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50]
+        duplicate_node_names_renamed = []
         if number_of_dup_nodes > 0:
-            print 'exiting cause duplicate names found'
+            #print 'exiting cause duplicate names found'
             print 'duplicate_node_names = ',duplicate_node_names
-            raise Exception("duplicate names found")
+            print 'renaming duplicate_node_names, adding _duplicate_name suffix'
+            i = 0
+            for duplicate_node_name in duplicate_node_names:
+                if i in nums:
+                    rename_string = duplicate_node_name + '***__duplicate_name'
+                    print 'rename_string = ',rename_string
+                    cmds.rename(duplicate_node_name,rename_string)
+                    duplicate_node_names_renamed.append(rename_string)
+                i = i + 1
+            #raise Exception("duplicate names found")
 
         object_Old = object_Old
         object_New = object_New
@@ -156,10 +108,10 @@ def objectChooseWin():
                 object_New = new_kid_parent[0]
         renderLayers = cmds.ls(type = 'renderLayer')
         currentRenderLayer = cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
-        print "object_Old = ",object_Old
-        print "object_New = ",object_New
+        print "object_old = ",object_Old
+        print "object_new = ",object_New
         def object_New_Center(object_Old,object_New,renderLayers):
-            print "New object centered in frame"
+            print "new object centered in frame"
             obj1 = object_Old
             cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer")
             obj1_WorldSpace = cmds.xform(obj1,q = True, os = True,rotatePivot = True)
@@ -198,7 +150,7 @@ def objectChooseWin():
             return pathmasterObj,object_Old,object_New,pathOBJ
 
         def renderLayerCheck(object_Old,object_New,renderLayers):
-            print "Master object render layers"
+            print "master object render layers"
             object_Old = (str(object_Old))
             object_New = (str(object_New))
             layerList = []
@@ -215,7 +167,7 @@ def objectChooseWin():
             return layerList,object_Old,object_New
 
         def translations(object_Old,object_New,renderLayers):
-            print "Master object transforms"
+            print "master object transforms"
             transValuesDict = {}
             objInLayers = []
             object_Old = (str(object_Old))
@@ -269,7 +221,6 @@ def objectChooseWin():
                 scaleZ = cmds.getAttr(strScaleZ)
                 var = object_Old + "_" + '&'+lay+'&' + "_scaleZ"
                 transValuesDict[var] = scaleZ
-            print object_Old + " defaultRenderLayer translation values:"
             defVals = []
             for tv in transValuesDict:
                 if "defaultRenderLayer" in tv:
@@ -349,17 +300,17 @@ def objectChooseWin():
                         transLayerOveride.append(dic)
             defValList = [transX_val,transY_val,transZ_val,rotX_val,rotY_val,rotZ_val,scaleX_val,scaleY_val,scaleZ_val]
             sizL = len(transLayerOveride)
-            if sizL > 0:
-                print "translation renderLayerOverides detected in:",transLayerOveride
-            else:
-                print "no transform render layer overides detected"
-            for override in transValuesDict:
-                print transValuesDict[override]
+            #if sizL > 0:
+                #print "translation renderLayerOverides detected in:",transLayerOveride
+            #else:
+                #print "no transform render layer overides detected"
+            #for override in transValuesDict:
+                #print transValuesDict[override]
             print 'transLayerOveride = ',transLayerOveride
             return transValuesDict,object_Old,object_New,defVals,defValList,objInLayers,transLayerOveride
 
         def excludeListSets(object_Old,object_New,renderLayers):
-            print "Master object exclude sets"
+            print "master object exclude sets"
             object_Old = (str(object_Old))
             object_New = (str(object_New))
             tmpOBJ = object_Old
@@ -417,7 +368,7 @@ def objectChooseWin():
             return ltsLL,object_Old,object_New
 
         def renderStats(object_Old,object_New,renderLayers):
-            print "Master object render stats"
+            print "master object render stats"
             object_Old = (str(object_Old))
             object_New = (str(object_New))
             objParent = cmds.listRelatives(object_Old, parent = True) or []
@@ -540,7 +491,7 @@ def objectChooseWin():
             return RS_overRideList,object_Old,object_New,defRSlist,RS_overRideList,renderStatsDic,RLOs
 
         def objectProptertyOverides(object_Old,object_New,renderLayers):
-            print "Master object VRAY object properties"
+            print "master object V-ray object properties"
             object_Old = (str(object_Old))
             object_New = (str(object_New))
             objParent = cmds.listRelatives(object_Old, parent = True) or []
@@ -573,7 +524,7 @@ def objectChooseWin():
             return object_Old,object_New,OPlist
 
         def objectIDnode(object_Old,object_New,renderLayers):
-            print "Master object ID"
+            print "master object ID"
             object_Old = (str(object_Old))
             object_New = (str(object_New))
             objID = "None"
@@ -602,7 +553,7 @@ def objectChooseWin():
 
 
         def materials(object_Old,object_New,renderLayers):
-            print "Master object materials"
+            print "master object materials"
             object_Old = (str(object_Old))
             object_New = (str(object_New))
             mats_list = {}
@@ -684,7 +635,7 @@ def objectChooseWin():
             return mats_dict,LayerMats_dic,layerOverM2,object_Old,object_New,RLM,matAssignsExist
 
         def UVsetLinking(object_Old,object_New,renderLayers):
-            print "Master object UV sets"
+            print "master object UV sets"
             UvSetTexturesDict = {}
             uvAddress = []
             setAddressOLD = ""
@@ -723,11 +674,11 @@ def objectChooseWin():
                         uvAddDic[str(setAddressOLD)] = tex
                         uvNameDic[setName] = setAddressOLD
                         texADDdic[tex] = setAddressOLD
-            print "obj_UVsets = ",obj_UVsets
+            print "obj_UV_sets = ",obj_UVsets
             return uvNameDic,texADDdic,uvAddDic,uvAddress,obj_UVsets,object_Old,object_New,renderLayers
 
         def polySmoothOBJ(object_Old,object_New,renderLayers):
-            print "Master object polySmooth detection"
+            print "master object polySmooth detection"
             object_Old_smooth_node_found = 0
             object_New_smooth_node_found = 0
             object_Old_smooth_division_level = 0
@@ -745,7 +696,7 @@ def objectChooseWin():
             return object_Old,object_New,object_Old_smooth_node_found,object_New_smooth_node_found,object_Old_smooth_division_level,object_New_smooth_division_level
 
         def visibilty(object_Old,object_New,renderLayers):
-            print "Master object visibility"
+            print "master object visibility"
             visDic = {}
             vizPath = object_Old + ".visibility"
             for R in renderLayers:
@@ -755,7 +706,7 @@ def objectChooseWin():
             return visDic,object_Old, object_New
 
         def displacementNodes(object_Old,object_New,renderLayers):
-            print "Master object displacement node"
+            print "master object displacement node"
             if "Shape" in object_Old:
                 pass
             else:
@@ -769,7 +720,7 @@ def objectChooseWin():
                 if disp_attr_exists == 1:
                     disp_attr_value = cmds.getAttr(disp_attr_full)
                     displacement_extra_attr_dic[displacement_extra_attribute] = disp_attr_value
-            print "displacement_extra_attr_dic = ", displacement_extra_attr_dic
+            #print "displacement_extra_attr_dic = ", displacement_extra_attr_dic
             vrayDisplacement_filePath = ""
             object_Old_DispNodeList = []
             vrayDispNode = []
@@ -827,10 +778,10 @@ def objectChooseWin():
                 object_Old_DispNode = object_Old_DispNodeList[0]
                 object_Old_DispNode = object_Old_DispNodeList[0]
                 for RL in renderLayers:
-                    print "renderLayer = ", RL
+                    #print "renderLayer = ", RL
                     cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                     dispNodeConnections = cmds.listConnections(object_Old_DispNode, s = True, d = True) or []
-                    print dispNodeConnections
+                    #print dispNodeConnections
                     for dnc in dispNodeConnections:
                         NT = cmds.nodeType(dnc)
                         if NT == "file":
@@ -1046,7 +997,7 @@ def objectChooseWin():
                             dispLayerOR.append(vals)
                             overide_dispValDic[vals] = tempVal
             else:
-                print "No vray displacement nodes detected for", object_Old
+                print "no vray displacement nodes detected for", object_Old
             if object_Old_DispNode != "None":
                 if layerTexDetect != 1 and rampDetect != 1:
                     cmds.select(clear = True)
@@ -1073,7 +1024,7 @@ def objectChooseWin():
                         if f not in firstConList:
                             if f not in firstConList:
                                 firstConList.append(f)
-                    print 'firstConList = ',firstConList
+                    #print 'firstConList = ',firstConList
                     for first_connection in firstConList:
                         first = first_connection
                         fType = cmds.nodeType(first)
@@ -1415,7 +1366,6 @@ def objectChooseWin():
             childNumGroup_8 = []
             childNumGroup_9 = []
             childNumGroup_10 = []
-            print "LL = ",LL
             if LL != "None":
                 for l in LL:
                     kind = cmds.nodeType(l)
@@ -1943,7 +1893,11 @@ def objectChooseWin():
             object_New_renderStats(OBJ_1_renderStats)
         if checkSets == 1:
             object_New_excludeListSets(OBJ_1_ELS)
-        print " finished matching object_new to object_old "
+        for duplicate_node_name_renamed in duplicate_node_names_renamed:
+            duplicate_node_name_renamed_split = duplicate_node_name_renamed.split('***')
+            duplicate_node_name = duplicate_node_name_renamed_split[0]
+            cmds.rename(duplicate_node_name_renamed,duplicate_node_name)
+        print "*** finished matching object_new to object_old ***"
 
 def main():
     objectChooseWin()
