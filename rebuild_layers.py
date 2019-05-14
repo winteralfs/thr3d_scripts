@@ -7,6 +7,8 @@ from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 import re
 
+print 'tues 17'
+
 class LAYERS_WINDOW_TOOL(object):
     def __init__(self):
         self.light_types = ["volumeLight","areaLight","spotLight","pointLight","directionalLight","ambientLight","VRayLightRectShape"]
@@ -40,6 +42,23 @@ class LAYERS_WINDOW_TOOL(object):
                 if node_type == lite:
                     self.vray_lights.append(object)
         self.object_check.append("vraySettings")
+        render_layers = cmds.ls(type = 'renderLayer')
+        self.VRayPlaceEnvTex_overrides_dic = {}
+        cmds.editRenderLayerGlobals(currentRenderLayer = "defaultRenderLayer")
+        render_layer_switched = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+        default_horizontal_value = cmds.getAttr('place_env_rot_sdt_lgt.horRotation')
+        default_vertical_value = cmds.getAttr('place_env_rot_sdt_lgt.verRotation')
+        self.VRayPlaceEnvTex_overrides_dic["defaultRenderLayer" + ',horizontal_value'] = default_horizontal_value
+        self.VRayPlaceEnvTex_overrides_dic["defaultRenderLayer" + ',vertical_value'] = default_vertical_value
+        for render_layer in render_layers:
+            if render_layer != "defaultRenderLayer":
+                cmds.editRenderLayerGlobals(currentRenderLayer = render_layer)
+                render_layer_switched = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+                horizontal_value = cmds.getAttr('place_env_rot_sdt_lgt.horRotation')
+                vertical_value = cmds.getAttr('place_env_rot_sdt_lgt.verRotation')
+                self.VRayPlaceEnvTex_overrides_dic[render_layer + ',horizontal_value'] = horizontal_value
+                self.VRayPlaceEnvTex_overrides_dic[render_layer + ',vertical_value'] = vertical_value
+        print 'self.VRayPlaceEnvTex_overrides_dic = ',self.VRayPlaceEnvTex_overrides_dic
 
     def clear_layout(self, layout):
         if layout is not None:
@@ -72,7 +91,7 @@ class LAYERS_WINDOW_TOOL(object):
         light_overrides_dic = self.light_overrides()
         render_stat_overrides = self.render_stat_overrides()
         vray_object_property_overrides = self.vray_object_prop_overrides()
-        return(vray_settings_overrides_dic,transform_layer_overrides,self.material_overrides_dic,light_overrides_dic,render_stat_overrides,vray_object_property_overrides,camera_overrides_dic)
+        return(vray_settings_overrides_dic,transform_layer_overrides,self.material_overrides_dic,light_overrides_dic,render_stat_overrides,vray_object_property_overrides,camera_overrides_dic,self.VRayPlaceEnvTex_overrides_dic)
 
     def overides_information_summary(self,object_type,remove_attr_List,attr_overrides_dic,object_label):
         render_layer_ramp_overrides = {}
@@ -109,14 +128,16 @@ class LAYERS_WINDOW_TOOL(object):
                     count_overrides_base = 0
                     num_list = cmds.listAttr(object, multi = True)
                     layer_tex_nums = []
-                    inputs =  cmds.listAttr('layeredTexture9.inputs', multi = True)
+                    inputs =  cmds.listAttr(object, multi = True)
+                    bad_input_list = ['message','caching','frozen','isHistoricallyInteresting','nodeState','binMembership','outColor','outColorR','outColorG','outColorB','outAlpha','hardwareColor','hardwareColorR','hardwareColorG','hardwareColorB','alphaIsLuminance','outTransparency','outTransparencyR','outTransparencyG','outTransparencyB']
                     for input in inputs:
-                        input_split_1 = input.split('[')
-                        input_split_1 = input_split_1[1]
-                        input_split_2 = input_split_1.split(']')
-                        num = input_split_2[0]
-                        if num not in layer_tex_nums:
-                            layer_tex_nums.append(num)
+                        if input not in bad_input_list:
+                            input_split_1 = input.split('[')
+                            input_split_1 = input_split_1[1]
+                            input_split_2 = input_split_1.split(']')
+                            num = input_split_2[0]
+                            if num not in layer_tex_nums:
+                                layer_tex_nums.append(num)
                     for render_layer in self.render_layers:
                         layered_texture_overrides = []
                         count_overrides = cmds.editRenderLayerAdjustment(render_layer, query = True, layer = True)
@@ -133,7 +154,11 @@ class LAYERS_WINDOW_TOOL(object):
                     connections = cmds.listConnections(object, source = True,destination = False) or []
                     connections_count = len(connections)
                     for connection in connections:
-                        cn_string = connection + ".outColor"
+                        connection_type = cmds.nodeType(connection)
+                        if connection_type != 'gamma':
+                            cn_string = connection + ".outColor"
+                        if connection_type == 'gammaCorrect':
+                            cn_string = connection + ".outValue"
                         connection_info = cmds.connectionInfo(cn_string,destinationFromSource = True) or []
                         for ci in connection_info:
                             if object in ci:
@@ -447,14 +472,6 @@ class LAYERS_WINDOW_TOOL(object):
         material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
         self.attr_override_detect(object_label)
 
-        object_type = "VRayPlaceEnvTex"
-        remove_attr_List = ['message','caching','frozen','isHistoricallyInteresting','nodeState','binMembership','mappingType','horFlip','verFlip','horRotation','verRotation','outUV','outU','outV','outApiType','outApiClassification','useTransform','transform','groundOn','groundPosition','groundPosition0','groundPosition1','groundPosition2','groundRadius']
-        attr_check = ['horRotation','verRotation']
-        for attr in attr_check:
-            remove_attr_List.remove(attr)
-        material_overides = self.overides_information_summary(object_type,remove_attr_List,attr_overrides_dic,object_label)
-        self.attr_override_detect(object_label)
-
         object_type = "layeredTexture"
         remove_attr_List = ["message","caching","frozen","isHistoricallyInteresting","nodeState","binMembership","inputs","inputs.color","inputs.colorR","inputs.colorG","inputs.colorB","inputs.alpha","inputs.blendMode","inputs.isVisible","outColor","outColorR","outColorG","outColorB","outAlpha","hardwareColor","hardwareColorR","hardwareColorG","hardwareColorB","alphaIsLuminance","outTransparency","outTransparencyR","outTransparencyG","outTransparencyB"]
         attr_check = ["alphaIsLuminance","inputs.isVisible","inputs.alpha","inputs.color","inputs.blendMode"]
@@ -511,7 +528,7 @@ class LAYERS_WINDOW_TOOL(object):
         attr_overrides_dic = camera_overrides_dic
         object_label = "camera_overide"
         object_type = "camera"
-        remove_attr_List =  ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "hyperLayout", "isCollapsed", "blackBox", "borderConnections", "isHierarchicalConnection", "publishedNodeInfo", "publishedNodeInfo.publishedNode", "publishedNodeInfo.isHierarchicalNode", "publishedNodeInfo.publishedNodeType", "rmbCommand", "templateName", "templatePath", "viewName", "iconName", "viewMode", "templateVersion", "uiTreatment", "customTreatment", "creator", "creationDate", "containerType", "boundingBox", "boundingBoxMin", "boundingBoxMinX", "boundingBoxMinY", "boundingBoxMinZ", "boundingBoxMax", "boundingBoxMaxX", "boundingBoxMaxY", "boundingBoxMaxZ", "boundingBoxSize", "boundingBoxSizeX", "boundingBoxSizeY", "boundingBoxSizeZ", "center", "boundingBoxCenterX", "boundingBoxCenterY", "boundingBoxCenterZ", "matrix", "inverseMatrix", "worldMatrix", "worldInverseMatrix", "parentMatrix", "parentInverseMatrix", "visibility", "intermediateObject", "template", "ghosting", "instObjGroups", "instObjGroups.objectGroups", "instObjGroups.objectGroups.objectGrpCompList", "instObjGroups.objectGroups.objectGroupId", "instObjGroups.objectGroups.objectGrpColor", "objectColorRGB", "objectColorR", "objectColorG", "objectColorB", "useObjectColor", "objectColor", "drawOverride", "overrideDisplayType", "overrideLevelOfDetail", "overrideShading", "overrideTexturing", "overridePlayback", "overrideEnabled", "overrideVisibility", "overrideColor", "lodVisibility", "selectionChildHighlighting", "renderInfo", "identification", "layerRenderable", "layerOverrideColor", "renderLayerInfo", "renderLayerInfo.renderLayerId", "renderLayerInfo.renderLayerRenderable", "renderLayerInfo.renderLayerColor", "ghostingControl", "ghostCustomSteps", "ghostPreSteps", "ghostPostSteps", "ghostStepSize", "ghostFrames", "ghostColorPreA", "ghostColorPre", "ghostColorPreR", "ghostColorPreG", "ghostColorPreB", "ghostColorPostA", "ghostColorPost", "ghostColorPostR", "ghostColorPostG", "ghostColorPostB", "ghostRangeStart", "ghostRangeEnd", "ghostDriver", "hiddenInOutliner", "renderable", "cameraAperture", "horizontalFilmAperture", "verticalFilmAperture", "shakeOverscan", "shakeOverscanEnabled", "filmOffset", "horizontalFilmOffset", "verticalFilmOffset", "shakeEnabled", "shake", "horizontalShake", "verticalShake", "stereoHorizontalImageTranslateEnabled", "stereoHorizontalImageTranslate", "postProjection", "preScale", "filmTranslate", "filmTranslateH", "filmTranslateV", "filmRollControl", "filmRollPivot", "horizontalRollPivot", "verticalRollPivot", "filmRollValue", "filmRollOrder", "postScale", "filmFit", "filmFitOffset", "overscan", "panZoomEnabled", "renderPanZoom", "pan", "horizontalPan", "verticalPan", "zoom", "focalLength", "lensSqueezeRatio", "cameraScale", "triggerUpdate", "nearClipPlane", "farClipPlane", "fStop", "focusDistance", "shutterAngle", "centerOfInterest", "orthographicWidth", "imageName", "depthName", "maskName", "tumblePivot", "tumblePivotX", "tumblePivotY", "tumblePivotZ", "usePivotAsLocalSpace", "imagePlane", "homeCommand", "bookmarks", "locatorScale", "displayGateMaskOpacity", "displayGateMask", "displayFilmGate", "displayResolution", "displaySafeAction", "displaySafeTitle", "displayFieldChart", "displayFilmPivot", "displayFilmOrigin", "clippingPlanes", "bestFitClippingPlanes", "depthOfField", "motionBlur", "orthographic", "journalCommand", "image", "depth", "transparencyBasedDepth", "threshold", "depthType", "useExploreDepthFormat", "mask", "displayGateMaskColor", "displayGateMaskColorR", "displayGateMaskColorG", "displayGateMaskColorB", "backgroundColor", "backgroundColorR", "backgroundColorG", "backgroundColorB", "focusRegionScale", "displayCameraNearClip", "displayCameraFarClip", "displayCameraFrustum", "cameraPrecompTemplate", "vraySeparator_vray_cameraPhysical", "vrayCameraPhysicalOn", "vrayCameraPhysicalType", "vrayCameraPhysicalFilmWidth", "vrayCameraPhysicalFocalLength", "vrayCameraPhysicalSpecifyFOV", "vrayCameraPhysicalFOV", "vrayCameraPhysicalZoomFactor", "vrayCameraPhysicalDistortionType", "vrayCameraPhysicalDistortion", "vrayCameraPhysicalLensFile", "vrayCameraPhysicalDistortionMap", "vrayCameraPhysicalDistortionMapR", "vrayCameraPhysicalDistortionMapG", "vrayCameraPhysicalDistortionMapB", "vrayCameraPhysicalFNumber", "vrayCameraPhysicalHorizLensShift", "vrayCameraPhysicalLensShift", "vrayCameraPhysicalLensAutoVShift", "vrayCameraPhysicalShutterSpeed", "vrayCameraPhysicalShutterAngle", "vrayCameraPhysicalShutterOffset", "vrayCameraPhysicalLatency", "vrayCameraPhysicalISO", "vrayCameraPhysicalSpecifyFocus", "vrayCameraPhysicalFocusDistance", "vrayCameraPhysicalExposure", "vrayCameraPhysicalWhiteBalance", "vrayCameraPhysicalWhiteBalanceR", "vrayCameraPhysicalWhiteBalanceG", "vrayCameraPhysicalWhiteBalanceB", "vrayCameraPhysicalVignetting", "vrayCameraPhysicalVignettingAmount", "vrayCameraPhysicalBladesEnable", "vrayCameraPhysicalBladesNum", "vrayCameraPhysicalBladesRotation", "vrayCameraPhysicalCenterBias", "vrayCameraPhysicalAnisotropy", "vrayCameraPhysicalUseDof", "vrayCameraPhysicalUseMoBlur", "vrayCameraPhysicalApertureMap", "vrayCameraPhysicalApertureMapR", "vrayCameraPhysicalApertureMapG", "vrayCameraPhysicalApertureMapB", "vrayCameraPhysicalApertureMapAffectsExposure", "vrayCameraPhysicalOpticalVignetting", "vraySeparator_vray_cameraOverrides", "vrayCameraOverridesOn", "vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist", "vrayCameraCurve",'aiFiltermap','aiShutterCurve.aiShutterCurveX','aiShutterCurve.aiShutterCurveY','aiPosition.aiPositionX','aiPosition.aiPositionY','aiPosition.aiPositionZ','aiLookAt.aiLookAtX','aiLookAt.aiLookAtY','aiLookAt.aiLookAtZ','aiUp.aiUpX','aiUp.aiUpY','aiUp.aiUpZ','aiScreenWindowMin.aiScreenWindowMinX','aiScreenWindowMin.aiScreenWindowMinY','aiScreenWindowMax.aiScreenWindowMaxX','aiScreenWindowMax.aiScreenWindowMaxY']
+        remove_attr_List =  ["message", "caching", "isHistoricallyInteresting", "nodeState", "binMembership", "hyperLayout", "isCollapsed", "blackBox", "borderConnections", "isHierarchicalConnection", "publishedNodeInfo", "publishedNodeInfo.publishedNode", "publishedNodeInfo.isHierarchicalNode", "publishedNodeInfo.publishedNodeType", "rmbCommand", "templateName", "templatePath", "viewName", "iconName", "viewMode", "templateVersion", "uiTreatment", "customTreatment", "creator", "creationDate", "containerType", "boundingBox", "boundingBoxMin", "boundingBoxMinX", "boundingBoxMinY", "boundingBoxMinZ", "boundingBoxMax", "boundingBoxMaxX", "boundingBoxMaxY", "boundingBoxMaxZ", "boundingBoxSize", "boundingBoxSizeX", "boundingBoxSizeY", "boundingBoxSizeZ", "center", "boundingBoxCenterX", "boundingBoxCenterY", "boundingBoxCenterZ", "matrix", "inverseMatrix", "worldMatrix", "worldInverseMatrix", "parentMatrix", "parentInverseMatrix", "visibility", "intermediateObject", "template", "ghosting", "instObjGroups", "instObjGroups.objectGroups", "instObjGroups.objectGroups.objectGrpCompList", "instObjGroups.objectGroups.objectGroupId", "instObjGroups.objectGroups.objectGrpColor", "objectColorRGB", "objectColorR", "objectColorG", "objectColorB", "useObjectColor", "objectColor", "drawOverride", "overrideDisplayType", "overrideLevelOfDetail", "overrideShading", "overrideTexturing", "overridePlayback", "overrideEnabled", "overrideVisibility", "overrideColor", "lodVisibility", "selectionChildHighlighting", "renderInfo", "identification", "layerRenderable", "layerOverrideColor", "renderLayerInfo", "renderLayerInfo.renderLayerId", "renderLayerInfo.renderLayerRenderable", "renderLayerInfo.renderLayerColor", "ghostingControl", "ghostCustomSteps", "ghostPreSteps", "ghostPostSteps", "ghostStepSize", "ghostFrames", "ghostColorPreA", "ghostColorPre", "ghostColorPreR", "ghostColorPreG", "ghostColorPreB", "ghostColorPostA", "ghostColorPost", "ghostColorPostR", "ghostColorPostG", "ghostColorPostB", "ghostRangeStart", "ghostRangeEnd", "ghostDriver", "hiddenInOutliner", "renderable", "cameraAperture", "horizontalFilmAperture", "verticalFilmAperture", "shakeOverscan", "shakeOverscanEnabled", "filmOffset", "horizontalFilmOffset", "verticalFilmOffset", "shakeEnabled", "shake", "horizontalShake", "verticalShake", "stereoHorizontalImageTranslateEnabled", "stereoHorizontalImageTranslate", "postProjection", "preScale", "filmTranslate", "filmTranslateH", "filmTranslateV", "filmRollControl", "filmRollPivot", "horizontalRollPivot", "verticalRollPivot", "filmRollValue", "filmRollOrder", "postScale", "filmFit", "filmFitOffset", "overscan", "panZoomEnabled", "renderPanZoom", "pan", "horizontalPan", "verticalPan", "zoom", "focalLength", "lensSqueezeRatio", "cameraScale", "triggerUpdate", "nearClipPlane", "farClipPlane", "fStop", "focusDistance", "shutterAngle", "centerOfInterest", "orthographicWidth", "imageName", "depthName", "maskName", "tumblePivot", "tumblePivotX", "tumblePivotY", "tumblePivotZ", "usePivotAsLocalSpace", "imagePlane", "homeCommand", "bookmarks", "locatorScale", "displayGateMaskOpacity", "displayGateMask", "displayFilmGate", "displayResolution", "displaySafeAction", "displaySafeTitle", "displayFieldChart", "displayFilmPivot", "displayFilmOrigin", "clippingPlanes", "bestFitClippingPlanes", "depthOfField", "motionBlur", "orthographic", "journalCommand", "image", "depth", "transparencyBasedDepth", "threshold", "depthType", "useExploreDepthFormat", "mask", "displayGateMaskColor", "displayGateMaskColorR", "displayGateMaskColorG", "displayGateMaskColorB", "backgroundColor", "backgroundColorR", "backgroundColorG", "backgroundColorB", "focusRegionScale", "displayCameraNearClip", "displayCameraFarClip", "displayCameraFrustum", "cameraPrecompTemplate", "vraySeparator_vray_cameraPhysical", "vrayCameraPhysicalOn", "vrayCameraPhysicalType", "vrayCameraPhysicalFilmWidth", "vrayCameraPhysicalFocalLength", "vrayCameraPhysicalSpecifyFOV", "vrayCameraPhysicalFOV", "vrayCameraPhysicalZoomFactor", "vrayCameraPhysicalDistortionType", "vrayCameraPhysicalDistortion", "vrayCameraPhysicalLensFile", "vrayCameraPhysicalDistortionMap", "vrayCameraPhysicalDistortionMapR", "vrayCameraPhysicalDistortionMapG", "vrayCameraPhysicalDistortionMapB", "vrayCameraPhysicalFNumber", "vrayCameraPhysicalHorizLensShift", "vrayCameraPhysicalLensShift", "vrayCameraPhysicalLensAutoVShift", "vrayCameraPhysicalShutterSpeed", "vrayCameraPhysicalShutterAngle", "vrayCameraPhysicalShutterOffset", "vrayCameraPhysicalLatency", "vrayCameraPhysicalISO", "vrayCameraPhysicalSpecifyFocus", "vrayCameraPhysicalFocusDistance", "vrayCameraPhysicalExposure", "vrayCameraPhysicalWhiteBalance", "vrayCameraPhysicalWhiteBalanceR", "vrayCameraPhysicalWhiteBalanceG", "vrayCameraPhysicalWhiteBalanceB", "vrayCameraPhysicalVignetting", "vrayCameraPhysicalVignettingAmount", "vrayCameraPhysicalBladesEnable", "vrayCameraPhysicalBladesNum", "vrayCameraPhysicalBladesRotation", "vrayCameraPhysicalCenterBias", "vrayCameraPhysicalAnisotropy", "vrayCameraPhysicalUseDof", "vrayCameraPhysicalUseMoBlur", "vrayCameraPhysicalApertureMap", "vrayCameraPhysicalApertureMapR", "vrayCameraPhysicalApertureMapG", "vrayCameraPhysicalApertureMapB", "vrayCameraPhysicalApertureMapAffectsExposure", "vrayCameraPhysicalOpticalVignetting", "vraySeparator_vray_cameraOverrides", "vrayCameraOverridesOn", "vrayCameraType", "vrayCameraOverrideFOV", "vrayCameraFOV", "vrayCameraHeight", "vrayCameraVerticalFOV", "vrayCameraAutoFit", "vrayCameraDist","vrayCameraCurve"]
         #'aiFiltermap','aiShutterCurve.aiShutterCurveX','aiShutterCurve.aiShutterCurveY','aiPosition.aiPositionX','aiPosition.aiPositionY','aiPosition.aiPositionZ','aiLookAt.aiLookAtX','aiLookAt.aiLookAtY','aiLookAt.aiLookAtZ','aiUp.aiUpX','aiUp.aiUpY','aiUp.aiUpZ','aiScreenWindowMin.aiScreenWindowMinX','aiScreenWindowMin.aiScreenWindowMinY','aiScreenWindowMax.aiScreenWindowMaxX','aiScreenWindowMax.aiScreenWindowMaxY'
         attr_check = ["vraySeparator_vray_cameraPhysical","vrayCameraPhysicalOn","vrayCameraPhysicalType","vrayCameraPhysicalFilmWidth","vrayCameraPhysicalFocalLength","vrayCameraPhysicalSpecifyFOV","vrayCameraPhysicalFOV","vrayCameraPhysicalZoomFactor","vrayCameraPhysicalDistortionType","vrayCameraPhysicalDistortion","vrayCameraPhysicalLensFile","vrayCameraPhysicalDistortionMap","vrayCameraPhysicalDistortionMapR",
         "vrayCameraPhysicalDistortionMapG","vrayCameraPhysicalDistortionMapB","vrayCameraPhysicalFNumber","vrayCameraPhysicalHorizLensShift","vrayCameraPhysicalLensShift","vrayCameraPhysicalLensAutoVShift","vrayCameraPhysicalShutterSpeed","vrayCameraPhysicalShutterAngle","vrayCameraPhysicalShutterOffset","vrayCameraPhysicalLatency","vrayCameraPhysicalISO","vrayCameraPhysicalSpecifyFocus","vrayCameraPhysicalFocusDistance",
@@ -658,7 +675,7 @@ class LAYERS_WINDOW_TOOL(object):
         "rmbCommand","templateName","templatePath","viewName","iconName","viewMode","templateVersion","uiTreatment","customTreatment","creator","creationDate","containerType"]
         for vray_object_prop in vray_object_props:
             for op in object_props:
-                cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer" )
+                cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer")
                 value_string = vray_object_prop + "." + op
                 value_default = cmds.getAttr(value_string)
                 for render_layer in self.render_layers:
@@ -679,6 +696,11 @@ class LAYERS_WINDOW_TOOL(object):
         self.rebuild_layers(rebuild_selected_layer)
 
     def rebuild_layers(self,rebuild_selected_layer):
+        expressions = ["expression1","expression2","expression3","expression4","expression5","expression6","expression7"]
+        for expression in expressions:
+            exp_exists = cmds.objExists(expression)
+            if exp_exists == 1:
+                cmds.delete(expression)
         active_layers = []
         self.unlock_cameras()
         for mPanel in self.panels:
@@ -701,6 +723,7 @@ class LAYERS_WINDOW_TOOL(object):
         light_overrides = overrides[3] or []
         render_stats_overrides = overrides[4] or []
         vray_object_prop_overrides = overrides[5] or []
+        self.VRayPlaceEnvTex_overrides_dic = overrides[7]
         for render_layer in active_layers:
             if render_layer != "defaultRenderLayer":
                 objects_in_layer = cmds.editRenderLayerMembers( render_layer, fn = True,query=True ) or []
@@ -1021,6 +1044,18 @@ class LAYERS_WINDOW_TOOL(object):
                         if size_of_override_value < 2:
                             ramp_override_value = float(ramp_override_value)
                             cmds.setAttr(ramp_override_attr,ramp_override_value)
+
+                default_horizontal_value = self.VRayPlaceEnvTex_overrides_dic['defaultRenderLayer' + ',horizontal_value']
+                default_vertical_value = self.VRayPlaceEnvTex_overrides_dic['defaultRenderLayer' + ',vertical_value']
+                horizontal_value = self.VRayPlaceEnvTex_overrides_dic[render_layer + ',horizontal_value']
+                vertical_value = self.VRayPlaceEnvTex_overrides_dic[render_layer + ',vertical_value']
+                if horizontal_value != default_horizontal_value:
+                    cmds.editRenderLayerAdjustment('place_env_rot_sdt_lgt.horRotation')
+                    cmds.setAttr('place_env_rot_sdt_lgt.horRotation',horizontal_value)
+                if vertical_value != default_vertical_value:
+                    cmds.editRenderLayerAdjustment('place_env_rot_sdt_lgt.verRotation')
+                    cmds.setAttr('place_env_rot_sdt_lgt.verRotation',vertical_value)
+
         cmds.editRenderLayerGlobals(currentRenderLayer = self.initial_layer)
         self.fix_cam_layer_assignments()
 

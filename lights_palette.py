@@ -345,6 +345,7 @@ class lightsPalette():
         self.button_show_lights.setFixedHeight(20)
         self.button_show_lights.setCheckable(True)
         self.button_show_lights.toggled.connect(partial(self.hide_lights))
+        self.grid_layout_top.addWidget(self.button_show_lights,5,0,1,2)
         self.button_Vray_smooth = QtWidgets.QPushButton("v-ray_smooth")
         self.button_Vray_smooth.setFixedHeight(20)
         self.button_Vray_smooth.setCheckable(True)

@@ -1,3 +1,57 @@
+"""
+object_replace
+********************************************
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui.JPG
+   :align: center
+   :scale: 75%
+
+object_replace is a tool for swapping one object in the scene with another. It is useful for updating a model to a newer published
+version, or swapping a similar model with a similar asset when setting up a new scene. The tool will do its best to transfer all the connections
+and settings from the old asset to the new one.  object_replace is launched from the lighting_tools_shelf:
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_lighting_shelf.JPG
+   :align: center
+   :scale: 75%
+
+------
+
+The tool requires that the objects to be swapped not be named the same name.  The best stategy is to add the suffix '_old' to the name of the object to be
+swapped.  Similarly, the suffix '_new' should be added to the name of the new object. It is also important that no group node has the same name as any object
+in the scene and it may be nessisary to add the suffix '_grp' to the name of certain group nodes to avoid this.
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_object_old_object_new.JPG
+   :align: center
+   :scale: 75%
+
+after editing the 'object_old' and 'object_new' fields to reflect the appropriate assets (you can select the name of the new object and then the old object in
+the outliner and the fields will autofill) you press the 'replace' button to initiate the swapping process.
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_replace_button.JPG
+   :align: center
+   :scale: 75%
+
+the script editor will show you information as to what attributes were transfered and when the script is finished running.
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_script_editor.JPG
+   :align: center
+   :scale: 75%
+
+once finished, the tool leaves the 'old_asset' in the outliner, but hidden.  You can delete it if you no longer need it.
+The '_new' suffix can also now be removed from the swapped asset's name.
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_outliner.JPG
+   :align: center
+   :scale: 75%
+
+one common issue occures when the UV sets for the newer object have been renamed.  The script will not find and transfer those assignments. Those
+connections will have to be updated by hand. If the UV set names do not change, the script will pick up and transfer the assignments.
+
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_UV_set_editor.JPG
+   :align: center
+   :scale: 75%
+"""
+
 import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
@@ -25,7 +79,7 @@ def objectChooseWin():
     windowSize = (300,100)
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
-    window = cmds.window(name, title = name, width = 30, height = 10, sizeable = False)
+    window = cmds.window(name, title = name, width = 30, height = 10, sizeable = True)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "new_object")
