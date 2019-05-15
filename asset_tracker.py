@@ -209,7 +209,7 @@ class ASSET_TRACKER(object):
         window.setWindowTitle(window_name)
         main_widget = QtWidgets.QWidget()
         window.setCentralWidget(main_widget)
-        window.setFixedSize(1450,450)
+        window.setFixedWidth(1450)
         self.main_grid_layout = QtWidgets.QGridLayout(main_widget)
         titles = ['Name','C-ver','L-ver','Entity Name','Path']
         i = 0
