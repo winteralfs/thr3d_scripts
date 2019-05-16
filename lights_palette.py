@@ -17,6 +17,7 @@ import shiboken2
 # this is a script to speed up hiding and showing lights, hiding and showing rect light textures,and setting render layer overrides
 
 # defines the lightsPalette class
+
 class lightsPalette():
     def __init__(self):
         self.lights = []
@@ -262,7 +263,7 @@ class lightsPalette():
         for layer in self.render_layers:
             render_layer_order_number = cmds.getAttr(layer + ".displayOrder")
             render_layer_order_dict[layer] = render_layer_order_number
-        number_of_render_layers = len(self.render_layers)
+        number_of_render_layers = 30
         i = 0
         while i <= number_of_render_layers:
             for layer in render_layer_order_dict:
@@ -294,7 +295,8 @@ class lightsPalette():
             if render_layer != "defaultRenderLayer":
                 self.render_layer_QListWidget.addItem(render_layer)
         i = 0
-        while i < render_layer_QListWidget.count():
+        render_layer_QListWidget_count = render_layer_QListWidget.count()
+        while i < render_layer_QListWidget_count:
             item = render_layer_QListWidget.item(i)
             item_text = item.text()
             if item_text == "masterLayer":
