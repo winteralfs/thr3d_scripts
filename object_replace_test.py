@@ -70,7 +70,9 @@ def look_for_duplicate_nodes():
             if node_1_short_name == node_2_short_name:
                 compare = compare + 1
                 if compare > 1:
+                    #if 'Shape' not in node_1:
                     duplicate_node_names.append(node_1)
+    print '00 duplicate_node_names = ',duplicate_node_names
     return(duplicate_node_names)
 
 def objectChooseWin():
@@ -117,18 +119,29 @@ def objectChooseWin():
     def objects(object_Old,object_New):
         duplicate_node_names = look_for_duplicate_nodes()
         number_of_dup_nodes = len(duplicate_node_names)
-        nums = [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50]
+        #nums = [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50]
         duplicate_node_names_renamed = []
         if number_of_dup_nodes > 0:
             print 'duplicate_node_names = ',duplicate_node_names
             print 'renaming duplicate_node_names, adding _duplicate_name suffix'
             i = 0
+            #duplicate_node_names.reverse()
             for duplicate_node_name in duplicate_node_names:
-                if i in nums:
-                    rename_string = duplicate_node_name + '***__duplicate_name'
-                    cmds.rename(duplicate_node_name,rename_string)
-                    duplicate_node_names_renamed.append(rename_string)
+                print ' '
+                print 'duplicate_node_name = ',duplicate_node_name
+                #if i in nums:
+                duplicate_node_name_split = duplicate_node_name.split('|')
+                object_name = duplicate_node_name_split[-1]
+                print 'object_name = ',object_name
+                rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
+                print 'rename_string = ',rename_string
+                cmds.rename(duplicate_node_name,rename_string)
+                print 'renaming ' + duplicate_node_name + ' to ' +   rename_string
+                duplicate_node_names_renamed.append(rename_string)
                 i = i + 1
+        print ' '
+        print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+        print ' '
         object_Old = object_Old
         object_New = object_New
         obj_kids_old = cmds.listRelatives(object_Old, children = True) or []
@@ -700,21 +713,19 @@ def objectChooseWin():
             object_New_smooth_node_found = 0
             object_Old_smooth_division_level = 0
             object_New_smooth_division_level = 0
-            old_object_polysmooth_node = ''
-            print '0 old_object_polysmooth_node = ',old_object_polysmooth_node
+            old_object_polysmooth_node = []
             smoothNodes = cmds.ls(type = "polySmoothFace") or []
             for smoothNode in smoothNodes:
                 smooth_node_connections = cmds.listConnections(smoothNode,source = False, destination = True)
                 for connection in smooth_node_connections:
                     if connection == object_Old:
-                        print 'old_object_polysmooth_node = ',old_object_polysmooth_node
-                        old_object_polysmooth_node = smoothNode
+                        old_object_polysmooth_node.append(smoothNode)
                         object_Old_smooth_node_found = 1
                         object_Old_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
                     if connection == object_New:
                         object_New_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
                         object_New_smooth_node_found = 1
-            print '1 old_object polysmooth node = ',old_object_polysmooth_node
+            print 'old_object polysmooth nodes = ',old_object_polysmooth_node
             return object_Old,object_New,object_Old_smooth_node_found,object_New_smooth_node_found,object_Old_smooth_division_level,object_New_smooth_division_level
 
         def visibilty(object_Old,object_New,renderLayers):
@@ -1435,7 +1446,8 @@ def objectChooseWin():
                     if kind2 != "transform":
                         lights.append(l)
             cmds.lightlink(b = True, light = "defaultLightSet", object = object_New)
-            if childNumGroup_1 != "None":
+            size_childNumGroup_1 = len(childNumGroup_1)
+            if size_childNumGroup_1 > 0:
                 for child in childNumGroup_1:
                     print "linking " + child + " to " + object_New
                     cmds.lightlink(light = child, object = object_New)
@@ -1781,7 +1793,7 @@ def objectChooseWin():
                 else:
                     print "smoothing node detected for " + object_New + ", NO additional smoothing applied"
             else:
-                print "no smoothing detected for " + object_Old + ", applying no smoothing to, " + object_New
+                print "no smoothing detected for " + object_Old + ", applying no smoothing to " + object_New
 
 
         def object_New_visibility(OBJ_1_visibility):
@@ -1941,10 +1953,17 @@ def objectChooseWin():
             object_New_renderStats(OBJ_1_renderStats)
         if checkSets == 1:
             object_New_excludeListSets(OBJ_1_ELS)
+        #duplicate_node_names_renamed.reverse()
+        print '1 duplicate_node_names_renamed =',duplicate_node_names_renamed
         for duplicate_node_name_renamed in duplicate_node_names_renamed:
-            duplicate_node_name_renamed_split = duplicate_node_name_renamed.split('***')
+            print ' '
+            print 'duplicate_node_name_renamed = ',duplicate_node_name_renamed
+            duplicate_node_name_renamed_split = duplicate_node_name_renamed.split('_XXXXXX')
+            print 'duplicate_node_name_renamed_split = ',duplicate_node_name_renamed_split
             duplicate_node_name = duplicate_node_name_renamed_split[0]
-            cmds.rename(duplicate_node_name_renamed,duplicate_node_name)
+            print 'duplicate_node_name = ',duplicate_node_name
+            print 'renaming ' + duplicate_node_name_renamed + ' back to ' + duplicate_node_name
+            #cmds.rename(duplicate_node_name_renamed,duplicate_node_name)
         OBJ_1_v_ray_subdivisions_check = OBJ_1_v_ray_subdivisions_check[3]
         print 'OBJ_1_v_ray_subdivisions_check = ',OBJ_1_v_ray_subdivisions_check
         if OBJ_1_v_ray_subdivisions_check == 1:
@@ -1959,7 +1978,7 @@ def objectChooseWin():
             print 'adding v-ray subdivision attribute to',object_to_add
             cmds.vray("addAttributesFromGroup", object_to_add, "vray_subdivision", 1)
         else:
-            print 'no v-ray subdivision attribute detected for ' + object_Old + ' ,not adding a v-ray subdivision attribute to ' + object_New
+            print 'no v-ray subdivision attribute detected for ' + object_Old + ',not adding a v-ray subdivision attribute to ' + object_New
         panels = cmds.getPanel( type = "modelPanel" )
         for mPanel in panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 1)
