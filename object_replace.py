@@ -101,6 +101,9 @@ def objectChooseWin():
         print ' '
         print '*** starting object replace ***'
         print ' '
+        panels = cmds.getPanel( type = "modelPanel" )
+        for mPanel in panels:
+            cmds.modelEditor(mPanel, edit = True, allObjects = 0)
         object_Old = cmds.textField(object_Old_Path,q=1,tx=1)
         object_New = cmds.textField(object_New_Path,q=1,tx=1)
         objects(object_Old,object_New)
@@ -517,9 +520,8 @@ def objectChooseWin():
                 object_Old = objParent
             else:
                 objParent = object_Old
-            opList = cmds.ls(type = "VRayObjectProperties")
-            OPlist = []
-            for op in opList:
+            OPlist = cmds.ls(type = "VRayObjectProperties") or []
+            for op in OPlist:
                 chilRel = cmds.listRelatives(op) or []
                 chilCon = cmds.listConnections(op) or []
                 for chiRel in chilRel:
@@ -530,7 +532,11 @@ def objectChooseWin():
                     if object_Old in chiCon:
                         if op not in OPlist:
                             OPlist.append(op)
-            print 'old_object v-ray object property group = ',OPlist[0]
+            size_OPlist = len(OPlist)
+            if size_OPlist > 0:
+                print 'old_object v-ray object property group = ',OPlist[0]
+            else:
+                print 'no v-ray object property group detected for ', object_Old
             return object_Old,object_New,OPlist
 
         def objectIDnode(object_Old,object_New,renderLayers):
@@ -694,7 +700,8 @@ def objectChooseWin():
             object_New_smooth_node_found = 0
             object_Old_smooth_division_level = 0
             object_New_smooth_division_level = 0
-            smoothNodes = cmds.ls(type = "polySmoothFace")
+            old_object_polysmooth_node = ''
+            smoothNodes = cmds.ls(type = "polySmoothFace") or []
             for smoothNode in smoothNodes:
                 smooth_node_connections = cmds.listConnections(smoothNode,source = False, destination = True)
                 for connection in smooth_node_connections:
@@ -1128,6 +1135,23 @@ def objectChooseWin():
             chris = "me"
             return(object_Old,object_New,renderLayers)
 
+        def old_object_v_ray_subdivisions_check(object_Old,object_New,renderLayers):
+            print object_Old + " v-ray subdivision attribute check:"
+            v_ray_subdivisions_check = 0
+            if 'Shape' in object_Old:
+                    object_to_check = object_Old
+            else:
+                object_children = cmds.listRelatives(object_Old,children = True) or []
+                for child in object_children:
+                    if 'Shape' in child:
+                        object_to_check = child
+            v_ray_subdivisions_check = cmds.objExists(object_to_check + '.vraySubdivUVs')
+            if v_ray_subdivisions_check == 1:
+                print "v-ray subdivision attribute detected for ", object_Old
+            else:
+                print "no v-ray subdivision attribute detected for ",object_Old
+            return(object_Old,object_New,renderLayers,v_ray_subdivisions_check)
+
         checkAll = 1
         checkTrans = 1
         checkMats = 1
@@ -1155,6 +1179,8 @@ def objectChooseWin():
         OBJ_1_visibility = visibilty(object_Old,object_New,renderLayers)
         OBJ_1_displacementNodes = displacementNodes(object_Old,object_New,renderLayers)
         OBJ_1_newObjectCenter = oldObjectCenter(object_Old,object_New,renderLayers)
+        OBJ_1_v_ray_subdivisions_check = old_object_v_ray_subdivisions_check(object_Old,object_New,renderLayers)
+
         cmds.select(clear = True)
         if checkAll == 1:
             for L in renderLayers:
@@ -1583,12 +1609,16 @@ def objectChooseWin():
 
         def object_New_VRAY_objectPropOverides(OBJ_1_vrayObjProps):
             print 'setting new object v-ray object properties:'
-            vray_object_props = OBJ_1_vrayObjProps[2]
-            vray_object_props = vray_object_props[0]
-            size_vray_object_props = len(vray_object_props)
-            if size_vray_object_props != 0:
-                print 'adding ' + object_New + ' to ' + vray_object_props
-                cmds.sets(object_New,addElement = vray_object_props)
+            size_OBJ_1_vrayObjProps = len(OBJ_1_vrayObjProps)
+            if size_OBJ_1_vrayObjProps > 0:
+                vray_object_props = OBJ_1_vrayObjProps[2]
+                size_vray_object_props = len(vray_object_props)
+                if size_vray_object_props != 0:
+                    vray_object_props = vray_object_props[0]
+                    print 'adding ' + object_New + ' to ' + vray_object_props
+                    cmds.sets(object_New,addElement = vray_object_props)
+            else:
+                print 'no v-ray object properties detected for ', object_Old
 
         def object_New_objectID(OBJ_1_objectIDnode):
             print "setting new object v-ray object ID:"
@@ -1913,6 +1943,25 @@ def objectChooseWin():
             duplicate_node_name_renamed_split = duplicate_node_name_renamed.split('***')
             duplicate_node_name = duplicate_node_name_renamed_split[0]
             cmds.rename(duplicate_node_name_renamed,duplicate_node_name)
+        OBJ_1_v_ray_subdivisions_check = OBJ_1_v_ray_subdivisions_check[3]
+        print 'OBJ_1_v_ray_subdivisions_check = ',OBJ_1_v_ray_subdivisions_check
+        if OBJ_1_v_ray_subdivisions_check == 1:
+            print "setting new object v-ray subdivision attribute:"
+            if 'Shape' in object_New:
+                    object_to_add = object_New
+            else:
+                object_children = cmds.listRelatives(object_New,children = True) or []
+                for child in object_children:
+                    if 'Shape' in child:
+                        object_to_add = child
+            print 'adding v-ray subdivision attribute to',object_to_add
+            cmds.vray("addAttributesFromGroup", object_to_add, "vray_subdivision", 1)
+        else:
+            print 'no v-ray subdivision attribute detected for ' + object_Old + ' ,not adding a v-ray subdivision attribute to ' + object_New
+        panels = cmds.getPanel( type = "modelPanel" )
+        for mPanel in panels:
+            cmds.modelEditor(mPanel, edit = True, allObjects = 1)
+
         print ' '
         print "*** finished matching object_new to object_old ***"
         print ' '
