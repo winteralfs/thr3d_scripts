@@ -74,7 +74,6 @@ def look_for_duplicate_nodes():
     return(duplicate_node_names)
 
 def objectChooseWin():
-    #print 'objectChooseWin = '
     name = "object_replace"
     windowSize = (300,100)
     if (cmds.window(name, exists = True)):
@@ -87,6 +86,11 @@ def objectChooseWin():
     cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "old_object")
     object_Old_Path = cmds.textField(tx = "old_object",width = 250)
+    selected_objects = cmds.ls(sl = True)
+    number_of_selected_objects = len(selected_objects)
+    if number_of_selected_objects == 2:
+        cmds.textField(object_New_Path, text = selected_objects[0], edit = True)
+        cmds.textField(object_Old_Path, text = selected_objects[1], edit = True)
 
     def text_fields_selected_objects():
         selected_objects = cmds.ls(sl = True)
@@ -116,21 +120,25 @@ def objectChooseWin():
 
     def objects(object_Old,object_New):
         duplicate_node_names = look_for_duplicate_nodes()
+        duplicate_node_names.reverse()
         number_of_dup_nodes = len(duplicate_node_names)
-        nums = [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50]
         duplicate_node_names_renamed = []
         if number_of_dup_nodes > 0:
             print 'duplicate_node_names = ',duplicate_node_names
             print 'renaming duplicate_node_names, adding _duplicate_name suffix'
             i = 0
             for duplicate_node_name in duplicate_node_names:
-                if i in nums:
-                    rename_string = duplicate_node_name + '***__duplicate_name'
+                if 'Shape' not in duplicate_node_name:
+                    duplicate_node_name_split = duplicate_node_name.split('|')
+                    object_name = duplicate_node_name_split[-1]
+                    rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
                     cmds.rename(duplicate_node_name,rename_string)
                     duplicate_node_names_renamed.append(rename_string)
-                i = i + 1
-        object_Old = object_Old
-        object_New = object_New
+                    if duplicate_node_name == object_Old:
+                        object_Old = rename_string
+                    if duplicate_node_name == object_New:
+                        object_New = rename_string
+                    i = i + 1
         obj_kids_old = cmds.listRelatives(object_Old, children = True) or []
         obj_kids_new = cmds.listRelatives(object_New, children = True) or []
         obj_kids_old_len = len(obj_kids_old)
@@ -700,21 +708,19 @@ def objectChooseWin():
             object_New_smooth_node_found = 0
             object_Old_smooth_division_level = 0
             object_New_smooth_division_level = 0
-            old_object_polysmooth_node = ''
-            print '0 old_object_polysmooth_node = ',old_object_polysmooth_node
+            old_object_polysmooth_node = []
             smoothNodes = cmds.ls(type = "polySmoothFace") or []
             for smoothNode in smoothNodes:
                 smooth_node_connections = cmds.listConnections(smoothNode,source = False, destination = True)
                 for connection in smooth_node_connections:
                     if connection == object_Old:
-                        print 'old_object_polysmooth_node = ',old_object_polysmooth_node
-                        old_object_polysmooth_node = smoothNode
+                        old_object_polysmooth_node.append(smoothNode)
                         object_Old_smooth_node_found = 1
                         object_Old_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
                     if connection == object_New:
                         object_New_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
                         object_New_smooth_node_found = 1
-            print '1 old_object polysmooth node = ',old_object_polysmooth_node
+            print 'old_object polysmooth nodes = ',old_object_polysmooth_node
             return object_Old,object_New,object_Old_smooth_node_found,object_New_smooth_node_found,object_Old_smooth_division_level,object_New_smooth_division_level
 
         def visibilty(object_Old,object_New,renderLayers):
@@ -1219,8 +1225,8 @@ def objectChooseWin():
             cmds.xform(obj2,rotatePivot = obj2_WorldSpace)
             obj2_WorldSpaceFixed = cmds.xform(obj2,q = True, os = True,rotatePivot = True)
 
-        def object_New_Path(OBJ_1_Path):
-            print "setting new object's object path:"
+        def object_New_Path(OBJ_1_Path,duplicate_node_names_renamed):
+            print "setting new object's path:"
             s = 0
             newObjPath = cmds.listRelatives(object_New, parent = True) or []
             splitPath = OBJ_1_Path[0].split("|")
@@ -1228,6 +1234,7 @@ def objectChooseWin():
             sz = len(splitPath)
             curParent = cmds.listRelatives(OBJ_1_Path[2], parent = True) or []
             sizC = len(curParent)
+            s = len(newObjPath)
             if sizC < 1:
                 curParent = OBJ_1_Path[1]
             if splitPath[sz-3] != curParent[0]:
@@ -1236,18 +1243,21 @@ def objectChooseWin():
                     print "parenting " + OBJ_1_Path[2] + " to " + splitPath[sz-3]
                 else:
                     print "object at the root level, no hierarchy detected"
-                    s = len(newObjPath)
                     if s > 0:
                         cmds.parent(OBJ_1_Path[2],world = True)
             else:
                 print OBJ_1_Path[2] + " already parented to the correct node."
-            newPathChil = cmds.listRelatives(newObjPath,children = True)
-            if s == 0:
-                print "no empy parent group to delete"
-            else:
-                if  newPathChilSize == 0:
-                    print "deleting empty parent group ",newObjPath
-                    cmds.delete(newObjPath)
+            newPathChil = cmds.listRelatives(newObjPath,children = True) or []
+            newPathChilSize = len(newPathChil)
+            if s == 0 and newPathChilSize == 0:
+                print "no empty parent group to delete"
+            if s != 0 and newPathChilSize == 0:
+                print "deleting empty parent group ",newObjPath
+                if newObjPath[0] in duplicate_node_names_renamed:
+                    print 'removing ' + newObjPath[0] + ' from duplicate_node_names_renamed'
+                    duplicate_node_names_renamed.remove(newObjPath[0])
+                cmds.delete(newObjPath)
+            return(duplicate_node_names_renamed)
 
         def object_New_renderLayers(OBJ_1_renderLayer):
             print "setting new object render layer add:"
@@ -1435,7 +1445,8 @@ def objectChooseWin():
                     if kind2 != "transform":
                         lights.append(l)
             cmds.lightlink(b = True, light = "defaultLightSet", object = object_New)
-            if childNumGroup_1 != "None":
+            size_childNumGroup_1 = len(childNumGroup_1)
+            if size_childNumGroup_1 > 0:
                 for child in childNumGroup_1:
                     print "linking " + child + " to " + object_New
                     cmds.lightlink(light = child, object = object_New)
@@ -1777,11 +1788,11 @@ def objectChooseWin():
             if object_Old_smooth_node_found == 1:
                 if object_New_smooth_node_found == 0:
                     cmds.polySmooth(object_New ,mth = 0, sdt = 2, ovb = 1, ofb = 1, ofc = 1, ost = 0, ocr = 0, dv = object_Old_smooth_division_level, bnr = 1, c = 1, kb = 1, ksb = 1, khe = 0, kt = 1, kmb = 1, suv = 1, peh = 0, sl = 1, dpe = 1, ps = .1, ro = 1, ch = 1)
-                    print "applyig a smoothing node to " + object_New + " at division level ", object_Old_smooth_division_level
+                    print "applying a smoothing node to " + object_New + " at division level ", object_Old_smooth_division_level
                 else:
                     print "smoothing node detected for " + object_New + ", NO additional smoothing applied"
             else:
-                print "no smoothing detected for " + object_Old + ", applying no smoothing to, " + object_New
+                print "no smoothing detected for " + object_Old + ", applying no smoothing to " + object_New
 
 
         def object_New_visibility(OBJ_1_visibility):
@@ -1921,7 +1932,6 @@ def objectChooseWin():
                 print "no displacement detected"
             cmds.editRenderLayerGlobals( currentRenderLayer = currentRenderLayer )
         if checkAll == 1:
-            object_New_Path(OBJ_1_Path)
             object_New_renderLayers(OBJ_1_renderLayer)
             object_New_objectID(OBJ_1_objectIDnode)
             object_New_polySmoothOBJ(OBJ_1_polySmooth)
@@ -1941,12 +1951,7 @@ def objectChooseWin():
             object_New_renderStats(OBJ_1_renderStats)
         if checkSets == 1:
             object_New_excludeListSets(OBJ_1_ELS)
-        for duplicate_node_name_renamed in duplicate_node_names_renamed:
-            duplicate_node_name_renamed_split = duplicate_node_name_renamed.split('***')
-            duplicate_node_name = duplicate_node_name_renamed_split[0]
-            cmds.rename(duplicate_node_name_renamed,duplicate_node_name)
         OBJ_1_v_ray_subdivisions_check = OBJ_1_v_ray_subdivisions_check[3]
-        print 'OBJ_1_v_ray_subdivisions_check = ',OBJ_1_v_ray_subdivisions_check
         if OBJ_1_v_ray_subdivisions_check == 1:
             print "setting new object v-ray subdivision attribute:"
             if 'Shape' in object_New:
@@ -1959,7 +1964,18 @@ def objectChooseWin():
             print 'adding v-ray subdivision attribute to',object_to_add
             cmds.vray("addAttributesFromGroup", object_to_add, "vray_subdivision", 1)
         else:
-            print 'no v-ray subdivision attribute detected for ' + object_Old + ' ,not adding a v-ray subdivision attribute to ' + object_New
+            print 'no v-ray subdivision attribute detected for ' + object_Old + ', not adding a v-ray subdivision attribute to ' + object_New
+        OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
+        duplicate_node_names_renamed = object_New_Path(OBJ_1_Path,duplicate_node_names_renamed)
+        for duplicate_node_name_renamed in duplicate_node_names_renamed:
+            duplicate_node_name_renamed_split = duplicate_node_name_renamed.split('_XXXXXX')
+            duplicate_node_name = duplicate_node_name_renamed_split[0]
+            print 'renaming ' + duplicate_node_name_renamed + ' back to ' + duplicate_node_name
+            if duplicate_node_name_renamed == object_Old:
+                duplicate_node_name = duplicate_node_name + '_old'
+            if duplicate_node_name_renamed == object_New:
+                duplicate_node_name = duplicate_node_name + '_new'
+            cmds.rename(duplicate_node_name_renamed,duplicate_node_name)
         panels = cmds.getPanel( type = "modelPanel" )
         for mPanel in panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 1)
