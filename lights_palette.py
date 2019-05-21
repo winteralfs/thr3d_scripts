@@ -420,10 +420,11 @@ class lightsPalette():
             self.button_Vray_smooth.setText("vray smoothing on at least one selected node")
             self.button_Vray_smooth.setFont(QtGui.QFont('SansSerif', 8))
             self.button_Vray_smooth.setChecked(True)
+            cmds.setAttr("vraySettings.ddisplac_maxSubdivs",6)
         if smoothing_exists == 0:
             self.button_Vray_smooth.setText("no vray smoothing")
             self.button_Vray_smooth.setChecked(False)
-
+            cmds.setAttr("vraySettings.ddisplac_maxSubdivs",256)
 # a method that builds the light pallete window and creates the layouts
 
     def lights_palette_window(self):

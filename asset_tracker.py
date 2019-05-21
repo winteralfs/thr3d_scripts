@@ -48,7 +48,7 @@ class ASSET_TRACKER(object):
     def gather_attributes(self):
         #print 'gather_attributes'
         self.asset_attr_dic = {}
-        int_check = ['0','1','2','3','4','5','6','7','8','9']
+        int_check = ['0','01','001','1','01','001','2','03','003','3','04','004','4','05','005','5','06','006','6','07','007','7','08','008','8','09','009','9','010','0010','10','011','0011','11','012','0012','12','013','0013','13','014','0014','14','015','0015','15','016','0016','16','017','0017','17','018','0018','18','019','0019','19','020','0020','20','021','0021','21','022','0022','22','023','0023','23','024','0024','24','025','0025','25']
         attrs = ['publish_type','publish_id','entity_id','version','publish_path','entity_name','task_type','task_id','publish_file']
         for object in self.trackable_objects:
             node_type = cmds.nodeType(object)
@@ -77,11 +77,38 @@ class ASSET_TRACKER(object):
                     self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                     if number_of_files != 0:
                         highest_version = 0
+                        #print 'files = ',files
                         for file in files:
-                            version_number = file[-4]
+                            #print 'file = ',file
+                            file_split = file.split('.')
+                            file = file_split[0]
+                            #print 'file = ',file
+                            file_split = file.split('_')
+                            #print 'file_split = ',file_split
+                            number_of_splits = len(file_split)
+                            number_of_splits = number_of_splits - 1
+                            #print 'number_of_splits = ',number_of_splits
+                            file = file_split[number_of_splits]
+                            #print 'file = ',file
+                            version_number = file
+                            #print 'version_number = ',version_number
                             if version_number in int_check:
-                                if version_number > highest_version:
-                                    highest_version = version_number
+                                #print 'is in int check'
+                                version_number = int(version_number)
+                                #print 'version_number = ',version_number
+                                #print 'highest_version = ',highest_version
+                                if version_number > int(highest_version):
+                                    #print str(version_number) + ' higher than ' + str(highest_version)
+                                    highest_version = str(version_number)
+                                    #print 'highest_version = ',highest_version
+                                    zero_check = highest_version[0]
+                                    #print 'zero_check = ',zero_check
+                                    if zero_check == '0':
+                                        #print 'highest_version[0] = 0'
+                                        highest_version = highest_version[1:]
+                                    #if highest_version[0] == '0':
+                                        #highest_version = highest_version[1:]
+                                    #print 'highest_version = ',highest_version
                                     self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
                 if attr == 'publish_path' and node_type == 'file':
                     publish_path_value_split = value.split('\\')
