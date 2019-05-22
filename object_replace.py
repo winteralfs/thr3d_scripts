@@ -593,6 +593,7 @@ def objectChooseWin():
             spltMatList = []
             spltMatList2 = []
             layerOverM2  = {}
+            matAssignsExist = 0
             RLM = cmds.ls(type = "renderLayer")
             for M in RLM:
                 cmds.editRenderLayerGlobals( currentRenderLayer = M )
@@ -604,30 +605,32 @@ def objectChooseWin():
                     NT = cmds.nodeType(MM)
                     if NT != "renderLayer":
                         mats_list_OVR.append(MM)
-                for matsInc in mats_list_OVR:
-                    cmds.select(matsInc)
-                    LayerMats_dic[M] = matsInc
-                    cmds.hyperShade(o = matsInc)
-                    mats_objectList = cmds.ls(sl = True)
-                    for mo in mats_objectList:
-                        if object_Old in mo:
-                            mats_objectList_clean.append(mo)
-                    matAssignsExist = len(mats_objectList_clean)
-                    for moc in mats_objectList_clean:
-                        baseO = cmds.listRelatives(moc, parent = True)
-                        if baseO not in mats_objectList_clean_BASE:
-                            mats_objectList_clean_BASE.append(baseO)
-                    layer_Mats_Inc = M + "_" + matsInc + "_"
-                    for moc in mats_objectList_clean:
-                        baseO = cmds.listRelatives(moc, parent = True)
-                        if baseO not in mats_objectList_clean_BASE:
-                            mats_objectList_clean_BASE.append(baseO)
-                    emptyListTest = len(mats_objectList)
-                    emptyListTest2 = len(mats_objectList_clean_BASE)
-                    if emptyListTest > 0:
-                        if emptyListTest2 > 0:
-                            mats_dict[layer_Mats_Inc] = mats_objectList_clean_BASE[0]
-                spltMatList.append(matsInc)
+                number_of_assigned_materials = len(mats_list_OVR)
+                if number_of_assigned_materials > 0:
+                    for matsInc in mats_list_OVR:
+                        cmds.select(matsInc)
+                        LayerMats_dic[M] = matsInc
+                        cmds.hyperShade(o = matsInc)
+                        mats_objectList = cmds.ls(sl = True)
+                        for mo in mats_objectList:
+                            if object_Old in mo:
+                                mats_objectList_clean.append(mo)
+                        matAssignsExist = len(mats_objectList_clean)
+                        for moc in mats_objectList_clean:
+                            baseO = cmds.listRelatives(moc, parent = True)
+                            if baseO not in mats_objectList_clean_BASE:
+                                mats_objectList_clean_BASE.append(baseO)
+                        layer_Mats_Inc = M + "_" + matsInc + "_"
+                        for moc in mats_objectList_clean:
+                            baseO = cmds.listRelatives(moc, parent = True)
+                            if baseO not in mats_objectList_clean_BASE:
+                                mats_objectList_clean_BASE.append(baseO)
+                        emptyListTest = len(mats_objectList)
+                        emptyListTest2 = len(mats_objectList_clean_BASE)
+                        if emptyListTest > 0:
+                            if emptyListTest2 > 0:
+                                mats_dict[layer_Mats_Inc] = mats_objectList_clean_BASE[0]
+                    spltMatList.append(matsInc)
             sz = len(spltMatList)
             szz = sz - 1
             aa = 0

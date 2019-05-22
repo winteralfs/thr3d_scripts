@@ -56,8 +56,6 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'mon night'
-
 def look_for_duplicate_nodes():
     duplicate_node_names = []
     all_nodes = cmds.ls()
@@ -125,6 +123,7 @@ def objectChooseWin():
         duplicate_node_names.reverse()
         number_of_dup_nodes = len(duplicate_node_names)
         duplicate_node_names_renamed = []
+        duplicate_name_dic = {}
         if number_of_dup_nodes > 0:
             print 'duplicate_node_names = ',duplicate_node_names
             print 'renaming duplicate_node_names, adding _duplicate_name suffix'
@@ -137,8 +136,10 @@ def objectChooseWin():
                     cmds.rename(duplicate_node_name,rename_string)
                     duplicate_node_names_renamed.append(rename_string)
                     if duplicate_node_name == object_Old:
+                        duplicate_name_dic[rename_string] = object_Old
                         object_Old = rename_string
                     if duplicate_node_name == object_New:
+                        duplicate_name_dic[rename_string] = object_New
                         object_New = rename_string
                     i = i + 1
         obj_kids_old = cmds.listRelatives(object_Old, children = True) or []
@@ -159,8 +160,19 @@ def objectChooseWin():
                 object_New = new_kid_parent[0]
         renderLayers = cmds.ls(type = 'renderLayer')
         currentRenderLayer = cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
-        print "object_old = ",object_Old
-        print "object_new = ",object_New
+        object_old_new_rename_check = len(duplicate_name_dic)
+        object_old_print_temp = ''
+        object_new_print_temp = ''
+        if object_old_new_rename_check != 0:
+            object_old_print_temp = duplicate_name_dic[object_Old]
+            object_new_print_temp = duplicate_name_dic[object_New]
+            print "object_old = ",object_old_print_temp
+            print "object_new = ",object_new_print_temp
+        else:
+            object_old_print_temp = object_Old
+            object_new_print_temp = object_New
+            print "object_old = ",object_Old
+            print "object_new = ",object_New
 
         def master_path(object_Old,object_New,renderLayers):
             print "old object path check:"
@@ -169,8 +181,23 @@ def objectChooseWin():
             pathOBJ = cmds.listRelatives(object_Old, fullPath = True) or []
             pathmasterObj = pathOBJ[0]
             si = len(pathOBJ)
+            pathmasterObj_print_temp = pathmasterObj
+            pathmasterObj_print_temp_split = pathmasterObj_print_temp.split('|')
+            #print 'pathmasterObj_print_temp_split = ',pathmasterObj_print_temp_split
+            number_of_splits = len(pathmasterObj_print_temp_split)
+            #print 'number_of_splits = ',number_of_splits
+            pathmasterObj_print_temp = ''
+            i = 0
+            while i < (number_of_splits - 3):
+                #print 'i = ',i
+                #print 'pathmasterObj_print_temp_split[i] = ',pathmasterObj_print_temp_split[i]
+                pathmasterObj_print_temp = pathmasterObj_print_temp + pathmasterObj_print_temp_split[i] + '|'
+                #print 'pathmasterObj_print_temp = ',pathmasterObj_print_temp
+                i = i + 1
+            pathmasterObj_print_temp = pathmasterObj_print_temp + object_old_print_temp
+            #print 'FINAL pathmasterObj_print_temp = ',pathmasterObj_print_temp
             if si > 0:
-                print pathmasterObj
+                print pathmasterObj_print_temp
             else:
                 print "parent object selected"
             return pathmasterObj,object_Old,object_New,pathOBJ
@@ -327,8 +354,12 @@ def objectChooseWin():
                         transLayerOveride.append(dic)
             defValList = [transX_val,transY_val,transZ_val,rotX_val,rotY_val,rotZ_val,scaleX_val,scaleY_val,scaleZ_val]
             sizL = len(transLayerOveride)
-            print 'old_object transforms = ',transValuesDict
-            print 'old_object transform layer overrides = ',transLayerOveride
+            transValuesDict_string = str(transValuesDict)
+            transLayerOveride_string = str(transLayerOveride)
+            transValuesDict_string = transValuesDict_string.replace(object_Old,object_old_print_temp)
+            transLayerOveride_string = transLayerOveride_string.replace(object_Old,object_old_print_temp)
+            print 'old_object transforms = ',transValuesDict_string
+            print 'old_object transform layer overrides = ',transLayerOveride_string
             return transValuesDict,object_Old,object_New,defVals,defValList,objInLayers,transLayerOveride
 
         def excludeListSets(object_Old,object_New,renderLayers):
@@ -364,9 +395,15 @@ def objectChooseWin():
                                 setsINC.append(LI)
             sizeL = len(setsINC)
             if sizeL > 0:
-                print "sets used by a v-ray Extra_Tex that contain " + object_Old + " = ", setsINC
+                if object_old_new_rename_check != 0:
+                    print "sets used by a v-ray Extra_Tex that contain " + object_old_print_temp + " = ", setsINC
+                else:
+                    print "sets used by a v-ray Extra_Tex that contain " + object_Old + " = ", setsINC
             else:
-                print object_Old + " detected in no exlude sets"
+                if object_old_new_rename_check != 0:
+                    print object_old_print_temp + " detected in no exlude sets"
+                else:
+                    print object_Old + " detected in no exlude sets"
             return setsINC,object_Old,object_New
 
         def lightLinking(object_Old,object_New,renderLayers):
@@ -387,7 +424,7 @@ def objectChooseWin():
                 ltsL = cmds.lightlink( query=True, object = object_Old)
             ltsLL = []
             ltsLL = ltsL
-            print "lights linked to " + object_Old + " are:", ltsLL
+            print "lights linked to " + object_old_print_temp + " are:", ltsLL
             return ltsLL,object_Old,object_New
 
         def renderStats(object_Old,object_New,renderLayers):
@@ -506,9 +543,13 @@ def objectChooseWin():
                     if Val_ND_doubleSided != defaultVal_doubleSided:
                         RS_overRideList.append(NDL)
             rss = len(RS_overRideList)
-            print 'old_object render state settings = ',renderStatsDic
+            renderStatsDic_string = str(renderStatsDic)
+            #renderStatsDic_string = renderStatsDic_string.replace(object_Old,object_old_print_temp)
+            RS_overRideList_string = str(RS_overRideList)
+            #RS_overRideList_string = RS_overRideList_string.replace(object_Old,object_old_print_temp)
+            print 'old_object render state settings = ',renderStatsDic_string
             if rss > 0:
-                print "suspected renderState layer overides in, ", RS_overRideList
+                print "suspected renderState layer overides in, ", RS_overRideList_string
             if rss == 0:
                 print "no renderState layer overides detected"
             return RS_overRideList,object_Old,object_New,defRSlist,RS_overRideList,renderStatsDic,RLOs
@@ -593,6 +634,7 @@ def objectChooseWin():
             spltMatList = []
             spltMatList2 = []
             layerOverM2  = {}
+            matAssignsExist = 0
             RLM = cmds.ls(type = "renderLayer")
             for M in RLM:
                 cmds.editRenderLayerGlobals( currentRenderLayer = M )
@@ -604,30 +646,32 @@ def objectChooseWin():
                     NT = cmds.nodeType(MM)
                     if NT != "renderLayer":
                         mats_list_OVR.append(MM)
-                for matsInc in mats_list_OVR:
-                    cmds.select(matsInc)
-                    LayerMats_dic[M] = matsInc
-                    cmds.hyperShade(o = matsInc)
-                    mats_objectList = cmds.ls(sl = True)
-                    for mo in mats_objectList:
-                        if object_Old in mo:
-                            mats_objectList_clean.append(mo)
-                    matAssignsExist = len(mats_objectList_clean)
-                    for moc in mats_objectList_clean:
-                        baseO = cmds.listRelatives(moc, parent = True)
-                        if baseO not in mats_objectList_clean_BASE:
-                            mats_objectList_clean_BASE.append(baseO)
-                    layer_Mats_Inc = M + "_" + matsInc + "_"
-                    for moc in mats_objectList_clean:
-                        baseO = cmds.listRelatives(moc, parent = True)
-                        if baseO not in mats_objectList_clean_BASE:
-                            mats_objectList_clean_BASE.append(baseO)
-                    emptyListTest = len(mats_objectList)
-                    emptyListTest2 = len(mats_objectList_clean_BASE)
-                    if emptyListTest > 0:
-                        if emptyListTest2 > 0:
-                            mats_dict[layer_Mats_Inc] = mats_objectList_clean_BASE[0]
-                spltMatList.append(matsInc)
+                number_of_assigned_materials = len(mats_list_OVR)
+                if number_of_assigned_materials > 0:
+                    for matsInc in mats_list_OVR:
+                        cmds.select(matsInc)
+                        LayerMats_dic[M] = matsInc
+                        cmds.hyperShade(o = matsInc)
+                        mats_objectList = cmds.ls(sl = True)
+                        for mo in mats_objectList:
+                            if object_Old in mo:
+                                mats_objectList_clean.append(mo)
+                        matAssignsExist = len(mats_objectList_clean)
+                        for moc in mats_objectList_clean:
+                            baseO = cmds.listRelatives(moc, parent = True)
+                            if baseO not in mats_objectList_clean_BASE:
+                                mats_objectList_clean_BASE.append(baseO)
+                        layer_Mats_Inc = M + "_" + matsInc + "_"
+                        for moc in mats_objectList_clean:
+                            baseO = cmds.listRelatives(moc, parent = True)
+                            if baseO not in mats_objectList_clean_BASE:
+                                mats_objectList_clean_BASE.append(baseO)
+                        emptyListTest = len(mats_objectList)
+                        emptyListTest2 = len(mats_objectList_clean_BASE)
+                        if emptyListTest > 0:
+                            if emptyListTest2 > 0:
+                                mats_dict[layer_Mats_Inc] = mats_objectList_clean_BASE[0]
+                    spltMatList.append(matsInc)
             sz = len(spltMatList)
             szz = sz - 1
             aa = 0

@@ -424,7 +424,6 @@ class lightsPalette():
         if smoothing_exists == 0:
             self.button_Vray_smooth.setText("no vray smoothing")
             self.button_Vray_smooth.setChecked(False)
-            cmds.setAttr("vraySettings.ddisplac_maxSubdivs",256)
 # a method that builds the light pallete window and creates the layouts
 
     def lights_palette_window(self):
