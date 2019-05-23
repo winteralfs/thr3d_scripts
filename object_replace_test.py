@@ -405,7 +405,7 @@ def objectChooseWin():
                                 setsINC.append(LI)
             sizeL = len(setsINC)
             if sizeL > 0:
-                if object_old_new_rename_check != 0:
+                if object_old_rename_check != 0:
                     print "sets used by a v-ray Extra_Tex that contain " + object_old_print_temp + " = ", setsINC
                 else:
                     print "sets used by a v-ray Extra_Tex that contain " + object_Old + " = ", setsINC
@@ -1819,9 +1819,11 @@ def objectChooseWin():
             NO_setIND_dic = {}
             NO_indices = cmds.polyUVSet(object_New, query = True, allUVSetsIndices = True )
             a = 0
-            for uv in UV_sets_NAME_object_New:
-                NO_setIND_dic[uv] = NO_indices[a]
-                a = (a + 1)
+            number_of_uv_sets = UV_sets_NAME_object_New
+            if number_of_uv_sets > 0:
+                for uv in UV_sets_NAME_object_New:
+                    NO_setIND_dic[uv] = NO_indices[a]
+                    a = (a + 1)
             for texDicNEW in texADDdic_NEW:
                 for texDicOLD in texADDdic:
                     if texDicNEW == texDicOLD:
