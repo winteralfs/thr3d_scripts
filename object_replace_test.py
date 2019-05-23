@@ -70,7 +70,9 @@ def look_for_duplicate_nodes():
             if node_1_short_name == node_2_short_name:
                 compare = compare + 1
                 if compare > 1:
-                    duplicate_node_names.append(node_1)
+                    if node_1 not in duplicate_node_names:
+                        if 'Shape' not in duplicate_node_names:
+                            duplicate_node_names.append(node_1)
     return(duplicate_node_names)
 
 def objectChooseWin():
@@ -124,11 +126,16 @@ def objectChooseWin():
         number_of_dup_nodes = len(duplicate_node_names)
         duplicate_node_names_renamed = []
         duplicate_name_dic = {}
+        object_old_rename_check = 0
+        object_new_rename_check = 0
         if number_of_dup_nodes > 0:
             print 'duplicate_node_names = ',duplicate_node_names
             print 'renaming duplicate_node_names, adding _duplicate_name suffix'
             i = 0
+            duplicate_node_names.sort(key=len,reverse = True)
+            print 'duplicate_node_names sorted = ',duplicate_node_names
             for duplicate_node_name in duplicate_node_names:
+                print 'duplicate_node_name = ',duplicate_node_name
                 if 'Shape' not in duplicate_node_name:
                     duplicate_node_name_split = duplicate_node_name.split('|')
                     object_name = duplicate_node_name_split[-1]
@@ -138,9 +145,11 @@ def objectChooseWin():
                     if duplicate_node_name == object_Old:
                         duplicate_name_dic[rename_string] = object_Old
                         object_Old = rename_string
+                        object_old_rename_check = 1
                     if duplicate_node_name == object_New:
                         duplicate_name_dic[rename_string] = object_New
                         object_New = rename_string
+                        object_new_rename_check = 1
                     i = i + 1
         obj_kids_old = cmds.listRelatives(object_Old, children = True) or []
         obj_kids_new = cmds.listRelatives(object_New, children = True) or []
@@ -160,19 +169,20 @@ def objectChooseWin():
                 object_New = new_kid_parent[0]
         renderLayers = cmds.ls(type = 'renderLayer')
         currentRenderLayer = cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
-        object_old_new_rename_check = len(duplicate_name_dic)
         object_old_print_temp = ''
         object_new_print_temp = ''
-        if object_old_new_rename_check != 0:
+        if object_old_rename_check == 1:
             object_old_print_temp = duplicate_name_dic[object_Old]
-            object_new_print_temp = duplicate_name_dic[object_New]
             print "object_old = ",object_old_print_temp
-            print "object_new = ",object_new_print_temp
         else:
             object_old_print_temp = object_Old
+            print "object_old = ",object_Old
+        if object_new_rename_check ==  1:
+            object_new_print_temp = duplicate_name_dic[object_New]
+            print "object_new = ",object_new_print_temp
+        else:
             object_new_print_temp = object_New
             print "object_old = ",object_Old
-            print "object_new = ",object_New
 
         def master_path(object_Old,object_New,renderLayers):
             print "old object path check:"
@@ -400,7 +410,7 @@ def objectChooseWin():
                 else:
                     print "sets used by a v-ray Extra_Tex that contain " + object_Old + " = ", setsINC
             else:
-                if object_old_new_rename_check != 0:
+                if object_old_rename_check == 1:
                     print object_old_print_temp + " detected in no exlude sets"
                 else:
                     print object_Old + " detected in no exlude sets"
@@ -544,9 +554,9 @@ def objectChooseWin():
                         RS_overRideList.append(NDL)
             rss = len(RS_overRideList)
             renderStatsDic_string = str(renderStatsDic)
-            #renderStatsDic_string = renderStatsDic_string.replace(object_Old,object_old_print_temp)
+            renderStatsDic_string = renderStatsDic_string.replace(object_Old[0],object_old_print_temp)
             RS_overRideList_string = str(RS_overRideList)
-            #RS_overRideList_string = RS_overRideList_string.replace(object_Old,object_old_print_temp)
+            RS_overRideList_string = RS_overRideList_string.replace(object_Old[0],object_old_print_temp)
             print 'old_object render state settings = ',renderStatsDic_string
             if rss > 0:
                 print "suspected renderState layer overides in, ", RS_overRideList_string
@@ -698,10 +708,14 @@ def objectChooseWin():
                 if defVal != valu:
                     RlayerOlist.append(LO)
             cmds.select(clear = True)
+            mats_dict_string = str(mats_dict)
+            mats_dict_string = mats_dict_string.replace(object_Old[0],object_old_print_temp)
+            RlayerOlist_string = str(RlayerOlist)
+            RlayerOlist_string = RlayerOlist_string.replace(object_Old[0],object_old_print_temp)
             if matAssignsExist == 0:
-                print "WARNING: no material assignments found for object: ",object_Old
-            print 'old_object material assignments = ',mats_dict
-            print "potential material layer overide detected in layers:",RlayerOlist
+                print "WARNING: no material assignments found for object: ",object_old_print_temp
+            print 'old_object material assignments = ',mats_dict_string
+            print "potential material layer overide detected in layers:",RlayerOlist_string
             cmds.select(clear = True)
             return mats_dict,LayerMats_dic,layerOverM2,object_Old,object_New,RLM,matAssignsExist
 
@@ -1192,8 +1206,9 @@ def objectChooseWin():
         def old_object_v_ray_subdivisions_check(object_Old,object_New,renderLayers):
             print object_Old + " v-ray subdivision attribute check:"
             v_ray_subdivisions_check = 0
+            object_to_check = object_Old[0]
             if 'Shape' in object_Old:
-                    object_to_check = object_Old
+                    object_to_check = object_old_print_temp
             else:
                 object_children = cmds.listRelatives(object_Old,children = True) or []
                 for child in object_children:
@@ -1201,9 +1216,9 @@ def objectChooseWin():
                         object_to_check = child
             v_ray_subdivisions_check = cmds.objExists(object_to_check + '.vraySubdivUVs')
             if v_ray_subdivisions_check == 1:
-                print "v-ray subdivision attribute detected for ", object_Old
+                print "v-ray subdivision attribute detected for ", object_old_print_temp
             else:
-                print "no v-ray subdivision attribute detected for ",object_Old
+                print "no v-ray subdivision attribute detected for ",object_old_print_temp
             return(object_Old,object_New,renderLayers,v_ray_subdivisions_check)
 
         checkAll = 1
