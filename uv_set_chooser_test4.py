@@ -7,11 +7,11 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'sat night'
 #"""
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
+print 'tues'
 
 
 class UV_SET_EDITOR(object):
@@ -25,7 +25,7 @@ class UV_SET_EDITOR(object):
 #---------- procedural tools and data gathering methods ----------
 
     def centric_state(self):
-        print 'centric_state'
+        #print 'centric_state'
         self.uv_set_selection_status_dic_state_change = self.uv_set_selection_status_dic
         self.centric_state_text = self.texture_based_uv_set_based_combobox.currentText()
         self.right_label.setText('textures')
@@ -39,7 +39,7 @@ class UV_SET_EDITOR(object):
         self.populate_windows()
 
     def selected_items_right_listWidget(self):
-        print 'selected_items_right_listWidget()'
+        #print 'selected_items_right_listWidget()'
         self.selected_items_right_text = []
         self.selected_right_list_pointers = self.list_widget_right.selectedItems()
         for selected_right_list_pointer in self.selected_right_list_pointers:
@@ -49,13 +49,13 @@ class UV_SET_EDITOR(object):
             pointer_text = pointer.text()
 
     def deselect_QListWidget(self,listwidget):
-        print 'deselect right list widget items()'
+        #print 'deselect right list widget items()'
         for i in range(listwidget.count()):
             item = listwidget.item(i)
             listwidget.setItemSelected(item, False)
 
     def activate_right_listWidget(self):
-        print 'activate_right_listWidget()'
+        #print 'activate_right_listWidget()'
         self.item_selected_length = len(self.selected_item_text)
         if self.item_selected_length == 0:
             self.list_widget_right.setStyleSheet('QListWidget {background-color: #292929; color: #515151;}')
@@ -75,7 +75,7 @@ class UV_SET_EDITOR(object):
                 it = it + 1
 
     def unlock_right_QListWidget(self):
-        print 'unlock_right_QListWidget()'
+        #print 'unlock_right_QListWidget()'
         it = 0
         while it < self.number_of_items_in_right_listWidget:
             item = self.list_widget_right.item(it)
@@ -91,7 +91,7 @@ class UV_SET_EDITOR(object):
             it = it + 1
 
     def lock_selected_right_QListWidget(self):
-        print 'lock_selected_right_QListWidget()'
+        #print 'lock_selected_right_QListWidget()'
         self.unlock_right_QListWidget()
         selected_uv_sets_pointers = self.list_widget_right.selectedItems()
         for selected_uv_set_pointer in selected_uv_sets_pointers:
@@ -100,7 +100,7 @@ class UV_SET_EDITOR(object):
             item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
 
     def populate_windows(self):
-        print 'populate_windows()'
+        #print 'populate_windows()'
         self.evaluate_textures_in_scene()
         self.evaluate_UV_sets_in_scene()
         self.list_widget_left.clear()
@@ -192,8 +192,8 @@ class UV_SET_EDITOR(object):
                     if texture_image_exists == 1:
                         texture_pixmap = QtGui.QPixmap(image_path)
                     else:
-                        image_path = "U:/cwinters/thumbnails/generic_no_texture_found_texture.jpg"
-                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
+                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found_texture.jpg"
+                        image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
                         texture_pixmap = QtGui.QPixmap(image_path)
                     texture_icon = QtGui.QIcon()
                     self.list_widget_right.setIconSize(QtCore.QSize(icon_size,icon_size))
@@ -241,7 +241,7 @@ class UV_SET_EDITOR(object):
             self.activate_right_listWidget()
 
     def evaluate_textures_in_scene(self):
-        print 'evaluate_textures_in_scene()'
+        #print 'evaluate_textures_in_scene()'
         file_textures_all = cmds.ls(type = 'file')
         file_textures = []
         ramp_textures_all = cmds.ls(type = 'ramp')
@@ -304,7 +304,7 @@ class UV_SET_EDITOR(object):
         self.all_textures = file_textures + non_file_texture_textures
 
     def evaluate_UV_sets_in_scene(self):
-        print 'evaluate_UV_sets_in_scene()'
+        #print 'evaluate_UV_sets_in_scene()'
         self.uv_sets_all = []
         self.uv_set_name_to_address_dic = {}
         self.uv_set_selection_status_dic = {}
@@ -342,7 +342,7 @@ class UV_SET_EDITOR(object):
                         it = it + 1
 
     def initial_uv_set_name_to_address_dic_eval(self):
-        print 'initial_uv_set_name_to_address_dic_eval'
+        #print 'initial_uv_set_name_to_address_dic_eval'
         assigned_uv_sets = []
         for texture in self.all_textures:
             uv_set_names_linked_to_texture = []
@@ -431,7 +431,7 @@ class UV_SET_EDITOR(object):
         selected_item.setSelected(False)
 
     def update_right_listWidget(self):
-        print 'update_right_listWidget()'
+        #print 'update_right_listWidget()'
         if self.centric_state_text == 'texture-centric':
             self.unlock_right_QListWidget()
             it = 0
@@ -497,7 +497,7 @@ class UV_SET_EDITOR(object):
             self.texture_to_object_color_adjust()
 
     def right_listWidget_selection_eval(self):
-        print 'right_listWidget_selection_eval()'
+        #print 'right_listWidget_selection_eval()'
         if self.centric_state_text == 'texture-centric':
             selected_uv_sets_pointers = self.list_widget_right.selectedItems()
             uv_set_pointers = []
@@ -638,7 +638,7 @@ class UV_SET_EDITOR(object):
                 self.link_texture_to_uv_set()
 
     def link_texture_to_uv_set(self):
-        print 'link_texture_to_uv_set()'
+        #print 'link_texture_to_uv_set()'
         for uv_set_selection in self.uv_set_selection_status_dic:
             selection_status = self.uv_set_selection_status_dic[uv_set_selection]
             if selection_status == 0:
@@ -658,50 +658,87 @@ class UV_SET_EDITOR(object):
 
     def texture_to_object_color_adjust(self):
         print 'texture_to_object_color_adjust'
-        material_types = ['lambert','phong','blinn','surfaceShader','VRayMtl']
-        connected_materials = []
         linked_objects_to_texture_dic = {}
+        object_material_string = ''
+        self.list_widget_texture_info.clear()
         if self.centric_state_text == 'texture-centric':
+            selected_textures = []
             selected_texture = self.selected_item_text
-            connections_0 = cmds.listConnections(selected_texture,source = False) or []
-            for connection in connections_0:
-                connection_type = cmds.nodeType(connection)
-                if connection_type in material_types:
-                    if connection not in connected_materials:
-                        connected_materials.append(connection)
-                connections_1 = cmds.listConnections(connection,source = False) or []
-                for connection in connections_1:
-                    connection_type = cmds.nodeType(connection)
-                    if connection_type in material_types:
-                        if connection not in connected_materials:
-                            connected_materials.append(connection)
-                    connections_2 = cmds.listConnections(connection,source = False) or []
-                    for connection in connections_2:
-                        connection_type = cmds.nodeType(connection)
-                        if connection_type in material_types:
-                            if connection not in connected_materials:
-                                connected_materials.append(connection)
-                        connections_3 = cmds.listConnections(connection,source = False) or []
-                        for connection in connections_3:
-                            connection_type = cmds.nodeType(connection)
-                            if connection_type in material_types:
-                                if connection not in connected_materials:
-                                    connected_materials.append(connection)
-                        connections_4 = cmds.listConnections(connection,source = False) or []
-                        for connection in connections_4:
-                            connection_type = cmds.nodeType(connection)
-                            if connection_type in material_types:
-                                if connection not in connected_materials:
-                                    connected_materials.append(connection)
+            connected_materials = self.connected_materials(selected_texture)
             for material in connected_materials:
                 current_selection = cmds.ls(selection = True)
                 cmds.select(clear = True)
                 cmds.hyperShade(objects = material)
                 assigned_objects = cmds.ls(selection = True)
+                for object in assigned_objects:
+                    object_material_string = object_material_string + ' , ' + object + ':' + material
                 linked_objects_to_texture_dic[selected_texture] = assigned_objects
+            it = 0
+            object_material_string = object_material_string[2:]
+            texture_information_string = object_material_string
+            texture_information_string_size = len(texture_information_string)
+            print 'texture_information_string_size = ',texture_information_string_size
+            if texture_information_string_size == 0:
+                texture_information_string = 'texture used by no material'
+            self.list_widget_texture_info.addItem(texture_information_string)
+            while it < self.number_of_items_in_right_listWidget:
+                item = self.list_widget_right.item(it)
+                item.setTextColor(QtGui.QColor("#515151"))
+                item_text = item.text()
+                for linked_object_to_texture_dic in linked_objects_to_texture_dic:
+                    if linked_object_to_texture_dic == selected_texture:
+                        objects = linked_objects_to_texture_dic[selected_texture]
+                        for object in objects:
+                            if object in item_text:
+                                item.setTextColor(QtGui.QColor("#c4bebe"))
+                it = it + 1
+        if self.centric_state_text == 'UV-centric':
+            selected_textures = []
+            selected_uv_set = self.selected_item_text
+            print 'selected_uv_set = ',selected_uv_set
+            selected_index = self.list_widget_left.selectedIndexes()
+            for ind in selected_index:
+                selected_row = ind.row()
+            i = 0
+            while i < self.number_of_items_in_left_listWidget:
+                item_uv_set = self.list_widget_left.item(i)
+                item_uv_set_text = item_uv_set.text()
+                item_uv_set_text = item_uv_set_text.replace(' ','')
+                item_uv_set_text_split = item_uv_set_text.split('*')
+                if '*' in item_uv_set_text:
+                    item_object = item_uv_set_text_split[1]
+                if item_uv_set_text_split[0] != '':
+                    if i == selected_row:
+                        if item_uv_set_text == self.selected_item_text:
+                            selected_object = item_object
+                i = i + 1
+            self.linked_objects_to_texture_to_materials_dic = {}
+            connected_materials_list = []
+            for selected_texture in self.selected_right_list_textures:
+                connected_material = self.connected_materials(selected_texture)
+                connected_materials_list.append(connected_material)
+                assigned_objects = ''
+                for material in connected_materials_list:
+                    for mat in material:
+                        current_selection = cmds.ls(selection = True)
+                        cmds.select(clear = True)
+                        cmds.hyperShade(objects = mat)
+                        assigned_objects = cmds.ls(selection = True)
+                        for object in assigned_objects:
+                            if object == selected_object:
+                                object_material_string = object_material_string + ' , ' + selected_texture + ':' + mat
+                        linked_objects_to_texture_dic[selected_texture] = assigned_objects
+            object_material_string = object_material_string[2:]
+            texture_information_string = object_material_string
+            texture_information_string_size = len(texture_information_string)
+            print 'texture_information_string_size = ',texture_information_string_size
+            if texture_information_string_size < 12:
+                texture_information_string = 'textures used by no material'
+            self.list_widget_texture_info.addItem(texture_information_string)
             it = 0
             while it < self.number_of_items_in_right_listWidget:
                 item = self.list_widget_right.item(it)
+                item.setTextColor(QtGui.QColor("#515151"))
                 item_text = item.text()
                 for linked_object_to_texture_dic in linked_objects_to_texture_dic:
                     if linked_object_to_texture_dic == selected_texture:
@@ -710,12 +747,54 @@ class UV_SET_EDITOR(object):
                             if object in item_text:
                                 item.setTextColor(QtGui.QColor("yellow"))
                 it = it + 1
-        if self.centric_state_text == 'UV-centric':
-            selected_textures = []
-            selected_uv_set = self.selected_item_text
-            print 'selected_uv_set = ',selected_uv_set
-            print 'self.selected_right_list_textures = ',self.selected_right_list_textures
-            
+        it = 0
+        while it < self.list_widget_texture_info.count():
+            item = self.list_widget_texture_info.item(it)
+            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            it = it + 1
+        cmds.select(clear = True)
+        #for selection in current_selection:
+            #cmds.select(selection,add = True)
+
+    def connected_materials(self,selected_texture):
+        material_types = ['lambert','phong','blinn','surfaceShader','VRayMtl']
+        connected_materials = []
+        connections_0 = cmds.listConnections(selected_texture,source = False) or []
+        for connection in connections_0:
+            connection_type = cmds.nodeType(connection)
+            if connection_type in material_types:
+                if connection not in connected_materials:
+                    connected_materials.append(connection)
+            connections_1 = cmds.listConnections(connection,source = False) or []
+            for connection in connections_1:
+                connection_type = cmds.nodeType(connection)
+                if connection_type in material_types:
+                    if connection not in connected_materials:
+                        connected_materials.append(connection)
+                connections_2 = cmds.listConnections(connection,source = False) or []
+                for connection in connections_2:
+                    connection_type = cmds.nodeType(connection)
+                    if connection_type in material_types:
+                        if connection not in connected_materials:
+                            connected_materials.append(connection)
+                    connections_3 = cmds.listConnections(connection,source = False) or []
+                    for connection in connections_3:
+                        connection_type = cmds.nodeType(connection)
+                        if connection_type in material_types:
+                            if connection not in connected_materials:
+                                connected_materials.append(connection)
+                    connections_4 = cmds.listConnections(connection,source = False) or []
+                    for connection in connections_4:
+                        connection_type = cmds.nodeType(connection)
+                        if connection_type in material_types:
+                            if connection not in connected_materials:
+                                connected_materials.append(connection)
+        return(connected_materials)
+
+
+
+
 #---------- window ----------
 
     def texture_linker_UI(self):
@@ -767,7 +846,16 @@ class UV_SET_EDITOR(object):
         self.list_widget_right.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.list_widget_right.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.list_layout_right.addWidget(self.list_widget_right)
-        self.populate_windows()
+        self.list_widget_texture_info = QtWidgets.QListWidget()
+        self.list_widget_texture_info.setStyleSheet('QListWidget {background-color: #292929; color: #B0E0E6;}')
+        self.list_widget_texture_info.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.list_widget_texture_info.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.list_widget_texture_info.setMaximumHeight(40)
+        self.list_widget_texture_info.setStyleSheet('QListWidget {background-color: #292929; color: #ab5c9b;}')
+        self.list_widget_texture_info.setFocusPolicy(QtCore.Qt.NoFocus)
+        main_vertical_layout.addWidget(self.list_widget_texture_info)
+        #self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged", self.populate_windows])
+        #self.myScriptJobID = cmds.scriptJob(p = window_name, event=["NameChanged", self.populate_windows])
         self.populate_windows()
         self.right_listWidget_selection_eval()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)

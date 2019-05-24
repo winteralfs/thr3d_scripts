@@ -133,9 +133,7 @@ def objectChooseWin():
             print 'renaming duplicate_node_names, adding _duplicate_name suffix'
             i = 0
             duplicate_node_names.sort(key=len,reverse = True)
-            print 'duplicate_node_names sorted = ',duplicate_node_names
             for duplicate_node_name in duplicate_node_names:
-                print 'duplicate_node_name = ',duplicate_node_name
                 if 'Shape' not in duplicate_node_name:
                     duplicate_node_name_split = duplicate_node_name.split('|')
                     object_name = duplicate_node_name_split[-1]
@@ -597,7 +595,7 @@ def objectChooseWin():
             if size_OPlist > 0:
                 print 'old_object v-ray object property group = ',OPlist[0]
             else:
-                print 'no v-ray object property group detected for ', object_Old
+                print 'no v-ray object property group detected for ',object_old_print_temp
             return object_Old,object_New,OPlist
 
         def objectIDnode(object_Old,object_New,renderLayers):
@@ -709,9 +707,9 @@ def objectChooseWin():
                     RlayerOlist.append(LO)
             cmds.select(clear = True)
             mats_dict_string = str(mats_dict)
-            mats_dict_string = mats_dict_string.replace(object_Old[0],object_old_print_temp)
+            mats_dict_string = mats_dict_string.replace(object_Old,object_old_print_temp)
             RlayerOlist_string = str(RlayerOlist)
-            RlayerOlist_string = RlayerOlist_string.replace(object_Old[0],object_old_print_temp)
+            RlayerOlist_string = RlayerOlist_string.replace(object_Old,object_old_print_temp)
             if matAssignsExist == 0:
                 print "WARNING: no material assignments found for object: ",object_old_print_temp
             print 'old_object material assignments = ',mats_dict_string
@@ -1204,7 +1202,7 @@ def objectChooseWin():
             return(object_Old,object_New,renderLayers)
 
         def old_object_v_ray_subdivisions_check(object_Old,object_New,renderLayers):
-            print object_Old + " v-ray subdivision attribute check:"
+            print object_old_print_temp + " v-ray subdivision attribute check:"
             v_ray_subdivisions_check = 0
             object_to_check = object_Old[0]
             if 'Shape' in object_Old:
@@ -1301,7 +1299,7 @@ def objectChooseWin():
             if splitPath[sz-3] != curParent[0]:
                 if sz > 3:
                     cmds.parent(OBJ_1_Path[2],splitPath[sz-3])
-                    print "parenting " + OBJ_1_Path[2] + " to " + splitPath[sz-3]
+                    print "parenting " + object_new_print_temp + " to " + splitPath[sz-3]
                 else:
                     print "object at the root level, no hierarchy detected"
                     if s > 0:
@@ -1327,9 +1325,9 @@ def objectChooseWin():
                 for L in OBJ_1_renderLayer[0]:
                     if L != "defaultRenderLayer":
                         cmds.editRenderLayerMembers( L, OBJ_1_renderLayer[2])
-                        print "adding " + OBJ_1_renderLayer[2] + " to " + L
+                        print "adding " + object_old_print_temp + " to " + L
             else:
-                print OBJ_1_renderLayer[2] + " is being added to the default render layer only, " + OBJ_1_renderLayer[1] + " not detected in the other layers."
+                print object_new_print_temp + " is being added to the default render layer only, " + object_new_print_temp + " not detected in the other layers."
 
         def object_New_translations(OBJ_1_TX):
             print "setting new object transforms:"
@@ -1465,8 +1463,8 @@ def objectChooseWin():
             si = len(VEsets)
             if si > 0:
                 for v in VEsets:
-                    cmds.sets(object_New,forceElement = v, edit = True)
-                    print "adding " + object_New + " to sets: " + v
+                    cmds.sets(object_new_print_temp,forceElement = v, edit = True)
+                    print "adding " + object_new_print_temp + " to sets: " + v
             else:
                 print "no exlude sets detected"
 
@@ -1689,7 +1687,7 @@ def objectChooseWin():
                 size_vray_object_props = len(vray_object_props)
                 if size_vray_object_props != 0:
                     vray_object_props = vray_object_props[0]
-                    print 'adding ' + object_New + ' to ' + vray_object_props
+                    print 'adding ' + object_new_print_temp + ' to ' + vray_object_props
                     cmds.sets(object_New,addElement = vray_object_props)
             else:
                 print 'no v-ray object properties detected for ', object_Old
@@ -1768,7 +1766,7 @@ def objectChooseWin():
                             cmds.select(clear = True)
                             cmds.select(va)
                             cmds.hyperShade(assign=t)
-                            print "assigning " + t + " to " + va
+                            print "assigning " + t + " to " + object_new_print_temp
                             cmds.select(clear = True)
                 for L in LayerMats_dic:
                     if "defaultRenderLayer" not in L:
@@ -1784,7 +1782,7 @@ def objectChooseWin():
                             cmds.hyperShade(assign = mat)
                             cmds.select(clear = True)
             if matAssignsExist == 0:
-                print "* WARNING: no materials assigned to ",object_New
+                print "* WARNING: no materials assigned to ",object_new_print_temp
 
         def object_New_UVsetLinking(OBJ_1_UVsets):
             print "setting new object UV sets:"
@@ -1814,7 +1812,7 @@ def objectChooseWin():
                         uvNameDic_NEW[setName] = setAddressNEW
                         texADDdic_NEW[tex] = setAddressNEW
             UV_sets_NAME_object_New = cmds.polyUVSet( object_New, query = True, allUVSets = True )
-            print "UV sets found for " + object_New + " : ",UV_sets_NAME_object_New
+            print "UV sets found for " + object_new_print_temp + " : ",UV_sets_NAME_object_New
             setList = []
             NO_setIND_dic = {}
             NO_indices = cmds.polyUVSet(object_New, query = True, allUVSetsIndices = True )
@@ -1851,11 +1849,11 @@ def objectChooseWin():
             if object_Old_smooth_node_found == 1:
                 if object_New_smooth_node_found == 0:
                     cmds.polySmooth(object_New ,mth = 0, sdt = 2, ovb = 1, ofb = 1, ofc = 1, ost = 0, ocr = 0, dv = object_Old_smooth_division_level, bnr = 1, c = 1, kb = 1, ksb = 1, khe = 0, kt = 1, kmb = 1, suv = 1, peh = 0, sl = 1, dpe = 1, ps = .1, ro = 1, ch = 1)
-                    print "applying a smoothing node to " + object_New + " at division level ", object_Old_smooth_division_level
+                    print "applying a smoothing node to " + object_new_print_temp + " at division level ", object_Old_smooth_division_level
                 else:
-                    print "smoothing node detected for " + object_New + ", NO additional smoothing applied"
+                    print "smoothing node detected for " + object_new_print_temp + ", NO additional smoothing applied"
             else:
-                print "no smoothing detected for " + object_Old + ", applying no smoothing to " + object_New
+                print "no smoothing detected for " + object_old_print_temp + ", applying no smoothing to " + object_new_print_temp
 
 
         def object_New_visibility(OBJ_1_visibility):
@@ -1876,7 +1874,7 @@ def objectChooseWin():
                         visVal = visDic[r]
                         if visVal != defVisVal:
                             cmds.editRenderLayerAdjustment((object_New + ".visibility"))
-                            print "setting the visibility for " + object_New + " to " + str(visVal) + " in render layer " + r
+                            print "setting the visibility for " + object_new_print_temp + " to " + str(visVal) + " in render layer " + r
                             cmds.setAttr(visPathNew,visVal)
 
         def object_New_displacementNode(OBJ_1_displacementNodes):
@@ -2027,7 +2025,7 @@ def objectChooseWin():
             print 'adding v-ray subdivision attribute to',object_to_add
             cmds.vray("addAttributesFromGroup", object_to_add, "vray_subdivision", 1)
         else:
-            print 'no v-ray subdivision attribute detected for ' + object_Old + ', not adding a v-ray subdivision attribute to ' + object_New
+            print 'no v-ray subdivision attribute detected for ' + object_old_print_temp + ', not adding a v-ray subdivision attribute to ' + object_new_print_temp
         OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
         duplicate_node_names_renamed = object_New_Path(OBJ_1_Path,duplicate_node_names_renamed)
         for duplicate_node_name_renamed in duplicate_node_names_renamed:
