@@ -62,7 +62,7 @@ class texture_replacer_no_gui():
         chris = ''
 
     def texture_replace_no_gui(self):
-        number_of_textures = 2
+        #number_of_textures = 10
         textures_to_swap = []
         viable_node_types = ['file']
         textures = cmds.ls(selection = True)
@@ -71,12 +71,12 @@ class texture_replacer_no_gui():
             if object_type in viable_node_types:
                 textures_to_swap.append(texture)
         number_of_selected_textures = len(textures_to_swap)
-        if number_of_selected_textures == 2:
+        if number_of_selected_textures > 1:
             i = 0
-            while i < number_of_textures:
+            while i < number_of_selected_textures:
               #splitting out the old and new texture names
-              new_fileTex = textures_to_swap[0]
-              old_fileTex = textures_to_swap[1]
+              new_fileTex = textures_to_swap[i]
+              old_fileTex = textures_to_swap[i+1]
               print " "
               print new_fileTex + " swapping with " + old_fileTex
               #print "---"

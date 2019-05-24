@@ -14,6 +14,8 @@ import subprocess
 import webbrowser
 import shiboken2
 
+print 'FRIDAY'
+
 class ASSET_TRACKER(object):
     def __init__(self):
         ph = 'chris'
@@ -56,59 +58,46 @@ class ASSET_TRACKER(object):
                 value = cmds.getAttr(object + '.' + attr)
                 self.asset_attr_dic[object + '&&' + attr] = str(value)
                 if attr == 'publish_path' and node_type != 'file':
-                    #print 'publish_path = ',value
+                    self.files_in_19_folder = 0
                     publish_path_value_split = value.split('\\')
                     publish_path_value_split_length = len(publish_path_value_split)
                     publish_path_value_split_length = publish_path_value_split_length - 1
-                    #print 'publish_path_value_split_length = ',publish_path_value_split_length
                     publish_path_value_dir = ''
                     i = 1
                     while i < publish_path_value_split_length:
                         publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
-                        #print '1 publish_path_value_dir = ',publish_path_value_dir
                         i = i + 1
-                    publish_path_value_dir = publish_path_value_dir + '\\'
-                    #print '2 publish_path_value_dir = ',publish_path_value_dir
-                    files = cmds.getFileList(folder = publish_path_value_dir,filespec = '*.mb') or []
-                    #print 'files = ',files
+                    publish_path_value_dir_18 = publish_path_value_dir + '\\'
+                    publish_path_value_dir_19 = publish_path_value_dir_18.replace('-18-','-19-')
+                    files_19 = cmds.getFileList(folder = publish_path_value_dir_19,filespec = '*.mb') or []
+                    files_18 = cmds.getFileList(folder = publish_path_value_dir_18,filespec = '*.mb') or []
+                    number_of_files_19 = len(files_19)
+                    if number_of_files_19 != 0:
+                        files = files_19
+                        self.files_in_19_folder = 1
+                    else:
+                        files = files_18
                     number_of_files = len(files)
                     if number_of_files == 0:
                         files = ['X']
                     self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                     if number_of_files != 0:
                         highest_version = 0
-                        #print 'files = ',files
                         for file in files:
-                            #print 'file = ',file
                             file_split = file.split('.')
                             file = file_split[0]
-                            #print 'file = ',file
                             file_split = file.split('_')
-                            #print 'file_split = ',file_split
                             number_of_splits = len(file_split)
                             number_of_splits = number_of_splits - 1
-                            #print 'number_of_splits = ',number_of_splits
                             file = file_split[number_of_splits]
-                            #print 'file = ',file
                             version_number = file
-                            #print 'version_number = ',version_number
                             if version_number in int_check:
-                                #print 'is in int check'
                                 version_number = int(version_number)
-                                #print 'version_number = ',version_number
-                                #print 'highest_version = ',highest_version
                                 if version_number > int(highest_version):
-                                    #print str(version_number) + ' higher than ' + str(highest_version)
                                     highest_version = str(version_number)
-                                    #print 'highest_version = ',highest_version
                                     zero_check = highest_version[0]
-                                    #print 'zero_check = ',zero_check
                                     if zero_check == '0':
-                                        #print 'highest_version[0] = 0'
                                         highest_version = highest_version[1:]
-                                    #if highest_version[0] == '0':
-                                        #highest_version = highest_version[1:]
-                                    #print 'highest_version = ',highest_version
                                     self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
                 if attr == 'publish_path' and node_type == 'file':
                     publish_path_value_split = value.split('\\')
@@ -119,10 +108,16 @@ class ASSET_TRACKER(object):
                     while i < publish_path_value_split_length:
                         publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
                         i = i + 1
-                    publish_path_value_dir = publish_path_value_dir + '\\'
-                    #print 'publish_path_value_dir = ',publish_path_value_dir
-                    raw_files = cmds.getFileList(folder = publish_path_value_dir) or []
-                    #print 'raw_files = ',raw_files
+                    publish_path_value_dir_18 = publish_path_value_dir + '\\'
+                    publish_path_value_dir_19 = publish_path_value_dir_18.replace('-18-','-19-')
+                    files_19 = cmds.getFileList(folder = publish_path_value_dir_19) or []
+                    files_18 = cmds.getFileList(folder = publish_path_value_dir_18) or []
+                    number_of_files_19 = len(files_19)
+                    if number_of_files_19 != 0:
+                        raw_files = files_19
+                        self.files_in_19_folder = 1
+                    else:
+                        raw_files = files_18
                     number_of_raw_files = len(raw_files)
                     if number_of_raw_files == 0:
                         files = ['X']
@@ -130,7 +125,6 @@ class ASSET_TRACKER(object):
                     if number_of_raw_files != 0:
                         files = []
                         for raw_file in raw_files:
-                            #print 'raw_file = ',raw_file
                             if raw_file.startswith('v'):
                                 files.append(raw_file)
                         highest_version = 0
@@ -180,6 +174,9 @@ class ASSET_TRACKER(object):
                 highest_version_item.setTextColor('light blue')
                 if highest_version_item_int > current_version_item_int:
                     object_item.setTextColor('red')
+                    if self.files_in_19_folder == 1:
+                        highest_version_item.setTextColor('yellow')
+                        publish_path_item.setTextColor('yellow')
                     current_version_item.setTextColor('red')
                 else:
                     object_item.setTextColor('light blue')
