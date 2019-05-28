@@ -67,22 +67,25 @@ class ASSET_TRACKER(object):
                     self.asset_attr_dic[object + '&&' + attr] = str(value)
                     if attr == 'publish_path':
                         self.files_in_19_folder = 0
-                        #print 'publish_path = ',value
+                        print 'publish_path = ',value
                         value_split = value.split('\\')
                         self.publish_path_year = value_split[7]
                         publish_path_value_split = value.split('\\')
-                        #print 'publish_path_value_split = ',publish_path_value_split
+                        print 'publish_path_value_split = ',publish_path_value_split
                         publish_path_value_split_length = len(publish_path_value_split)
-                        #print 'publish_path_value_split_length = ',publish_path_value_split_length
+                        print 'publish_path_value_split_length = ',publish_path_value_split_length
                         year_versions_path = ''
                         i = 0
-                        #print 'node_type = ',node_type
+                        print 'node_type = ',node_type
                         if node_type != 'file':
                             publish_path_value_split_length_minus = 6
                         if node_type == 'file':
                             publish_path_value_split_length_minus = 9
                         while i < (publish_path_value_split_length - publish_path_value_split_length_minus):
-                            year_versions_path = year_versions_path +'\\' + publish_path_value_split[i]
+                            if i == 0:
+                                year_versions_path
+                            if i > 0:
+                                year_versions_path = year_versions_path +'\\' + publish_path_value_split[i]
                             i = i + 1
                         eighteen_year_versions = []
                         nineteen_year_versions = []
@@ -90,47 +93,53 @@ class ASSET_TRACKER(object):
                         nineteen_version_number_full_string = ''
                         print 'year_versions_path = ',year_versions_path
                         year_versions = cmds.getFileList(folder = year_versions_path) or []
-                        highest_version = 0
                         print 'year_versions = ',year_versions
+                        highest_version = 0
                         self.nineteen_exists = 0
                         for year_version in year_versions:
                             publish_path_value_split_length = len(publish_path_value_split)
                             if year_version != '.DS_Store':
-                                #print ' '
-                                #print 'master year_version = ',year_version
+                                print ' '
+                                print 'master year_version = ',year_version
                                 #print 'node_type = ',node_type
-                                #print 'publish_path = ',value
+                                print 'publish_path = ',value
                                 if '19' in year_version:
                                     self.nineteen_exists = 1
                                 if node_type == 'file':
-                                    #print 'node_type file -4'
+                                    print 'node_type file -2'
                                     publish_path_value_split_length = publish_path_value_split_length - 2
                                 if node_type != 'file':
-                                    #print 'node_type not file -1'
+                                    print 'node_type not file -1'
                                     publish_path_value_split_length = publish_path_value_split_length - 1
                                 publish_path_value_dir = ''
                                 i = 1
-                                #print 'year_version = ',year_version
+                                print 'year_version = ',year_version
                                 #print 'publish_path_value_split_length = ',publish_path_value_split_length
                                 while i < publish_path_value_split_length:
-                                    if i == 7:
-                                            publish_path_value_dir = publish_path_value_dir + '\\' + year_version
+                                    if i == 5:
+                                            publish_path_value_dir = publish_path_value_dir + '\\\\' + year_version
                                     else:
                                         #print 'publish_path_value_dir = ',publish_path_value_dir
-                                        publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
+                                        if i == 0:
+                                            publish_path_value_dir
+                                        if i > 1:
+                                            publish_path_value_dir = publish_path_value_dir + '\\\\' + publish_path_value_split[i]
                                     i = i + 1
-                                publish_path_value_dir = publish_path_value_dir + '\\'
+                                print 'publish_path_value_dir = ',publish_path_value_dir
+                                #publish_path_value_dir = publish_path_value_dir.replace('\\\isln-smb\\\jobs','X:')
+                                #print 'publish_path_value_dir = ',publish_path_value_dir
+                                #publish_path_value_dir = publish_path_value_dir + '\\\\'
                                 #print 'publish_path_value_dir = ',publish_path_value_dir
                                 files = []
                                 files = cmds.getFileList(folder = publish_path_value_dir) or []
-                                #print 'files = ',files
+                                print 'files = ',files
                                 number_of_files= len(files)
-                                #print 'number_of_files = ',number_of_files
+                                print 'number_of_files = ',number_of_files
                                 if number_of_files == 0:
                                     #print 'number_of_files == 0 X'
                                     files = ['X']
                                     self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
-                                publish_path_value_dir_split = publish_path_value_dir.split('/')
+                                publish_path_value_dir_split = publish_path_value_dir.split('\\')
                                 temp_year_used = publish_path_value_dir_split[7]
                                 #print 'temp_year_used = ',temp_year_used
                                 if number_of_files != 0:

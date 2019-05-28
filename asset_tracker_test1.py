@@ -56,7 +56,10 @@ class ASSET_TRACKER(object):
         int_check = ['0','01','001','1','01','001','2','02','002','03','003','3','04','004','4','05','005','5','06','006','6','07','007','7','08','008','8','09','009','9','010','0010','10','011','0011','11','012','0012','12','013','0013','13','014','0014','14','015','0015','15','016','0016','16','017','0017','17','018','0018','18','019','0019','19','020','0020','20','021','0021','21','022','0022','22','023','0023','23','024','0024','24','025','0025','25']
         attrs = ['publish_type','publish_id','entity_id','version','publish_path','entity_name','task_type','task_id','publish_file']
         for object in self.trackable_objects:
+            self.nineteen_exists_dic = {}
             print 'object = ',object
+            print 'self.nineteen_exists_dic = ',self.nineteen_exists_dic
+            higher_version_found = 0
             node_type = cmds.nodeType(object)
             for attr in attrs:
                 attr_exists = cmds.attributeQuery(attr,node = object,exists = True)
@@ -69,7 +72,8 @@ class ASSET_TRACKER(object):
                         self.files_in_19_folder = 0
                         #print 'publish_path = ',value
                         value_split = value.split('\\')
-                        self.publish_path_year = value_split[7]
+                        self.publish_path_year = value_split[5]
+                        print 'self.publish_path_year = ',self.publish_path_year
                         publish_path_value_split = value.split('\\')
                         #print 'publish_path_value_split = ',publish_path_value_split
                         publish_path_value_split_length = len(publish_path_value_split)
@@ -82,28 +86,31 @@ class ASSET_TRACKER(object):
                         if node_type == 'file':
                             publish_path_value_split_length_minus = 9
                         while i < (publish_path_value_split_length - publish_path_value_split_length_minus):
-                            year_versions_path = year_versions_path +'\\' + publish_path_value_split[i]
+                            if i == 0:
+                                year_versions_path
+                            if i > 0:
+                                year_versions_path = year_versions_path +'\\' + publish_path_value_split[i]
                             i = i + 1
                         eighteen_year_versions = []
                         nineteen_year_versions = []
                         eighteen_version_number_full_string = ''
                         nineteen_version_number_full_string = ''
-                        print 'year_versions_path = ',year_versions_path
+                        #print 'year_versions_path = ',year_versions_path
                         year_versions = cmds.getFileList(folder = year_versions_path) or []
+                        #print 'year_versions = ',year_versions
                         highest_version = 0
-                        print 'year_versions = ',year_versions
-                        self.nineteen_exists = 0
                         for year_version in year_versions:
                             publish_path_value_split_length = len(publish_path_value_split)
                             if year_version != '.DS_Store':
                                 #print ' '
-                                #print 'master year_version = ',year_version
+                                print 'master year_version = ',year_version
                                 #print 'node_type = ',node_type
                                 #print 'publish_path = ',value
                                 if '19' in year_version:
-                                    self.nineteen_exists = 1
+                                    print 'found a 19 dir, setting self.nineteen_exists_dic = 1'
+                                    self.nineteen_exists_dic[object] = 1
                                 if node_type == 'file':
-                                    #print 'node_type file -4'
+                                    #print 'node_type file -2'
                                     publish_path_value_split_length = publish_path_value_split_length - 2
                                 if node_type != 'file':
                                     #print 'node_type not file -1'
@@ -111,12 +118,10 @@ class ASSET_TRACKER(object):
                                 publish_path_value_dir = ''
                                 i = 1
                                 #print 'year_version = ',year_version
-                                #print 'publish_path_value_split_length = ',publish_path_value_split_length
                                 while i < publish_path_value_split_length:
-                                    if i == 7:
+                                    if i == 5:
                                             publish_path_value_dir = publish_path_value_dir + '\\' + year_version
                                     else:
-                                        #print 'publish_path_value_dir = ',publish_path_value_dir
                                         publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
                                     i = i + 1
                                 publish_path_value_dir = publish_path_value_dir + '\\'
@@ -127,11 +132,14 @@ class ASSET_TRACKER(object):
                                 number_of_files= len(files)
                                 #print 'number_of_files = ',number_of_files
                                 if number_of_files == 0:
-                                    #print 'number_of_files == 0 X'
-                                    files = ['X']
-                                    self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
-                                publish_path_value_dir_split = publish_path_value_dir.split('/')
-                                temp_year_used = publish_path_value_dir_split[7]
+                                    if higher_version_found != 1:
+                                        #print 'no files found in ' + publish_path_value_dir
+                                        files = ['X']
+                                        #print 'setting X for ' + object + ' highest_version'
+                                        self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
+                                publish_path_value_dir_split = publish_path_value_dir.split('\\')
+                                #print 'publish_path_value_dir_split = ',publish_path_value_dir_split
+                                temp_year_used = publish_path_value_dir_split[5]
                                 #print 'temp_year_used = ',temp_year_used
                                 if number_of_files != 0:
                                     #print 'files = ',files
@@ -139,7 +147,7 @@ class ASSET_TRACKER(object):
                                         #print 'node_type not file'
                                         for file in files:
                                             if file != '.DS_Store':
-                                                print 'file = ',file
+                                                #print 'file = ',file
                                                 file_full = file
                                                 file_split = file.split('.')
                                                 #print 'file_split . = ',file_split
@@ -175,10 +183,11 @@ class ASSET_TRACKER(object):
                                                         #print 'highest_version = ',highest_version
                                                         #print 'temp_year_used = ',temp_year_used
                                                         self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
-                                                        highest_path_string = (object + ':' + publish_path_value_dir + file_full)
-                                                        print 'highest_path_string = ',highest_path_string
+                                                        highest_path_string = (object + ':  ' + publish_path_value_dir + file_full)
+                                                        #print 'highest_path_string = ',highest_path_string
                                                         self.highest_version_path_dic[object] = highest_path_string
-                                                        #print 'setting self.highest_value_year to ',temp_year_used
+                                                        print 'setting self.highest_value_year to ',temp_year_used
+                                                        higher_version_found = 1
                                                         self.highest_value_year = temp_year_used
                                     if node_type == 'file':
                                         folder_files = []
@@ -201,13 +210,17 @@ class ASSET_TRACKER(object):
                                                     highest_version = version_number
                                                     #print 'highest_version = ',highest_version
                                                     self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
-                                                    highest_path_string = (object + ':' + publish_path_value_dir + file)
+                                                    highest_path_string = (object + ':  ' + publish_path_value_dir + file)
                                                     self.highest_version_path_dic[object] = highest_path_string
-                                                    #print 'setting self.highest_value_year to ',temp_year_used
+                                                    print 'setting self.highest_value_year to ',temp_year_used
+                                                    higher_version_found = 1
                                                     self.highest_value_year = temp_year_used
                                         #print 'highest_version = ',highest_version
-        print 'self.asset_attr_dic = ',self.asset_attr_dic
-        print 'self.highest_version_path_dic = ',self.highest_version_path_dic
+                                        #print ' '
+        #print 'self.asset_attr_dic = ',self.asset_attr_dic
+        #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
+        #print '---'
+        print 'self.nineteen_exists_dic = ',self.nineteen_exists_dic
         self.populate_window()
 
     def populate_window(self):
@@ -234,10 +247,16 @@ class ASSET_TRACKER(object):
         self.evaluate_versions()
 
     def latest_version_path_feedback_listWidget_populate(self):
-        for highest_version_path_item in self.highest_version_path_dic:
-            print 'adding ' + highest_version_path_item
-            highest_version_path_item_path = self.highest_version_path_dic[highest_version_path_item]
-            self.latest_version_path_feedback_listWidget.addItem(highest_version_path_item_path)
+        number_of_objects = self.node_name_listWidget.count()
+        i = 0
+        while i < number_of_objects:
+            item = self.node_name_listWidget.item(i)
+            item_text = item.text()
+            for highest_version_path_item in self.highest_version_path_dic:
+                if highest_version_path_item == item_text:
+                    highest_version_path_item_path = self.highest_version_path_dic[highest_version_path_item]
+                    self.latest_version_path_feedback_listWidget.addItem(highest_version_path_item_path)
+            i = i + 1
         self.deactivate_listWidget(self.latest_version_path_feedback_listWidget)
 
 
@@ -246,6 +265,7 @@ class ASSET_TRACKER(object):
         i = 0
         while i < self.number_of_trackable_object:
             object_item = self.node_name_listWidget.item(i)
+            object_item_text = object_item.text()
             current_version_item = self.current_version_listWidget.item(i)
             current_version_item_text = current_version_item.text()
             current_version_item_int = int(current_version_item_text)
@@ -264,11 +284,18 @@ class ASSET_TRACKER(object):
                 print 'self.publish_path_year = ',self.publish_path_year
                 print 'self.highest_value_year = ',self.highest_value_year
                 if '18' in self.publish_path_year and '19' in self.highest_value_year:
+                    print 'A: turning ' + object_item_text + ' yellow'
                     highest_version_item.setTextColor('yellow')
                     publish_path_item.setTextColor('yellow')
-                if '18' in self.publish_path_year and self.nineteen_exists == 1:
-                    highest_version_item.setTextColor('yellow')
-                    publish_path_item.setTextColor('yellow')
+                print 'self.publish_path_year',self.publish_path_year
+                print 'self.nineteen_exists_dic = ',self.nineteen_exists_dic
+                for nineteen_exists in self.nineteen_exists_dic:
+                    print 'nineteen_exists = ',nineteen_exists
+                    if nineteen_exists == object_item_text:
+                        if '18' in self.publish_path_year:
+                            print 'B: turning ' + object_item_text + ' yellow'
+                            highest_version_item.setTextColor('yellow')
+                            publish_path_item.setTextColor('yellow')
             if highest_version_item_text == 'X':
                 object_item.setTextColor('pink')
                 current_version_item.setTextColor('red')
@@ -339,11 +366,11 @@ class ASSET_TRACKER(object):
         self.main_grid_layout.addWidget(self.node_name_listWidget,1,0)
         self.current_version_listWidget = QtWidgets.QListWidget()
         self.current_version_listWidget.setSpacing(spacing)
-        self.current_version_listWidget.setMaximumWidth(30)
+        self.current_version_listWidget.setMaximumWidth(50)
         self.main_grid_layout.addWidget(self.current_version_listWidget)
         self.highest_version_listWidget = QtWidgets.QListWidget()
         self.highest_version_listWidget.setSpacing(spacing)
-        self.highest_version_listWidget.setMaximumWidth(30)
+        self.highest_version_listWidget.setMaximumWidth(50)
         self.main_grid_layout.addWidget(self.highest_version_listWidget)
         self.entity_name_listWidget = QtWidgets.QListWidget()
         self.entity_name_listWidget.setSpacing(spacing)
@@ -363,6 +390,38 @@ class ASSET_TRACKER(object):
         self.latest_version_path_feedback_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.latest_version_path_feedback_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.main_grid_layout.addWidget(self.latest_version_path_feedback_listWidget,2,0,1,5)
+
+        self.node_name_listWidget.verticalScrollBar().valueChanged.connect(self.current_version_listWidget.verticalScrollBar().setValue)
+        self.node_name_listWidget.verticalScrollBar().valueChanged.connect(self.highest_version_listWidget.verticalScrollBar().setValue)
+        self.node_name_listWidget.verticalScrollBar().valueChanged.connect(self.entity_name_listWidget.verticalScrollBar().setValue)
+        self.node_name_listWidget.verticalScrollBar().valueChanged.connect(self.publish_path_listWidget.verticalScrollBar().setValue)
+        self.node_name_listWidget.verticalScrollBar().valueChanged.connect(self.latest_version_path_feedback_listWidget.verticalScrollBar().setValue)
+        self.current_version_listWidget.verticalScrollBar().valueChanged.connect(self.node_name_listWidget.verticalScrollBar().setValue)
+        self.current_version_listWidget.verticalScrollBar().valueChanged.connect(self.highest_version_listWidget.verticalScrollBar().setValue)
+        self.current_version_listWidget.verticalScrollBar().valueChanged.connect(self.entity_name_listWidget.verticalScrollBar().setValue)
+        self.current_version_listWidget.verticalScrollBar().valueChanged.connect(self.publish_path_listWidget.verticalScrollBar().setValue)
+        self.current_version_listWidget.verticalScrollBar().valueChanged.connect(self.latest_version_path_feedback_listWidget.verticalScrollBar().setValue)
+        self.highest_version_listWidget.verticalScrollBar().valueChanged.connect(self.node_name_listWidget.verticalScrollBar().setValue)
+        self.highest_version_listWidget.verticalScrollBar().valueChanged.connect(self.current_version_listWidget.verticalScrollBar().setValue)
+        self.highest_version_listWidget.verticalScrollBar().valueChanged.connect(self.entity_name_listWidget.verticalScrollBar().setValue)
+        self.highest_version_listWidget.verticalScrollBar().valueChanged.connect(self.publish_path_listWidget.verticalScrollBar().setValue)
+        self.highest_version_listWidget.verticalScrollBar().valueChanged.connect(self.latest_version_path_feedback_listWidget.verticalScrollBar().setValue)
+        self.entity_name_listWidget.verticalScrollBar().valueChanged.connect(self.node_name_listWidget.verticalScrollBar().setValue)
+        self.entity_name_listWidget.verticalScrollBar().valueChanged.connect(self.current_version_listWidget.verticalScrollBar().setValue)
+        self.entity_name_listWidget.verticalScrollBar().valueChanged.connect(self.highest_version_listWidget.verticalScrollBar().setValue)
+        self.entity_name_listWidget.verticalScrollBar().valueChanged.connect(self.publish_path_listWidget.verticalScrollBar().setValue)
+        self.entity_name_listWidget.verticalScrollBar().valueChanged.connect(self.latest_version_path_feedback_listWidget.verticalScrollBar().setValue)
+        self.publish_path_listWidget.verticalScrollBar().valueChanged.connect(self.node_name_listWidget.verticalScrollBar().setValue)
+        self.publish_path_listWidget.verticalScrollBar().valueChanged.connect(self.current_version_listWidget.verticalScrollBar().setValue)
+        self.publish_path_listWidget.verticalScrollBar().valueChanged.connect(self.highest_version_listWidget.verticalScrollBar().setValue)
+        self.publish_path_listWidget.verticalScrollBar().valueChanged.connect(self.entity_name_listWidget.verticalScrollBar().setValue)
+        self.publish_path_listWidget.verticalScrollBar().valueChanged.connect(self.latest_version_path_feedback_listWidget.verticalScrollBar().setValue)
+        self.latest_version_path_feedback_listWidget.verticalScrollBar().valueChanged.connect(self.node_name_listWidget.verticalScrollBar().setValue)
+        self.latest_version_path_feedback_listWidget.verticalScrollBar().valueChanged.connect(self.current_version_listWidget.verticalScrollBar().setValue)
+        self.latest_version_path_feedback_listWidget.verticalScrollBar().valueChanged.connect(self.highest_version_listWidget.verticalScrollBar().setValue)
+        self.latest_version_path_feedback_listWidget.verticalScrollBar().valueChanged.connect(self.entity_name_listWidget.verticalScrollBar().setValue)
+        self.latest_version_path_feedback_listWidget.verticalScrollBar().valueChanged.connect(self.publish_path_listWidget.verticalScrollBar().setValue)
+
         self.myScriptJobID = cmds.scriptJob(p = window_name, event=["renderLayerManagerChange", self.nodes_in_scene])
         self.myScriptJobID = cmds.scriptJob(p = window_name, event=["renderLayerChange", self.nodes_in_scene])
         self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged", self.nodes_in_scene])
