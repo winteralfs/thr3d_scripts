@@ -134,15 +134,19 @@ class ASSET_TRACKER(object):
                                 #print 'temp_year_used = ',temp_year_used
                                 if number_of_files != 0:
                                     if node_type != 'file':
+                                        print 'files = ',files
                                         for file in files:
-                                            if file != '.DS_Store':
+                                            if file != '.DS_Store' or file != workarea'' or file != '_cache' or file != '_die' or file != '_photo' or file != '_scan' or file != '_workarea':
+                                                print 'file = ',file
                                                 file_full = file
                                                 file_split = file.split('.')
                                                 file = file_split[0]
                                                 file_split_ = file.split('_')
                                                 number_of_file_splits_ = len(file_split_)
                                                 number_of_file_splits_ = number_of_file_splits_ - 1
+                                                print 'file_split_ = ',file_split_
                                                 file = file_split_[number_of_file_splits_]
+                                                print ' file_split_[number_of_file_splits_] = ', file_split_[number_of_file_splits_]
                                                 version_number = file
                                                 #print 'version_number = ',version_number
                                                 #print 'highest_version = ',highest_version
