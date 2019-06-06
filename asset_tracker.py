@@ -14,7 +14,7 @@ import subprocess
 import webbrowser
 import shiboken2
 
-print 'asset_tracker tues'
+print 'asset_tracker thur'
 
 class ASSET_TRACKER(object):
     def __init__(self):
@@ -58,9 +58,10 @@ class ASSET_TRACKER(object):
         int_check = ['0','01','001','1','01','001','2','02','002','03','003','3','04','004','4','05','005','5','06','006','6','07','007','7','08','008','8','09','009','9','010','0010','10','011','0011','11','012','0012','12','013','0013','13','014','0014','14','015','0015','15','016','0016','16','017','0017','17','018','0018','18','019','0019','19','020','0020','20','021','0021','21','022','0022','22','023','0023','23','024','0024','24','025','0025','25']
         attrs = ['publish_type','publish_id','entity_id','version','publish_path','entity_name','task_type','task_id','publish_file']
         for object in self.trackable_objects:
-            #print 'object = ',object
             higher_version_found = 0
             year_exists_list = []
+            #print ' '
+            #print 'object = ',object
             node_type = cmds.nodeType(object)
             for attr in attrs:
                 attr_exists = cmds.attributeQuery(attr,node = object,exists = True)
@@ -133,16 +134,26 @@ class ASSET_TRACKER(object):
                                 temp_year_used = publish_path_value_dir_split[5]
                                 #print 'temp_year_used = ',temp_year_used
                                 if number_of_files != 0:
+                                    bad_file_type_list = ['.DS_Store','workarea','cache','die','photo','scan','_workarea','_cache','_die','_photo','_scan','version']
+                                    #print 'node_type = ',node_type
                                     if node_type != 'file':
+                                        #print 'node type != file'
+                                        #print ' '
+                                        #print 'files = ',files
                                         for file in files:
-                                            if file != '.DS_Store':
+                                            #print 'file = ',file
+                                            if file not in bad_file_type_list:
+                                                #print 'not one of the bad file types'
+                                                #print 'file = ',file
                                                 file_full = file
                                                 file_split = file.split('.')
                                                 file = file_split[0]
                                                 file_split_ = file.split('_')
                                                 number_of_file_splits_ = len(file_split_)
                                                 number_of_file_splits_ = number_of_file_splits_ - 1
+                                                #print 'file_split_ = ',file_split_
                                                 file = file_split_[number_of_file_splits_]
+                                                #print ' file_split_[number_of_file_splits_] = ', file_split_[number_of_file_splits_]
                                                 version_number = file
                                                 #print 'version_number = ',version_number
                                                 #print 'highest_version = ',highest_version
@@ -164,16 +175,19 @@ class ASSET_TRACKER(object):
                                                         self.highest_value_year = temp_year_used
                                                         #print 'self.highest_value_year = ',self.highest_value_year
                                     if node_type == 'file':
+                                        #print 'not one of the bad file types'
+                                        #print 'node type = file'
                                         folder_files = []
                                         for file in files:
                                             if file.startswith('v'):
                                                 folder_files.append(file)
                                         for folder_file in folder_files:
-                                            if file != '.DS_Store':
+                                            #print 'folder_file = ',folder_file
+                                            if folder_file not in bad_file_type_list:
                                                 version_number = folder_file[-1]
-                                                print 'version_number = ',version_number
-                                                print 'highest_version = ',highest_version
-                                                print 'temp_year_used = ',temp_year_used
+                                                #print 'version_number = ',version_number
+                                                #print 'highest_version = ',highest_version
+                                                #print 'temp_year_used = ',temp_year_used
                                                 if int(version_number) > int(highest_version) or int(version_number) == int(highest_version) and '17' in publish_year and '18' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '19' in publish_year and '20' in temp_year_used:
                                                     highest_version = version_number
                                                     self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
