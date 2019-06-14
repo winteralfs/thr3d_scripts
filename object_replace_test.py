@@ -56,7 +56,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'thurs'
+print 'friday claw day'
 
 def look_for_duplicate_nodes():
     duplicate_node_names = []
@@ -136,9 +136,12 @@ def objectChooseWin():
             i = 0
             duplicate_node_names.sort(key=len,reverse = True)
             for duplicate_node_name in duplicate_node_names:
+                print 'duplicate_node_name = ',duplicate_node_name
                 duplicate_node_name_split = duplicate_node_name.split('|')
                 object_name = duplicate_node_name_split[-1]
                 rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
+                print 'rename_string = ',rename_string
+                print 'renaing ' + duplicate_node_name + ' to ' + rename_string
                 cmds.rename(duplicate_node_name,rename_string)
                 duplicate_node_names_renamed.append(rename_string)
                 if duplicate_node_name == object_Old:
@@ -150,6 +153,8 @@ def objectChooseWin():
                     object_New = rename_string
                     object_new_rename_check = 1
                 i = i + 1
+        print ' '
+        print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
         obj_kids_old = cmds.listRelatives(object_Old, children = True) or []
         obj_kids_new = cmds.listRelatives(object_New, children = True) or []
         obj_kids_old_len = len(obj_kids_old)
@@ -2029,24 +2034,44 @@ def objectChooseWin():
             print 'no v-ray subdivision attribute detected for ' + object_old_print_temp + ', not adding a v-ray subdivision attribute to ' + object_new_print_temp
         OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
         duplicate_node_names_renamed = object_New_Path(OBJ_1_Path,duplicate_node_names_renamed)
+        #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
         for duplicate_node_name_renamed in duplicate_node_names_renamed:
+            #print ' '
+            #print 'duplicate_node_name_renamed = ',duplicate_node_name_renamed
             if 'Shape' not in duplicate_node_name_renamed:
+                #print 'no Shape found in duplicate_node_name_renamed'
                 chosen_object = 0
                 duplicate_node_name_renamed_split = duplicate_node_name_renamed.split('_XXXXXX')
                 duplicate_node_name_mod = duplicate_node_name_renamed_split[0]
+                #print 'duplicate_node_name_renamed_split = ',duplicate_node_name_renamed_split
+                #print 'duplicate_node_name_mod = ',duplicate_node_name_mod
                 if duplicate_node_name_renamed == object_Old:
+                    #print 'duplicate_node_name_renamed = ',object_Old
                     chosen_object = 1
-                    duplicate_node_name_mod = duplicate_node_name + '_old'
+                    #print 'adding _old to ',duplicate_node_name_mod
+                    duplicate_node_name_mod = duplicate_node_name_mod + '_old'
                 if duplicate_node_name_renamed == object_New:
+                    #print 'duplicate_node_name_renamed = ',object_New
                     chosen_object = 1
-                    duplicate_node_name_mod = duplicate_node_name + '_new'
+                    #print 'adding _new to ',duplicate_node_name_mod
+                    duplicate_node_name_mod = duplicate_node_name_mod + '_new'
                 cmds.select(clear = True)
                 cmds.select(duplicate_node_name_renamed)
+                #print 'duplicate_node_name_mod = ',duplicate_node_name_mod
+                print 'renaming ' + duplicate_node_name_renamed + ' to ' + duplicate_node_name_mod
                 cmds.rename(duplicate_node_name_renamed,duplicate_node_name_mod)
                 renamed_long_name = cmds.ls(selection = True,long = True)
+                #print 'renamed_long_name = ',renamed_long_name
                 shape_node_original = cmds.listRelatives(renamed_long_name,children = True) or []
+                #print 'shape_node_original = ',shape_node_original
                 shape_node_mod =  duplicate_node_name_mod + 'Shape'
-                cmds.rename(shape_node_original[0],shape_node_mod)
+                #print 'shape_node_mod = ',shape_node_mod
+                kids_for_shape_node_original = cmds.listRelatives(children = True)
+                number_of_kids_node_original = len(kids_for_shape_node_original)
+                if number_of_kids_node_original == 0:
+                    print 'renaming ' + shape_node_original[0] + ' to ' + shape_node_mod
+                    cmds.rename(shape_node_original[0],shape_node_mod)
+                #print ' '
         panels = cmds.getPanel( type = "modelPanel" )
         for mPanel in panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 1)
