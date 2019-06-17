@@ -56,7 +56,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'sun home 2'
+print 'monday'
 
 def look_for_duplicate_nodes():
     print ' '
@@ -307,7 +307,7 @@ def objectChooseWin():
                 if checkLayerSize > 0:
                     sizCkLayer = len(checkLayer)
                     for cko in checkLayer:
-                        if cko == (object_Old):
+                        if cko in object_Old:
                             layerList.append(layer)
             print 'old_object in render layers, ',layerList
             return layerList,object_Old,object_New
@@ -321,9 +321,9 @@ def objectChooseWin():
             rotX_val = 0
             rotY_val = 0
             rotZ_val = 0
-            scaleX_val = 0
-            scaleY_val = 0
-            scaleZ_val = 0
+            scaleX_val = 1
+            scaleY_val = 1
+            scaleZ_val = 1
             objInLayers = []
             object_Old = (str(object_Old))
             object_New = (str(object_New))
@@ -724,8 +724,8 @@ def objectChooseWin():
             print "old object materials check:"
             object_Old = (str(object_Old))
             object_New = (str(object_New))
-            mats_list = {}
-            mats_list_OVR = []
+            materials_assigned_object_old = {}
+            materials_assigned_object_old_OVR = []
             LayerMats_dic = {}
             mats_dict = {}
             mats_faceDict = {}
@@ -736,22 +736,24 @@ def objectChooseWin():
             spltMatList2 = []
             layerOverM2  = {}
             matAssignsExist = 0
-            RLM = cmds.ls(type = "renderLayer")
-            for M in RLM:
-                cmds.editRenderLayerGlobals( currentRenderLayer = M )
+            render_layers_in_scene = cmds.ls(type = "renderLayer")
+            for render_layer in render_layers_in_scene:
+                cmds.editRenderLayerGlobals( currentRenderLayer = render_layer )
                 cmds.select(clear = True)
                 cmds.select(object_Old)
                 cmds.hyperShade(smn = True)
-                mats_list = cmds.ls(sl = True)
-                for MM in mats_list:
-                    NT = cmds.nodeType(MM)
+                materials_assigned_object_old = cmds.ls(sl = True)
+                print 'materials_assigned_object_old = ',materials_assigned_object_old
+                for material_assigned_object_old in materials_assigned_object_old:
+                    NT = cmds.nodeType(material_assigned_object_old)
                     if NT != "renderLayer":
-                        mats_list_OVR.append(MM)
-                number_of_assigned_materials = len(mats_list_OVR)
+                        materials_assigned_object_old_OVR.append(material_assigned_object_old)
+                print 'materials_assigned_object_old_OVR = ',materials_assigned_object_old_OVR
+                number_of_assigned_materials = len(materials_assigned_object_old_OVR)
                 if number_of_assigned_materials > 0:
-                    for matsInc in mats_list_OVR:
+                    for matsInc in materials_assigned_object_old_OVR:
                         cmds.select(matsInc)
-                        LayerMats_dic[M] = matsInc
+                        LayerMats_dic[render_layer] = matsInc
                         cmds.hyperShade(o = matsInc)
                         mats_objectList = cmds.ls(sl = True)
                         for mo in mats_objectList:
@@ -762,7 +764,7 @@ def objectChooseWin():
                             baseO = cmds.listRelatives(moc, parent = True)
                             if baseO not in mats_objectList_clean_BASE:
                                 mats_objectList_clean_BASE.append(baseO)
-                        layer_Mats_Inc = M + "_" + matsInc + "_"
+                        layer_Mats_Inc = render_layer + "_" + matsInc + "_"
                         for moc in mats_objectList_clean:
                             baseO = cmds.listRelatives(moc, parent = True)
                             if baseO not in mats_objectList_clean_BASE:
@@ -778,12 +780,12 @@ def objectChooseWin():
             aa = 0
             layerOverM = []
             FDRL = 0
-            for findDRL in RLM:
+            for findDRL in render_layers_in_scene:
                 if "defaultRenderLayer" in findDRL:
                     defaultRenderLayerPosition = FDRL
                 FDRL += 1
             FDRL = int(FDRL)
-            for L in RLM:
+            for L in render_layers_in_scene:
                 a = 0
                 for m in mats_dict:
                     if L in m:
@@ -808,7 +810,7 @@ def objectChooseWin():
             print 'old_object material assignments = ',mats_dict_string
             print "potential material layer overide detected in layers:",RlayerOlist_string
             cmds.select(clear = True)
-            return mats_dict,LayerMats_dic,layerOverM2,object_Old,object_New,RLM,matAssignsExist
+            return mats_dict,LayerMats_dic,layerOverM2,object_Old,object_New,render_layers_in_scene,matAssignsExist
 
         def UVsetLinking(object_Old,object_New,renderLayers):
             print "old object UV sets check:"
@@ -864,11 +866,14 @@ def objectChooseWin():
             for smoothNode in smoothNodes:
                 smooth_node_connections = cmds.listConnections(smoothNode,source = False, destination = True)
                 for connection in smooth_node_connections:
-                    if connection == object_Old:
+                    print 'object_Old = ',object_Old
+                    print 'object_New = ',object_New
+                    print 'connection = ',connection
+                    if connection in object_Old:
                         old_object_polysmooth_node.append(smoothNode)
                         object_Old_smooth_node_found = 1
                         object_Old_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
-                    if connection == object_New:
+                    if connection in object_New:
                         object_New_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
                         object_New_smooth_node_found = 1
             print 'old_object polysmooth nodes = ',old_object_polysmooth_node
@@ -1829,7 +1834,7 @@ def objectChooseWin():
             layerOverM = OBJ_1_objectMaterials[2]
             object_Old = OBJ_1_objectMaterials[3]
             object_New = OBJ_1_objectMaterials[4]
-            RLM = OBJ_1_objectMaterials[5]
+            render_layers_in_scene = OBJ_1_objectMaterials[5]
             matAssignsExist = OBJ_1_objectMaterials[6]
             defMatList = []
             valOLD = []

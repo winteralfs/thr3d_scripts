@@ -56,7 +56,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'sun home 2'
+print ''
 
 def look_for_duplicate_nodes():
     print ' '
@@ -182,6 +182,7 @@ def objectChooseWin():
                     rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
                     #print 'rename_string = ',rename_string
                     print 'renaming ' + duplicate_node_name + ' to ' + rename_string
+                    cmds.lockNode(duplicate_node_name,lock = False)
                     cmds.rename(duplicate_node_name,rename_string)
                     duplicate_node_names_renamed.append(rename_string)
                     if duplicate_node_name == object_Old:
@@ -224,6 +225,7 @@ def objectChooseWin():
             #print 'transform_node_shapes = ',transform_node_shapes
             for transform_node_shape in transform_node_shapes:
                 if 'Shape' not in transform_node_shape:
+                    cmds.lockNode(transform_node_shape,lock = False)
                     cmds.rename(transform_node_shape,transform_node_shape + 'Shape')
                     if transform_node_shape in duplicate_node_names_renamed:
                         duplicate_node_names_renamed.remove(transform_node_shape)
@@ -319,9 +321,9 @@ def objectChooseWin():
             rotX_val = 0
             rotY_val = 0
             rotZ_val = 0
-            scaleX_val = 0
-            scaleY_val = 0
-            scaleZ_val = 0
+            scaleX_val = 1
+            scaleY_val = 1
+            scaleZ_val = 1
             objInLayers = []
             object_Old = (str(object_Old))
             object_New = (str(object_New))
@@ -1178,6 +1180,7 @@ def objectChooseWin():
                     if shadEx == 1:
                         cmds.delete("tempShader")
                     tempNodeName = cmds.createNode("surfaceShader")
+                    cmds.lockNode(tempNodeName,lock = False)
                     cmds.rename(tempNodeName, "tempShader")
                     cmds.select(clear = True)
                     cmds.select(object_New)
@@ -1225,6 +1228,7 @@ def objectChooseWin():
                     if shadEx == 1:
                         cmds.delete("tempShader")
                     tempNodeName = cmds.createNode("surfaceShader")
+                    cmds.lockNode(tempNodeName,lock = False)
                     cmds.rename(tempNodeName, "tempShader")
                     cmds.select(clear = True)
                     cmds.select(object_New)
@@ -1246,6 +1250,7 @@ def objectChooseWin():
                         if shadEx == 1:
                             cmds.delete("tempShader")
                         tempNodeName = cmds.createNode("surfaceShader")
+                        cmds.lockNode(tempNodeName,lock = False)
                         cmds.rename(tempNodeName, "tempShader")
                         fileName = dft
                         cmds.select(clear = True)
@@ -2163,8 +2168,10 @@ def objectChooseWin():
                         shape_node_mod =  duplicate_node_name_mod + 'Shape'
                         print 'shape_node_mod = ',shape_node_mod
                         print 'no kids found, renaming ' + shape_node_original + ' to ',shape_node_mod
+                        cmds.lockNode(shape_node_original,lock = False)
                         cmds.rename(shape_node_original,shape_node_mod)
                 print 'renaming ' + duplicate_node_name_renamed + ' to ' + duplicate_node_name_mod
+                cmds.lockNode(duplicate_node_name_renamed,lock = False)
                 cmds.rename(duplicate_node_name_renamed,duplicate_node_name_mod)
                 #print ' '
         panels = cmds.getPanel( type = "modelPanel" )

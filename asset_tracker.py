@@ -14,7 +14,7 @@ import subprocess
 import webbrowser
 import shiboken2
 
-print 'asset_tracker thur'
+print 'asset_tracker mon'
 
 class ASSET_TRACKER(object):
     def __init__(self):
@@ -78,16 +78,22 @@ class ASSET_TRACKER(object):
                         publish_path_value_split_length = len(publish_path_value_split)
                         year_versions_path = ''
                         product_texture_found = 0
+                        Kraft_texture_found = 0
                         if 'Product' in value:
                             #print 'product file found'
                             product_texture_found = 1
+                        if 'Kraft' in value:
+                            #print 'Kraft detected'
+                            Kraft_texture_found = 1
                         i = 0
                         if node_type != 'file':
                             publish_path_value_split_length_minus = 6
                         if node_type == 'file':
                             publish_path_value_split_length_minus = 9
-                        if  node_type == 'file' and product_texture_found == 1:
+                        if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 0:
                             publish_path_value_split_length_minus = 10
+                        if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 1:
+                            publish_path_value_split_length_minus = 9
                         while i < (publish_path_value_split_length - publish_path_value_split_length_minus):
                             if i == 0:
                                 year_versions_path
@@ -137,7 +143,7 @@ class ASSET_TRACKER(object):
                                 #print 'number_of_files = ',number_of_files
                                 publish_path_value_dir_split = publish_path_value_dir.split('\\')
                                 temp_year_used = publish_path_value_dir_split[5]
-                                #print 'temp_year_used = ',temp_year_used
+                                print 'temp_year_used = ',temp_year_used
                                 if number_of_files != 0:
                                     bad_file_type_list = ['.DS_Store','workarea','cache','die','photo','scan','_workarea','_cache','_die','_photo','_scan','version']
                                     #print 'node_type = ',node_type
@@ -181,13 +187,13 @@ class ASSET_TRACKER(object):
                                                         #print 'self.highest_value_year = ',self.highest_value_year
                                     if node_type == 'file':
                                         #print 'not one of the bad file types'
-                                        print 'node type = file'
+                                        #print 'node type = file'
                                         folder_files = []
                                         for file in files:
                                             if file.startswith('v'):
                                                 folder_files.append(file)
                                         for folder_file in folder_files:
-                                            print 'folder_file = ',folder_file
+                                            #print 'folder_file = ',folder_file
                                             if folder_file not in bad_file_type_list:
                                                 version_number = folder_file[-1]
                                                 #print 'version_number = ',version_number
