@@ -56,10 +56,11 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'sat home 2'
+print 'sun home 2'
 
 def look_for_duplicate_nodes():
-    print 'look_for_duplicate_nodes'
+    print ' '
+    print 'XXX look_for_duplicate_nodes XXX'
     duplicate_node_names = []
     all_nodes = cmds.ls()
     print 'all_nodes = ',all_nodes
@@ -78,6 +79,7 @@ def look_for_duplicate_nodes():
                         if 'Shape' not in duplicate_node_names:
                             duplicate_node_names.append(node_1)
     print 'duplicate_node_names = ',duplicate_node_names
+    print 'END look_for_duplicate_nodes'
     return(duplicate_node_names)
 
 def objectChooseWin():
@@ -126,6 +128,26 @@ def objectChooseWin():
     cmds.showWindow()
 
     def objects(object_Old,object_New):
+        print 'object_New = ',object_New
+        print 'object_Old = ',object_Old
+        all_shape_nodes = []
+        transform_nodes = cmds.ls(type = 'transform')
+        for transform_node in transform_nodes:
+            transform_node_shapes = cmds.listRelatives(transform_node,shapes = True,fullPath = True) or []
+            for transform_node_shape in transform_node_shapes:
+                if transform_node_shape not in all_shape_nodes:
+                    all_shape_nodes.append(transform_node_shape)
+        print 'all_shape_nodes = ',all_shape_nodes
+        if object_Old in all_shape_nodes:
+            print 'object old is a shape node, grabbing parent'
+            object_Old_parents = cmds.listRelatives(object_Old,parent = True,fullPath = True)
+            object_Old = object_Old_parents[0]
+        if object_New in all_shape_nodes:
+            print 'object new is a shape node, grabbing parent'
+            object_New_parents = cmds.listRelatives(object_New,parent = True,fullPath = True)
+            object_New = object_New_parents[0]
+        print 'object_New = ',object_New
+        print 'object_Old = ',object_Old
         duplicate_node_names = look_for_duplicate_nodes()
         duplicate_node_shape_list = []
         duplicate_node_names.reverse()
@@ -138,11 +160,15 @@ def objectChooseWin():
             print 'duplicate_node_names = ',duplicate_node_names
             duplicate_node_names.sort(key=len,reverse = True)
             for duplicate_node_name in duplicate_node_names:
-                shapes = cmds.listRelatives(shapes = True,fullPath = True) or []
+                shapes = cmds.listRelatives(duplicate_node_name,shapes = True,fullPath = True) or []
                 for shape in shapes:
                     if shape not in duplicate_node_shape_list:
-                        shape = shape[1:]
-                        duplicate_node_shape_list.append(shape)
+                        if shape[0] == '|':
+                            shape = shape[1:]
+                        shape_name = shape
+                        shape_name_bar = '|' + shape_name
+                        duplicate_node_shape_list.append(shape_name)
+                        duplicate_node_shape_list.append(shape_name_bar)
             print 'duplicate_node_shape_list = ',duplicate_node_shape_list
             i = 0
             for duplicate_node_name in duplicate_node_names:
@@ -165,27 +191,24 @@ def objectChooseWin():
                         object_New = rename_string
                         object_new_rename_check = 1
                     i = i + 1
-        transform_nodes = cmds.ls(type = 'transform',long = True)
+        print ' '
+        print ' '
+        print '--- '
+        transform_nodes = cmds.ls(type = 'transform')
         print 'transform_nodes = ',transform_nodes
+        #looking_for_duplicate_shape_node_names = look_for_duplicate_nodes()
+        #print 'looking_for_duplicate_shape_node_names = ',looking_for_duplicate_shape_node_names
         scene_shapes = []
         for transform_node in transform_nodes:
-            #print 'transform_node = ',transform_node
+            print '---'
+            print 'transform_node = ',transform_node
             transform_node_shapes = cmds.listRelatives(transform_node,shapes = True,fullPath = True) or []
-            #print 'shapes = ',shapes
+            print 'transform_node_shapes = ',transform_node_shapes
             for transform_node_shape in transform_node_shapes:
-                #print 'shape = ',shape
-                #print 'scene_shapes = ',scene_shapes
-                if transform_node_shape not in scene_shapes:
-                    scene_shapes.append(transform_node_shape)
-        print 'scene_shapes = ',scene_shapes
-        for scene_shape in scene_shapes:
-            print ' '
-            print 'scene_shape = ',scene_shape
-            looking_for_duplicate_shape_node_names = look_for_duplicate_nodes()
-            print 'looking_for_duplicate_shape_node_names = ',looking_for_duplicate_shape_node_names
-            if scene_shape in looking_for_duplicate_shape_node_names:
-                print 'renaming ' +  scene_shape + ' to ' + scene_shape + 'Shape'
-                cmds.rename(scene_shape + (scene_shape + 'Shape'))
+                if 'Shape' not in transform_node_shape:
+                    cmds.rename(transform_node_shape,transform_node_shape + 'Shape')
+                    if transform_node_shape in duplicate_node_names_renamed:
+                        duplicate_node_names_renamed.remove(transform_node_shape)
         print ' '
         print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
         print 'object_Old = ',object_Old
