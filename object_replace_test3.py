@@ -336,7 +336,7 @@ def objectChooseWin():
                 objList = cmds.editRenderLayerMembers( L, query=True ) or []
                 for obj in objList:
                     object_Old = object_Old
-                    if object_Old == obj:
+                    if obj in object_Old:
                         objInLayers.append(L)
             for lay in objInLayers:
                 cmds.editRenderLayerGlobals( currentRenderLayer = lay )
@@ -454,7 +454,6 @@ def objectChooseWin():
                     if val != scaleZ_val:
                         transLayerOveride.append(dic)
             defValList = [transX_val,transY_val,transZ_val,rotX_val,rotY_val,rotZ_val,scaleX_val,scaleY_val,scaleZ_val]
-            print 'defValList = ',defValList
             sizL = len(transLayerOveride)
             transValuesDict_string = str(transValuesDict)
             transLayerOveride_string = str(transLayerOveride)
@@ -751,31 +750,47 @@ def objectChooseWin():
                         materials_assigned_object_old_OVR.append(material_assigned_object_old)
                 print 'materials_assigned_object_old_OVR = ',materials_assigned_object_old_OVR
                 number_of_assigned_materials = len(materials_assigned_object_old_OVR)
+                print 'number_of_assigned_materials = ',number_of_assigned_materials
                 if number_of_assigned_materials > 0:
+                    print 'materials_assigned_object_old_OVR = ',materials_assigned_object_old_OVR
                     for matsInc in materials_assigned_object_old_OVR:
+                        print 'matsInc = ',matsInc
                         cmds.select(matsInc)
                         LayerMats_dic[render_layer] = matsInc
                         cmds.hyperShade(o = matsInc)
                         mats_objectList = cmds.ls(sl = True)
+                        print 'mats_objectList = ',mats_objectList
                         for mo in mats_objectList:
-                            if object_Old in mo:
+                            mo.replace('Shape','')
+                            print 'mo = ',mo
+                            print 'object_Old = ',object_Old
+                            if mo in object_Old:
                                 mats_objectList_clean.append(mo)
+                        print 'mats_objectList_clean = ',mats_objectList_clean
                         matAssignsExist = len(mats_objectList_clean)
+                        print 'matAssignsExist = ',matAssignsExist
                         for moc in mats_objectList_clean:
+                            print 'moc = ',moc
                             baseO = cmds.listRelatives(moc, parent = True)
                             if baseO not in mats_objectList_clean_BASE:
                                 mats_objectList_clean_BASE.append(baseO)
+                        print 'mats_objectList_clean_BASE = ',mats_objectList_clean_BASE
                         layer_Mats_Inc = render_layer + "_" + matsInc + "_"
+                        print 'layer_Mats_Inc = ',layer_Mats_Inc
                         for moc in mats_objectList_clean:
+                            print 'moc = ',moc
                             baseO = cmds.listRelatives(moc, parent = True)
+                            print 'baseO = ',baseO
                             if baseO not in mats_objectList_clean_BASE:
                                 mats_objectList_clean_BASE.append(baseO)
+                        print 'mats_objectList_clean_BASE = ',mats_objectList_clean_BASE
                         emptyListTest = len(mats_objectList)
                         emptyListTest2 = len(mats_objectList_clean_BASE)
                         if emptyListTest > 0:
                             if emptyListTest2 > 0:
                                 mats_dict[layer_Mats_Inc] = mats_objectList_clean_BASE[0]
                     spltMatList.append(matsInc)
+            print 'spltMatList = ',spltMatList
             sz = len(spltMatList)
             szz = sz - 1
             aa = 0
@@ -1482,7 +1497,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".translateX"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a TX overide value of " + str(va) + " in layer " + L
+                            print "setting a TX overide value of " + str(va) + " in layer " + L
                         if "transY" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "transY"
                             va = transValuesDict[v]
@@ -1491,7 +1506,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".translateY"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a TY overide value of " + str(va) + " in layer " + L
+                            print "setting a TY overide value of " + str(va) + " in layer " + L
                         if "transZ" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "transZ"
                             va = transValuesDict[v]
@@ -1500,7 +1515,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".translateZ"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a TZ overide value of " + str(va) + " in layer " + L
+                            print "setting a TZ overide value of " + str(va) + " in layer " + L
                         if "rotX" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotX"
                             va = transValuesDict[v]
@@ -1509,7 +1524,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".rotateX"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a RotX overide value of " + str(va) + " in layer " + L
+                            print "setting a RotX overide value of " + str(va) + " in layer " + L
                         if "rotY" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotY"
                             va = transValuesDict[v]
@@ -1518,7 +1533,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".rotateY"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a RotY overide value of " + str(va) + " in layer " + L
+                            print "setting a RotY overide value of " + str(va) + " in layer " + L
                         if "rotZ" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotZ"
                             va = transValuesDict[v]
@@ -1527,7 +1542,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".rotateZ"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a RotZ overide value of " + str(va) + " in layer " + L
+                            print "setting a RotZ overide value of " + str(va) + " in layer " + L
                         if "scaleX" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "scaleX"
                             va = transValuesDict[v]
@@ -1536,7 +1551,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleX"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a scaleX overide value of " + str(va) + " in layer " + L
+                            print "setting a scaleX overide value of " + str(va) + " in layer " + L
                         if "scaleY" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "scaleY"
                             va = transValuesDict[v]
@@ -1545,7 +1560,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleY"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a scaleY overide value of " + str(va) + " in layer " + L
+                            print "setting a scaleY overide value of " + str(va) + " in layer " + L
                         if "scaleZ" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "scaleZ"
                             va = transValuesDict[v]
@@ -1554,7 +1569,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleZ"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a scaleZ overide value of " + str(va) + " in layer " + L
+                            print "setting a scaleZ overide value of " + str(va) + " in layer " + L
             if siiz < 1:
                 print "no transform render layer overides detected"
 
@@ -1635,151 +1650,153 @@ def objectChooseWin():
             old_visibleInReflections = 0
             old_visibleInRefractions = 0
             old_doubleSided = 0
+            print 'render state default values = ',defRSlist
             for DL in defRSlist:
                 if "castsShadows" in DL:
                     old_castsShadows = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for castsShadows to",old_castsShadows
+                    #print "setting default render layer value for castsShadows to",old_castsShadows
                     cmds.setAttr((object_New + ".castsShadows"),old_castsShadows)
                 if "recieveShadows" in DL:
                     old_recieveShadows = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for recieveShadows to",old_recieveShadows
+                    #print "setting default render layer value for recieveShadows to",old_recieveShadows
                     cmds.setAttr((object_New + ".receiveShadows"),old_recieveShadows )
                 if "motionBlur" in DL:
                     old_motionBlur = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for motionBlur to",old_motionBlur
+                    #print "setting default render layer value for motionBlur to",old_motionBlur
                     cmds.setAttr((object_New + ".motionBlur"),old_motionBlur)
                 if "primaryVisibility" in DL:
                     old_primaryVisibility = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for primaryVisibility to",old_primaryVisibility
+                    #print "setting default render layer value for primaryVisibility to",old_primaryVisibility
                     cmds.setAttr((object_New + ".primaryVisibility"),old_primaryVisibility)
                 if "smoothShading" in DL:
                     old_smoothShading = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for smoothShading to",old_smoothShading
+                    #print "setting default render layer value for smoothShading to",old_smoothShading
                     cmds.setAttr((object_New + ".smoothShading"),old_smoothShading)
                 if "visibleInReflections" in DL:
                     old_visibleInReflections = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for visibleInReflections to",old_visibleInReflections
+                    #print "setting default render layer value for visibleInReflections to",old_visibleInReflections
                     cmds.setAttr((object_New + ".visibleInReflections"),old_visibleInReflections)
                 if "visibleInRefractions" in DL:
                     old_visibleInRefractions = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for visibleInRefractions to",old_visibleInRefractions
+                    #print "setting default render layer value for visibleInRefractions to",old_visibleInRefractions
                     cmds.setAttr((object_New + ".visibleInRefractions"),old_visibleInRefractions )
                 if "doubleSided" in DL:
                     old_doubleSided = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for doubleSided to",old_doubleSided
+                    #print "setting default render layer value for doubleSided to",old_doubleSided
                     cmds.setAttr((object_New + ".doubleSided"),old_doubleSided)
+            print 'setting the render state overrides ',RS_overRideList
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_1 = RL + "_" + "castsShadows"
                     if chunk_1 in R:
-                        print "** castShadows render layer overide detected **"
+                        #print "** castShadows render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "castsShadows"
                         old_castsShadows_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for castsShadows in ", RL
+                        #print "setting a render layer overide for castsShadows in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".castsShadows"))
                         cmds.setAttr((object_New + ".castsShadows"),old_castsShadows_lovr)
-                    else:
-                        print 'no cast shadows render state over ride detected'
+                    #else:
+                        #print 'no cast shadows render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_2 = RL + "_" + "receiveShadows"
                     if chunk_2 in R:
-                        print "** receiveShadows render layer overide detected **"
+                        #print "** receiveShadows render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "receiveShadows"
                         old_receiveShadows_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for receiveShadows in ", RL
+                        #print "setting a render layer overide for receiveShadows in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".receiveShadows"))
                         cmds.setAttr((object_New + ".receiveShadows"),old_receiveShadows_lovr)
-                    else:
-                        print 'no receive shadows render state over ride detected'
+                    #else:
+                        #print 'no receive shadows render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_3 = RL + "_" + "motionBlur"
                     if chunk_3 in R:
-                        print "** motionBlur render layer overide detected **"
+                        #print "** motionBlur render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "motionBlur"
                         old_motionBlur_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for motionBlur in ", RL
+                        #print "setting a render layer overide for motionBlur in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".motionBlur"))
                         cmds.setAttr((object_New + ".motionBlur"),old_motionBlur_lovr)
-                    else:
-                        print 'no motion blur render state over ride detected'
+                    #else:
+                        #print 'no motion blur render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_5 = RL + "_" + "smoothShading"
                     if chunk_5 in R:
-                        print "** smoothShading render layer overide detected **"
+                        #print "** smoothShading render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "smoothShading"
                         old_smoothShading_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for smoothShading in ", RL
+                        #print "setting a render layer overide for smoothShading in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".smoothShading"))
                         cmds.setAttr((object_New + ".smoothShading"),old_smoothShading_lovr)
-                    else:
-                        print 'no smooth shading render state over ride detected'
+                    #else:
+                        #print 'no smooth shading render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_6 = RL + "_" + "visibleInReflections"
                     if chunk_6 in R:
-                        print "** visibleInReflections render layer overide detected **"
+                        #print "** visibleInReflections render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "visibleInReflections"
                         old_visibleInReflections_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for visibleInReflections in ", RL
+                        #print "setting a render layer overide for visibleInReflections in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".visibleInReflections"))
                         cmds.setAttr((object_New + ".visibleInReflections"),old_visibleInReflections_lovr)
-                    else:
-                        print 'no visible in reflections render state over ride detected'
+                    #else:
+                        #print 'no visible in reflections render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_4 = RL + "_" + "primaryVisibility"
                     if chunk_4 in R:
-                        print "** primaryVisibility render layer overide detected **"
+                        #print "** primaryVisibility render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "primaryVisibility"
                         old_primaryVisibility_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for primaryVisibility in ", RL
+                        #print "setting a render layer overide for primaryVisibility in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".primaryVisibility"))
                         cmds.setAttr((object_New + ".primaryVisibility"),old_primaryVisibility_lovr)
-                    else:
-                        print 'no primary visiblity render state over ride detected'
+                    #else:
+                        #print 'no primary visiblity render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_5 = RL + "_" + "visibleInRefractions"
                     if chunk_5 in R:
-                        print "** visibleInRefractions render layer overide detected **"
+                        #print "** visibleInRefractions render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "visibleInRefractions"
                         old_visibleInRefractions_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for visibleInRefractions in ", RL
+                        #print "setting a render layer overide for visibleInRefractions in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".visibleInRefractions"))
                         cmds.setAttr((object_New + ".visibleInRefractions"),old_visibleInRefractions_lovr)
-                    else:
-                        print 'no visible in refractions render state over ride detected'
+                    #else:
+                        #print 'no visible in refractions render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_6 = RL + "_" + "doubleSided"
                     if chunk_6 in R:
-                        print "** doubleSided render layer overide detected **"
+                        #print "** doubleSided render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "doubleSided"
                         old_doubleSided_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for doubleSided in layer, ", RL
+                        #print "setting a render layer overide for doubleSided in layer, ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".doubleSided"))
                         cmds.setAttr((object_New + ".doubleSided"),old_doubleSided_lovr)
-                    else:
-                        print 'no double sided render state over ride detected'
+                    #else:
+                        #print 'no double sided render state over ride detected'
 
         def object_New_VRAY_objectPropOverides(OBJ_1_vrayObjProps):
             print 'setting new object v-ray object properties:'
@@ -1972,9 +1989,14 @@ def objectChooseWin():
             for r in RLs:
                 cmds.editRenderLayerGlobals( currentRenderLayer = r)
                 if r != "defaultRenderLayer":
+                    #print 'visDic = ',visDic
                     if r in visDic:
+                        #print 'r in visDic'
                         visVal = visDic[r]
+                        #print 'visVal = ',visVal
+                        #print 'defVisVal = ',defVisVal
                         if visVal != defVisVal:
+                            #print 'visVal does not equal defVisVal'
                             cmds.editRenderLayerAdjustment((object_New + ".visibility"))
                             print "setting the visibility for " + object_new_print_temp + " to " + str(visVal) + " in render layer " + r
                             cmds.setAttr(visPathNew,visVal)
