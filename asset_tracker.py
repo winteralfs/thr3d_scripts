@@ -143,7 +143,7 @@ class ASSET_TRACKER(object):
                                 #print 'number_of_files = ',number_of_files
                                 publish_path_value_dir_split = publish_path_value_dir.split('\\')
                                 temp_year_used = publish_path_value_dir_split[5]
-                                print 'temp_year_used = ',temp_year_used
+                                #print 'temp_year_used = ',temp_year_used
                                 if number_of_files != 0:
                                     bad_file_type_list = ['.DS_Store','workarea','cache','die','photo','scan','_workarea','_cache','_die','_photo','_scan','version']
                                     #print 'node_type = ',node_type

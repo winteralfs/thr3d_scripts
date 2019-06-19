@@ -59,7 +59,7 @@ from string import digits
 print 'wed'
 
 def look_for_duplicate_nodes():
-    print ' '
+    #print ' '
     #print 'XXX look_for_duplicate_nodes XXX'
     duplicate_node_names = []
     all_nodes = cmds.ls()
@@ -90,23 +90,31 @@ def objectChooseWin():
     window = cmds.window(name, title = name, width = 30, height = 10, sizeable = True)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "new_object")
-    object_New_Path = cmds.textField(tx = "new_object", width = 250)
+    cmds.text(label = "new_object  ")
+    object_new_textfield = cmds.textField(tx = "new_object", width = 250)
     cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "old_object")
-    object_Old_Path = cmds.textField(tx = "old_object",width = 250)
+    cmds.text(label = "old_object   ")
+    object_old_textfield= cmds.textField(tx = "old_object", width = 250)
     selected_objects = cmds.ls(sl = True,long = True)
     number_of_selected_objects = len(selected_objects)
     if number_of_selected_objects == 2:
-        cmds.textField(object_New_Path, text = selected_objects[0], edit = True)
-        cmds.textField(object_Old_Path, text = selected_objects[1], edit = True)
+        object_New_short_name_split = selected_objects[0].split('|')
+        object_New_short_name = object_New_short_name_split[-1]
+        object_Old_short_name_split = selected_objects[1].split('|')
+        object_Old_short_name = object_Old_short_name_split[-1]
+        cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+        cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
 
     def text_fields_selected_objects():
         selected_objects = cmds.ls(sl = True,long = True)
         number_of_selected_objects = len(selected_objects)
         if number_of_selected_objects == 2:
-            cmds.textField(object_New_Path, text = selected_objects[0], edit = True)
-            cmds.textField(object_Old_Path, text = selected_objects[1], edit = True)
+            object_New_short_name_split = selected_objects[0].split('|')
+            object_New_short_name = object_New_short_name_split[-1]
+            object_Old_short_name_split = selected_objects[1].split('|')
+            object_Old_short_name = object_Old_short_name_split[-1]
+            cmds.textField(object_new_textfield, text = object_New_short_name, edit = True)
+            cmds.textField(object_old_textfield, text = object_Old_short_name, edit = True)
 
     myScriptJobID = cmds.scriptJob(p = window, event=["SelectionChanged", text_fields_selected_objects])
 
@@ -117,8 +125,8 @@ def objectChooseWin():
         panels = cmds.getPanel( type = "modelPanel" )
         for mPanel in panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 0)
-        object_Old = cmds.textField(object_Old_Path,q=1,tx=1)
-        object_New = cmds.textField(object_New_Path,q=1,tx=1)
+        object_New = selected_objects[0]
+        object_Old = selected_objects[1]
         objects(object_Old,object_New)
     cmds.rowLayout("nameRowLayout2.5", numberOfColumns = 10, parent = "mainColumn")
     cmds.rowLayout("nameRowLayout4.5", numberOfColumns = 10, parent = "mainColumn")
@@ -128,8 +136,8 @@ def objectChooseWin():
     cmds.showWindow()
 
     def objects(object_Old,object_New):
-        print 'object_New = ',object_New
-        print 'object_Old = ',object_Old
+        print 'new_object = ',object_New
+        print 'old_object = ',object_Old
         all_shape_nodes = []
         transform_nodes = cmds.ls(type = 'transform')
         for transform_node in transform_nodes:
@@ -185,6 +193,9 @@ def objectChooseWin():
                     cmds.lockNode(duplicate_node_name,lock = False)
                     cmds.rename(duplicate_node_name,rename_string)
                     duplicate_node_names_renamed.append(rename_string)
+                    print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+                    print 'object_Old = ',object_Old
+                    print 'object_New = ',object_New
                     if duplicate_node_name == object_Old:
                         duplicate_name_dic[rename_string] = object_Old
                         object_Old = rename_string
@@ -255,16 +266,16 @@ def objectChooseWin():
         object_new_print_temp = ''
         if object_old_rename_check == 1:
             object_old_print_temp = duplicate_name_dic[object_Old]
-            print "object_old = ",object_old_print_temp
+            #print "object_old = ",object_old_print_temp
         else:
             object_old_print_temp = object_Old
-            print "object_old = ",object_Old
+            #print "object_old = ",object_Old
         if object_new_rename_check ==  1:
             object_new_print_temp = duplicate_name_dic[object_New]
-            print "object_new = ",object_new_print_temp
+            #print "object_new = ",object_new_print_temp
         else:
             object_new_print_temp = object_New
-            print "object_old = ",object_Old
+            #print "object_old = ",object_Old
 
         def master_path(object_Old,object_New,renderLayers):
             print "old object path check:"
@@ -752,7 +763,7 @@ def objectChooseWin():
                 number_of_assigned_materials = len(materials_assigned_object_old_OVR)
                 #print 'number_of_assigned_materials = ',number_of_assigned_materials
                 if number_of_assigned_materials > 0:
-                    print 'materials_assigned_object_old_OVR = ',materials_assigned_object_old_OVR
+                    #print 'materials_assigned_object_old_OVR = ',materials_assigned_object_old_OVR
                     for matsInc in materials_assigned_object_old_OVR:
                         #print 'matsInc = ',matsInc
                         cmds.select(matsInc)
@@ -1363,10 +1374,7 @@ def objectChooseWin():
             OBJ_1_visibility = visibilty(object_Old,object_New,renderLayers)
             OBJ_1_polySmooth = polySmoothOBJ(object_Old,object_New,renderLayers)
             OBJ_1_objectIDnode = objectIDnode(object_Old,object_New,renderLayers)
-        #OBJ_1_translations = translations(object_Old,object_New,renderLayers)
-        #OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
         OBJ_1_renderLayer = renderLayerCheck(object_Old,object_New,renderLayers)
-        #OBJ_1_translations = translations(object_Old,object_New,renderLayers)
         OBJ_1_ELS = excludeListSets(object_Old,object_New,renderLayers)
         OBJ_1_LL = lightLinking(object_Old,object_New,renderLayers)
         OBJ_1_renderStats = renderStats(object_Old,object_New,renderLayers)
@@ -1667,7 +1675,7 @@ def objectChooseWin():
             old_visibleInReflections = 0
             old_visibleInRefractions = 0
             old_doubleSided = 0
-            print 'render state default values = ',defRSlist
+            print 'render state default values = ',renderStatsDic
             for DL in defRSlist:
                 if "castsShadows" in DL:
                     old_castsShadows = renderStatsDic[DL]
@@ -1865,19 +1873,19 @@ def objectChooseWin():
             print "setting new object material assignments:"
             cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer")
             mats_dict = OBJ_1_objectMaterials[0]
-            print 'mats_dict = ',mats_dict
+            #print 'mats_dict = ',mats_dict
             LayerMats_dic = OBJ_1_objectMaterials[1]
-            print 'LayerMats_dic = ',LayerMats_dic
+            #print 'LayerMats_dic = ',LayerMats_dic
             layerOverM = OBJ_1_objectMaterials[2]
-            print 'layerOverM = ',layerOverM
+            #print 'layerOverM = ',layerOverM
             object_Old = OBJ_1_objectMaterials[3]
-            print 'object_Old = ',object_Old
+            #print 'object_Old = ',object_Old
             object_New = OBJ_1_objectMaterials[4]
-            print 'object_New = ',object_New
+            #print 'object_New = ',object_New
             render_layers_in_scene = OBJ_1_objectMaterials[5]
-            print 'render_layers_in_scene = ',render_layers_in_scene
+            #print 'render_layers_in_scene = ',render_layers_in_scene
             matAssignsExist = OBJ_1_objectMaterials[6]
-            print 'matAssignsExist = ',matAssignsExist
+            #print 'matAssignsExist = ',matAssignsExist
             defMatList = []
             valOLD = []
             valNEW = []
@@ -2026,7 +2034,7 @@ def objectChooseWin():
                             cmds.setAttr(visPathNew,visVal)
 
         def object_New_displacementNode(OBJ_1_displacementNodes):
-            print "setting new object displacement node:"
+            print "setting new object displacement node: ",OBJ_1_displacementNodes[8]
             object_Old = OBJ_1_displacementNodes[6]
             object_New = OBJ_1_displacementNodes[7]
             object_Old_DispNode = OBJ_1_displacementNodes[8]

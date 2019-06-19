@@ -56,14 +56,11 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print ''
+print 'hump day'
 
 def look_for_duplicate_nodes():
-    print ' '
-    #print 'XXX look_for_duplicate_nodes XXX'
     duplicate_node_names = []
     all_nodes = cmds.ls()
-    #print 'all_nodes = ',all_nodes
     all_nodes_compare = all_nodes
     for node_1 in all_nodes_compare:
         node_1_split = node_1.split('|')
@@ -78,8 +75,6 @@ def look_for_duplicate_nodes():
                     if node_1 not in duplicate_node_names:
                         if 'Shape' not in duplicate_node_names:
                             duplicate_node_names.append(node_1)
-    #print 'duplicate_node_names = ',duplicate_node_names
-    #print 'END look_for_duplicate_nodes'
     return(duplicate_node_names)
 
 def objectChooseWin():
@@ -95,14 +90,14 @@ def objectChooseWin():
     cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "old_object")
     object_Old_Path = cmds.textField(tx = "old_object",width = 250)
-    selected_objects = cmds.ls(sl = True,long = True)
+    selected_objects = cmds.ls(sl = True)
     number_of_selected_objects = len(selected_objects)
     if number_of_selected_objects == 2:
         cmds.textField(object_New_Path, text = selected_objects[0], edit = True)
         cmds.textField(object_Old_Path, text = selected_objects[1], edit = True)
 
     def text_fields_selected_objects():
-        selected_objects = cmds.ls(sl = True,long = True)
+        selected_objects = cmds.ls(sl = True)
         number_of_selected_objects = len(selected_objects)
         if number_of_selected_objects == 2:
             cmds.textField(object_New_Path, text = selected_objects[0], edit = True)
@@ -128,30 +123,7 @@ def objectChooseWin():
     cmds.showWindow()
 
     def objects(object_Old,object_New):
-        print 'object_New = ',object_New
-        print 'object_Old = ',object_Old
-        all_shape_nodes = []
-        transform_nodes = cmds.ls(type = 'transform')
-        for transform_node in transform_nodes:
-            transform_node_shapes = cmds.listRelatives(transform_node,shapes = True,fullPath = True) or []
-            for transform_node_shape in transform_node_shapes:
-                if transform_node_shape not in all_shape_nodes:
-                    all_shape_nodes.append(transform_node_shape)
-                    all_shape_nodes.append(transform_node_shape[1:])
-                    all_shape_nodes.append('|' + transform_node_shape)
-        #print 'all_shape_nodes = ',all_shape_nodes
-        if object_Old in all_shape_nodes:
-            #print 'object old is a shape node, grabbing parent'
-            object_Old_parents = cmds.listRelatives(object_Old,parent = True,fullPath = True)
-            object_Old = object_Old_parents[0]
-        if object_New in all_shape_nodes:
-            #print 'object new is a shape node, grabbing parent'
-            object_New_parents = cmds.listRelatives(object_New,parent = True,fullPath = True)
-            object_New = object_New_parents[0]
-        #print 'object_New = ',object_New
-        #print 'object_Old = ',object_Old
         duplicate_node_names = look_for_duplicate_nodes()
-        duplicate_node_shape_list = []
         duplicate_node_names.reverse()
         number_of_dup_nodes = len(duplicate_node_names)
         duplicate_node_names_renamed = []
@@ -160,79 +132,29 @@ def objectChooseWin():
         object_new_rename_check = 0
         if number_of_dup_nodes > 0:
             print 'duplicate_node_names = ',duplicate_node_names
+            print 'renaming duplicate_node_names, adding _duplicate_name suffix'
+            i = 0
             duplicate_node_names.sort(key=len,reverse = True)
             for duplicate_node_name in duplicate_node_names:
-                shapes = cmds.listRelatives(duplicate_node_name,shapes = True,fullPath = True) or []
-                for shape in shapes:
-                    if shape not in duplicate_node_shape_list:
-                        if shape[0] == '|':
-                            shape = shape[1:]
-                        shape_name = shape
-                        shape_name_bar = '|' + shape_name
-                        duplicate_node_shape_list.append(shape_name)
-                        duplicate_node_shape_list.append(shape_name_bar)
-            #print 'duplicate_node_shape_list = ',duplicate_node_shape_list
-            i = 0
-            for duplicate_node_name in duplicate_node_names:
-                #print 'duplicate_node_name = ',duplicate_node_name
-                if duplicate_node_name not in duplicate_node_shape_list:
-                    #print 'not a shape node'
-                    duplicate_node_name_split = duplicate_node_name.split('|')
-                    object_name = duplicate_node_name_split[-1]
-                    rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
-                    #print 'rename_string = ',rename_string
-                    print 'renaming ' + duplicate_node_name + ' to ' + rename_string
-                    cmds.lockNode(duplicate_node_name,lock = False)
-                    cmds.rename(duplicate_node_name,rename_string)
-                    duplicate_node_names_renamed.append(rename_string)
-                    if duplicate_node_name == object_Old:
-                        duplicate_name_dic[rename_string] = object_Old
-                        object_Old = rename_string
-                        object_old_rename_check = 1
-                    if duplicate_node_name == ('|' + object_Old):
-                        duplicate_name_dic[rename_string] = object_Old
-                        object_Old = rename_string
-                        object_old_rename_check = 1
-                    if duplicate_node_name == object_Old[1:]:
-                        duplicate_name_dic[rename_string] = object_Old
-                        object_Old = rename_string
-                        object_old_rename_check = 1
-                    if duplicate_node_name == object_New:
-                        duplicate_name_dic[rename_string] = object_New
-                        object_New = rename_string
-                        object_new_rename_check = 1
-                    if duplicate_node_name == ('|' + object_New):
-                        duplicate_name_dic[rename_string] = object_New
-                        object_New = rename_string
-                        object_new_rename_check = 1
-                    if duplicate_node_name == object_New[1:]:
-                        duplicate_name_dic[rename_string] = object_New
-                        object_New = rename_string
-                        object_new_rename_check = 1
-                    i = i + 1
-        #print ' '
-        #print ' '
-        #print '--- '
-        transform_nodes = cmds.ls(type = 'transform')
-        #print 'transform_nodes = ',transform_nodes
-        #looking_for_duplicate_shape_node_names = look_for_duplicate_nodes()
-        #print 'looking_for_duplicate_shape_node_names = ',looking_for_duplicate_shape_node_names
-        scene_shapes = []
-        for transform_node in transform_nodes:
-            #print '---'
-            #print 'transform_node = ',transform_node
-            transform_node_shapes = cmds.listRelatives(transform_node,shapes = True,fullPath = True) or []
-            #print 'transform_node_shapes = ',transform_node_shapes
-            for transform_node_shape in transform_node_shapes:
-                if 'Shape' not in transform_node_shape:
-                    cmds.lockNode(transform_node_shape,lock = False)
-                    cmds.rename(transform_node_shape,transform_node_shape + 'Shape')
-                    if transform_node_shape in duplicate_node_names_renamed:
-                        duplicate_node_names_renamed.remove(transform_node_shape)
-        #print ' '
-        #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
-        #print 'object_Old = ',object_Old
-        #print 'object_New = ',object_New
+                print 'duplicate_node_name = ',duplicate_node_name
+                duplicate_node_name_split = duplicate_node_name.split('|')
+                object_name = duplicate_node_name_split[-1]
+                rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
+                print 'rename_string = ',rename_string
+                print 'renaing ' + duplicate_node_name + ' to ' + rename_string
+                cmds.rename(duplicate_node_name,rename_string)
+                duplicate_node_names_renamed.append(rename_string)
+                if duplicate_node_name == object_Old:
+                    duplicate_name_dic[rename_string] = object_Old
+                    object_Old = rename_string
+                    object_old_rename_check = 1
+                if duplicate_node_name == object_New:
+                    duplicate_name_dic[rename_string] = object_New
+                    object_New = rename_string
+                    object_new_rename_check = 1
+                i = i + 1
+        print ' '
+        print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
         obj_kids_old = cmds.listRelatives(object_Old, children = True) or []
         obj_kids_new = cmds.listRelatives(object_New, children = True) or []
         obj_kids_old_len = len(obj_kids_old)
@@ -315,15 +237,6 @@ def objectChooseWin():
         def translations(object_Old,object_New,renderLayers):
             print "old object transforms check:"
             transValuesDict = {}
-            transX_val = 0
-            transY_val = 0
-            transZ_val = 0
-            rotX_val = 0
-            rotY_val = 0
-            rotZ_val = 0
-            scaleX_val = 1
-            scaleY_val = 1
-            scaleZ_val = 1
             objInLayers = []
             object_Old = (str(object_Old))
             object_New = (str(object_New))
@@ -1180,7 +1093,6 @@ def objectChooseWin():
                     if shadEx == 1:
                         cmds.delete("tempShader")
                     tempNodeName = cmds.createNode("surfaceShader")
-                    cmds.lockNode(tempNodeName,lock = False)
                     cmds.rename(tempNodeName, "tempShader")
                     cmds.select(clear = True)
                     cmds.select(object_New)
@@ -1228,7 +1140,6 @@ def objectChooseWin():
                     if shadEx == 1:
                         cmds.delete("tempShader")
                     tempNodeName = cmds.createNode("surfaceShader")
-                    cmds.lockNode(tempNodeName,lock = False)
                     cmds.rename(tempNodeName, "tempShader")
                     cmds.select(clear = True)
                     cmds.select(object_New)
@@ -1250,7 +1161,6 @@ def objectChooseWin():
                         if shadEx == 1:
                             cmds.delete("tempShader")
                         tempNodeName = cmds.createNode("surfaceShader")
-                        cmds.lockNode(tempNodeName,lock = False)
                         cmds.rename(tempNodeName, "tempShader")
                         fileName = dft
                         cmds.select(clear = True)
@@ -1328,9 +1238,8 @@ def objectChooseWin():
             OBJ_1_visibility = visibilty(object_Old,object_New,renderLayers)
             OBJ_1_polySmooth = polySmoothOBJ(object_Old,object_New,renderLayers)
             OBJ_1_objectIDnode = objectIDnode(object_Old,object_New,renderLayers)
-        OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
         OBJ_1_renderLayer = renderLayerCheck(object_Old,object_New,renderLayers)
-        OBJ_1_translations = translations(object_Old,object_New,renderLayers)
+        #OBJ_1_translations = translations(object_Old,object_New,renderLayers)
         OBJ_1_ELS = excludeListSets(object_Old,object_New,renderLayers)
         OBJ_1_LL = lightLinking(object_Old,object_New,renderLayers)
         OBJ_1_renderStats = renderStats(object_Old,object_New,renderLayers)
@@ -1343,6 +1252,8 @@ def objectChooseWin():
         OBJ_1_displacementNodes = displacementNodes(object_Old,object_New,renderLayers)
         OBJ_1_newObjectCenter = oldObjectCenter(object_Old,object_New,renderLayers)
         OBJ_1_v_ray_subdivisions_check = old_object_v_ray_subdivisions_check(object_Old,object_New,renderLayers)
+        OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
+        OBJ_1_translations = translations(object_Old,object_New,renderLayers)
 
         cmds.select(clear = True)
         if checkAll == 1:
@@ -2124,55 +2035,43 @@ def objectChooseWin():
             print 'no v-ray subdivision attribute detected for ' + object_old_print_temp + ', not adding a v-ray subdivision attribute to ' + object_new_print_temp
         OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
         duplicate_node_names_renamed = object_New_Path(OBJ_1_Path,duplicate_node_names_renamed)
-        print 'XXXXXX'
-        print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+        #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
         for duplicate_node_name_renamed in duplicate_node_names_renamed:
-            print ' '
-            print 'duplicate_node_name_renamed = ',duplicate_node_name_renamed
+            #print ' '
+            #print 'duplicate_node_name_renamed = ',duplicate_node_name_renamed
             if 'Shape' not in duplicate_node_name_renamed:
-                print 'no Shape found in duplicate_node_name_renamed'
+                #print 'no Shape found in duplicate_node_name_renamed'
                 chosen_object = 0
                 duplicate_node_name_renamed_split = duplicate_node_name_renamed.split('_XXXXXX')
                 duplicate_node_name_mod = duplicate_node_name_renamed_split[0]
-                print 'duplicate_node_name_renamed_split = ',duplicate_node_name_renamed_split
-                print 'duplicate_node_name_mod = ',duplicate_node_name_mod
+                #print 'duplicate_node_name_renamed_split = ',duplicate_node_name_renamed_split
+                #print 'duplicate_node_name_mod = ',duplicate_node_name_mod
                 if duplicate_node_name_renamed == object_Old:
-                    print 'duplicate_node_name_renamed = ',object_Old
+                    #print 'duplicate_node_name_renamed = ',object_Old
                     chosen_object = 1
-                    print 'adding _old to ',duplicate_node_name_mod
+                    #print 'adding _old to ',duplicate_node_name_mod
                     duplicate_node_name_mod = duplicate_node_name_mod + '_old'
                 if duplicate_node_name_renamed == object_New:
-                    print 'duplicate_node_name_renamed = ',object_New
+                    #print 'duplicate_node_name_renamed = ',object_New
                     chosen_object = 1
-                    print 'adding _new to ',duplicate_node_name_mod
+                    #print 'adding _new to ',duplicate_node_name_mod
                     duplicate_node_name_mod = duplicate_node_name_mod + '_new'
                 cmds.select(clear = True)
                 cmds.select(duplicate_node_name_renamed)
-                print 'duplicate_node_name_mod = ',duplicate_node_name_mod
-                renamed_long_name = cmds.ls(selection = True,long = True)
-                print '---'
-                print 'testing for shape renames'
-                print 'renamed_long_name = ',renamed_long_name
-                shape_node_originals = cmds.listRelatives(renamed_long_name,children = True,fullPath = True) or []
-                print 'shape_node_originals = ',shape_node_originals
-                shape_node_originals[::-1]
-                for shape_node_original in shape_node_originals:
-                    print 'shape_node_original = ',shape_node_original
-                    kids_for_shape_node_original = cmds.listRelatives(shape_node_original,children = True) or []
-                    number_of_kids_node_original = len(kids_for_shape_node_original)
-                    print 'number_of_kids_node_original = ',number_of_kids_node_original
-                    if number_of_kids_node_original == 0:
-                        print ' '
-                        print 'shape_node_originals num of kids = 0'
-                        print 'shape_node_original = ',shape_node_original
-                        shape_node_mod =  duplicate_node_name_mod + 'Shape'
-                        print 'shape_node_mod = ',shape_node_mod
-                        print 'no kids found, renaming ' + shape_node_original + ' to ',shape_node_mod
-                        cmds.lockNode(shape_node_original,lock = False)
-                        cmds.rename(shape_node_original,shape_node_mod)
+                #print 'duplicate_node_name_mod = ',duplicate_node_name_mod
                 print 'renaming ' + duplicate_node_name_renamed + ' to ' + duplicate_node_name_mod
-                cmds.lockNode(duplicate_node_name_renamed,lock = False)
                 cmds.rename(duplicate_node_name_renamed,duplicate_node_name_mod)
+                renamed_long_name = cmds.ls(selection = True,long = True)
+                #print 'renamed_long_name = ',renamed_long_name
+                shape_node_original = cmds.listRelatives(renamed_long_name,children = True) or []
+                #print 'shape_node_original = ',shape_node_original
+                shape_node_mod =  duplicate_node_name_mod + 'Shape'
+                #print 'shape_node_mod = ',shape_node_mod
+                kids_for_shape_node_original = cmds.listRelatives(children = True)
+                number_of_kids_node_original = len(kids_for_shape_node_original)
+                if number_of_kids_node_original == 0:
+                    print 'renaming ' + shape_node_original[0] + ' to ' + shape_node_mod
+                    cmds.rename(shape_node_original[0],shape_node_mod)
                 #print ' '
         panels = cmds.getPanel( type = "modelPanel" )
         for mPanel in panels:

@@ -59,7 +59,7 @@ from string import digits
 print 'wed'
 
 def look_for_duplicate_nodes():
-    print ' '
+    #print ' '
     #print 'XXX look_for_duplicate_nodes XXX'
     duplicate_node_names = []
     all_nodes = cmds.ls()
@@ -255,16 +255,16 @@ def objectChooseWin():
         object_new_print_temp = ''
         if object_old_rename_check == 1:
             object_old_print_temp = duplicate_name_dic[object_Old]
-            print "object_old = ",object_old_print_temp
+            #print "object_old = ",object_old_print_temp
         else:
             object_old_print_temp = object_Old
-            print "object_old = ",object_Old
+            #print "object_old = ",object_Old
         if object_new_rename_check ==  1:
             object_new_print_temp = duplicate_name_dic[object_New]
-            print "object_new = ",object_new_print_temp
+            #print "object_new = ",object_new_print_temp
         else:
             object_new_print_temp = object_New
-            print "object_old = ",object_Old
+            #print "object_old = ",object_Old
 
         def master_path(object_Old,object_New,renderLayers):
             print "old object path check:"
@@ -752,7 +752,7 @@ def objectChooseWin():
                 number_of_assigned_materials = len(materials_assigned_object_old_OVR)
                 #print 'number_of_assigned_materials = ',number_of_assigned_materials
                 if number_of_assigned_materials > 0:
-                    print 'materials_assigned_object_old_OVR = ',materials_assigned_object_old_OVR
+                    #print 'materials_assigned_object_old_OVR = ',materials_assigned_object_old_OVR
                     for matsInc in materials_assigned_object_old_OVR:
                         #print 'matsInc = ',matsInc
                         cmds.select(matsInc)
@@ -1363,10 +1363,9 @@ def objectChooseWin():
             OBJ_1_visibility = visibilty(object_Old,object_New,renderLayers)
             OBJ_1_polySmooth = polySmoothOBJ(object_Old,object_New,renderLayers)
             OBJ_1_objectIDnode = objectIDnode(object_Old,object_New,renderLayers)
-        #OBJ_1_translations = translations(object_Old,object_New,renderLayers)
-        #OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
+        OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
         OBJ_1_renderLayer = renderLayerCheck(object_Old,object_New,renderLayers)
-        #OBJ_1_translations = translations(object_Old,object_New,renderLayers)
+        OBJ_1_translations = translations(object_Old,object_New,renderLayers)
         OBJ_1_ELS = excludeListSets(object_Old,object_New,renderLayers)
         OBJ_1_LL = lightLinking(object_Old,object_New,renderLayers)
         OBJ_1_renderStats = renderStats(object_Old,object_New,renderLayers)
@@ -1379,8 +1378,6 @@ def objectChooseWin():
         OBJ_1_displacementNodes = displacementNodes(object_Old,object_New,renderLayers)
         OBJ_1_newObjectCenter = oldObjectCenter(object_Old,object_New,renderLayers)
         OBJ_1_v_ray_subdivisions_check = old_object_v_ray_subdivisions_check(object_Old,object_New,renderLayers)
-        OBJ_1_translations = translations(object_Old,object_New,renderLayers)
-        OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
 
         cmds.select(clear = True)
         if checkAll == 1:
@@ -1432,12 +1429,12 @@ def objectChooseWin():
                 curParent = OBJ_1_Path[1]
             if splitPath[sz-3] != curParent[0]:
                 if sz > 3:
-                    cmds.parent(OBJ_1_Path[2],splitPath[sz-3],relative = True)
+                    cmds.parent(OBJ_1_Path[2],splitPath[sz-3])
                     print "parenting " + object_new_print_temp + " to " + splitPath[sz-3]
                 else:
                     print "object at the root level, no hierarchy detected"
                     if s > 0:
-                        cmds.parent(OBJ_1_Path[2],relative = True)
+                        cmds.parent(OBJ_1_Path[2],world = True)
             else:
                 print OBJ_1_Path[2] + " already parented to the correct node."
             newPathChil = cmds.listRelatives(newObjPath,children = True) or []
@@ -1667,7 +1664,7 @@ def objectChooseWin():
             old_visibleInReflections = 0
             old_visibleInRefractions = 0
             old_doubleSided = 0
-            print 'render state default values = ',defRSlist
+            print 'render state default values = ',renderStatsDic
             for DL in defRSlist:
                 if "castsShadows" in DL:
                     old_castsShadows = renderStatsDic[DL]
@@ -1865,19 +1862,19 @@ def objectChooseWin():
             print "setting new object material assignments:"
             cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer")
             mats_dict = OBJ_1_objectMaterials[0]
-            print 'mats_dict = ',mats_dict
+            #print 'mats_dict = ',mats_dict
             LayerMats_dic = OBJ_1_objectMaterials[1]
-            print 'LayerMats_dic = ',LayerMats_dic
+            #print 'LayerMats_dic = ',LayerMats_dic
             layerOverM = OBJ_1_objectMaterials[2]
-            print 'layerOverM = ',layerOverM
+            #print 'layerOverM = ',layerOverM
             object_Old = OBJ_1_objectMaterials[3]
-            print 'object_Old = ',object_Old
+            #print 'object_Old = ',object_Old
             object_New = OBJ_1_objectMaterials[4]
-            print 'object_New = ',object_New
+            #print 'object_New = ',object_New
             render_layers_in_scene = OBJ_1_objectMaterials[5]
-            print 'render_layers_in_scene = ',render_layers_in_scene
+            #print 'render_layers_in_scene = ',render_layers_in_scene
             matAssignsExist = OBJ_1_objectMaterials[6]
-            print 'matAssignsExist = ',matAssignsExist
+            #print 'matAssignsExist = ',matAssignsExist
             defMatList = []
             valOLD = []
             valNEW = []
@@ -2026,7 +2023,7 @@ def objectChooseWin():
                             cmds.setAttr(visPathNew,visVal)
 
         def object_New_displacementNode(OBJ_1_displacementNodes):
-            print "setting new object displacement node:"
+            print "setting new object displacement node: ",OBJ_1_displacementNodes[8]
             object_Old = OBJ_1_displacementNodes[6]
             object_New = OBJ_1_displacementNodes[7]
             object_Old_DispNode = OBJ_1_displacementNodes[8]
