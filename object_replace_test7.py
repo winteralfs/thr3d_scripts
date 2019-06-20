@@ -56,7 +56,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'wed'
+print 'THUR'
 
 def look_for_duplicate_nodes():
     print ' '
@@ -66,17 +66,21 @@ def look_for_duplicate_nodes():
     print 'all_nodes = ',all_nodes
     all_nodes_compare = all_nodes
     for node_1 in all_nodes_compare:
-        print 'node_1 = ',node_1
         node_1_split = node_1.split('|')
-        node_1_short_name = node_1_split[-1]
-        print 'node_1_short_name = ',node_1_short_name
+        #node_1_short_name = node_1_split[-1]
+        if 'Flowwrap' in node_1:
+            print ' '
+            print 'node_1 = ',node_1
+            #print 'node_1_short_name = ',node_1_short_name
         compare = 0
         for node_2 in all_nodes:
-            print 'node_2 = ',node_2
             node_2_split = node_2.split('|')
             node_2_short_name = node_2_split[-1]
-            print 'node_2_short_name = ',node_2_short_name
-            if node_1_short_name == node_2_short_name:
+            if 'Flowwrap' in node_2:
+                print ' '
+                print 'node_2 = ',node_2
+                print 'node_2_short_name = ',node_2_short_name
+            if node_1 == node_2_short_name:
                 print 'node_1_short_name = node_2_short_name'
                 compare = compare + 1
                 if compare > 1:

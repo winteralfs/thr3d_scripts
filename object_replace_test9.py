@@ -56,36 +56,43 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'wed'
+print 'THUR'
 
 def look_for_duplicate_nodes():
-    print ' '
-    print 'START look_for_duplicate_nodes'
+    #print ' '
+    #print 'START look_for_duplicate_nodes'
     duplicate_node_names = []
-    all_nodes = cmds.ls()
-    print 'all_nodes = ',all_nodes
+    all_nodes = cmds.ls(long = True)
+    #print 'all_nodes = ',all_nodes
     all_nodes_compare = all_nodes
     for node_1 in all_nodes_compare:
-        print 'node_1 = ',node_1
+        #print ' '
+        #print 'node_1 = ',node_1
         node_1_split = node_1.split('|')
         node_1_short_name = node_1_split[-1]
-        print 'node_1_short_name = ',node_1_short_name
+        #if 'Flowwrap' in node_1:
+            #print 'XXX Flowwrap found XXX'
+            #print 'node_1 = ',node_1
+            #print 'node_1_short_name = ',node_1_short_name
         compare = 0
         for node_2 in all_nodes:
-            print 'node_2 = ',node_2
             node_2_split = node_2.split('|')
             node_2_short_name = node_2_split[-1]
-            print 'node_2_short_name = ',node_2_short_name
+            #if 'Flowwrap' in node_2:
+                #print 'node_2 = ',node_2
+                #print 'node_2_short_name = ',node_2_short_name
             if node_1_short_name == node_2_short_name:
-                print 'node_1_short_name = node_2_short_name'
+                #if 'Flowwrap' in node_1:
+                    #print 'node_1_short_name matches node_2_short_name'
                 compare = compare + 1
                 if compare > 1:
-                    print 'compare > 1'
+                    #if 'Flowwrap' in node_1:
+                        #print 'compare > 1'
                     if node_1 not in duplicate_node_names:
                         if 'Shape' not in duplicate_node_names:
                             duplicate_node_names.append(node_1)
-    print 'duplicate_node_names = ',duplicate_node_names
-    print 'END look_for_duplicate_nodes'
+    #print 'duplicate_node_names = ',duplicate_node_names
+    #print 'END look_for_duplicate_nodes'
     return(duplicate_node_names)
 
 def objectChooseWin():
@@ -132,7 +139,7 @@ def objectChooseWin():
         panels = cmds.getPanel( type = "modelPanel" )
         for mPanel in panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 0)
-        print 'selected_objects = ',selected_objects
+        #print 'selected_objects = ',selected_objects
         object_New = selected_objects[0]
         object_Old = selected_objects[1]
         objects(object_Old,object_New)
@@ -190,74 +197,74 @@ def objectChooseWin():
             #print 'duplicate_node_shape_list = ',duplicate_node_shape_list
             i = 0
             for duplicate_node_name in duplicate_node_names:
-                print ' '
-                print 'duplicate_node_name = ',duplicate_node_name
+                #print ' '
+                #print 'duplicate_node_name = ',duplicate_node_name
                 if duplicate_node_name not in duplicate_node_shape_list:
-                    print 'not a shape node'
+                    #print 'not a shape node'
                     duplicate_node_name_split = duplicate_node_name.split('|')
                     object_name = duplicate_node_name_split[-1]
                     rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
-                    print 'rename_string = ',rename_string
-                    print 'renaming ' + duplicate_node_name + ' to ' + rename_string
+                    #print 'rename_string = ',rename_string
+                    #print 'renaming ' + duplicate_node_name + ' to ' + rename_string
                     cmds.lockNode(duplicate_node_name,lock = False)
                     cmds.rename(duplicate_node_name,rename_string)
                     duplicate_node_names_renamed.append(rename_string)
-                    print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
-                    print 'object_Old = ',object_Old
-                    print 'object_New = ',object_New
+                    #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+                    #print 'object_Old = ',object_Old
+                    #print 'object_New = ',object_New
                     if duplicate_node_name == object_Old:
                         duplicate_name_dic[rename_string] = object_Old
                         object_Old = rename_string
                         object_old_rename_check = 1
-                    print '| + object_Old = ',('|' + object_Old)
+                    #print '| + object_Old = ',('|' + object_Old)
                     if duplicate_node_name == ('|' + object_Old):
                         duplicate_name_dic[rename_string] = object_Old
                         object_Old = rename_string
                         object_old_rename_check = 1
-                    print 'object_Old[1:] = ',object_Old[1:]
+                    #print 'object_Old[1:] = ',object_Old[1:]
                     if duplicate_node_name == object_Old[1:]:
                         duplicate_name_dic[rename_string] = object_Old
                         object_Old = rename_string
                         object_old_rename_check = 1
-                    print 'object_New = ',object_New
+                    #print 'object_New = ',object_New
                     if duplicate_node_name == object_New:
                         duplicate_name_dic[rename_string] = object_New
                         object_New = rename_string
                         object_new_rename_check = 1
-                    print '| + object_New = ',('|' + object_New)
+                    #print '| + object_New = ',('|' + object_New)
                     if duplicate_node_name == ('|' + object_New):
                         duplicate_name_dic[rename_string] = object_New
                         object_New = rename_string
                         object_new_rename_check = 1
-                    print 'object_New[1:] = ',object_New[1:]
+                    #print 'object_New[1:] = ',object_New[1:]
                     if duplicate_node_name == object_New[1:]:
                         duplicate_name_dic[rename_string] = object_New
                         object_New = rename_string
                         object_new_rename_check = 1
                     i = i + 1
-        print ' '
-        print ' '
-        print '--- '
+        #print ' '
+        #print ' '
+        #print '--- '
         transform_nodes = cmds.ls(type = 'transform')
-        print 'transform_nodes = ',transform_nodes
+        #print 'transform_nodes = ',transform_nodes
         looking_for_duplicate_shape_node_names = look_for_duplicate_nodes()
-        print 'looking_for_duplicate_shape_node_names = ',looking_for_duplicate_shape_node_names
+        #print 'looking_for_duplicate_shape_node_names = ',looking_for_duplicate_shape_node_names
         scene_shapes = []
         for transform_node in transform_nodes:
-            print '---'
-            print 'transform_node = ',transform_node
+            #print '---'
+            #print 'transform_node = ',transform_node
             transform_node_shapes = cmds.listRelatives(transform_node,shapes = True,fullPath = True) or []
-            print 'transform_node_shapes = ',transform_node_shapes
+            #print 'transform_node_shapes = ',transform_node_shapes
             for transform_node_shape in transform_node_shapes:
                 if 'Shape' not in transform_node_shape:
                     cmds.lockNode(transform_node_shape,lock = False)
                     cmds.rename(transform_node_shape,transform_node_shape + 'Shape')
                     if transform_node_shape in duplicate_node_names_renamed:
                         duplicate_node_names_renamed.remove(transform_node_shape)
-        print ' '
-        print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
-        print 'object_Old = ',object_Old
-        print 'object_New = ',object_New
+        #print ' '
+        #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+        #print 'object_Old = ',object_Old
+        #print 'object_New = ',object_New
         obj_kids_old = cmds.listRelatives(object_Old, children = True) or []
         obj_kids_new = cmds.listRelatives(object_New, children = True) or []
         obj_kids_old_len = len(obj_kids_old)
@@ -1927,11 +1934,22 @@ def objectChooseWin():
                             tmpMat_clean.append(tm)
                     for t in tmpMat_clean:
                         if "Layer" not in t:
+                            print 'a'
                             cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer")
+                            print 'b'
+                            cmds.select(clear = True)
+                            print 'c'
+                            cmds.select(va)
+                            print 'va = ',va
+                            print 't = ',t
+                            print cmds.hyperShade(objects = t)
+                            print cmds.ls(sl = True)
                             cmds.select(clear = True)
                             cmds.select(va)
+                            print "assigning " + t + " to " + va
                             cmds.hyperShade(assign=t)
-                            print "assigning " + t + " to " + object_new_print_temp
+                            print cmds.hyperShade(objects = t)
+                            print cmds.ls(sl = True)
                             cmds.select(clear = True)
                 for L in LayerMats_dic:
                     if "defaultRenderLayer" not in L:
