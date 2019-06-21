@@ -14,7 +14,7 @@ import subprocess
 import webbrowser
 import shiboken2
 
-print 'asset_tracker mon'
+print 'asset_tracker'
 
 class ASSET_TRACKER(object):
     def __init__(self):
@@ -79,10 +79,14 @@ class ASSET_TRACKER(object):
                         year_versions_path = ''
                         product_texture_found = 0
                         Kraft_texture_found = 0
+                        Kroger_texture_found = 0
                         if 'Product' in value:
                             #print 'product file found'
                             product_texture_found = 1
                         if 'Kraft' in value:
+                            #print 'Kraft detected'
+                            Kraft_texture_found = 1
+                        if 'Kroger' in value:
                             #print 'Kraft detected'
                             Kraft_texture_found = 1
                         i = 0
@@ -93,6 +97,8 @@ class ASSET_TRACKER(object):
                         if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 0:
                             publish_path_value_split_length_minus = 10
                         if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 1:
+                            publish_path_value_split_length_minus = 9
+                        if  node_type == 'file' and product_texture_found == 1 and Kroger_texture_found == 1:
                             publish_path_value_split_length_minus = 9
                         while i < (publish_path_value_split_length - publish_path_value_split_length_minus):
                             if i == 0:

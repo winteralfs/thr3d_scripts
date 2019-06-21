@@ -14,7 +14,7 @@ import subprocess
 import webbrowser
 import shiboken2
 
-print 'asset_tracker thur'
+print 'asset_tracker mon'
 
 class ASSET_TRACKER(object):
     def __init__(self):
@@ -69,6 +69,7 @@ class ASSET_TRACKER(object):
                     value = cmds.getAttr(object + '.' + attr)
                     self.asset_attr_dic[object + '&&' + attr] = str(value)
                     if attr == 'publish_path':
+                        #print 'value = ',value
                         self.files_in_19_folder = 0
                         value_split = value.split('\\')
                         self.publish_path_year_dic[object] = value_split[5]
@@ -76,10 +77,22 @@ class ASSET_TRACKER(object):
                         publish_path_value_split = value.split('\\')
                         publish_path_value_split_length = len(publish_path_value_split)
                         year_versions_path = ''
+                        product_texture_found = 0
+                        Kraft_texture_found = 0
+                        if 'Product' in value:
+                            #print 'product file found'
+                            product_texture_found = 1
+                        if 'Kraft' in value:
+                            #print 'Kraft detected'
+                            Kraft_texture_found = 1
                         i = 0
                         if node_type != 'file':
                             publish_path_value_split_length_minus = 6
                         if node_type == 'file':
+                            publish_path_value_split_length_minus = 9
+                        if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 0:
+                            publish_path_value_split_length_minus = 10
+                        if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 1:
                             publish_path_value_split_length_minus = 9
                         while i < (publish_path_value_split_length - publish_path_value_split_length_minus):
                             if i == 0:
@@ -114,6 +127,7 @@ class ASSET_TRACKER(object):
                                     publish_path_value_split_length = publish_path_value_split_length - 1
                                 publish_path_value_dir = ''
                                 i = 1
+                                #print 'year_version = ',year_version
                                 while i < publish_path_value_split_length:
                                     if i == 5:
                                             publish_path_value_dir = publish_path_value_dir + '\\' + year_version
@@ -121,15 +135,12 @@ class ASSET_TRACKER(object):
                                         publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
                                     i = i + 1
                                 publish_path_value_dir = publish_path_value_dir + '\\'
+                                #print 'publish_path_value_dir = ',publish_path_value_dir
                                 files = []
                                 files = cmds.getFileList(folder = publish_path_value_dir) or []
                                 #print 'files = ',files
                                 number_of_files= len(files)
-                                #if number_of_files == 0:
-                                    #if higher_version_found != 1:
-                                        #files = ['X']
-                                        #print 'setting X'
-                                        #self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
+                                #print 'number_of_files = ',number_of_files
                                 publish_path_value_dir_split = publish_path_value_dir.split('\\')
                                 temp_year_used = publish_path_value_dir_split[5]
                                 #print 'temp_year_used = ',temp_year_used
@@ -217,11 +228,15 @@ class ASSET_TRACKER(object):
                             self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                         #print 'self.asset_attr_dic = ',self.asset_attr_dic
             for asset_attr in self.asset_attr_dic:
+                #print 'asset_attr = ',asset_attr
                 if 'highest_version' in asset_attr:
+                    #print object + '&&' + 'highest_version'
+                    #print 'self.asset_attr_dic = ',self.asset_attr_dic
                     version = self.asset_attr_dic[object + '&&' + 'highest_version']
                     if 'X' in version:
                         if object not in self.bad_publish_path_list:
                             self.bad_publish_path_list.append(object)
+        #print 'self.asset_attr_dic = ',self.asset_attr_dic
         self.populate_window()
 
     def populate_window(self):
@@ -276,8 +291,10 @@ class ASSET_TRACKER(object):
         #print 'evaluate_versions'
         i = 0
         while i < self.number_of_trackable_object:
+            #print 'self.asset_attr_dic = ',self.asset_attr_dic
             object_item = self.node_name_listWidget.item(i)
             object_item_text = object_item.text()
+            #print 'object_item_text = ',object_item_text
             current_version_item = self.current_version_listWidget.item(i)
             current_version_item_text = current_version_item.text()
             current_version_item_int = int(current_version_item_text)
@@ -285,54 +302,56 @@ class ASSET_TRACKER(object):
             highest_version_item_text = highest_version_item.text()
             entity_name_item = self.entity_name_listWidget.item(i)
             publish_path_item = self.publish_path_listWidget.item(i)
+            #print 'highest_version_item_text = ',highest_version_item_text
             if highest_version_item_text != 'X':
-                highest_version_item_int = int(highest_version_item_text)
-                highest_version_item.setTextColor('light blue')
-                if highest_version_item_int > current_version_item_int:
-                    object_item.setTextColor('red')
-                    current_version_item.setTextColor('red')
-                    entity_name_item.setTextColor('red')
-                    publish_path_item.setTextColor('red')
-                else:
-                    object_item.setTextColor('light blue')
-                    current_version_item.setTextColor('light blue')
-                    entity_name_item.setTextColor('light blue')
-                    publish_path_item.setTextColor('light blue')
-                #print ' '
-                #print 'object_item_text = ',object_item_text
-                #print 'self.publish_path_year_dic = ',self.publish_path_year_dic
-                #print 'self.highest_value_year: = ',self.highest_value_year
-                for publish_year in self.publish_path_year_dic:
-                    if publish_year == object_item_text:
-                        #print 'publish_year matches object_item_text'
-                        publish_year_value = self.publish_path_year_dic[object_item_text]
-                        if '17' in publish_year_value and '18' in self.highest_value_year or '17' in publish_year_value and '19' in self.highest_value_year or '17' in publish_year_value and '20' in self.highest_value_year or '18' in publish_year_value and '19' in self.highest_value_year or '18' in publish_year_value and '20' in self.highest_value_year or '19' in publish_year_value and '20' in self.highest_value_year:
-                            #print 'older version detected in publish_year_value and newer version detected in self.highest_value_year'
+                if highest_version_item_text != 'none':
+                    highest_version_item_int = int(highest_version_item_text)
+                    highest_version_item.setTextColor('light blue')
+                    if highest_version_item_int > current_version_item_int:
+                        object_item.setTextColor('red')
+                        current_version_item.setTextColor('red')
+                        entity_name_item.setTextColor('red')
+                        publish_path_item.setTextColor('red')
+                    else:
+                        object_item.setTextColor('light blue')
+                        current_version_item.setTextColor('light blue')
+                        entity_name_item.setTextColor('light blue')
+                        publish_path_item.setTextColor('light blue')
+                    #print ' '
+                    #print 'object_item_text = ',object_item_text
+                    #print 'self.publish_path_year_dic = ',self.publish_path_year_dic
+                    #print 'self.highest_value_year: = ',self.highest_value_year
+                    for publish_year in self.publish_path_year_dic:
+                        if publish_year == object_item_text:
+                            #print 'publish_year matches object_item_text'
+                            publish_year_value = self.publish_path_year_dic[object_item_text]
+                            if '17' in publish_year_value and '18' in self.highest_value_year or '17' in publish_year_value and '19' in self.highest_value_year or '17' in publish_year_value and '20' in self.highest_value_year or '18' in publish_year_value and '19' in self.highest_value_year or '18' in publish_year_value and '20' in self.highest_value_year or '19' in publish_year_value and '20' in self.highest_value_year:
+                                #print 'older version detected in publish_year_value and newer version detected in self.highest_value_year'
+                                highest_version_item.setTextColor('yellow')
+                                entity_name_item.setTextColor('yellow')
+                                publish_path_item.setTextColor('yellow')
+                    #print 'self.publish_path_year_dic = ',self.publish_path_year_dic
+                    #print ' '
+                    publish_year_value = self.publish_path_year_dic[object_item_text]
+                    year_exists_list = self.publish_path_year_dic[object_item_text]
+                    if '17' in publish_year_value:
+                        if '18' in year_exists_list or '19' in year_exists_list or '20' in year_exists_list:
+                            #print '18 in self.publish_path_year_dic'
                             highest_version_item.setTextColor('yellow')
                             entity_name_item.setTextColor('yellow')
                             publish_path_item.setTextColor('yellow')
-                #print 'self.publish_path_year_dic = ',self.publish_path_year_dic
-                #print ' '
-                publish_year_value = self.publish_path_year_dic[object_item_text]
-                year_exists_list = self.publish_path_year_dic[object_item_text]
-                if '17' in publish_year_value:
-                    if '18' in year_exists_list or '19' in year_exists_list or '20' in year_exists_list:
+                    if '18' in publish_year_value:
+                        if '19' in year_exists_list or '20' in year_exists_list:
+                            #print '18 in self.publish_path_year_dic'
+                            highest_version_item.setTextColor('yellow')
+                            entity_name_item.setTextColor('yellow')
+                            publish_path_item.setTextColor('yellow')
+                    if '19' in publish_year_value:
+                        if '20' in year_exists_list:
                         #print '18 in self.publish_path_year_dic'
-                        highest_version_item.setTextColor('yellow')
-                        entity_name_item.setTextColor('yellow')
-                        publish_path_item.setTextColor('yellow')
-                if '18' in publish_year_value:
-                    if '19' in year_exists_list or '20' in year_exists_list:
-                        #print '18 in self.publish_path_year_dic'
-                        highest_version_item.setTextColor('yellow')
-                        entity_name_item.setTextColor('yellow')
-                        publish_path_item.setTextColor('yellow')
-                if '19' in publish_year_value:
-                    if '20' in year_exists_list:
-                    #print '18 in self.publish_path_year_dic'
-                        highest_version_item.setTextColor('yellow')
-                        entity_name_item.setTextColor('yellow')
-                        publish_path_item.setTextColor('yellow')
+                            highest_version_item.setTextColor('yellow')
+                            entity_name_item.setTextColor('yellow')
+                            publish_path_item.setTextColor('yellow')
             if highest_version_item_text == 'X':
                 object_item.setTextColor('orange')
                 current_version_item.setTextColor('orange')
@@ -441,7 +460,7 @@ class ASSET_TRACKER(object):
         self.node_name_listWidget.setMinimumHeight(500)
         self.node_name_listWidget.setMaximumWidth(325)
         self.node_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.node_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        #self.node_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.node_name_listWidget.itemClicked.connect(partial(self.node_name_listWidget_item_pressed))
         self.main_grid_layout.addWidget(self.node_name_listWidget,1,0)
         self.current_version_listWidget = QtWidgets.QListWidget()
@@ -457,13 +476,13 @@ class ASSET_TRACKER(object):
         self.entity_name_listWidget.setMaximumWidth(150)
         self.entity_name_listWidget.itemClicked.connect(partial(self.entity_name_item_press))
         self.entity_name_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.entity_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        #self.entity_name_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.main_grid_layout.addWidget(self.entity_name_listWidget)
         self.publish_path_listWidget = QtWidgets.QListWidget()
         self.publish_path_listWidget.setSpacing(spacing)
         self.publish_path_listWidget.itemClicked.connect(partial(self.publish_path_item_press))
         self.publish_path_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.publish_path_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        #self.publish_path_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.main_grid_layout.addWidget(self.publish_path_listWidget)
         label_full_paths_listWidget = QtWidgets.QLabel('Full paths to the latest versions of the assets')
         self.main_grid_layout.addWidget(label_full_paths_listWidget,2,0,1,5)
@@ -471,7 +490,7 @@ class ASSET_TRACKER(object):
         self.latest_version_path_feedback_listWidget.setMinimumHeight(400)
         self.latest_version_path_feedback_listWidget.setSpacing(spacing)
         self.latest_version_path_feedback_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.latest_version_path_feedback_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        #self.latest_version_path_feedback_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.latest_version_path_feedback_listWidget.itemClicked.connect(partial(self.latest_version_path_feedback_listWidget_populate_item_press))
         self.main_grid_layout.addWidget(self.latest_version_path_feedback_listWidget,3,0,1,5)
         self.node_name_listWidget.verticalScrollBar().valueChanged.connect(self.current_version_listWidget.verticalScrollBar().setValue)
