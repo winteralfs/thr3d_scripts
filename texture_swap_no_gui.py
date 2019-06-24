@@ -77,6 +77,15 @@ class texture_replacer_no_gui():
               #splitting out the old and new texture names
               new_fileTex = textures_to_swap[i]
               old_fileTex = textures_to_swap[i+1]
+              key_words = ['alpha','substrate','matte','mettalic']
+              vray_gamma_node_exists_old = cmds.attributeQuery('vrayFileGammaValue',node = old_fileTex,exists = True)
+              vray_gamma_node_exists_new = cmds.attributeQuery('vrayFileGammaValue',node = new_fileTex,exists = True)
+              if vray_gamma_node_exists_new == 0:
+                  if vray_gamma_node_exists_old == 1:
+                      file_path_name = cmds.getAttr(new_fileTex + '.fileTextureName')
+                      for key_word in key_words:
+                          if key_word not in file_path_name:
+                              cmds.vray("addAttributesFromGroup", new_fileTex, "vray_file_gamma", 1)
               print " "
               print new_fileTex + " swapping with " + old_fileTex
               #print "---"

@@ -56,6 +56,8 @@ from PySide2 import QtWidgets,QtCore,QtGui
 import shiboken2
 from functools import partial
 
+print 'monday'
+
 class texture_replacer():
 
     def __init__(self):
@@ -148,6 +150,18 @@ class texture_replacer():
           #splitting out the old and new texture names
           new_fileTex = self.textures_for_swap[i]
           old_fileTex = self.textures_for_swap[i+1]
+          key_words = ['alpha','substrate','matte','mettalic']
+          vray_gamma_node_exists_old = cmds.attributeQuery('vrayFileGammaValue',node = old_fileTex,exists = True)
+          vray_gamma_node_exists_new = cmds.attributeQuery('vrayFileGammaValue',node = new_fileTex,exists = True)
+          #print 'vray_gamma_node_exists_old = ',vray_gamma_node_exists_old
+          #print 'vray_gamma_node_exists_new = ',vray_gamma_node_exists_new
+          if vray_gamma_node_exists_new == 0:
+              if vray_gamma_node_exists_old == 1:
+                  file_path_name = cmds.getAttr(new_fileTex + '.fileTextureName')
+                  for key_word in key_words:
+                      if key_word not in file_path_name:
+                          #print 'adding gamma node'
+                          cmds.vray("addAttributesFromGroup", new_fileTex, "vray_file_gamma", 1)
           print " "
           print new_fileTex + " swapping with " + old_fileTex
           #print "---"
