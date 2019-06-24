@@ -56,25 +56,43 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'hump day'
+print 'THUR'
 
 def look_for_duplicate_nodes():
+    #print ' '
+    #print 'START look_for_duplicate_nodes'
     duplicate_node_names = []
-    all_nodes = cmds.ls()
+    all_nodes = cmds.ls(long = True)
+    #print 'all_nodes = ',all_nodes
     all_nodes_compare = all_nodes
     for node_1 in all_nodes_compare:
+        #print ' '
+        #print 'node_1 = ',node_1
         node_1_split = node_1.split('|')
         node_1_short_name = node_1_split[-1]
+        #if 'Flowwrap' in node_1:
+            #print 'XXX Flowwrap found XXX'
+            #print 'node_1 = ',node_1
+            #print 'node_1_short_name = ',node_1_short_name
         compare = 0
         for node_2 in all_nodes:
             node_2_split = node_2.split('|')
             node_2_short_name = node_2_split[-1]
+            #if 'Flowwrap' in node_2:
+                #print 'node_2 = ',node_2
+                #print 'node_2_short_name = ',node_2_short_name
             if node_1_short_name == node_2_short_name:
+                #if 'Flowwrap' in node_1:
+                    #print 'node_1_short_name matches node_2_short_name'
                 compare = compare + 1
                 if compare > 1:
+                    #if 'Flowwrap' in node_1:
+                        #print 'compare > 1'
                     if node_1 not in duplicate_node_names:
                         if 'Shape' not in duplicate_node_names:
                             duplicate_node_names.append(node_1)
+    #print 'duplicate_node_names = ',duplicate_node_names
+    #print 'END look_for_duplicate_nodes'
     return(duplicate_node_names)
 
 def objectChooseWin():
@@ -85,23 +103,31 @@ def objectChooseWin():
     window = cmds.window(name, title = name, width = 30, height = 10, sizeable = True)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "new_object")
-    object_New_Path = cmds.textField(tx = "new_object", width = 250)
+    cmds.text(label = "new_object  ")
+    object_new_textfield = cmds.textField(tx = "new_object", width = 250)
     cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "old_object")
-    object_Old_Path = cmds.textField(tx = "old_object",width = 250)
-    selected_objects = cmds.ls(sl = True)
+    cmds.text(label = "old_object   ")
+    object_old_textfield= cmds.textField(tx = "old_object", width = 250)
+    selected_objects = cmds.ls(sl = True,long = True)
     number_of_selected_objects = len(selected_objects)
     if number_of_selected_objects == 2:
-        cmds.textField(object_New_Path, text = selected_objects[0], edit = True)
-        cmds.textField(object_Old_Path, text = selected_objects[1], edit = True)
+        object_New_short_name_split = selected_objects[0].split('|')
+        object_New_short_name = object_New_short_name_split[-1]
+        object_Old_short_name_split = selected_objects[1].split('|')
+        object_Old_short_name = object_Old_short_name_split[-1]
+        cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+        cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
 
     def text_fields_selected_objects():
-        selected_objects = cmds.ls(sl = True)
+        selected_objects = cmds.ls(sl = True,long = True)
         number_of_selected_objects = len(selected_objects)
         if number_of_selected_objects == 2:
-            cmds.textField(object_New_Path, text = selected_objects[0], edit = True)
-            cmds.textField(object_Old_Path, text = selected_objects[1], edit = True)
+            object_New_short_name_split = selected_objects[0].split('|')
+            object_New_short_name = object_New_short_name_split[-1]
+            object_Old_short_name_split = selected_objects[1].split('|')
+            object_Old_short_name = object_Old_short_name_split[-1]
+            cmds.textField(object_new_textfield, text = object_New_short_name, edit = True)
+            cmds.textField(object_old_textfield, text = object_Old_short_name, edit = True)
 
     myScriptJobID = cmds.scriptJob(p = window, event=["SelectionChanged", text_fields_selected_objects])
 
@@ -109,11 +135,13 @@ def objectChooseWin():
         print ' '
         print '*** starting object replace ***'
         print ' '
+        selected_objects = cmds.ls(sl = True,long = True)
         panels = cmds.getPanel( type = "modelPanel" )
         for mPanel in panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 0)
-        object_Old = cmds.textField(object_Old_Path,q=1,tx=1)
-        object_New = cmds.textField(object_New_Path,q=1,tx=1)
+        #print 'selected_objects = ',selected_objects
+        object_New = selected_objects[0]
+        object_Old = selected_objects[1]
         objects(object_Old,object_New)
     cmds.rowLayout("nameRowLayout2.5", numberOfColumns = 10, parent = "mainColumn")
     cmds.rowLayout("nameRowLayout4.5", numberOfColumns = 10, parent = "mainColumn")
@@ -123,7 +151,30 @@ def objectChooseWin():
     cmds.showWindow()
 
     def objects(object_Old,object_New):
+        print 'new_object = ',object_New
+        print 'old_object = ',object_Old
+        all_shape_nodes = []
+        transform_nodes = cmds.ls(type = 'transform')
+        for transform_node in transform_nodes:
+            transform_node_shapes = cmds.listRelatives(transform_node,shapes = True,fullPath = True) or []
+            for transform_node_shape in transform_node_shapes:
+                if transform_node_shape not in all_shape_nodes:
+                    all_shape_nodes.append(transform_node_shape)
+                    all_shape_nodes.append(transform_node_shape[1:])
+                    all_shape_nodes.append('|' + transform_node_shape)
+        #print 'all_shape_nodes = ',all_shape_nodes
+        if object_Old in all_shape_nodes:
+            #print 'object old is a shape node, grabbing parent'
+            object_Old_parents = cmds.listRelatives(object_Old,parent = True,fullPath = True)
+            object_Old = object_Old_parents[0]
+        if object_New in all_shape_nodes:
+            #print 'object new is a shape node, grabbing parent'
+            object_New_parents = cmds.listRelatives(object_New,parent = True,fullPath = True)
+            object_New = object_New_parents[0]
+        #print 'object_New = ',object_New
+        #print 'object_Old = ',object_Old
         duplicate_node_names = look_for_duplicate_nodes()
+        duplicate_node_shape_list = []
         duplicate_node_names.reverse()
         number_of_dup_nodes = len(duplicate_node_names)
         duplicate_node_names_renamed = []
@@ -132,29 +183,88 @@ def objectChooseWin():
         object_new_rename_check = 0
         if number_of_dup_nodes > 0:
             print 'duplicate_node_names = ',duplicate_node_names
-            print 'renaming duplicate_node_names, adding _duplicate_name suffix'
-            i = 0
             duplicate_node_names.sort(key=len,reverse = True)
             for duplicate_node_name in duplicate_node_names:
-                print 'duplicate_node_name = ',duplicate_node_name
-                duplicate_node_name_split = duplicate_node_name.split('|')
-                object_name = duplicate_node_name_split[-1]
-                rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
-                print 'rename_string = ',rename_string
-                print 'renaing ' + duplicate_node_name + ' to ' + rename_string
-                cmds.rename(duplicate_node_name,rename_string)
-                duplicate_node_names_renamed.append(rename_string)
-                if duplicate_node_name == object_Old:
-                    duplicate_name_dic[rename_string] = object_Old
-                    object_Old = rename_string
-                    object_old_rename_check = 1
-                if duplicate_node_name == object_New:
-                    duplicate_name_dic[rename_string] = object_New
-                    object_New = rename_string
-                    object_new_rename_check = 1
-                i = i + 1
-        print ' '
-        print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+                shapes = cmds.listRelatives(duplicate_node_name,shapes = True,fullPath = True) or []
+                for shape in shapes:
+                    if shape not in duplicate_node_shape_list:
+                        if shape[0] == '|':
+                            shape = shape[1:]
+                        shape_name = shape
+                        shape_name_bar = '|' + shape_name
+                        duplicate_node_shape_list.append(shape_name)
+                        duplicate_node_shape_list.append(shape_name_bar)
+            #print 'duplicate_node_shape_list = ',duplicate_node_shape_list
+            i = 0
+            for duplicate_node_name in duplicate_node_names:
+                #print ' '
+                #print 'duplicate_node_name = ',duplicate_node_name
+                if duplicate_node_name not in duplicate_node_shape_list:
+                    #print 'not a shape node'
+                    duplicate_node_name_split = duplicate_node_name.split('|')
+                    object_name = duplicate_node_name_split[-1]
+                    rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
+                    #print 'rename_string = ',rename_string
+                    #print 'renaming ' + duplicate_node_name + ' to ' + rename_string
+                    cmds.lockNode(duplicate_node_name,lock = False)
+                    cmds.rename(duplicate_node_name,rename_string)
+                    duplicate_node_names_renamed.append(rename_string)
+                    #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+                    #print 'object_Old = ',object_Old
+                    #print 'object_New = ',object_New
+                    if duplicate_node_name == object_Old:
+                        duplicate_name_dic[rename_string] = object_Old
+                        object_Old = rename_string
+                        object_old_rename_check = 1
+                    #print '| + object_Old = ',('|' + object_Old)
+                    if duplicate_node_name == ('|' + object_Old):
+                        duplicate_name_dic[rename_string] = object_Old
+                        object_Old = rename_string
+                        object_old_rename_check = 1
+                    #print 'object_Old[1:] = ',object_Old[1:]
+                    if duplicate_node_name == object_Old[1:]:
+                        duplicate_name_dic[rename_string] = object_Old
+                        object_Old = rename_string
+                        object_old_rename_check = 1
+                    #print 'object_New = ',object_New
+                    if duplicate_node_name == object_New:
+                        duplicate_name_dic[rename_string] = object_New
+                        object_New = rename_string
+                        object_new_rename_check = 1
+                    #print '| + object_New = ',('|' + object_New)
+                    if duplicate_node_name == ('|' + object_New):
+                        duplicate_name_dic[rename_string] = object_New
+                        object_New = rename_string
+                        object_new_rename_check = 1
+                    #print 'object_New[1:] = ',object_New[1:]
+                    if duplicate_node_name == object_New[1:]:
+                        duplicate_name_dic[rename_string] = object_New
+                        object_New = rename_string
+                        object_new_rename_check = 1
+                    i = i + 1
+        #print ' '
+        #print ' '
+        #print '--- '
+        transform_nodes = cmds.ls(type = 'transform')
+        #print 'transform_nodes = ',transform_nodes
+        looking_for_duplicate_shape_node_names = look_for_duplicate_nodes()
+        #print 'looking_for_duplicate_shape_node_names = ',looking_for_duplicate_shape_node_names
+        scene_shapes = []
+        for transform_node in transform_nodes:
+            #print '---'
+            #print 'transform_node = ',transform_node
+            transform_node_shapes = cmds.listRelatives(transform_node,shapes = True,fullPath = True) or []
+            #print 'transform_node_shapes = ',transform_node_shapes
+            for transform_node_shape in transform_node_shapes:
+                if 'Shape' not in transform_node_shape:
+                    cmds.lockNode(transform_node_shape,lock = False)
+                    cmds.rename(transform_node_shape,transform_node_shape + 'Shape')
+                    if transform_node_shape in duplicate_node_names_renamed:
+                        duplicate_node_names_renamed.remove(transform_node_shape)
+        #print ' '
+        #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+        #print 'object_Old = ',object_Old
+        #print 'object_New = ',object_New
         obj_kids_old = cmds.listRelatives(object_Old, children = True) or []
         obj_kids_new = cmds.listRelatives(object_New, children = True) or []
         obj_kids_old_len = len(obj_kids_old)
@@ -177,16 +287,16 @@ def objectChooseWin():
         object_new_print_temp = ''
         if object_old_rename_check == 1:
             object_old_print_temp = duplicate_name_dic[object_Old]
-            print "object_old = ",object_old_print_temp
+            #print "object_old = ",object_old_print_temp
         else:
             object_old_print_temp = object_Old
-            print "object_old = ",object_Old
+            #print "object_old = ",object_Old
         if object_new_rename_check ==  1:
             object_new_print_temp = duplicate_name_dic[object_New]
-            print "object_new = ",object_new_print_temp
+            #print "object_new = ",object_new_print_temp
         else:
             object_new_print_temp = object_New
-            print "object_old = ",object_Old
+            #print "object_old = ",object_Old
 
         def master_path(object_Old,object_New,renderLayers):
             print "old object path check:"
@@ -229,7 +339,7 @@ def objectChooseWin():
                 if checkLayerSize > 0:
                     sizCkLayer = len(checkLayer)
                     for cko in checkLayer:
-                        if cko == (object_Old):
+                        if cko in object_Old:
                             layerList.append(layer)
             print 'old_object in render layers, ',layerList
             return layerList,object_Old,object_New
@@ -237,6 +347,15 @@ def objectChooseWin():
         def translations(object_Old,object_New,renderLayers):
             print "old object transforms check:"
             transValuesDict = {}
+            transX_val = 0
+            transY_val = 0
+            transZ_val = 0
+            rotX_val = 0
+            rotY_val = 0
+            rotZ_val = 0
+            scaleX_val = 1
+            scaleY_val = 1
+            scaleZ_val = 1
             objInLayers = []
             object_Old = (str(object_Old))
             object_New = (str(object_New))
@@ -249,7 +368,7 @@ def objectChooseWin():
                 objList = cmds.editRenderLayerMembers( L, query=True ) or []
                 for obj in objList:
                     object_Old = object_Old
-                    if object_Old == obj:
+                    if obj in object_Old:
                         objInLayers.append(L)
             for lay in objInLayers:
                 cmds.editRenderLayerGlobals( currentRenderLayer = lay )
@@ -402,10 +521,10 @@ def objectChooseWin():
                     if "extratex" in LI:
                         setMembers = cmds.listConnections(LI) or []
                         for A in setMembers:
-                            if object_Old == A:
+                            if A in object_Old:
                                 setsINC.append(LI)
                         for A in setMembers:
-                            if object_Old_Child == A:
+                            if A in object_Old_Child:
                                 setsINC.append(LI)
             sizeL = len(setsINC)
             if sizeL > 0:
@@ -637,8 +756,8 @@ def objectChooseWin():
             print "old object materials check:"
             object_Old = (str(object_Old))
             object_New = (str(object_New))
-            mats_list = {}
-            mats_list_OVR = []
+            materials_assigned_object_old = {}
+            materials_assigned_object_old_OVR = []
             LayerMats_dic = {}
             mats_dict = {}
             mats_faceDict = {}
@@ -649,54 +768,80 @@ def objectChooseWin():
             spltMatList2 = []
             layerOverM2  = {}
             matAssignsExist = 0
-            RLM = cmds.ls(type = "renderLayer")
-            for M in RLM:
-                cmds.editRenderLayerGlobals( currentRenderLayer = M )
+            render_layers_in_scene = cmds.ls(type = "renderLayer")
+            for render_layer in render_layers_in_scene:
+                cmds.editRenderLayerGlobals( currentRenderLayer = render_layer )
                 cmds.select(clear = True)
                 cmds.select(object_Old)
                 cmds.hyperShade(smn = True)
-                mats_list = cmds.ls(sl = True)
-                for MM in mats_list:
-                    NT = cmds.nodeType(MM)
+                materials_assigned_object_old = cmds.ls(sl = True)
+                #print 'materials_assigned_object_old = ',materials_assigned_object_old
+                for material_assigned_object_old in materials_assigned_object_old:
+                    NT = cmds.nodeType(material_assigned_object_old)
                     if NT != "renderLayer":
-                        mats_list_OVR.append(MM)
-                number_of_assigned_materials = len(mats_list_OVR)
+                        materials_assigned_object_old_OVR.append(material_assigned_object_old)
+                #print 'materials_assigned_object_old_OVR = ',materials_assigned_object_old_OVR
+                number_of_assigned_materials = len(materials_assigned_object_old_OVR)
+                #print 'number_of_assigned_materials = ',number_of_assigned_materials
                 if number_of_assigned_materials > 0:
-                    for matsInc in mats_list_OVR:
+                    #print 'materials_assigned_object_old_OVR = ',materials_assigned_object_old_OVR
+                    for matsInc in materials_assigned_object_old_OVR:
+                        #print 'matsInc = ',matsInc
                         cmds.select(matsInc)
-                        LayerMats_dic[M] = matsInc
+                        LayerMats_dic[render_layer] = matsInc
                         cmds.hyperShade(o = matsInc)
                         mats_objectList = cmds.ls(sl = True)
+                        #print 'mats_objectList = ',mats_objectList
                         for mo in mats_objectList:
-                            if object_Old in mo:
+                            object_old_split = object_Old.split('_XXXXXX')
+                            #print 'mo = ',mo
+                            #print 'object_Old = ',object_Old
+                            #print 'object_old_split[0]',object_old_split[0]
+                            if mo in object_Old:
                                 mats_objectList_clean.append(mo)
+                            mo_no_shape = mo.replace('Shape','')
+                            #print 'mo = ',mo
+                            #print 'object_Old = ',object_Old
+                            if mo_no_shape in object_Old:
+                                mats_objectList_clean.append(mo)
+                            if object_old_split[0] in object_Old:
+                                mats_objectList_clean.append(mo)
+                        #print 'mats_objectList_clean = ',mats_objectList_clean
                         matAssignsExist = len(mats_objectList_clean)
+                        #print 'matAssignsExist = ',matAssignsExist
                         for moc in mats_objectList_clean:
+                            #print 'moc = ',moc
                             baseO = cmds.listRelatives(moc, parent = True)
                             if baseO not in mats_objectList_clean_BASE:
                                 mats_objectList_clean_BASE.append(baseO)
-                        layer_Mats_Inc = M + "_" + matsInc + "_"
+                        #print 'mats_objectList_clean_BASE = ',mats_objectList_clean_BASE
+                        layer_Mats_Inc = render_layer + "_" + matsInc + "_"
+                        #print 'layer_Mats_Inc = ',layer_Mats_Inc
                         for moc in mats_objectList_clean:
+                            #print 'moc = ',moc
                             baseO = cmds.listRelatives(moc, parent = True)
+                            #print 'baseO = ',baseO
                             if baseO not in mats_objectList_clean_BASE:
                                 mats_objectList_clean_BASE.append(baseO)
+                        #print 'mats_objectList_clean_BASE = ',mats_objectList_clean_BASE
                         emptyListTest = len(mats_objectList)
                         emptyListTest2 = len(mats_objectList_clean_BASE)
                         if emptyListTest > 0:
                             if emptyListTest2 > 0:
                                 mats_dict[layer_Mats_Inc] = mats_objectList_clean_BASE[0]
                     spltMatList.append(matsInc)
+            #print 'spltMatList = ',spltMatList
             sz = len(spltMatList)
             szz = sz - 1
             aa = 0
             layerOverM = []
             FDRL = 0
-            for findDRL in RLM:
+            for findDRL in render_layers_in_scene:
                 if "defaultRenderLayer" in findDRL:
                     defaultRenderLayerPosition = FDRL
                 FDRL += 1
             FDRL = int(FDRL)
-            for L in RLM:
+            for L in render_layers_in_scene:
                 a = 0
                 for m in mats_dict:
                     if L in m:
@@ -721,7 +866,11 @@ def objectChooseWin():
             print 'old_object material assignments = ',mats_dict_string
             print "potential material layer overide detected in layers:",RlayerOlist_string
             cmds.select(clear = True)
-            return mats_dict,LayerMats_dic,layerOverM2,object_Old,object_New,RLM,matAssignsExist
+            #print 'mats_dict = ',mats_dict
+            #print 'LayerMats_dic = ',LayerMats_dic
+            #print 'layerOverM2 = ',layerOverM2
+            #print 'matAssignsExist = ',matAssignsExist
+            return mats_dict,LayerMats_dic,layerOverM2,object_Old,object_New,render_layers_in_scene,matAssignsExist
 
         def UVsetLinking(object_Old,object_New,renderLayers):
             print "old object UV sets check:"
@@ -774,14 +923,19 @@ def objectChooseWin():
             object_New_smooth_division_level = 0
             old_object_polysmooth_node = []
             smoothNodes = cmds.ls(type = "polySmoothFace") or []
+            #print 'smoothNodes = ',smoothNodes
             for smoothNode in smoothNodes:
                 smooth_node_connections = cmds.listConnections(smoothNode,source = False, destination = True)
+                #print 'smooth_node_connections = ',smooth_node_connections
                 for connection in smooth_node_connections:
-                    if connection == object_Old:
+                    #print 'object_Old = ',object_Old
+                    #print 'object_New = ',object_New
+                    #print 'connection = ',connection
+                    if connection in object_Old:
                         old_object_polysmooth_node.append(smoothNode)
                         object_Old_smooth_node_found = 1
                         object_Old_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
-                    if connection == object_New:
+                    if connection in object_New:
                         object_New_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
                         object_New_smooth_node_found = 1
             print 'old_object polysmooth nodes = ',old_object_polysmooth_node
@@ -1093,6 +1247,7 @@ def objectChooseWin():
                     if shadEx == 1:
                         cmds.delete("tempShader")
                     tempNodeName = cmds.createNode("surfaceShader")
+                    cmds.lockNode(tempNodeName,lock = False)
                     cmds.rename(tempNodeName, "tempShader")
                     cmds.select(clear = True)
                     cmds.select(object_New)
@@ -1140,6 +1295,7 @@ def objectChooseWin():
                     if shadEx == 1:
                         cmds.delete("tempShader")
                     tempNodeName = cmds.createNode("surfaceShader")
+                    cmds.lockNode(tempNodeName,lock = False)
                     cmds.rename(tempNodeName, "tempShader")
                     cmds.select(clear = True)
                     cmds.select(object_New)
@@ -1161,6 +1317,7 @@ def objectChooseWin():
                         if shadEx == 1:
                             cmds.delete("tempShader")
                         tempNodeName = cmds.createNode("surfaceShader")
+                        cmds.lockNode(tempNodeName,lock = False)
                         cmds.rename(tempNodeName, "tempShader")
                         fileName = dft
                         cmds.select(clear = True)
@@ -1239,7 +1396,6 @@ def objectChooseWin():
             OBJ_1_polySmooth = polySmoothOBJ(object_Old,object_New,renderLayers)
             OBJ_1_objectIDnode = objectIDnode(object_Old,object_New,renderLayers)
         OBJ_1_renderLayer = renderLayerCheck(object_Old,object_New,renderLayers)
-        #OBJ_1_translations = translations(object_Old,object_New,renderLayers)
         OBJ_1_ELS = excludeListSets(object_Old,object_New,renderLayers)
         OBJ_1_LL = lightLinking(object_Old,object_New,renderLayers)
         OBJ_1_renderStats = renderStats(object_Old,object_New,renderLayers)
@@ -1252,8 +1408,8 @@ def objectChooseWin():
         OBJ_1_displacementNodes = displacementNodes(object_Old,object_New,renderLayers)
         OBJ_1_newObjectCenter = oldObjectCenter(object_Old,object_New,renderLayers)
         OBJ_1_v_ray_subdivisions_check = old_object_v_ray_subdivisions_check(object_Old,object_New,renderLayers)
-        OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
         OBJ_1_translations = translations(object_Old,object_New,renderLayers)
+        OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
 
         cmds.select(clear = True)
         if checkAll == 1:
@@ -1305,12 +1461,12 @@ def objectChooseWin():
                 curParent = OBJ_1_Path[1]
             if splitPath[sz-3] != curParent[0]:
                 if sz > 3:
-                    cmds.parent(OBJ_1_Path[2],splitPath[sz-3])
+                    cmds.parent(OBJ_1_Path[2],splitPath[sz-3],relative = True)
                     print "parenting " + object_new_print_temp + " to " + splitPath[sz-3]
                 else:
                     print "object at the root level, no hierarchy detected"
                     if s > 0:
-                        cmds.parent(OBJ_1_Path[2],world = True)
+                        cmds.parent(OBJ_1_Path[2],relative = True)
             else:
                 print OBJ_1_Path[2] + " already parented to the correct node."
             newPathChil = cmds.listRelatives(newObjPath,children = True) or []
@@ -1387,7 +1543,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".translateX"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a TX overide value of " + str(va) + " in layer " + L
+                            print "setting a TX overide value of " + str(va) + " in layer " + L
                         if "transY" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "transY"
                             va = transValuesDict[v]
@@ -1396,7 +1552,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".translateY"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a TY overide value of " + str(va) + " in layer " + L
+                            print "setting a TY overide value of " + str(va) + " in layer " + L
                         if "transZ" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "transZ"
                             va = transValuesDict[v]
@@ -1405,7 +1561,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".translateZ"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a TZ overide value of " + str(va) + " in layer " + L
+                            print "setting a TZ overide value of " + str(va) + " in layer " + L
                         if "rotX" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotX"
                             va = transValuesDict[v]
@@ -1414,7 +1570,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".rotateX"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a RotX overide value of " + str(va) + " in layer " + L
+                            print "setting a RotX overide value of " + str(va) + " in layer " + L
                         if "rotY" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotY"
                             va = transValuesDict[v]
@@ -1423,7 +1579,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".rotateY"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a RotY overide value of " + str(va) + " in layer " + L
+                            print "setting a RotY overide value of " + str(va) + " in layer " + L
                         if "rotZ" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotZ"
                             va = transValuesDict[v]
@@ -1432,7 +1588,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".rotateZ"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a RotZ overide value of " + str(va) + " in layer " + L
+                            print "setting a RotZ overide value of " + str(va) + " in layer " + L
                         if "scaleX" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "scaleX"
                             va = transValuesDict[v]
@@ -1441,7 +1597,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleX"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a scaleX overide value of " + str(va) + " in layer " + L
+                            print "setting a scaleX overide value of " + str(va) + " in layer " + L
                         if "scaleY" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "scaleY"
                             va = transValuesDict[v]
@@ -1450,7 +1606,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleY"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a scaleY overide value of " + str(va) + " in layer " + L
+                            print "setting a scaleY overide value of " + str(va) + " in layer " + L
                         if "scaleZ" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "scaleZ"
                             va = transValuesDict[v]
@@ -1459,7 +1615,7 @@ def objectChooseWin():
                             cmds.editRenderLayerAdjustment(ERLAnameT)
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleZ"
                             cmds.setAttr(ERLAnameTX, va)
-                            print " setting a scaleZ overide value of " + str(va) + " in layer " + L
+                            print "setting a scaleZ overide value of " + str(va) + " in layer " + L
             if siiz < 1:
                 print "no transform render layer overides detected"
 
@@ -1540,151 +1696,153 @@ def objectChooseWin():
             old_visibleInReflections = 0
             old_visibleInRefractions = 0
             old_doubleSided = 0
+            print 'render state default values = ',renderStatsDic
             for DL in defRSlist:
                 if "castsShadows" in DL:
                     old_castsShadows = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for castsShadows to",old_castsShadows
+                    #print "setting default render layer value for castsShadows to",old_castsShadows
                     cmds.setAttr((object_New + ".castsShadows"),old_castsShadows)
                 if "recieveShadows" in DL:
                     old_recieveShadows = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for recieveShadows to",old_recieveShadows
+                    #print "setting default render layer value for recieveShadows to",old_recieveShadows
                     cmds.setAttr((object_New + ".receiveShadows"),old_recieveShadows )
                 if "motionBlur" in DL:
                     old_motionBlur = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for motionBlur to",old_motionBlur
+                    #print "setting default render layer value for motionBlur to",old_motionBlur
                     cmds.setAttr((object_New + ".motionBlur"),old_motionBlur)
                 if "primaryVisibility" in DL:
                     old_primaryVisibility = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for primaryVisibility to",old_primaryVisibility
+                    #print "setting default render layer value for primaryVisibility to",old_primaryVisibility
                     cmds.setAttr((object_New + ".primaryVisibility"),old_primaryVisibility)
                 if "smoothShading" in DL:
                     old_smoothShading = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for smoothShading to",old_smoothShading
+                    #print "setting default render layer value for smoothShading to",old_smoothShading
                     cmds.setAttr((object_New + ".smoothShading"),old_smoothShading)
                 if "visibleInReflections" in DL:
                     old_visibleInReflections = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for visibleInReflections to",old_visibleInReflections
+                    #print "setting default render layer value for visibleInReflections to",old_visibleInReflections
                     cmds.setAttr((object_New + ".visibleInReflections"),old_visibleInReflections)
                 if "visibleInRefractions" in DL:
                     old_visibleInRefractions = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for visibleInRefractions to",old_visibleInRefractions
+                    #print "setting default render layer value for visibleInRefractions to",old_visibleInRefractions
                     cmds.setAttr((object_New + ".visibleInRefractions"),old_visibleInRefractions )
                 if "doubleSided" in DL:
                     old_doubleSided = renderStatsDic[DL]
                     cmds.editRenderLayerGlobals( currentRenderLayer='defaultRenderLayer' )
-                    print "setting default render layer value for doubleSided to",old_doubleSided
+                    #print "setting default render layer value for doubleSided to",old_doubleSided
                     cmds.setAttr((object_New + ".doubleSided"),old_doubleSided)
+            print 'setting the render state overrides ',RS_overRideList
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_1 = RL + "_" + "castsShadows"
                     if chunk_1 in R:
-                        print "** castShadows render layer overide detected **"
+                        #print "** castShadows render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "castsShadows"
                         old_castsShadows_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for castsShadows in ", RL
+                        #print "setting a render layer overide for castsShadows in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".castsShadows"))
                         cmds.setAttr((object_New + ".castsShadows"),old_castsShadows_lovr)
-                    else:
-                        print 'no cast shadows render state over ride detected'
+                    #else:
+                        #print 'no cast shadows render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_2 = RL + "_" + "receiveShadows"
                     if chunk_2 in R:
-                        print "** receiveShadows render layer overide detected **"
+                        #print "** receiveShadows render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "receiveShadows"
                         old_receiveShadows_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for receiveShadows in ", RL
+                        #print "setting a render layer overide for receiveShadows in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".receiveShadows"))
                         cmds.setAttr((object_New + ".receiveShadows"),old_receiveShadows_lovr)
-                    else:
-                        print 'no receive shadows render state over ride detected'
+                    #else:
+                        #print 'no receive shadows render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_3 = RL + "_" + "motionBlur"
                     if chunk_3 in R:
-                        print "** motionBlur render layer overide detected **"
+                        #print "** motionBlur render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "motionBlur"
                         old_motionBlur_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for motionBlur in ", RL
+                        #print "setting a render layer overide for motionBlur in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".motionBlur"))
                         cmds.setAttr((object_New + ".motionBlur"),old_motionBlur_lovr)
-                    else:
-                        print 'no motion blur render state over ride detected'
+                    #else:
+                        #print 'no motion blur render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_5 = RL + "_" + "smoothShading"
                     if chunk_5 in R:
-                        print "** smoothShading render layer overide detected **"
+                        #print "** smoothShading render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "smoothShading"
                         old_smoothShading_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for smoothShading in ", RL
+                        #print "setting a render layer overide for smoothShading in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".smoothShading"))
                         cmds.setAttr((object_New + ".smoothShading"),old_smoothShading_lovr)
-                    else:
-                        print 'no smooth shading render state over ride detected'
+                    #else:
+                        #print 'no smooth shading render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_6 = RL + "_" + "visibleInReflections"
                     if chunk_6 in R:
-                        print "** visibleInReflections render layer overide detected **"
+                        #print "** visibleInReflections render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "visibleInReflections"
                         old_visibleInReflections_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for visibleInReflections in ", RL
+                        #print "setting a render layer overide for visibleInReflections in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".visibleInReflections"))
                         cmds.setAttr((object_New + ".visibleInReflections"),old_visibleInReflections_lovr)
-                    else:
-                        print 'no visible in reflections render state over ride detected'
+                    #else:
+                        #print 'no visible in reflections render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_4 = RL + "_" + "primaryVisibility"
                     if chunk_4 in R:
-                        print "** primaryVisibility render layer overide detected **"
+                        #print "** primaryVisibility render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "primaryVisibility"
                         old_primaryVisibility_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for primaryVisibility in ", RL
+                        #print "setting a render layer overide for primaryVisibility in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".primaryVisibility"))
                         cmds.setAttr((object_New + ".primaryVisibility"),old_primaryVisibility_lovr)
-                    else:
-                        print 'no primary visiblity render state over ride detected'
+                    #else:
+                        #print 'no primary visiblity render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_5 = RL + "_" + "visibleInRefractions"
                     if chunk_5 in R:
-                        print "** visibleInRefractions render layer overide detected **"
+                        #print "** visibleInRefractions render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "visibleInRefractions"
                         old_visibleInRefractions_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for visibleInRefractions in ", RL
+                        #print "setting a render layer overide for visibleInRefractions in ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".visibleInRefractions"))
                         cmds.setAttr((object_New + ".visibleInRefractions"),old_visibleInRefractions_lovr)
-                    else:
-                        print 'no visible in refractions render state over ride detected'
+                    #else:
+                        #print 'no visible in refractions render state over ride detected'
             for RL in RLOs:
                 for R in RS_overRideList:
                     chunk_6 = RL + "_" + "doubleSided"
                     if chunk_6 in R:
-                        print "** doubleSided render layer overide detected **"
+                        #print "** doubleSided render layer overide detected **"
                         cmds.editRenderLayerGlobals( currentRenderLayer = RL )
                         ovrKey = object_Old[0] + "_" + RL + "_" + "doubleSided"
                         old_doubleSided_lovr = renderStatsDic[ovrKey]
-                        print "setting a render layer overide for doubleSided in layer, ", RL
+                        #print "setting a render layer overide for doubleSided in layer, ", RL
                         cmds.editRenderLayerAdjustment((object_New + ".doubleSided"))
                         cmds.setAttr((object_New + ".doubleSided"),old_doubleSided_lovr)
-                    else:
-                        print 'no double sided render state over ride detected'
+                    #else:
+                        #print 'no double sided render state over ride detected'
 
         def object_New_VRAY_objectPropOverides(OBJ_1_vrayObjProps):
             print 'setting new object v-ray object properties:'
@@ -1736,12 +1894,19 @@ def objectChooseWin():
             print "setting new object material assignments:"
             cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer")
             mats_dict = OBJ_1_objectMaterials[0]
+            #print 'mats_dict = ',mats_dict
             LayerMats_dic = OBJ_1_objectMaterials[1]
+            #print 'LayerMats_dic = ',LayerMats_dic
             layerOverM = OBJ_1_objectMaterials[2]
+            #print 'layerOverM = ',layerOverM
             object_Old = OBJ_1_objectMaterials[3]
+            #print 'object_Old = ',object_Old
             object_New = OBJ_1_objectMaterials[4]
-            RLM = OBJ_1_objectMaterials[5]
+            #print 'object_New = ',object_New
+            render_layers_in_scene = OBJ_1_objectMaterials[5]
+            #print 'render_layers_in_scene = ',render_layers_in_scene
             matAssignsExist = OBJ_1_objectMaterials[6]
+            #print 'matAssignsExist = ',matAssignsExist
             defMatList = []
             valOLD = []
             valNEW = []
@@ -1769,11 +1934,23 @@ def objectChooseWin():
                             tmpMat_clean.append(tm)
                     for t in tmpMat_clean:
                         if "Layer" not in t:
+                            #print 'a'
                             cmds.editRenderLayerGlobals( currentRenderLayer = "defaultRenderLayer")
+                            #print 'b'
+                            cmds.select(clear = True)
+                            #print 'c'
+                            cmds.select(va)
+                            #print 'va = ',va
+                            #print 't = ',t
+                            #print cmds.hyperShade(objects = t)
+                            #print cmds.ls(sl = True)
                             cmds.select(clear = True)
                             cmds.select(va)
+                            cmds.hyperShade(assign='lambert1')
+                            print "assigning " + t + " to " + va
                             cmds.hyperShade(assign=t)
-                            print "assigning " + t + " to " + object_new_print_temp
+                            #print cmds.hyperShade(objects = t)
+                            #print cmds.ls(sl = True)
                             cmds.select(clear = True)
                 for L in LayerMats_dic:
                     if "defaultRenderLayer" not in L:
@@ -1877,15 +2054,20 @@ def objectChooseWin():
             for r in RLs:
                 cmds.editRenderLayerGlobals( currentRenderLayer = r)
                 if r != "defaultRenderLayer":
+                    #print 'visDic = ',visDic
                     if r in visDic:
+                        #print 'r in visDic'
                         visVal = visDic[r]
+                        #print 'visVal = ',visVal
+                        #print 'defVisVal = ',defVisVal
                         if visVal != defVisVal:
+                            #print 'visVal does not equal defVisVal'
                             cmds.editRenderLayerAdjustment((object_New + ".visibility"))
                             print "setting the visibility for " + object_new_print_temp + " to " + str(visVal) + " in render layer " + r
                             cmds.setAttr(visPathNew,visVal)
 
         def object_New_displacementNode(OBJ_1_displacementNodes):
-            print "setting new object displacement node:"
+            print "setting new object displacement node: ",OBJ_1_displacementNodes[8]
             object_Old = OBJ_1_displacementNodes[6]
             object_New = OBJ_1_displacementNodes[7]
             object_Old_DispNode = OBJ_1_displacementNodes[8]
@@ -2035,6 +2217,7 @@ def objectChooseWin():
             print 'no v-ray subdivision attribute detected for ' + object_old_print_temp + ', not adding a v-ray subdivision attribute to ' + object_new_print_temp
         OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
         duplicate_node_names_renamed = object_New_Path(OBJ_1_Path,duplicate_node_names_renamed)
+        #print 'XXXXXX'
         #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
         for duplicate_node_name_renamed in duplicate_node_names_renamed:
             #print ' '
@@ -2059,19 +2242,30 @@ def objectChooseWin():
                 cmds.select(clear = True)
                 cmds.select(duplicate_node_name_renamed)
                 #print 'duplicate_node_name_mod = ',duplicate_node_name_mod
-                print 'renaming ' + duplicate_node_name_renamed + ' to ' + duplicate_node_name_mod
-                cmds.rename(duplicate_node_name_renamed,duplicate_node_name_mod)
                 renamed_long_name = cmds.ls(selection = True,long = True)
+                #print '---'
+                #print 'testing for shape renames'
                 #print 'renamed_long_name = ',renamed_long_name
-                shape_node_original = cmds.listRelatives(renamed_long_name,children = True) or []
-                #print 'shape_node_original = ',shape_node_original
-                shape_node_mod =  duplicate_node_name_mod + 'Shape'
-                #print 'shape_node_mod = ',shape_node_mod
-                kids_for_shape_node_original = cmds.listRelatives(children = True)
-                number_of_kids_node_original = len(kids_for_shape_node_original)
-                if number_of_kids_node_original == 0:
-                    print 'renaming ' + shape_node_original[0] + ' to ' + shape_node_mod
-                    cmds.rename(shape_node_original[0],shape_node_mod)
+                shape_node_originals = cmds.listRelatives(renamed_long_name,children = True,fullPath = True) or []
+                #print 'shape_node_originals = ',shape_node_originals
+                shape_node_originals[::-1]
+                for shape_node_original in shape_node_originals:
+                    #print 'shape_node_original = ',shape_node_original
+                    kids_for_shape_node_original = cmds.listRelatives(shape_node_original,children = True) or []
+                    number_of_kids_node_original = len(kids_for_shape_node_original)
+                    #print 'number_of_kids_node_original = ',number_of_kids_node_original
+                    if number_of_kids_node_original == 0:
+                        #print ' '
+                        #print 'shape_node_originals num of kids = 0'
+                        #print 'shape_node_original = ',shape_node_original
+                        shape_node_mod =  duplicate_node_name_mod + 'Shape'
+                        #print 'shape_node_mod = ',shape_node_mod
+                        #print 'no kids found, renaming ' + shape_node_original + ' to ',shape_node_mod
+                        cmds.lockNode(shape_node_original,lock = False)
+                        cmds.rename(shape_node_original,shape_node_mod)
+                print 'renaming ' + duplicate_node_name_renamed + ' to ' + duplicate_node_name_mod
+                cmds.lockNode(duplicate_node_name_renamed,lock = False)
+                cmds.rename(duplicate_node_name_renamed,duplicate_node_name_mod)
                 #print ' '
         panels = cmds.getPanel( type = "modelPanel" )
         for mPanel in panels:
