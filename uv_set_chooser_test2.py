@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-print 'wed night 2'
+print 'thursday'
 
 
 class UV_SET_EDITOR(object):
@@ -28,6 +28,7 @@ class UV_SET_EDITOR(object):
         #print 'centric_state'
         self.uv_set_selection_status_dic_state_change = self.uv_set_selection_status_dic
         self.centric_state_text = self.texture_based_uv_set_based_combobox.currentText()
+        #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{#a3b3bf:blue;}QLineEdit{color:#a3b3bf;}""")
         self.right_label.setText('textures')
         if self.centric_state_text == 'texture-centric':
             self.left_label.setText('textures')
@@ -187,7 +188,8 @@ class UV_SET_EDITOR(object):
             #self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
                 texture_item = QtWidgets.QListWidgetItem(texture)
-                texture_item.setTextColor(QtGui.QColor(self.high_light_color))
+
+                #texture_item.setTextColor(QtGui.QColor())
                 texture_item.setFont(QtGui.QFont('SansSerif', font_size))
                 attr_string = (texture + '.fileTextureName')
                 file_node_type = cmds.nodeType(texture)
@@ -242,7 +244,7 @@ class UV_SET_EDITOR(object):
                 item = self.list_widget_left.item(i)
                 item_text = item.text()
                 if '*' in item_text:
-                    item.setTextColor(QtGui.QColor("#c4bebe"))
+                    #item.setTextColor(QtGui.QColor("#c4bebe"))
                     item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                     item.setFont(QtGui.QFont('SansSerif', 12))
                 i = i + 1
@@ -503,7 +505,10 @@ class UV_SET_EDITOR(object):
                     if item_uv_set_text_split[0] != '':
                         if i == selected_row:
                             if item_uv_set_text == self.selected_item_text:
+                                #self.selected_item_text =  self.selected_item_text.replace(' ','')
                                 item_text_selection_status_dic_key = (item_text + ':|:' + (item_object  + ':|:' + self.selected_item_text))
+                                print 'item_text_selection_status_dic_key = ',item_text_selection_status_dic_key
+                                print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
                                 item_text_selection_status = self.uv_set_selection_status_dic[item_text_selection_status_dic_key]
                                 if item_text_selection_status == 0:
                                     item.setSelected(False)
@@ -694,6 +699,7 @@ class UV_SET_EDITOR(object):
             cmds.select(clear = True)
             object_material_string = ''
             print 'connected_materials  = ',connected_materials
+            assigned_objects = []
             for material in connected_materials:
                 assigned_objects = []
                 print ' '
@@ -709,6 +715,9 @@ class UV_SET_EDITOR(object):
                 print 'material = ',material
                 number_of_assigned_objects = len(assigned_objects)
                 for object in assigned_objects:
+                    if '.f[' in object:
+                        object_split= object.split('.f[')
+                        object = object_split[0]
                     print 'object = ',object
                     print 'material = ',material
                     object_material_string = object_material_string + object + ': ' + material + '  ,  '
@@ -759,6 +768,12 @@ class UV_SET_EDITOR(object):
                             if '*' in item_text:
                                 print 'setting made_object_highlight to 0'
                                 made_object_highlight = 0
+                            if '.f[' in object:
+                                object_split = object.split('.f[')
+                                object = object_split[0]
+                            if 'Shape' in item_text:
+                                item_text_split = item_text.split('Shape')
+                                item_text = item_text_split[0]
                             if object in item_text:
                                 print 'object in item_text'
                                 print 'making ' + item_text + ' highlight'
@@ -902,7 +917,8 @@ class UV_SET_EDITOR(object):
         self.texture_based_uv_set_based_combobox.setMaximumWidth(180)
         self.texture_based_uv_set_based_combobox.setMinimumHeight(18)
         #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{background-color: yellow;}QComboBox{background-color: blue;}QLineEdit{background-color: red;}""")
-        self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{#a3b3bf:blue;}QLineEdit{color:#a3b3bf;}""")
+        #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{color:#a3b3bf;}QLineEdit{color:#a3b3bf;}""")
+        #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{color:#a3b3bf;}QLineEdit{color:#a3b3bf;}""")
         combo_box_layout.setAlignment(QtCore.Qt.AlignLeft)
         combo_box_layout.addWidget(self.texture_based_uv_set_based_combobox)
         self.texture_based_uv_set_based_combobox.addItem("texture-centric")

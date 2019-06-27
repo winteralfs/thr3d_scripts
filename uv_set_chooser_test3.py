@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-print 'wed night 2'
+print 'thursday'
 
 
 class UV_SET_EDITOR(object):
@@ -28,6 +28,7 @@ class UV_SET_EDITOR(object):
         #print 'centric_state'
         self.uv_set_selection_status_dic_state_change = self.uv_set_selection_status_dic
         self.centric_state_text = self.texture_based_uv_set_based_combobox.currentText()
+        #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{#a3b3bf:blue;}QLineEdit{color:#a3b3bf;}""")
         self.right_label.setText('textures')
         if self.centric_state_text == 'texture-centric':
             self.left_label.setText('textures')
@@ -435,7 +436,7 @@ class UV_SET_EDITOR(object):
             self.selected_item_text = item.text()
             self.activate_right_listWidget()
             if '*' not in self.selected_item_text:
-                self.selected_item_text = self.selected_item_text.replace(' ','')
+                self.selected_item_text = self.selected_item_text.replace('          ','')
                 i = 0
                 while i < self.number_of_items_in_left_listWidget:
                     item = self.list_widget_left.item(i)
@@ -497,14 +498,18 @@ class UV_SET_EDITOR(object):
                 while i < self.number_of_items_in_left_listWidget:
                     item_uv_set = self.list_widget_left.item(i)
                     item_uv_set_text = item_uv_set.text()
-                    item_uv_set_text = item_uv_set_text.replace(' ','')
+                    item_uv_set_text = item_uv_set_text.replace('          ','')
                     item_uv_set_text_split = item_uv_set_text.split('*')
                     if '*' in item_uv_set_text:
                         item_object = item_uv_set_text_split[1]
                     if item_uv_set_text_split[0] != '':
                         if i == selected_row:
                             if item_uv_set_text == self.selected_item_text:
+                                self.selected_item_text =  self.selected_item_text.replace('          ','')
+                                item_object = item_object.replace(' ','')
                                 item_text_selection_status_dic_key = (item_text + ':|:' + (item_object  + ':|:' + self.selected_item_text))
+                                print 'item_text_selection_status_dic_key = ',item_text_selection_status_dic_key
+                                print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
                                 item_text_selection_status = self.uv_set_selection_status_dic[item_text_selection_status_dic_key]
                                 if item_text_selection_status == 0:
                                     item.setSelected(False)
@@ -515,7 +520,7 @@ class UV_SET_EDITOR(object):
                                     combined_selected_item_text = item_object + ':|:' + self.selected_item_text
                                     selected_item_text_split = combined_selected_item_text.split(':|:')
                                     selected_item_text_uv_set = selected_item_text_split[1]
-                                    selected_item_text_uv_set = selected_item_text_uv_set.replace(' ','')
+                                    selected_item_text_uv_set = selected_item_text_uv_set.replace('          ','')
                                     if selected_item_text_uv_set == 'map1':
                                         item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                     i = i + 1
@@ -550,7 +555,7 @@ class UV_SET_EDITOR(object):
                 for selected_uv_set_pointer in selected_uv_sets_pointers:
                     selected_right_pointers.append(selected_uv_set_pointer)
                     it_text = selected_uv_set_pointer.text()
-                    it_text = it_text.replace(' ','')
+                    it_text = it_text.replace('          ','')
                     selected_uv_set_names.append(it_text)
                     selected_index = self.list_widget_right.selectedIndexes()
                     for ind in selected_index:
@@ -569,7 +574,7 @@ class UV_SET_EDITOR(object):
                     for uv_set_pointer in uv_set_pointers:
                         if str(uv_set_pointer) != str(selected_uv_set_pointer):
                             uv_set_name = uv_set_pointer.text()
-                            uv_set_name = uv_set_name.replace(' ','')
+                            uv_set_name = uv_set_name.replace('          ','')
                             item_text_split = uv_set_name.split('*')
                             if '*' in uv_set_name:
                                 item_object = item_text_split[1]
@@ -589,7 +594,7 @@ class UV_SET_EDITOR(object):
         if self.centric_state_text == 'UV-centric':
             size_of_left_selection = len(self.selected_item_text)
             if size_of_left_selection > 0:
-                self.selected_item_text = self.selected_item_text.replace(' ','')
+                self.selected_item_text = self.selected_item_text.replace('          ','')
                 selected_index = self.list_widget_left.selectedIndexes()
                 for ind in selected_index:
                     selected_row = ind.row()
@@ -597,7 +602,7 @@ class UV_SET_EDITOR(object):
                 while i < self.number_of_items_in_left_listWidget:
                     uv_set_sub = self.list_widget_left.item(i)
                     uv_set_sub_text = uv_set_sub.text()
-                    uv_set_sub_text = uv_set_sub_text.replace(' ','')
+                    uv_set_sub_text = uv_set_sub_text.replace('          ','')
                     item_text_sub_split = uv_set_sub_text.split('*')
                     if '*' in uv_set_sub_text:
                         sub_item_object = item_text_sub_split[1]
@@ -672,6 +677,7 @@ class UV_SET_EDITOR(object):
                 texture = uv_set_selection_split[0]
                 object = uv_set_selection_split[1]
                 uv_set = uv_set_selection_split[2]
+                object = object.replace(' ','')
                 texture_linked_uv_set_address = self.uv_set_name_to_address_dic[object + ':|:' + uv_set]
                 cmds.uvLink(b = True, uvSet = texture_linked_uv_set_address,texture = texture)
             if selection_status == 1:
@@ -679,6 +685,7 @@ class UV_SET_EDITOR(object):
                 texture = uv_set_selection_split[0]
                 object = uv_set_selection_split[1]
                 uv_set = uv_set_selection_split[2]
+                object = object.replace(' ','')
                 texture_linked_uv_set_address = self.uv_set_name_to_address_dic[object + ':|:' + uv_set]
                 cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = texture)
 
@@ -695,6 +702,7 @@ class UV_SET_EDITOR(object):
             cmds.select(clear = True)
             object_material_string = ''
             print 'connected_materials  = ',connected_materials
+            assigned_objects = []
             for material in connected_materials:
                 assigned_objects = []
                 print ' '
@@ -710,6 +718,9 @@ class UV_SET_EDITOR(object):
                 print 'material = ',material
                 number_of_assigned_objects = len(assigned_objects)
                 for object in assigned_objects:
+                    if '.f[' in object:
+                        object_split= object.split('.f[')
+                        object = object_split[0]
                     print 'object = ',object
                     print 'material = ',material
                     object_material_string = object_material_string + object + ': ' + material + '  ,  '
@@ -760,6 +771,12 @@ class UV_SET_EDITOR(object):
                             if '*' in item_text:
                                 print 'setting made_object_highlight to 0'
                                 made_object_highlight = 0
+                            if '.f[' in object:
+                                object_split = object.split('.f[')
+                                object = object_split[0]
+                            if 'Shape' in item_text:
+                                item_text_split = item_text.split('Shape')
+                                item_text = item_text_split[0]
                             if object in item_text:
                                 print 'object in item_text'
                                 print 'making ' + item_text + ' highlight'
@@ -783,7 +800,7 @@ class UV_SET_EDITOR(object):
             while i < self.number_of_items_in_left_listWidget:
                 item_uv_set = self.list_widget_left.item(i)
                 item_uv_set_text = item_uv_set.text()
-                item_uv_set_text = item_uv_set_text.replace(' ','')
+                item_uv_set_text = item_uv_set_text.replace('          ','')
                 item_uv_set_text_split = item_uv_set_text.split('*')
                 if '*' in item_uv_set_text:
                     item_object = item_uv_set_text_split[1]
@@ -903,7 +920,8 @@ class UV_SET_EDITOR(object):
         self.texture_based_uv_set_based_combobox.setMaximumWidth(180)
         self.texture_based_uv_set_based_combobox.setMinimumHeight(18)
         #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{background-color: yellow;}QComboBox{background-color: blue;}QLineEdit{background-color: red;}""")
-        self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{#a3b3bf:blue;}QLineEdit{color:#a3b3bf;}""")
+        #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{color:#a3b3bf;}QLineEdit{color:#a3b3bf;}""")
+        #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{color:#a3b3bf;}QLineEdit{color:#a3b3bf;}""")
         combo_box_layout.setAlignment(QtCore.Qt.AlignLeft)
         combo_box_layout.addWidget(self.texture_based_uv_set_based_combobox)
         self.texture_based_uv_set_based_combobox.addItem("texture-centric")
