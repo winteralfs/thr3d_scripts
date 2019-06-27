@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-print 'wed'
+print 'wed night 2'
 
 
 class UV_SET_EDITOR(object):
@@ -20,8 +20,6 @@ class UV_SET_EDITOR(object):
         self.uv_set_selection_status_dic = {}
         self.uv_set_selection_status_dic_state_change = {}
         self.spacer = '          '
-        self.low_light_color = '#515b8c'
-        self.high_light_color = '#7c98cf'
 
 
 #---------- procedural tools and data gathering methods ----------
@@ -684,79 +682,94 @@ class UV_SET_EDITOR(object):
                 cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = texture)
 
     def texture_to_object_color_adjust(self):
-        #print 'texture_to_object_color_adjust'
+        print 'texture_to_object_color_adjust'
         linked_objects_to_texture_dic = {}
         object_material_string = ''
         self.list_widget_texture_info.clear()
         if self.centric_state_text == 'texture-centric':
             selected_textures = []
             selected_texture = self.selected_item_text
+            print 'selected_texture = ',selected_texture
             connected_materials = self.connected_materials(selected_texture)
             cmds.select(clear = True)
-            assigned_objects = []
-            #print 'connected_materials  = ',connected_materials
+            object_material_string = ''
+            print 'connected_materials  = ',connected_materials
             for material in connected_materials:
-                #print 'material = ',material
+                assigned_objects = []
+                print ' '
+                print 'material = ',material
                 current_selection = cmds.ls(selection = True) or []
                 cmds.hyperShade(objects = material)
                 assigned_object = (cmds.ls(selection = True)) or []
+                print 'material = ',material
                 number_of_selected_objects = len(assigned_object)
                 if number_of_selected_objects > 0:
                     assigned_objects.append(assigned_object[0])
-                    #print 'assigned_objects = ',assigned_objects
-            i = 0
-            for object in assigned_objects:
-                if i == 0:
-                    object_material_string = object + ': ' + material
-                else:
-                    object_material_string = object_material_string + '  ,  ' + object + ': ' + material
-                i = i + 1
+                    print 'assigned_objects = ',assigned_objects
+                print 'material = ',material
+                number_of_assigned_objects = len(assigned_objects)
+                for object in assigned_objects:
+                    print 'object = ',object
+                    print 'material = ',material
+                    object_material_string = object_material_string + object + ': ' + material + '  ,  '
+                    print 'object_material_string = ',object_material_string
             linked_objects_to_texture_dic[selected_texture] = assigned_objects
-            #object_material_string = object_material_string[2:]
+            object_material_string = object_material_string[:-4]
+            print 'object_material_string = ',object_material_string
             texture_information_string = object_material_string
             texture_information_string_size = len(texture_information_string)
-            #print 'texture_information_string_size = ',texture_information_string_size
+            print 'texture_information_string_size = ',texture_information_string_size
             if texture_information_string_size == 0:
                 connected_materials_size = len(connected_materials)
                 if connected_materials_size == 0:
                     texture_information_string = 'texture linked to no material and used by no object'
                 else:
                     texture_information_string = str(connected_materials[0]) + ' * texture used by no object '
+            print 'texture_information_string = ',texture_information_string
             self.list_widget_texture_info.addItem(texture_information_string)
             #print 'self.number_of_items_in_right_listWidget = ',self.number_of_items_in_right_listWidget
             it = 0
             made_object_highlight = 0
             while it < self.number_of_items_in_right_listWidget:
-                #print 'made_object_highlight = ',made_object_highlight
-                #made_object_highlight = 0
+                print ' '
                 item = self.list_widget_right.item(it)
                 item_text = item.text()
-                #print 'item_text = ',item_text
-                #print 'making ' + item_text + 'grey'
+                if item_text == '':
+                    item.setFlags(item.flags() | Qt.ItemIsEnabled)
+                    item.setFlags(item.flags() | Qt.ItemIsEditable)
+                print 'item_text = ',item_text
+                print 'making ' + item_text + ' grey'
                 item.setTextColor(QtGui.QColor("#515151"))
+                print 'made_object_highlight = ',made_object_highlight
                 if made_object_highlight == 1:
                     if '*' not in item_text:
-                        item.setTextColor(QtGui.QColor(self.low_light_color))
-                #else:
-                    #item.setTextColor(QtGui.QColor("#515151"))
+                        print 'making ' + item_text + ' lowlight'
+                        item.setTextColor(QtGui.QColor('#515b8c'))
                 #print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
                 for linked_object_to_texture_dic in linked_objects_to_texture_dic:
-                    #print 'linked_object_to_texture_dic = ',linked_object_to_texture_dic
-                    #print 'selected_texture = ',selected_texture
+                    print 'linked_object_to_texture_dic = ',linked_object_to_texture_dic
+                    print 'selected_texture = ',selected_texture
                     if linked_object_to_texture_dic == selected_texture:
-                        #print 'linked_object_to_texture_dic = selected_texture'
+                        print 'linked_object_to_texture_dic = selected_texture'
                         objects = linked_objects_to_texture_dic[selected_texture]
-                        #print 'objects = ',objects
+                        print 'objects = ',objects
                         for object in objects:
-                            #print 'object = ',object
-                            #print 'item_text = ',item_text
+                            print 'object = ',object
+                            print 'item_text = ',item_text
+                            if '*' in item_text:
+                                print 'setting made_object_highlight to 0'
+                                made_object_highlight = 0
                             if object in item_text:
-                                #print 'object in item_text'
-                                #print 'making ' + item_text + ' yellow'
-                                item.setTextColor(QtGui.QColor(self.high_light_color))
+                                print 'object in item_text'
+                                print 'making ' + item_text + ' highlight'
+                                item.setTextColor(QtGui.QColor('#7c98cf'))
+                                print 'setting made_object_highlight to 1'
                                 made_object_highlight = 1
-                    else:
-                        made_object_highlight = 0
+                        #print 'setting made_object_highlight to 0'
+                        #made_object_highlight = 0
+                    #else:
+                        #print 'setting made_object_highlight to 0'
+                        #made_object_highlight = 0
                 it = it + 1
         if self.centric_state_text == 'UV-centric':
             selected_textures = []
@@ -804,7 +817,7 @@ class UV_SET_EDITOR(object):
             it = 0
             while it < self.number_of_items_in_right_listWidget:
                 item = self.list_widget_right.item(it)
-                item.setTextColor(QtGui.QColor(self.low_light_color))
+                #item.setTextColor(QtGui.QColor(self.low_light_color))
                 item_text = item.text()
                 #print 'item_text = ',item_text
                 #print 'selected_texture = ',selected_texture
@@ -813,11 +826,11 @@ class UV_SET_EDITOR(object):
                     if linked_object_to_texture_dic == selected_texture:
                         objects = linked_objects_to_texture_dic[selected_texture]
                         #print 'objects = ',objects
-                        for object in objects:
-                            if object in item_text:
-                                item.setTextColor(QtGui.QColor(self.high_light_color))
-                            else:
-                                item.setTextColor(QtGui.QColor(self.low_light_color))
+                        #for object in objects:
+                            #if object in item_text:
+                                #item.setTextColor(QtGui.QColor(self.high_light_color))
+                            #else:
+                                #item.setTextColor(QtGui.QColor(self.low_light_color))
                 it = it + 1
         it = 0
         while it < self.list_widget_texture_info.count():
