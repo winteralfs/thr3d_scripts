@@ -701,8 +701,8 @@ class UV_SET_EDITOR(object):
             cmds.select(clear = True)
             object_material_string = ''
             print 'connected_materials  = ',connected_materials
+            assigned_objects = []
             for material in connected_materials:
-                assigned_objects = []
                 print ' '
                 print 'material = ',material
                 current_selection = cmds.ls(selection = True) or []
@@ -714,14 +714,14 @@ class UV_SET_EDITOR(object):
                     for material_assigned_object in material_assigned_objects:
                         assigned_objects.append(material_assigned_object)
                 print 'assigned_objects = ',assigned_objects
-                number_of_assigned_objects = len(assigned_objects)
-                for object in assigned_objects:
+                for object in material_assigned_objects:
                     if '.f[' in object:
                         object_split= object.split('.f[')
                         object = object_split[0]
                     print 'object = ',object
                     object_material_string = object_material_string + object + ': ' + material + '  ,  '
                     print 'object_material_string = ',object_material_string
+            print 'assigned_objects = ',assigned_objects
             linked_objects_to_texture_dic[selected_texture] = assigned_objects
             print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
             object_material_string = object_material_string[:-4]
@@ -748,6 +748,7 @@ class UV_SET_EDITOR(object):
                     item.setFlags(item.flags() | Qt.ItemIsEnabled)
                     item.setFlags(item.flags() | Qt.ItemIsEditable)
                 print 'item_text = ',item_text
+                print 'selected_texture = ',selected_texture
                 print 'making ' + item_text + ' grey'
                 item.setTextColor(QtGui.QColor("#515151"))
                 print 'made_object_highlight = ',made_object_highlight
@@ -755,40 +756,51 @@ class UV_SET_EDITOR(object):
                     if '*' not in item_text:
                         print 'making ' + item_text + ' lowlight'
                         item.setTextColor(QtGui.QColor('#515b8c'))
-                #print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
+                print '---'
+                print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
+                print '---'
                 for linked_object_to_texture_dic in linked_objects_to_texture_dic:
                     print 'linked_object_to_texture_dic = ',linked_object_to_texture_dic
-                    print 'selected_texture = ',selected_texture
                     if linked_object_to_texture_dic == selected_texture:
-                        print 'linked_object_to_texture_dic = selected_texture'
+                        print 'linked_object_to_texture_dic == selected_texture'
                         objects = linked_objects_to_texture_dic[selected_texture]
                         print 'objects = ',objects
                         for object in objects:
+                            print 'object = ',object
                             if '*' in item_text:
-                                print 'setting made_object_highlight to 0'
+                                print 'setting ' + object + ' highlight to 0'
                                 made_object_highlight = 0
                             if '.f[' in object:
+                                print 'found .f[]'
                                 object_split = object.split('.f[')
                                 object = object_split[0]
+                                print 'object = ',object
                             if 'Shape' in object:
-                                object_split = item_text.split('Shape')
+                                print 'found shape in object'
+                                object_split = object.split('Shape')
                                 object = object_split[0]
+                                print 'object = ',object
                             if 'Shape' in item_text:
+                                print 'found shape in item_text'
                                 item_text_split = item_text.split('Shape')
                                 item_text = item_text_split[0]
-                            print 'object = ',object
-                            print 'item_text = ',item_text
-                            if object in item_text and '*' in object:
+                                print 'item_text = ',item_text
+                            print 'object post mod = ',object
+                            print 'item_text post mod = ',item_text
+                            if object in item_text and '*' in item_text:
                                 print 'object in item_text'
                                 print 'making ' + item_text + ' highlight'
                                 item.setTextColor(QtGui.QColor('#7c98cf'))
                                 print 'setting made_object_highlight to 1'
                                 made_object_highlight = 1
-                        #print 'setting made_object_highlight to 0'
-                        #made_object_highlight = 0
-                    #else:
-                        #print 'setting made_object_highlight to 0'
-                        #made_object_highlight = 0
+                            item_text_no_star = item_text.replace('*','')
+                            item_text_no_star = item_text_no_star.replace(' ','')
+                            print 'item_text_no_star  = ',item_text_no_star
+                            for object in objects:
+                                object = object.replace('Shape','')
+                                if item_text_no_star in object:
+                                    print 'item_text_no_star in objects, setting made_object_highlight to 1'
+                                    made_object_highlight = 1
                 it = it + 1
         if self.centric_state_text == 'UV-centric':
             selected_textures = []

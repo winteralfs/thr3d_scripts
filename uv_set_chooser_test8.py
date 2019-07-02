@@ -701,9 +701,12 @@ class UV_SET_EDITOR(object):
             cmds.select(clear = True)
             object_material_string = ''
             print 'connected_materials  = ',connected_materials
+            assigned_objects = []
             for material in connected_materials:
-                assigned_objects = []
                 print ' '
+                print 'material = ',material
+                material_split = material.split('.')
+                material = material_split[-1]
                 print 'material = ',material
                 current_selection = cmds.ls(selection = True) or []
                 cmds.hyperShade(objects = material)
@@ -714,14 +717,14 @@ class UV_SET_EDITOR(object):
                     for material_assigned_object in material_assigned_objects:
                         assigned_objects.append(material_assigned_object)
                 print 'assigned_objects = ',assigned_objects
-                number_of_assigned_objects = len(assigned_objects)
-                for object in assigned_objects:
+                for object in material_assigned_objects:
                     if '.f[' in object:
                         object_split= object.split('.f[')
                         object = object_split[0]
                     print 'object = ',object
                     object_material_string = object_material_string + object + ': ' + material + '  ,  '
                     print 'object_material_string = ',object_material_string
+            print 'assigned_objects = ',assigned_objects
             linked_objects_to_texture_dic[selected_texture] = assigned_objects
             print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
             object_material_string = object_material_string[:-4]
@@ -748,6 +751,7 @@ class UV_SET_EDITOR(object):
                     item.setFlags(item.flags() | Qt.ItemIsEnabled)
                     item.setFlags(item.flags() | Qt.ItemIsEditable)
                 print 'item_text = ',item_text
+                print 'selected_texture = ',selected_texture
                 print 'making ' + item_text + ' grey'
                 item.setTextColor(QtGui.QColor("#515151"))
                 print 'made_object_highlight = ',made_object_highlight
@@ -755,40 +759,51 @@ class UV_SET_EDITOR(object):
                     if '*' not in item_text:
                         print 'making ' + item_text + ' lowlight'
                         item.setTextColor(QtGui.QColor('#515b8c'))
-                #print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
+                print '---'
+                print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
+                print '---'
                 for linked_object_to_texture_dic in linked_objects_to_texture_dic:
                     print 'linked_object_to_texture_dic = ',linked_object_to_texture_dic
-                    print 'selected_texture = ',selected_texture
                     if linked_object_to_texture_dic == selected_texture:
-                        print 'linked_object_to_texture_dic = selected_texture'
+                        print 'linked_object_to_texture_dic == selected_texture'
                         objects = linked_objects_to_texture_dic[selected_texture]
                         print 'objects = ',objects
                         for object in objects:
+                            print 'object = ',object
                             if '*' in item_text:
-                                print 'setting made_object_highlight to 0'
+                                print 'setting ' + object + ' highlight to 0'
                                 made_object_highlight = 0
                             if '.f[' in object:
+                                print 'found .f[]'
                                 object_split = object.split('.f[')
                                 object = object_split[0]
+                                print 'object = ',object
                             if 'Shape' in object:
-                                object_split = item_text.split('Shape')
+                                print 'found shape in object'
+                                object_split = object.split('Shape')
                                 object = object_split[0]
+                                print 'object = ',object
                             if 'Shape' in item_text:
+                                print 'found shape in item_text'
                                 item_text_split = item_text.split('Shape')
                                 item_text = item_text_split[0]
-                            print 'object = ',object
-                            print 'item_text = ',item_text
-                            if object in item_text and '*' in object:
+                                print 'item_text = ',item_text
+                            print 'object post mod = ',object
+                            print 'item_text post mod = ',item_text
+                            if object in item_text and '*' in item_text:
                                 print 'object in item_text'
                                 print 'making ' + item_text + ' highlight'
                                 item.setTextColor(QtGui.QColor('#7c98cf'))
                                 print 'setting made_object_highlight to 1'
                                 made_object_highlight = 1
-                        #print 'setting made_object_highlight to 0'
-                        #made_object_highlight = 0
-                    #else:
-                        #print 'setting made_object_highlight to 0'
-                        #made_object_highlight = 0
+                            item_text_no_star = item_text.replace('*','')
+                            item_text_no_star = item_text_no_star.replace(' ','')
+                            print 'item_text_no_star  = ',item_text_no_star
+                            for object in objects:
+                                object = object.replace('Shape','')
+                                if item_text_no_star in object:
+                                    print 'item_text_no_star in objects, setting made_object_highlight to 1'
+                                    made_object_highlight = 1
                 it = it + 1
         if self.centric_state_text == 'UV-centric':
             selected_textures = []
@@ -864,38 +879,73 @@ class UV_SET_EDITOR(object):
             #cmds.select(selection,add = True)
 
     def connected_materials(self,selected_texture):
-        material_types = ['lambert','phong','blinn','surfaceShader','VRayMtl','remapHsv','layeredTexture','VRayBlendMtl']
+        print '-- start connected_materials --'
+        material_types = ['lambert','phong','blinn','surfaceShader','VRayMtl','VRayBlendMtl']
         connected_materials = []
-        connections_0 = cmds.listConnections(selected_texture,source = False, plugs = True) or []
+        connections_0 = cmds.listConnections(selected_texture,source = False) or []
+        print 'connections_0 = ',connections_0
         for connection in connections_0:
             connection_type = cmds.nodeType(connection)
             if connection_type in material_types:
-                if connection not in connected_materials:
-                    connected_materials.append(connection)
-            connections_1 = cmds.listConnections(connection,source = False,plugs = True) or []
-            for connection in connections_1:
-                connection_type = cmds.nodeType(connection)
-                if connection_type in material_types:
-                    if connection not in connected_materials:
-                        connected_materials.append(connection)
-                connections_2 = cmds.listConnections(connection,source = False,plugs = True) or []
-                for connection in connections_2:
+                connections_0_matched = connection
+                connections_0_plug_connections = cmds.listConnections(connections_0_matched,destination = False) or []
+                if connections_0_plug_connection not in connected_materials:
+                    for connections_0_plug_connection in connections_0_plug_connections:
+                        if connections_0_matched in connections_0_plug_connection:
+                            print '1 appending ' + connections_0_plug_connection
+                            connected_materials.append(connections_0_plug_connection)
+            else:
+                connections_1 = cmds.listConnections(connection,source = False) or []
+                print 'connections_1 = ',connections_1
+                for connection in connections_1:
                     connection_type = cmds.nodeType(connection)
                     if connection_type in material_types:
-                        if connection not in connected_materials:
-                            connected_materials.append(connection)
-                    connections_3 = cmds.listConnections(connection,source = False,plugs = True) or []
-                    for connection in connections_3:
-                        connection_type = cmds.nodeType(connection)
-                        if connection_type in material_types:
-                            if connection not in connected_materials:
-                                connected_materials.append(connection)
-                    connections_4 = cmds.listConnections(connection,source = False,plugs = True) or []
-                    for connection in connections_4:
-                        connection_type = cmds.nodeType(connection)
-                        if connection_type in material_types:
-                            if connection not in connected_materials:
-                                connected_materials.append(connection)
+                        connections_1_matched = connection
+                        connections_1_plug_connections = cmds.listConnections(connections_1_matched,destination = False) or []
+                        if connections_1_plug_connection not in connected_materials:
+                            if connections_1_matched in connections_1_plug_connection:
+                                print '2 appending ' + connections_1_plug_connection
+                                connected_materials.append(connections_1_plug_connection)
+                    else:
+                        connections_2 = cmds.listConnections(connection,source = False) or []
+                        print 'connections_2 = ',connections_2
+                        for connection in connections_2:
+                            connection_type = cmds.nodeType(connection)
+                            if connection_type in material_types:
+                                print 'connection_type = ',connection_type
+                                connections_2_matched = connection
+                                connections_2_plug_connections = cmds.listConnections(connections_2_matched,destination = False,plugs = True) or []
+                                print 'connections_2_plug_connections = ',connections_2_plug_connections
+                                if connections_2_plug_connections not in connected_materials:
+                                    print 'connections_2_matched = ',connections_2_matched
+                                    print 'connections_2_plug_connections = ',connections_2_plug_connections
+                                    for connections_2_plug_connection in connections_2_plug_connections:
+                                        sub_connections = cmds.listConnections(connections_2_plug_connection,source = False) or []
+                                        if connections_2_matched in sub_connections:
+                                            connections_2_plug_connection_string = connections_2_plug_connection + '.' + connections_2_matched
+                                            print '2 appending ' + connections_2_plug_connection_string
+                                            connected_materials.append(connections_2_plug_connection_string)
+                            else:
+                                connections_3 = cmds.listConnections(connection,source = False) or []
+                                print 'connections_3 = ',connections_3
+                                for connection in connections_3:
+                                    connection_type = cmds.nodeType(connection)
+                                    if connection_type in material_types:
+                                        connections_3_plug_connection = cmds.listConnections(connection,destination = False) or []
+                                        if connections_3_plug_connection not in connected_materials:
+                                            print '4 appending ' + connections_3_plug_connection
+                                            connected_materials.append(connections_3_plug_connection)
+                                    else:
+                                        connections_4 = cmds.listConnections(connection,source = False) or []
+                                        print 'connections_4 = ',connections_4
+                                        for connection in connections_4:
+                                            connection_type = cmds.nodeType(connection)
+                                            if connection_type in material_types:
+                                                connections_4_plug_connection = cmds.listConnections(connection,destination = False) or []
+                                                if connections_4_plug_connection not in connected_materials:
+                                                    print '5 appending ' + connections_4_plug_connection
+                                                    connected_materials.append(connections_4_plug_connection)
+        print '-- end connected_materials --'
         return(connected_materials)
 
 
