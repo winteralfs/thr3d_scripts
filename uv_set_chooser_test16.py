@@ -269,7 +269,7 @@ class UV_SET_EDITOR(object):
             file_connections = cmds.listConnections(file) or []
             for connection in file_connections:
                 connection_type = cmds.nodeType(connection)
-                if connection_type == 'VRayMtl' or connection_type == 'phong' or connection_type == 'blend' or connection_type == 'layeredTexture' or connection_type == 'remapHsv' or connection_type == 'multiplyDivide' or connection_type == 'remapColor' or connection_type == 'VRayRenderElement':
+                if connection_type == 'VRayMtl' or connection_type == 'phong' or connection_type == 'blend' or connection_type == 'layeredTexture' or connection_type == 'remapHsv' or connection_type == 'multiplyDivide' or connection_type == 'remapColor' or connection_type == 'VRayRenderElement' or connection_type == 'gammaCorrect':
                     valid_file = 1
             if valid_file == 1:
                 #print 'file = ',file
