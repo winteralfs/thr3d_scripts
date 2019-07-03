@@ -976,11 +976,11 @@ class UV_SET_EDITOR(object):
                                         print 'XXX'
                                         print 'appending ',material_plug_string
                                         print 'XXX'
+                                        print 'adding ' + material_plug_string + ' to material_plug_string_strings'
                                         material_plug_string_strings.append(material_plug_string)
-                                        material_plug_string_selected_texture_dic[material_plug_string] = selected_texture
                                     else:
                                         texture_check_connections_1 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                        print 'selected_texture = ',selected_texture
+                                        #print 'selected_texture = ',selected_texture
                                         print 'texture_check_connections_1 = ',texture_check_connections_1
                                         for texture_check_connection in texture_check_connections_1:
                                             print 'texture_check_connection = ',texture_check_connection
@@ -988,11 +988,11 @@ class UV_SET_EDITOR(object):
                                                 print 'XXX'
                                                 print 'appending ',material_plug_string
                                                 print 'XXX'
+                                                print 'adding ' + material_plug_string + ' to material_plug_string_strings'
                                                 material_plug_string_strings.append(material_plug_string)
-                                                material_plug_string_selected_texture_dic[material_plug_string] = selected_texture
                                             else:
                                                 texture_check_connections_2 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                print 'selected_texture = ',selected_texture
+                                                #print 'selected_texture = ',selected_texture
                                                 print 'texture_check_connections_2 = ',texture_check_connections_2
                                                 for texture_check_connection in texture_check_connections_2:
                                                     print 'texture_check_connection = ',texture_check_connection
@@ -1000,11 +1000,11 @@ class UV_SET_EDITOR(object):
                                                         print 'XXX'
                                                         print 'appending ',material_plug_string
                                                         print 'XXX'
+                                                        print 'adding ' + material_plug_string + ' to material_plug_string_strings'
                                                         material_plug_string_strings.append(material_plug_string)
-                                                        material_plug_string_selected_texture_dic[material_plug_string] = selected_texture
                                                     else:
                                                         texture_check_connections_3 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                        print 'selected_texture = ',selected_texture
+                                                        #print 'selected_texture = ',selected_texture
                                                         print 'texture_check_connections_3 = ',texture_check_connections_3
                                                         for texture_check_connection in texture_check_connections_3:
                                                             print 'texture_check_connection = ',texture_check_connection
@@ -1012,11 +1012,11 @@ class UV_SET_EDITOR(object):
                                                                 print 'XXX'
                                                                 print 'appending ',material_plug_string
                                                                 print 'XXX'
+                                                                print 'adding ' + material_plug_string + ' to material_plug_string_strings'
                                                                 material_plug_string_strings.append(material_plug_string)
-                                                                material_plug_string_selected_texture_dic[material_plug_string] = selected_texture
                                                             else:
                                                                 texture_check_connections_4 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                                print 'selected_texture = ',selected_texture
+                                                                #print 'selected_texture = ',selected_texture
                                                                 print 'texture_check_connections_4 = ',texture_check_connections_4
                                                                 for texture_check_connection in texture_check_connections_4:
                                                                     print 'texture_check_connection = ',texture_check_connection
@@ -1024,11 +1024,11 @@ class UV_SET_EDITOR(object):
                                                                         print 'XXX'
                                                                         print 'appending ',material_plug_string
                                                                         print 'XXX'
+                                                                        print 'adding ' + material_plug_string + ' to material_plug_string_strings'
                                                                         material_plug_string_strings.append(material_plug_string)
-                                                                        material_plug_string_selected_texture_dic[material_plug_string] = selected_texture
                                                                     else:
                                                                         texture_check_connections_5 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                                        print 'selected_texture = ',selected_texture
+                                                                        #print 'selected_texture = ',selected_texture
                                                                         print 'texture_check_connections_5 = ',texture_check_connections_5
                                                                         for texture_check_connection in texture_check_connections_5:
                                                                             print 'texture_check_connection = ',texture_check_connection
@@ -1036,8 +1036,8 @@ class UV_SET_EDITOR(object):
                                                                                 print 'XXX'
                                                                                 print 'appending ',material_plug_string
                                                                                 print 'XXX'
+                                                                                print 'adding ' + material_plug_string + ' to material_plug_string_strings'
                                                                                 material_plug_string_strings.append(material_plug_string)
-                                                                                material_plug_string_selected_texture_dic[material_plug_string] = selected_texture
         print 'material_plug_string_selected_texture_dic = ',material_plug_string_selected_texture_dic
         print 'material_plug_string_strings = ',material_plug_string_strings
         for material_plug_string_string in material_plug_string_strings:
