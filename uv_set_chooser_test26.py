@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-print 'sun night'
+print 'monday day'
 
 
 class UV_SET_EDITOR(object):
@@ -673,10 +673,12 @@ class UV_SET_EDITOR(object):
             selected_textures = []
             selected_texture = self.selected_item_text
             connected_materials = self.connected_materials(selected_texture)
+            print 'connected_materials = ',connected_materials
             cmds.select(clear = True)
             object_material_string = ''
             assigned_objects = []
             for material in connected_materials:
+                print 'material = ',material
                 material_and_plugs = material
                 material_split = material.split('.')
                 material = material_split[0]
@@ -691,7 +693,7 @@ class UV_SET_EDITOR(object):
                     if '.f[' in object:
                         object_split= object.split('.f[')
                         object = object_split[0]
-                    object_material_string = object_material_string + object + ': ' + material_and_plugs + '  ,  '
+                    object_material_string = object_material_string + object + ': ' + material_and_plugs + '        '
             linked_objects_to_texture_dic[selected_texture] = assigned_objects
             object_material_string = object_material_string[:-4]
             texture_information_string = object_material_string
@@ -702,6 +704,8 @@ class UV_SET_EDITOR(object):
                     texture_information_string = 'texture linked to no material and used by no object'
                 else:
                     texture_information_string = str(connected_materials[0]) + ' * texture used by no object '
+            print 'texture_information_string = ', texture_information_string
+            print 'adding ' + texture_information_string + ' to GUI'
             self.list_widget_texture_info.addItem(texture_information_string)
             it = 0
             made_object_highlight = 0
@@ -750,19 +754,29 @@ class UV_SET_EDITOR(object):
                 connected_materials = self.connected_materials(selected_texture)
                 print 'connected_materials  = ',connected_materials
                 for material in connected_materials:
-                    connected_materials_all.append(material)
+                    if material not in connected_materials_all:
+                        connected_materials_all.append(selected_texture + ':' + material)
                 cmds.select(clear = True)
             object_material_string = ''
             print 'connected_materials_all  = ',connected_materials_all
             assigned_objects = []
             for material in connected_materials_all:
                 print '---'
-                material_and_plugs = material
-                material_split = material.split('.')
-                material = material_split[0]
                 print 'material = ',material
+                material_and_plugs = material
+                material_texture_split = material.split(':')
+                print 'material_texture_split = ',material_texture_split
+                material_pure = material_texture_split[1]
+                print 'material_pure = ',material_pure
+                material_pure_and_plugs = material_pure
+                print 'material_pure_and_plugs = ',material_pure_and_plugs
+                material_pure_and_plugs_split = material_pure_and_plugs.split('.')
+                print 'material_pure_and_plugs_split = ',material_pure_and_plugs_split
+                material_pure = material_pure_and_plugs_split[0]
+                print 'material_pure = ',material_pure
                 current_selection = cmds.ls(selection = True) or []
-                cmds.hyperShade(objects = material)
+                print 'current_selection = ',current_selection
+                cmds.hyperShade(objects = material_pure)
                 material_assigned_objects = (cmds.ls(selection = True)) or []
                 print 'material_assigned_objects = ',material_assigned_objects
                 number_of_selected_objects = len(material_assigned_objects)
@@ -770,17 +784,20 @@ class UV_SET_EDITOR(object):
                     for material_assigned_object in material_assigned_objects:
                         assigned_objects.append(material_assigned_object)
                 print 'assigned_objects = ',assigned_objects
+                i = 0
+                texture_information_string = ''
                 for object in material_assigned_objects:
                     if '.f[' in object:
                         object_split= object.split('.f[')
                         object = object_split[0]
                     print 'object = ',object
-                    object_material_string = object_material_string + object + ': ' + selected_texture + ': ' + material_and_plugs + '  ,  '
+                    if i == (number_of_selected_objects - 1):
+                        object_material_string = object_material_string + object + material_and_plugs + '        '
                     print 'object_material_string = ',object_material_string
                     print 'assigned_objects = ',assigned_objects
                     linked_objects_to_texture_dic[selected_texture] = assigned_objects
                     print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
-                    object_material_string = object_material_string[:-4]
+                    #object_material_string = object_material_string[:-4]
                     print 'object_material_string = ',object_material_string
                     texture_information_string = object_material_string
                     texture_information_string_size = len(texture_information_string)
@@ -791,9 +808,21 @@ class UV_SET_EDITOR(object):
                             texture_information_string = 'texture linked to no material and used by no object'
                         else:
                             texture_information_string = selected_texture + ':' + str(connected_materials[0]) + ' * texture used by no object '
-            print 'texture_information_string = ',texture_information_string
+                    i = i + 1
+            #print 'texture_information_string = ',texture_information_string
+            #texture_information_string_list = []
+            #texture_information_string_final = ''
+            #texture_information_strings_split = texture_information_string.split('$$$')
+            #for texture_information_string_split in texture_information_strings_split:
+                #if texture_information_string_split not in texture_information_string_list:
+                    #texture_information_string_list.append(texture_information_string_split)
+            #for texture_information_string in texture_information_string_list:
+                #texture_information_string_final = texture_information_string_final + '        ' + texture_information_string
+            #texture_information_string_final = texture_information_string_final[8:]
             print 'adding ' + texture_information_string + ' to the GUI'
             self.list_widget_texture_info.addItem(texture_information_string)
+
+
         it = 0
         while it < self.number_of_items_in_right_listWidget:
             item = self.list_widget_right.item(it)
@@ -814,7 +843,7 @@ class UV_SET_EDITOR(object):
     def connected_materials(self,selected_texture):
         print '-- start connected_materials --'
         print 'selected_texture = ',selected_texture
-        material_types = ['lambert','phong','blinn','surfaceShader','VRayMtl','layeredTexture','VRayBlendMtl']
+        material_types = ['lambert','phong','blinn','surfaceShader','VRayMtl','layeredTexture','VRayBlendMtl','VRayBumpMtl']
         bad_connection_names_list = ['hyperShadePrimaryNodeEditorSavedTabsInfo','materialInfo','defaultShaderList1','defaultTextureList1','initialShadingGroup','particleCloud','initialParticleSE','message']
         connected_materials = []
         connected_shading_engines = []
@@ -998,7 +1027,8 @@ class UV_SET_EDITOR(object):
                                 i = i + 1
         print 'material_plug_string_strings = ',material_plug_string_strings
         for material_plug_string_string in material_plug_string_strings:
-            connected_materials.append(material_plug_string_string)
+            if material_plug_string_string not in connected_materials:
+                connected_materials.append(material_plug_string_string)
         print '-- end connected_materials --'
         return(connected_materials)
 
