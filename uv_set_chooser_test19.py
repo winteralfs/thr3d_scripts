@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-print 'monday evening'
+print 'friday evening'
 
 
 class UV_SET_EDITOR(object):
@@ -509,8 +509,8 @@ class UV_SET_EDITOR(object):
                             if item_uv_set_text == self.selected_item_text:
                                 #self.selected_item_text =  self.selected_item_text.replace(' ','')
                                 item_text_selection_status_dic_key = (item_text + ':|:' + (item_object  + ':|:' + self.selected_item_text))
-                                print 'item_text_selection_status_dic_key = ',item_text_selection_status_dic_key
-                                print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+                                #print 'item_text_selection_status_dic_key = ',item_text_selection_status_dic_key
+                                #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
                                 item_text_selection_status = self.uv_set_selection_status_dic[item_text_selection_status_dic_key]
                                 if item_text_selection_status == 0:
                                     item.setSelected(False)
@@ -689,120 +689,123 @@ class UV_SET_EDITOR(object):
                 cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = texture)
 
     def texture_to_object_color_adjust(self):
-        print 'texture_to_object_color_adjust'
+        #print 'texture_to_object_color_adjust'
         linked_objects_to_texture_dic = {}
         object_material_string = ''
         self.list_widget_texture_info.clear()
         if self.centric_state_text == 'texture-centric':
             selected_textures = []
             selected_texture = self.selected_item_text
-            print 'selected_texture = ',selected_texture
+            #print 'selected_texture = ',selected_texture
             connected_materials = self.connected_materials(selected_texture)
             cmds.select(clear = True)
             object_material_string = ''
-            print 'connected_materials  = ',connected_materials
+            #print 'OOO'
+            #print 'connected_materials  = ',connected_materials
+            #print 'OOO'
             assigned_objects = []
             for material in connected_materials:
-                print ' '
+                #print ' '
                 material_and_plugs = material
                 material_split = material.split('.')
                 material = material_split[0]
-                print 'material = ',material
+                #print 'material = ',material
                 current_selection = cmds.ls(selection = True) or []
                 cmds.hyperShade(objects = material)
                 material_assigned_objects = (cmds.ls(selection = True)) or []
-                print 'material_assigned_objects = ',material_assigned_objects
+                #print 'material_assigned_objects = ',material_assigned_objects
                 number_of_selected_objects = len(material_assigned_objects)
                 if number_of_selected_objects > 0:
                     for material_assigned_object in material_assigned_objects:
                         assigned_objects.append(material_assigned_object)
-                print 'assigned_objects = ',assigned_objects
+                #print 'assigned_objects = ',assigned_objects
                 for object in material_assigned_objects:
                     if '.f[' in object:
                         object_split= object.split('.f[')
                         object = object_split[0]
-                    print 'object = ',object
+                    #print 'object = ',object
                     object_material_string = object_material_string + object + ': ' + material_and_plugs + '  ,  '
-                    print 'object_material_string = ',object_material_string
-            print 'assigned_objects = ',assigned_objects
+                    #print 'object_material_string = ',object_material_string
+            #print 'assigned_objects = ',assigned_objects
             linked_objects_to_texture_dic[selected_texture] = assigned_objects
-            print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
+            #print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
             object_material_string = object_material_string[:-4]
-            print 'object_material_string = ',object_material_string
+            #print 'object_material_string = ',object_material_string
             texture_information_string = object_material_string
             texture_information_string_size = len(texture_information_string)
-            print 'texture_information_string_size = ',texture_information_string_size
+            #print 'texture_information_string_size = ',texture_information_string_size
             if texture_information_string_size == 0:
                 connected_materials_size = len(connected_materials)
                 if connected_materials_size == 0:
                     texture_information_string = 'texture linked to no material and used by no object'
                 else:
                     texture_information_string = str(connected_materials[0]) + ' * texture used by no object '
-            print 'texture_information_string = ',texture_information_string
+            #print 'texture_information_string = ',texture_information_string
+            #print 'adding ' + texture_information_string + ' to the GUI'
             self.list_widget_texture_info.addItem(texture_information_string)
             #print 'self.number_of_items_in_right_listWidget = ',self.number_of_items_in_right_listWidget
             it = 0
             made_object_highlight = 0
             while it < self.number_of_items_in_right_listWidget:
-                print ' '
+                #print ' '
                 item = self.list_widget_right.item(it)
                 item_text = item.text()
                 if item_text == '':
                     item.setFlags(item.flags() | Qt.ItemIsEnabled)
                     item.setFlags(item.flags() | Qt.ItemIsEditable)
-                print 'item_text = ',item_text
-                print 'selected_texture = ',selected_texture
-                print 'making ' + item_text + ' grey'
+                #print 'item_text = ',item_text
+                #print 'selected_texture = ',selected_texture
+                #print 'making ' + item_text + ' grey'
                 item.setTextColor(QtGui.QColor("#515151"))
-                print 'made_object_highlight = ',made_object_highlight
+                #print 'made_object_highlight = ',made_object_highlight
                 if made_object_highlight == 1:
                     if '*' not in item_text:
-                        print 'making ' + item_text + ' lowlight'
+                        #print 'making ' + item_text + ' lowlight'
                         item.setTextColor(QtGui.QColor('#515b8c'))
-                print '---'
-                print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
-                print '---'
+                #print '---'
+                #print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
+                #print '---'
                 for linked_object_to_texture_dic in linked_objects_to_texture_dic:
-                    print 'linked_object_to_texture_dic = ',linked_object_to_texture_dic
+                    #print 'linked_object_to_texture_dic = ',linked_object_to_texture_dic
                     if linked_object_to_texture_dic == selected_texture:
-                        print 'linked_object_to_texture_dic == selected_texture'
+                        #print 'linked_object_to_texture_dic == selected_texture'
                         objects = linked_objects_to_texture_dic[selected_texture]
-                        print 'objects = ',objects
+                        #print 'objects = ',objects
                         for object in objects:
-                            print 'object = ',object
+                            #print 'object = ',object
                             if '*' in item_text:
-                                print 'setting ' + object + ' highlight to 0'
+                                #print 'setting ' + object + ' highlight to 0'
                                 made_object_highlight = 0
                             if '.f[' in object:
-                                print 'found .f[]'
+                                #print 'found .f[]'
                                 object_split = object.split('.f[')
                                 object = object_split[0]
-                                print 'object = ',object
+                                #print 'object = ',object
                             if 'Shape' in object:
-                                print 'found shape in object'
+                                #print 'found shape in object'
                                 object_split = object.split('Shape')
                                 object = object_split[0]
-                                print 'object = ',object
+                                #print 'object = ',object
                             if 'Shape' in item_text:
-                                print 'found shape in item_text'
+                                #print 'found shape in item_text'
                                 item_text_split = item_text.split('Shape')
                                 item_text = item_text_split[0]
-                                print 'item_text = ',item_text
-                            print 'object post mod = ',object
-                            print 'item_text post mod = ',item_text
+                                #print 'item_text = ',item_text
+                            #print 'object post mod = ',object
+                            #print 'item_text post mod = ',item_text
                             if object in item_text and '*' in item_text:
-                                print 'object in item_text'
-                                print 'making ' + item_text + ' highlight'
+                                #print 'object in item_text'
+                                #print 'making ' + item_text + ' highlight'
                                 item.setTextColor(QtGui.QColor('#7c98cf'))
-                                print 'setting made_object_highlight to 1'
+                                #print 'setting made_object_highlight to 1'
                                 made_object_highlight = 1
                             item_text_no_star = item_text.replace('*','')
                             item_text_no_star = item_text_no_star.replace(' ','')
-                            print 'item_text_no_star  = ',item_text_no_star
+                            #print 'item_text_no_star  = ',item_text_no_star
                             for object in objects:
                                 object = object.replace('Shape','')
                                 if item_text_no_star in object:
-                                    print 'item_text_no_star in objects, setting made_object_highlight to 1'
+                                    #print 'item_text_no_star in objects, setting made_object_highlight to 1'
                                     made_object_highlight = 1
                 it = it + 1
         if self.centric_state_text == 'UV-centric':
@@ -879,21 +882,21 @@ class UV_SET_EDITOR(object):
             #cmds.select(selection,add = True)
 
     def connected_materials(self,selected_texture):
-        print '-- start connected_materials --'
+        #print '-- start connected_materials --'
         material_types = ['lambert','phong','blinn','surfaceShader','VRayMtl','layeredTexture','VRayBlendMtl']
         bad_connection_names_list = ['hyperShadePrimaryNodeEditorSavedTabsInfo','materialInfo','defaultShaderList1','defaultTextureList1','initialShadingGroup','particleCloud','initialParticleSE','message']
         connected_materials = []
         connected_shading_engines = []
         material_plug_string_links = []
         selected_texture_connections = cmds.listConnections(selected_texture,source = False) or []
-        print 'selected_texture_connections = ',selected_texture_connections
+        #print 'selected_texture_connections = ',selected_texture_connections
         selected_texture_connections_clean = list(selected_texture_connections)
         for selected_texture_connection in selected_texture_connections:
-            print 'selected_texture_connection = ',selected_texture_connection
+            #print 'selected_texture_connection = ',selected_texture_connection
             if selected_texture_connection in bad_connection_names_list:
-                print 'removing ', selected_texture_connection
+                #print 'removing ', selected_texture_connection
                 selected_texture_connections_clean.remove(selected_texture_connection)
-        print 'selected_texture_connections_clean = ',selected_texture_connections_clean
+        #print 'selected_texture_connections_clean = ',selected_texture_connections_clean
         material_plug_string_links = list(selected_texture_connections_clean)
         material_plug_string_links.append(selected_texture)
         for connection in selected_texture_connections_clean:
@@ -906,7 +909,7 @@ class UV_SET_EDITOR(object):
                         connected_shading_engines.append(connection)
                 else:
                     connections_1 = cmds.listConnections(connection,source = False) or []
-                    print 'connections_1 = ',connections_1
+                    #print 'connections_1 = ',connections_1
                     for connection in connections_1:
                         material_plug_string_links.append(connection)
                         connection_type = cmds.nodeType(connection)
@@ -915,7 +918,7 @@ class UV_SET_EDITOR(object):
                                 connected_shading_engines.append(connection)
                         else:
                             connections_2 = cmds.listConnections(connection,source = False) or []
-                            print 'connections_2 = ',connections_2
+                            #print 'connections_2 = ',connections_2
                             for connection in connections_2:
                                 material_plug_string_links.append(connection)
                                 connection_type = cmds.nodeType(connection)
@@ -924,7 +927,7 @@ class UV_SET_EDITOR(object):
                                         connected_shading_engines.append(connection)
                                 else:
                                     connections_3 = cmds.listConnections(connection,source = False) or []
-                                    print 'connections_3 = ',connections_3
+                                    #print 'connections_3 = ',connections_3
                                     for connection in connections_3:
                                         material_plug_string_links.append(connection)
                                         connection_type = cmds.nodeType(connection)
@@ -933,7 +936,7 @@ class UV_SET_EDITOR(object):
                                                 connected_shading_engines.append(connection)
                                         else:
                                             connections_4 = cmds.listConnections(connection,source = False) or []
-                                            print 'connections_4 = ',connections_4
+                                            #print 'connections_4 = ',connections_4
                                             for connection in connections_4:
                                                 material_plug_string_links.append(connection)
                                                 connection_type = cmds.nodeType(connection)
@@ -942,26 +945,30 @@ class UV_SET_EDITOR(object):
                                                         connected_shading_engines.append(connection)
                                                 else:
                                                     connections_5 = cmds.listConnections(connection,source = False) or []
-                                                    print 'connections_5 = ',connections_5
+                                                    #print 'connections_5 = ',connections_5
                                                     for connection in connections_5:
                                                         material_plug_string_links.append(connection)
                                                         connection_type = cmds.nodeType(connection)
                                                         if connection_type == 'shadingEngine':
                                                             if connection not in connected_shading_engines:
                                                                 connected_shading_engines.append(connection)
-        print 'connected_shading_engines = ',connected_shading_engines
+        #print 'connected_shading_engines = ',connected_shading_engines
+        material_plug_string_strings = []
         for shading_engine in connected_shading_engines:
-            print 'shading_engine = ',shading_engine
-            print 'erasing material_plug_string_strings'
-            material_plug_string_strings = []
+            #print ' '
+            #print 'xx'
+            #print ' '
+            #print 'shading_engine = ',shading_engine
+            #print 'erasing material_plug_string_strings'
             shading_engine_connections = cmds.listConnections(shading_engine,destination = False) or []
-            print 'shading_engine_connections = ',shading_engine_connections
+            #print 'shading_engine_connections = ',shading_engine_connections
             for shading_engine_connection_0 in shading_engine_connections:
-                print 'shading_engine_connection_0 = ',shading_engine_connection_0
+                #print 'shading_engine_connection_0 = ',shading_engine_connection_0
                 shading_engine_connection_0_type = cmds.nodeType(shading_engine_connection_0)
                 if shading_engine_connection_0_type in material_types:
                     shading_engine_connections_1 = cmds.listConnections(shading_engine_connection_0,destination = False,connections = True,plugs = True) or []
-                    print 'shading_engine_connections_1 = ',shading_engine_connections_1
+                    #print 'shading_engine_connections_1 = ',shading_engine_connections_1
+                    i = 0
                     for shading_engine_connection_1 in shading_engine_connections_1:
                         shading_engine_connection_1_split = shading_engine_connection_1.split('.')
                         shading_engine_connection_1 = shading_engine_connection_1_split[0]
@@ -971,96 +978,93 @@ class UV_SET_EDITOR(object):
                             #print 'shading_engine_connection_0 = ',shading_engine_connection_0
                             #print 'shading_engine_connection_1 = ',shading_engine_connection_1
                             if shading_engine_connection_0 == shading_engine_connection_1:
-                                print '---'
+                                #print '---'
                                 material_plug_string = shading_engine_connection_0 + '.' + shading_engine_connection_1_plug
-                                print 'material_plug_string = ',material_plug_string
+                                #print 'material_plug_string = ',material_plug_string
                                 texture_check_connections_0 = cmds.listConnections(shading_engine_connection_0,destination = False) or []
-                                print 'selected_texture = ',selected_texture
-                                print 'texture_check_connections_0 = ',texture_check_connections_0
-                                for texture_check_connection in texture_check_connections_0:
-                                    print ' '
-                                    print 'texture_check_connection = ',texture_check_connection
-                                    print 'material_plug_string_links = ',material_plug_string_links
-                                    if texture_check_connection in material_plug_string_links:
-                                        print 'match 1a'
-                                        if selected_texture in texture_check_connection:
-                                            print 'match 1b'
-                                            print 'appending ',material_plug_string
-                                            print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                            material_plug_string_strings.append(material_plug_string)
-                                        else:
-                                            texture_check_connections_1 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                            print 'texture_check_connections_1 = ',texture_check_connections_1
-                                            for texture_check_connection in texture_check_connections_1:
-                                                print 'texture_check_connection = ',texture_check_connection
-                                                print 'material_plug_string_links = ',material_plug_string_links
-                                                if texture_check_connection in material_plug_string_links:
-                                                    print 'match 2a'
-                                                    if selected_texture in texture_check_connection:
-                                                        print 'match 2b'
-                                                        print 'appending ',material_plug_string
-                                                        print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                        material_plug_string_strings.append(material_plug_string)
-                                                    else:
-                                                        texture_check_connections_2 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                        print 'texture_check_connections_2 = ',texture_check_connections_2
-                                                        for texture_check_connection in texture_check_connections_2:
-                                                            print 'texture_check_connection = ',texture_check_connection
-                                                            print 'material_plug_string_links = ',material_plug_string_links
-                                                            if texture_check_connection in material_plug_string_links:
-                                                                print 'match 3a'
-                                                                if selected_texture in texture_check_connection:
-                                                                    print 'match 3b'
-                                                                    print 'appending ',material_plug_string
-                                                                    print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                                    material_plug_string_strings.append(material_plug_string)
-                                                                else:
-                                                                    texture_check_connections_3 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                                    print 'texture_check_connections_3 = ',texture_check_connections_3
-                                                                    for texture_check_connection in texture_check_connections_3:
-                                                                        print 'texture_check_connection = ',texture_check_connection
-                                                                        print 'material_plug_string_links = ',material_plug_string_links
-                                                                        if texture_check_connection in material_plug_string_links:
-                                                                            print 'match 4a'
-                                                                            if selected_texture in texture_check_connection:
-                                                                                print 'match 4b'
-                                                                                print 'appending ',material_plug_string
-                                                                                print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                                                material_plug_string_strings.append(material_plug_string)
-                                                                            else:
-                                                                                texture_check_connections_4 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                                                print 'texture_check_connections_4 = ',texture_check_connections_4
-                                                                                for texture_check_connection in texture_check_connections_4:
-                                                                                    print 'texture_check_connection = ',texture_check_connection
-                                                                                    print 'material_plug_string_links = ',material_plug_string_links
-                                                                                    if texture_check_connection in material_plug_string_links:
-                                                                                        print 'match 5a'
-                                                                                        if selected_texture in texture_check_connection:
-                                                                                            print 'match 5b'
-                                                                                            print 'appending ',material_plug_string
-                                                                                            print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                                                            material_plug_string_strings.append(material_plug_string)
-                                                                                        else:
-                                                                                            texture_check_connections_5 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                                                            print 'texture_check_connections_5 = ',texture_check_connections_5
-                                                                                            print 'material_plug_string_links = ',material_plug_string_links
-                                                                                            for texture_check_connection in texture_check_connections_5:
-                                                                                                print 'texture_check_connection = ',texture_check_connection
-                                                                                                if texture_check_connection in material_plug_string_links:
-                                                                                                    print 'match 6a'
-                                                                                                    if selected_texture in texture_check_connection:
-                                                                                                        print 'match 6b'
-                                                                                                        print 'appending ',material_plug_string
-                                                                                                        print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                                                                        material_plug_string_strings.append(material_plug_string)
+                                #print 'selected_texture = ',selected_texture
+                                #print 'texture_check_connections_0 = ',texture_check_connections_0
+                                texture_check_connection = texture_check_connections_0[i]
+                                #print ' '
+                                #print 'MAIN texture_check_connection = ',texture_check_connection
+                                #print 'material_plug_string_links = ',material_plug_string_links
+                                if texture_check_connection in material_plug_string_links:
+                                    #print 'match 1a'
+                                    if selected_texture in texture_check_connection:
+                                        #print 'match 1b'
+                                        #print 'appending ',material_plug_string
+                                        #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                        material_plug_string_strings.append(material_plug_string)
                                     else:
-                                        print 'break 1'
-                                        break
-
-        print 'material_plug_string_strings = ',material_plug_string_strings
+                                        texture_check_connections_1 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                        #print 'texture_check_connections_1 = ',texture_check_connections_1
+                                        for texture_check_connection in texture_check_connections_1:
+                                            #print 'texture_check_connection = ',texture_check_connection
+                                            #print 'material_plug_string_links = ',material_plug_string_links
+                                            if texture_check_connection in material_plug_string_links:
+                                                #print 'match 2a'
+                                                if selected_texture in texture_check_connection:
+                                                    #print 'match 2b'
+                                                    #print 'appending ',material_plug_string
+                                                    #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                    material_plug_string_strings.append(material_plug_string)
+                                                else:
+                                                    texture_check_connections_2 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                                    #print 'texture_check_connections_2 = ',texture_check_connections_2
+                                                    for texture_check_connection in texture_check_connections_2:
+                                                        #print 'texture_check_connection = ',texture_check_connection
+                                                        #print 'material_plug_string_links = ',material_plug_string_links
+                                                        if texture_check_connection in material_plug_string_links:
+                                                            #print 'match 3a'
+                                                            if selected_texture in texture_check_connection:
+                                                                #print 'match 3b'
+                                                                #print 'appending ',material_plug_string
+                                                                #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                                material_plug_string_strings.append(material_plug_string)
+                                                            else:
+                                                                texture_check_connections_3 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                                                #print 'texture_check_connections_3 = ',texture_check_connections_3
+                                                                for texture_check_connection in texture_check_connections_3:
+                                                                    #print 'texture_check_connection = ',texture_check_connection
+                                                                    #print 'material_plug_string_links = ',material_plug_string_links
+                                                                    if texture_check_connection in material_plug_string_links:
+                                                                        #print 'match 4a'
+                                                                        if selected_texture in texture_check_connection:
+                                                                            #print 'match 4b'
+                                                                            #print 'appending ',material_plug_string
+                                                                            #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                                            material_plug_string_strings.append(material_plug_string)
+                                                                        else:
+                                                                            texture_check_connections_4 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                                                            #print 'texture_check_connections_4 = ',texture_check_connections_4
+                                                                            for texture_check_connection in texture_check_connections_4:
+                                                                                #print 'texture_check_connection = ',texture_check_connection
+                                                                                #print 'material_plug_string_links = ',material_plug_string_links
+                                                                                if texture_check_connection in material_plug_string_links:
+                                                                                    #print 'match 5a'
+                                                                                    if selected_texture in texture_check_connection:
+                                                                                        #print 'match 5b'
+                                                                                        #print 'appending ',material_plug_string
+                                                                                        #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                                                        material_plug_string_strings.append(material_plug_string)
+                                                                                    else:
+                                                                                        texture_check_connections_5 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                                                                        #print 'texture_check_connections_5 = ',texture_check_connections_5
+                                                                                        #print 'material_plug_string_links = ',material_plug_string_links
+                                                                                        for texture_check_connection in texture_check_connections_5:
+                                                                                            #print 'texture_check_connection = ',texture_check_connection
+                                                                                            if texture_check_connection in material_plug_string_links:
+                                                                                                #print 'match 6a'
+                                                                                                if selected_texture in texture_check_connection:
+                                                                                                    #print 'match 6b'
+                                                                                                    #print 'appending ',material_plug_string
+                                                                                                    #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                                                                    material_plug_string_strings.append(material_plug_string)
+                                i = i + 1
+        #print 'material_plug_string_strings = ',material_plug_string_strings
         for material_plug_string_string in material_plug_string_strings:
             connected_materials.append(material_plug_string_string)
-        print '-- end connected_materials --'
+        #print '-- end connected_materials --'
         return(connected_materials)
 
 #---------- window ----------
@@ -1078,6 +1082,7 @@ class UV_SET_EDITOR(object):
         window.setCentralWidget(main_widget)
         #window.setFixedSize(1015,300)
         window.setFixedWidth(1015)
+        window.setMinimumHeight(500)
         main_vertical_layout = QtWidgets.QVBoxLayout(main_widget)
         combo_box_layout = QtWidgets.QHBoxLayout(main_widget)
         main_vertical_layout.addLayout(combo_box_layout)

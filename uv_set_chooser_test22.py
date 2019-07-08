@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-print 'monday evening'
+print 'sat morn'
 
 
 class UV_SET_EDITOR(object):
@@ -28,7 +28,6 @@ class UV_SET_EDITOR(object):
         #print 'centric_state'
         self.uv_set_selection_status_dic_state_change = self.uv_set_selection_status_dic
         self.centric_state_text = self.texture_based_uv_set_based_combobox.currentText()
-        #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{#a3b3bf:blue;}QLineEdit{color:#a3b3bf;}""")
         self.right_label.setText('textures')
         if self.centric_state_text == 'texture-centric':
             self.left_label.setText('textures')
@@ -46,9 +45,17 @@ class UV_SET_EDITOR(object):
         self.selected_right_list_pointers = self.list_widget_right.selectedItems()
         for selected_right_list_pointer in self.selected_right_list_pointers:
             selected_right_list_pointer_text = selected_right_list_pointer.text()
+            for file in self.file_to_file_path_dic:
+                item_sub = self.file_to_file_path_dic[file]
+                if item_sub == selected_right_list_pointer_text:
+                    selected_right_list_pointer_text = file
             self.selected_items_right_text.append(selected_right_list_pointer_text)
         for pointer in self.selected_right_list_pointers:
             pointer_text = pointer.text()
+            for file in self.file_to_file_path_dic:
+                item_sub = self.file_to_file_path_dic[file]
+                if item_sub == pointer_text:
+                    pointer_text = file
 
     def deselect_QListWidget(self,listwidget):
         #print 'deselect right list widget items()'
@@ -108,50 +115,17 @@ class UV_SET_EDITOR(object):
         self.list_widget_left.clear()
         self.list_widget_right.clear()
         self.list_widget_texture_info.clear()
-        #icon_size = 60
         font_size = 11
         if self.centric_state_text == 'texture-centric':
-            #self.list_widget_left.setViewMode(QtWidgets.QListView.IconMode)
             self.list_widget_left.setWrapping(True)
             self.list_widget_right.setWrapping(False)
             self.list_widget_left.setSpacing(3)
             self.list_widget_right.setSpacing(1)
-            #self.list_widget_left.setFlow(QtWidgets.QListView.LeftToRight)
-            #self.list_widget_right.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
                 texture_item = QtWidgets.QListWidgetItem(texture)
                 texture_item.setFont(QtGui.QFont('SansSerif', font_size))
                 attr_string = (texture + '.fileTextureName')
                 file_node_type = cmds.nodeType(texture)
-                #if file_node_type == 'file':
-                    #image_path = cmds.getAttr(texture + '.fileTextureName')
-                    #length_image_path = len(image_path)
-                    #if length_image_path < 1:
-                        #image_path = 'empty'
-                    #mel_string = "filetest -f " + '"' + image_path + '"'
-                    #texture_image_exists = maya.mel.eval(mel_string)
-                    #if texture_image_exists != 1:
-                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found_texture.jpg"
-                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
-                    #image_path_split = image_path.split('.')
-                    #length_image_path_split = len(image_path_split)
-                    #if image_path_split[length_image_path_split - 1] == 'hdr':
-                        #image_path = "U:/cwinters/thumbnails/hdr_texture_found.jpg"
-                #if file_node_type != 'file':
-                    #if file_node_type == 'noise':
-                        #image_path = 'U:/cwinters/thumbnails/generic_noise_texture.jpg'
-                        #image_path = 'U:/cwinters/thumbnails/generic_ramp_thumbnail_texture_size.jpg'
-                    #else:
-                        #image_path = 'U:/cwinters/thumbnails/generic_ramp_texture.jpg'
-                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
-                #texture_pixmap = QtGui.QPixmap(image_path)
-                #texture_icon = QtGui.QIcon()
-                #self.list_widget_left.setIconSize(QtCore.QSize(icon_size,icon_size))
-                #texture_item.setFont(QtGui.QFont('SansSerif', font_size))
-                #texture_icon.addPixmap(texture_pixmap)
-                #texture_item.setIcon(texture_icon)
-                #print 'texture = ',texture
-                #print 'self.file_to_file_path_dic = ',self.file_to_file_path_dic
                 if texture in self.file_to_file_path_dic:
                     texture_plus_file_name = self.file_to_file_path_dic[texture]
                 else:
@@ -179,53 +153,26 @@ class UV_SET_EDITOR(object):
             self.activate_right_listWidget()
             self.initial_uv_set_name_to_address_dic_eval()
         if self.centric_state_text == 'UV-centric':
-            #self.list_widget_right.setViewMode(QtWidgets.QListView.IconMode)
             self.list_widget_right.setWrapping(True)
             self.list_widget_left.setWrapping(False)
             self.list_widget_right.setSpacing(4)
             self.list_widget_left.setSpacing(1)
-            #self.list_widget_right.setFlow(QtWidgets.QListView.LeftToRight)
-            #self.list_widget_left.setFlow(QtWidgets.QListView.TopToBottom)
             for texture in self.all_textures:
                 texture_item = QtWidgets.QListWidgetItem(texture)
-
-                #texture_item.setTextColor(QtGui.QColor())
                 texture_item.setFont(QtGui.QFont('SansSerif', font_size))
                 attr_string = (texture + '.fileTextureName')
                 file_node_type = cmds.nodeType(texture)
+                if texture in self.file_to_file_path_dic:
+                    texture_plus_file_name = self.file_to_file_path_dic[texture]
+                else:
+                    texture_plus_file_name = texture
                 if file_node_type == 'file':
-                    #image_path = cmds.getAttr(texture + '.fileTextureName')
-                    #length_image_path = len(image_path)
-                    #if length_image_path < 1:
-                        #image_path = 'empty'
-                    #mel_string = "filetest -f " + '"' + image_path + '"'
-                    #texture_image_exists = maya.mel.eval(mel_string)
-                    #if texture_image_exists == 1:
-                        #texture_pixmap = QtGui.QPixmap(image_path)
-                    #else:
-                        #image_path = "U:/cwinters/thumbnails/generic_no_texture_found_texture.jpg"
-                        #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_no_texture_found.jpg"
-                        #texture_pixmap = QtGui.QPixmap(image_path)
-                    #texture_icon = QtGui.QIcon()
-                    #self.list_widget_right.setIconSize(QtCore.QSize(icon_size,icon_size))
                     texture_item.setFont(QtGui.QFont('SansSerif', font_size))
-                    #texture_icon.addPixmap(texture_pixmap)
-                    #texture_item.setIcon(texture_icon)
-                    self.list_widget_right.addItem(texture_item)
+                    self.list_widget_right.addItem(texture_plus_file_name)
                     texture_item.setTextAlignment(Qt.AlignBottom)
                 if file_node_type != 'file':
-                    #if file_node_type == 'noise':
-                        #image_path = 'U:/cwinters/thumbnails/generic_noise_texture.jpg'
-                    #else:
-                        #image_path = 'U:/cwinters/thumbnails/generic_ramp_texture.jpg'
-                    #image_path = "/Users/alfredwinters/Desktop/python/thumbnails/generic_ramp_thumbnail_texture_size.jpg"
                     texture_item = QtWidgets.QListWidgetItem(texture)
-                    #texture_pixmap = QtGui.QPixmap(image_path)
-                    #texture_icon = QtGui.QIcon()
-                    #self.list_widget_right.setIconSize(QtCore.QSize(icon_size,icon_size))
                     texture_item.setFont(QtGui.QFont('SansSerif', font_size))
-                    #texture_icon.addPixmap(texture_pixmap)
-                    #texture_item.setIcon(texture_icon)
                     self.list_widget_right.addItem(texture_item)
                     texture_item.setTextAlignment(Qt.AlignBottom)
             for uv_set in self.uv_sets_all:
@@ -244,7 +191,6 @@ class UV_SET_EDITOR(object):
                 item = self.list_widget_left.item(i)
                 item_text = item.text()
                 if '*' in item_text:
-                    #item.setTextColor(QtGui.QColor("#c4bebe"))
                     item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                     item.setFont(QtGui.QFont('SansSerif', 12))
                 else:
@@ -272,18 +218,13 @@ class UV_SET_EDITOR(object):
                 if connection_type == 'VRayMtl' or connection_type == 'phong' or connection_type == 'blend' or connection_type == 'layeredTexture' or connection_type == 'remapHsv' or connection_type == 'multiplyDivide' or connection_type == 'remapColor' or connection_type == 'VRayRenderElement' or connection_type == 'gammaCorrect':
                     valid_file = 1
             if valid_file == 1:
-                #print 'file = ',file
                 file_path = cmds.getAttr(file + '.fileTextureName') or 'no valid path'
-                #print 'file_path = ',file_path
                 file_path_split = file_path.split('/')
-                #print 'file_path_split = ',file_path_split
                 file_path_name = file_path_split[-1]
-                #print 'file_path_name = ',file_path_name
                 file_path_name_split = file_path_name.split('.')
                 file_path_name = file_path_name_split[0]
                 self.file_to_file_path_dic[file] = file + ' ( ' +  file_path_name + ' )'
                 file_textures.append(file)
-                #print 'self.file_to_file_path_dic = ',self.file_to_file_path_dic
         for non_file_texture in non_file_textures_all:
             light_ramp = 0
             non_file_texture_connections = cmds.listConnections(non_file_texture,source = False) or []
@@ -367,9 +308,13 @@ class UV_SET_EDITOR(object):
                         it = it + 1
 
     def initial_uv_set_name_to_address_dic_eval(self):
-        #print 'initial_uv_set_name_to_address_dic_eval'
+        print 'initial_uv_set_name_to_address_dic_eval'
         assigned_uv_sets = []
         for texture in self.all_textures:
+            for file in self.file_to_file_path_dic:
+                item_sub = self.file_to_file_path_dic[file]
+                if item_sub == texture:
+                    texture = file
             uv_set_names_linked_to_texture = []
             uv_sets_linked_to_texture = cmds.uvLink(texture = texture, query = True) or []
             for uv_set_all in self.uv_sets_all:
@@ -460,7 +405,7 @@ class UV_SET_EDITOR(object):
         selected_item.setSelected(False)
 
     def update_right_listWidget(self):
-        #print 'update_right_listWidget()'
+        print 'update_right_listWidget()'
         if self.centric_state_text == 'texture-centric':
             self.unlock_right_QListWidget()
             it = 0
@@ -493,6 +438,10 @@ class UV_SET_EDITOR(object):
                 item = self.list_widget_right.item(it)
                 item.setFlags(item.flags() | Qt.ItemIsEnabled)
                 item_text = item.text()
+                for file in self.file_to_file_path_dic:
+                    item_sub = self.file_to_file_path_dic[file]
+                    if item_sub == item_text:
+                        item_text = file
                 selected_index = self.list_widget_left.selectedIndexes()
                 for ind in selected_index:
                     selected_row = ind.row()
@@ -506,11 +455,13 @@ class UV_SET_EDITOR(object):
                         item_object = item_uv_set_text_split[1]
                     if item_uv_set_text_split[0] != '':
                         if i == selected_row:
-                            if item_uv_set_text == self.selected_item_text:
-                                #self.selected_item_text =  self.selected_item_text.replace(' ','')
-                                item_text_selection_status_dic_key = (item_text + ':|:' + (item_object  + ':|:' + self.selected_item_text))
-                                print 'item_text_selection_status_dic_key = ',item_text_selection_status_dic_key
+                            #if item_uv_set_text == self.selected_item_text:
+                                #for file in self.file_to_file_path_dic:
+                                    #item_sub = self.file_to_file_path_dic[file]
+                                    #if item_sub == self.selected_item_text:
+                                        #self.selected_item_text = file
                                 print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+                                item_text_selection_status_dic_key = (item_text + ':|:' + (item_object  + ':|:' + self.selected_item_text))
                                 item_text_selection_status = self.uv_set_selection_status_dic[item_text_selection_status_dic_key]
                                 if item_text_selection_status == 0:
                                     item.setSelected(False)
@@ -618,10 +569,18 @@ class UV_SET_EDITOR(object):
                 selected_item_text_uv_set = selected_item_text_split[1]
                 self.selected_items_right_listWidget()
                 for selected_item_right_text in self.selected_items_right_text:
+                    for file in self.file_to_file_path_dic:
+                        item_sub = self.file_to_file_path_dic[file]
+                        if item_sub == selected_item_right_text:
+                            selected_item_right_text = file
                     self.uv_set_selection_status_dic[selected_item_right_text + ':|:' + self.selected_item_text] = 1
                     for uv_set_selection in self.uv_set_selection_status_dic:
                         uv_set_selection_split = uv_set_selection.split(':|:')
                         uv_set_selection_texture = uv_set_selection_split[0]
+                        for file in self.file_to_file_path_dic:
+                            item_sub = self.file_to_file_path_dic[file]
+                            if item_sub == uv_set_selection_texture:
+                                uv_set_selection_texture = file
                         uv_set_selection_object = uv_set_selection_split[1]
                         uv_set = uv_set_selection_split[2]
                         if uv_set_selection_object == selected_item_text_object:
@@ -630,6 +589,10 @@ class UV_SET_EDITOR(object):
                                     self.uv_set_selection_status_dic[uv_set_selection] = 0
                 for texture in self.all_textures:
                     if texture not in self.selected_items_right_text:
+                        for file in self.file_to_file_path_dic:
+                            item_sub = self.file_to_file_path_dic[file]
+                            if item_sub == texture:
+                                texture = file
                         self.uv_set_selection_status_dic[texture + ':|:' + self.selected_item_text] = 0
                 selected_dics = []
                 unselected_dics = []
@@ -644,6 +607,10 @@ class UV_SET_EDITOR(object):
                 for unselected_uv_set in unselected_dics:
                     uv_set_selection_split = unselected_uv_set.split(':|:')
                     unselected_texture = uv_set_selection_split[0]
+                    for file in self.file_to_file_path_dic:
+                        item_sub = self.file_to_file_path_dic[file]
+                        if item_sub == unselected_texture:
+                            unselected_texture = file
                     unselected_object = uv_set_selection_split[1]
                     unselected_uv = uv_set_selection_split[2]
                     map1_object = ''
@@ -654,6 +621,10 @@ class UV_SET_EDITOR(object):
                         for selected_dic in selected_dics:
                             selected_dic_split = selected_dic.split(':|:')
                             selected_dic_texture = selected_dic_split[0]
+                            for file in self.file_to_file_path_dic:
+                                item_sub = self.file_to_file_path_dic[file]
+                                if item_sub == selected_dic_texture:
+                                    selected_dic_texture = file
                             selected_dic_object = selected_dic_split[1]
                             selected_dic_uv_set = selected_dic_split[2]
                             if selected_dic_texture == unselected_texture:
@@ -676,6 +647,11 @@ class UV_SET_EDITOR(object):
             if selection_status == 0:
                 uv_set_selection_split = uv_set_selection.split(':|:')
                 texture = uv_set_selection_split[0]
+                texture = uv_set_selection_split[0]
+                for file in self.file_to_file_path_dic:
+                    item_sub = self.file_to_file_path_dic[file]
+                    if item_sub == texture:
+                        texture = file
                 object = uv_set_selection_split[1]
                 uv_set = uv_set_selection_split[2]
                 texture_linked_uv_set_address = self.uv_set_name_to_address_dic[object + ':|:' + uv_set]
@@ -683,126 +659,133 @@ class UV_SET_EDITOR(object):
             if selection_status == 1:
                 uv_set_selection_split = uv_set_selection.split(':|:')
                 texture = uv_set_selection_split[0]
+                for file in self.file_to_file_path_dic:
+                    item_sub = self.file_to_file_path_dic[file]
+                    if item_sub == texture:
+                        texture = file
                 object = uv_set_selection_split[1]
                 uv_set = uv_set_selection_split[2]
                 texture_linked_uv_set_address = self.uv_set_name_to_address_dic[object + ':|:' + uv_set]
                 cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address,texture = texture)
 
     def texture_to_object_color_adjust(self):
-        print 'texture_to_object_color_adjust'
+        #print 'texture_to_object_color_adjust'
         linked_objects_to_texture_dic = {}
         object_material_string = ''
         self.list_widget_texture_info.clear()
         if self.centric_state_text == 'texture-centric':
             selected_textures = []
             selected_texture = self.selected_item_text
-            print 'selected_texture = ',selected_texture
+            #print 'selected_texture = ',selected_texture
             connected_materials = self.connected_materials(selected_texture)
             cmds.select(clear = True)
             object_material_string = ''
-            print 'connected_materials  = ',connected_materials
+            #print 'OOO'
+            #print 'connected_materials  = ',connected_materials
+            #print 'OOO'
             assigned_objects = []
             for material in connected_materials:
-                print ' '
+                #print ' '
                 material_and_plugs = material
                 material_split = material.split('.')
                 material = material_split[0]
-                print 'material = ',material
+                #print 'material = ',material
                 current_selection = cmds.ls(selection = True) or []
                 cmds.hyperShade(objects = material)
                 material_assigned_objects = (cmds.ls(selection = True)) or []
-                print 'material_assigned_objects = ',material_assigned_objects
+                #print 'material_assigned_objects = ',material_assigned_objects
                 number_of_selected_objects = len(material_assigned_objects)
                 if number_of_selected_objects > 0:
                     for material_assigned_object in material_assigned_objects:
                         assigned_objects.append(material_assigned_object)
-                print 'assigned_objects = ',assigned_objects
+                #print 'assigned_objects = ',assigned_objects
                 for object in material_assigned_objects:
                     if '.f[' in object:
                         object_split= object.split('.f[')
                         object = object_split[0]
-                    print 'object = ',object
+                    #print 'object = ',object
                     object_material_string = object_material_string + object + ': ' + material_and_plugs + '  ,  '
-                    print 'object_material_string = ',object_material_string
-            print 'assigned_objects = ',assigned_objects
+                    #print 'object_material_string = ',object_material_string
+            #print 'assigned_objects = ',assigned_objects
             linked_objects_to_texture_dic[selected_texture] = assigned_objects
-            print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
+            #print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
             object_material_string = object_material_string[:-4]
-            print 'object_material_string = ',object_material_string
+            #print 'object_material_string = ',object_material_string
             texture_information_string = object_material_string
             texture_information_string_size = len(texture_information_string)
-            print 'texture_information_string_size = ',texture_information_string_size
+            #print 'texture_information_string_size = ',texture_information_string_size
             if texture_information_string_size == 0:
                 connected_materials_size = len(connected_materials)
                 if connected_materials_size == 0:
                     texture_information_string = 'texture linked to no material and used by no object'
                 else:
                     texture_information_string = str(connected_materials[0]) + ' * texture used by no object '
-            print 'texture_information_string = ',texture_information_string
+            #print 'texture_information_string = ',texture_information_string
+            #print 'adding ' + texture_information_string + ' to the GUI'
             self.list_widget_texture_info.addItem(texture_information_string)
             #print 'self.number_of_items_in_right_listWidget = ',self.number_of_items_in_right_listWidget
             it = 0
             made_object_highlight = 0
             while it < self.number_of_items_in_right_listWidget:
-                print ' '
+                #print ' '
                 item = self.list_widget_right.item(it)
                 item_text = item.text()
                 if item_text == '':
                     item.setFlags(item.flags() | Qt.ItemIsEnabled)
                     item.setFlags(item.flags() | Qt.ItemIsEditable)
-                print 'item_text = ',item_text
-                print 'selected_texture = ',selected_texture
-                print 'making ' + item_text + ' grey'
+                #print 'item_text = ',item_text
+                #print 'selected_texture = ',selected_texture
+                #print 'making ' + item_text + ' grey'
                 item.setTextColor(QtGui.QColor("#515151"))
-                print 'made_object_highlight = ',made_object_highlight
+                #print 'made_object_highlight = ',made_object_highlight
                 if made_object_highlight == 1:
                     if '*' not in item_text:
-                        print 'making ' + item_text + ' lowlight'
+                        #print 'making ' + item_text + ' lowlight'
                         item.setTextColor(QtGui.QColor('#515b8c'))
-                print '---'
-                print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
-                print '---'
+                #print '---'
+                #print 'linked_objects_to_texture_dic = ',linked_objects_to_texture_dic
+                #print '---'
                 for linked_object_to_texture_dic in linked_objects_to_texture_dic:
-                    print 'linked_object_to_texture_dic = ',linked_object_to_texture_dic
+                    #print 'linked_object_to_texture_dic = ',linked_object_to_texture_dic
                     if linked_object_to_texture_dic == selected_texture:
-                        print 'linked_object_to_texture_dic == selected_texture'
+                        #print 'linked_object_to_texture_dic == selected_texture'
                         objects = linked_objects_to_texture_dic[selected_texture]
-                        print 'objects = ',objects
+                        #print 'objects = ',objects
                         for object in objects:
-                            print 'object = ',object
+                            #print 'object = ',object
                             if '*' in item_text:
-                                print 'setting ' + object + ' highlight to 0'
+                                #print 'setting ' + object + ' highlight to 0'
                                 made_object_highlight = 0
                             if '.f[' in object:
-                                print 'found .f[]'
+                                #print 'found .f[]'
                                 object_split = object.split('.f[')
                                 object = object_split[0]
-                                print 'object = ',object
+                                #print 'object = ',object
                             if 'Shape' in object:
-                                print 'found shape in object'
+                                #print 'found shape in object'
                                 object_split = object.split('Shape')
                                 object = object_split[0]
-                                print 'object = ',object
+                                #print 'object = ',object
                             if 'Shape' in item_text:
-                                print 'found shape in item_text'
+                                #print 'found shape in item_text'
                                 item_text_split = item_text.split('Shape')
                                 item_text = item_text_split[0]
-                                print 'item_text = ',item_text
-                            print 'object post mod = ',object
-                            print 'item_text post mod = ',item_text
+                                #print 'item_text = ',item_text
+                            #print 'object post mod = ',object
+                            #print 'item_text post mod = ',item_text
                             if object in item_text and '*' in item_text:
-                                print 'object in item_text'
-                                print 'making ' + item_text + ' highlight'
+                                #print 'object in item_text'
+                                #print 'making ' + item_text + ' highlight'
                                 item.setTextColor(QtGui.QColor('#7c98cf'))
-                                print 'setting made_object_highlight to 1'
+                                #print 'setting made_object_highlight to 1'
                                 made_object_highlight = 1
                             item_text_no_star = item_text.replace('*','')
                             item_text_no_star = item_text_no_star.replace(' ','')
-                            print 'item_text_no_star  = ',item_text_no_star
+                            #print 'item_text_no_star  = ',item_text_no_star
                             for object in objects:
                                 object = object.replace('Shape','')
                                 if item_text_no_star in object:
-                                    print 'item_text_no_star in objects, setting made_object_highlight to 1'
+                                    #print 'item_text_no_star in objects, setting made_object_highlight to 1'
                                     made_object_highlight = 1
                 it = it + 1
         if self.centric_state_text == 'UV-centric':
@@ -879,21 +862,25 @@ class UV_SET_EDITOR(object):
             #cmds.select(selection,add = True)
 
     def connected_materials(self,selected_texture):
-        print '-- start connected_materials --'
+        #print '-- start connected_materials --'
         material_types = ['lambert','phong','blinn','surfaceShader','VRayMtl','layeredTexture','VRayBlendMtl']
         bad_connection_names_list = ['hyperShadePrimaryNodeEditorSavedTabsInfo','materialInfo','defaultShaderList1','defaultTextureList1','initialShadingGroup','particleCloud','initialParticleSE','message']
         connected_materials = []
         connected_shading_engines = []
         material_plug_string_links = []
+        for file in self.file_to_file_path_dic:
+            item_sub = self.file_to_file_path_dic[file]
+            if item_sub == selected_texture:
+                selected_texture = file
         selected_texture_connections = cmds.listConnections(selected_texture,source = False) or []
-        print 'selected_texture_connections = ',selected_texture_connections
+        #print 'selected_texture_connections = ',selected_texture_connections
         selected_texture_connections_clean = list(selected_texture_connections)
         for selected_texture_connection in selected_texture_connections:
-            print 'selected_texture_connection = ',selected_texture_connection
+            #print 'selected_texture_connection = ',selected_texture_connection
             if selected_texture_connection in bad_connection_names_list:
-                print 'removing ', selected_texture_connection
+                #print 'removing ', selected_texture_connection
                 selected_texture_connections_clean.remove(selected_texture_connection)
-        print 'selected_texture_connections_clean = ',selected_texture_connections_clean
+        #print 'selected_texture_connections_clean = ',selected_texture_connections_clean
         material_plug_string_links = list(selected_texture_connections_clean)
         material_plug_string_links.append(selected_texture)
         for connection in selected_texture_connections_clean:
@@ -906,7 +893,7 @@ class UV_SET_EDITOR(object):
                         connected_shading_engines.append(connection)
                 else:
                     connections_1 = cmds.listConnections(connection,source = False) or []
-                    print 'connections_1 = ',connections_1
+                    #print 'connections_1 = ',connections_1
                     for connection in connections_1:
                         material_plug_string_links.append(connection)
                         connection_type = cmds.nodeType(connection)
@@ -915,7 +902,7 @@ class UV_SET_EDITOR(object):
                                 connected_shading_engines.append(connection)
                         else:
                             connections_2 = cmds.listConnections(connection,source = False) or []
-                            print 'connections_2 = ',connections_2
+                            #print 'connections_2 = ',connections_2
                             for connection in connections_2:
                                 material_plug_string_links.append(connection)
                                 connection_type = cmds.nodeType(connection)
@@ -924,7 +911,7 @@ class UV_SET_EDITOR(object):
                                         connected_shading_engines.append(connection)
                                 else:
                                     connections_3 = cmds.listConnections(connection,source = False) or []
-                                    print 'connections_3 = ',connections_3
+                                    #print 'connections_3 = ',connections_3
                                     for connection in connections_3:
                                         material_plug_string_links.append(connection)
                                         connection_type = cmds.nodeType(connection)
@@ -933,7 +920,7 @@ class UV_SET_EDITOR(object):
                                                 connected_shading_engines.append(connection)
                                         else:
                                             connections_4 = cmds.listConnections(connection,source = False) or []
-                                            print 'connections_4 = ',connections_4
+                                            #print 'connections_4 = ',connections_4
                                             for connection in connections_4:
                                                 material_plug_string_links.append(connection)
                                                 connection_type = cmds.nodeType(connection)
@@ -942,26 +929,30 @@ class UV_SET_EDITOR(object):
                                                         connected_shading_engines.append(connection)
                                                 else:
                                                     connections_5 = cmds.listConnections(connection,source = False) or []
-                                                    print 'connections_5 = ',connections_5
+                                                    #print 'connections_5 = ',connections_5
                                                     for connection in connections_5:
                                                         material_plug_string_links.append(connection)
                                                         connection_type = cmds.nodeType(connection)
                                                         if connection_type == 'shadingEngine':
                                                             if connection not in connected_shading_engines:
                                                                 connected_shading_engines.append(connection)
-        print 'connected_shading_engines = ',connected_shading_engines
+        #print 'connected_shading_engines = ',connected_shading_engines
+        material_plug_string_strings = []
         for shading_engine in connected_shading_engines:
-            print 'shading_engine = ',shading_engine
-            print 'erasing material_plug_string_strings'
-            material_plug_string_strings = []
+            #print ' '
+            #print 'xx'
+            #print ' '
+            #print 'shading_engine = ',shading_engine
+            #print 'erasing material_plug_string_strings'
             shading_engine_connections = cmds.listConnections(shading_engine,destination = False) or []
-            print 'shading_engine_connections = ',shading_engine_connections
+            #print 'shading_engine_connections = ',shading_engine_connections
             for shading_engine_connection_0 in shading_engine_connections:
-                print 'shading_engine_connection_0 = ',shading_engine_connection_0
+                #print 'shading_engine_connection_0 = ',shading_engine_connection_0
                 shading_engine_connection_0_type = cmds.nodeType(shading_engine_connection_0)
                 if shading_engine_connection_0_type in material_types:
                     shading_engine_connections_1 = cmds.listConnections(shading_engine_connection_0,destination = False,connections = True,plugs = True) or []
-                    print 'shading_engine_connections_1 = ',shading_engine_connections_1
+                    #print 'shading_engine_connections_1 = ',shading_engine_connections_1
+                    i = 0
                     for shading_engine_connection_1 in shading_engine_connections_1:
                         shading_engine_connection_1_split = shading_engine_connection_1.split('.')
                         shading_engine_connection_1 = shading_engine_connection_1_split[0]
@@ -971,96 +962,93 @@ class UV_SET_EDITOR(object):
                             #print 'shading_engine_connection_0 = ',shading_engine_connection_0
                             #print 'shading_engine_connection_1 = ',shading_engine_connection_1
                             if shading_engine_connection_0 == shading_engine_connection_1:
-                                print '---'
+                                #print '---'
                                 material_plug_string = shading_engine_connection_0 + '.' + shading_engine_connection_1_plug
-                                print 'material_plug_string = ',material_plug_string
+                                #print 'material_plug_string = ',material_plug_string
                                 texture_check_connections_0 = cmds.listConnections(shading_engine_connection_0,destination = False) or []
-                                print 'selected_texture = ',selected_texture
-                                print 'texture_check_connections_0 = ',texture_check_connections_0
-                                for texture_check_connection in texture_check_connections_0:
-                                    print ' '
-                                    print 'texture_check_connection = ',texture_check_connection
-                                    print 'material_plug_string_links = ',material_plug_string_links
-                                    if texture_check_connection in material_plug_string_links:
-                                        print 'match 1a'
-                                        if selected_texture in texture_check_connection:
-                                            print 'match 1b'
-                                            print 'appending ',material_plug_string
-                                            print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                            material_plug_string_strings.append(material_plug_string)
-                                        else:
-                                            texture_check_connections_1 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                            print 'texture_check_connections_1 = ',texture_check_connections_1
-                                            for texture_check_connection in texture_check_connections_1:
-                                                print 'texture_check_connection = ',texture_check_connection
-                                                print 'material_plug_string_links = ',material_plug_string_links
-                                                if texture_check_connection in material_plug_string_links:
-                                                    print 'match 2a'
-                                                    if selected_texture in texture_check_connection:
-                                                        print 'match 2b'
-                                                        print 'appending ',material_plug_string
-                                                        print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                        material_plug_string_strings.append(material_plug_string)
-                                                    else:
-                                                        texture_check_connections_2 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                        print 'texture_check_connections_2 = ',texture_check_connections_2
-                                                        for texture_check_connection in texture_check_connections_2:
-                                                            print 'texture_check_connection = ',texture_check_connection
-                                                            print 'material_plug_string_links = ',material_plug_string_links
-                                                            if texture_check_connection in material_plug_string_links:
-                                                                print 'match 3a'
-                                                                if selected_texture in texture_check_connection:
-                                                                    print 'match 3b'
-                                                                    print 'appending ',material_plug_string
-                                                                    print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                                    material_plug_string_strings.append(material_plug_string)
-                                                                else:
-                                                                    texture_check_connections_3 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                                    print 'texture_check_connections_3 = ',texture_check_connections_3
-                                                                    for texture_check_connection in texture_check_connections_3:
-                                                                        print 'texture_check_connection = ',texture_check_connection
-                                                                        print 'material_plug_string_links = ',material_plug_string_links
-                                                                        if texture_check_connection in material_plug_string_links:
-                                                                            print 'match 4a'
-                                                                            if selected_texture in texture_check_connection:
-                                                                                print 'match 4b'
-                                                                                print 'appending ',material_plug_string
-                                                                                print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                                                material_plug_string_strings.append(material_plug_string)
-                                                                            else:
-                                                                                texture_check_connections_4 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                                                print 'texture_check_connections_4 = ',texture_check_connections_4
-                                                                                for texture_check_connection in texture_check_connections_4:
-                                                                                    print 'texture_check_connection = ',texture_check_connection
-                                                                                    print 'material_plug_string_links = ',material_plug_string_links
-                                                                                    if texture_check_connection in material_plug_string_links:
-                                                                                        print 'match 5a'
-                                                                                        if selected_texture in texture_check_connection:
-                                                                                            print 'match 5b'
-                                                                                            print 'appending ',material_plug_string
-                                                                                            print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                                                            material_plug_string_strings.append(material_plug_string)
-                                                                                        else:
-                                                                                            texture_check_connections_5 = cmds.listConnections(texture_check_connection,destination = False) or []
-                                                                                            print 'texture_check_connections_5 = ',texture_check_connections_5
-                                                                                            print 'material_plug_string_links = ',material_plug_string_links
-                                                                                            for texture_check_connection in texture_check_connections_5:
-                                                                                                print 'texture_check_connection = ',texture_check_connection
-                                                                                                if texture_check_connection in material_plug_string_links:
-                                                                                                    print 'match 6a'
-                                                                                                    if selected_texture in texture_check_connection:
-                                                                                                        print 'match 6b'
-                                                                                                        print 'appending ',material_plug_string
-                                                                                                        print 'adding ' + material_plug_string + ' to material_plug_string_strings'
-                                                                                                        material_plug_string_strings.append(material_plug_string)
+                                #print 'selected_texture = ',selected_texture
+                                #print 'texture_check_connections_0 = ',texture_check_connections_0
+                                texture_check_connection = texture_check_connections_0[i]
+                                #print ' '
+                                #print 'MAIN texture_check_connection = ',texture_check_connection
+                                #print 'material_plug_string_links = ',material_plug_string_links
+                                if texture_check_connection in material_plug_string_links:
+                                    #print 'match 1a'
+                                    if selected_texture in texture_check_connection:
+                                        #print 'match 1b'
+                                        #print 'appending ',material_plug_string
+                                        #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                        material_plug_string_strings.append(material_plug_string)
                                     else:
-                                        print 'break 1'
-                                        break
-
-        print 'material_plug_string_strings = ',material_plug_string_strings
+                                        texture_check_connections_1 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                        #print 'texture_check_connections_1 = ',texture_check_connections_1
+                                        for texture_check_connection in texture_check_connections_1:
+                                            #print 'texture_check_connection = ',texture_check_connection
+                                            #print 'material_plug_string_links = ',material_plug_string_links
+                                            if texture_check_connection in material_plug_string_links:
+                                                #print 'match 2a'
+                                                if selected_texture in texture_check_connection:
+                                                    #print 'match 2b'
+                                                    #print 'appending ',material_plug_string
+                                                    #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                    material_plug_string_strings.append(material_plug_string)
+                                                else:
+                                                    texture_check_connections_2 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                                    #print 'texture_check_connections_2 = ',texture_check_connections_2
+                                                    for texture_check_connection in texture_check_connections_2:
+                                                        #print 'texture_check_connection = ',texture_check_connection
+                                                        #print 'material_plug_string_links = ',material_plug_string_links
+                                                        if texture_check_connection in material_plug_string_links:
+                                                            #print 'match 3a'
+                                                            if selected_texture in texture_check_connection:
+                                                                #print 'match 3b'
+                                                                #print 'appending ',material_plug_string
+                                                                #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                                material_plug_string_strings.append(material_plug_string)
+                                                            else:
+                                                                texture_check_connections_3 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                                                #print 'texture_check_connections_3 = ',texture_check_connections_3
+                                                                for texture_check_connection in texture_check_connections_3:
+                                                                    #print 'texture_check_connection = ',texture_check_connection
+                                                                    #print 'material_plug_string_links = ',material_plug_string_links
+                                                                    if texture_check_connection in material_plug_string_links:
+                                                                        #print 'match 4a'
+                                                                        if selected_texture in texture_check_connection:
+                                                                            #print 'match 4b'
+                                                                            #print 'appending ',material_plug_string
+                                                                            #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                                            material_plug_string_strings.append(material_plug_string)
+                                                                        else:
+                                                                            texture_check_connections_4 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                                                            #print 'texture_check_connections_4 = ',texture_check_connections_4
+                                                                            for texture_check_connection in texture_check_connections_4:
+                                                                                #print 'texture_check_connection = ',texture_check_connection
+                                                                                #print 'material_plug_string_links = ',material_plug_string_links
+                                                                                if texture_check_connection in material_plug_string_links:
+                                                                                    #print 'match 5a'
+                                                                                    if selected_texture in texture_check_connection:
+                                                                                        #print 'match 5b'
+                                                                                        #print 'appending ',material_plug_string
+                                                                                        #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                                                        material_plug_string_strings.append(material_plug_string)
+                                                                                    else:
+                                                                                        texture_check_connections_5 = cmds.listConnections(texture_check_connection,destination = False) or []
+                                                                                        #print 'texture_check_connections_5 = ',texture_check_connections_5
+                                                                                        #print 'material_plug_string_links = ',material_plug_string_links
+                                                                                        for texture_check_connection in texture_check_connections_5:
+                                                                                            #print 'texture_check_connection = ',texture_check_connection
+                                                                                            if texture_check_connection in material_plug_string_links:
+                                                                                                #print 'match 6a'
+                                                                                                if selected_texture in texture_check_connection:
+                                                                                                    #print 'match 6b'
+                                                                                                    #print 'appending ',material_plug_string
+                                                                                                    #print 'adding ' + material_plug_string + ' to material_plug_string_strings'
+                                                                                                    material_plug_string_strings.append(material_plug_string)
+                                i = i + 1
+        #print 'material_plug_string_strings = ',material_plug_string_strings
         for material_plug_string_string in material_plug_string_strings:
             connected_materials.append(material_plug_string_string)
-        print '-- end connected_materials --'
+        #print '-- end connected_materials --'
         return(connected_materials)
 
 #---------- window ----------
@@ -1078,6 +1066,7 @@ class UV_SET_EDITOR(object):
         window.setCentralWidget(main_widget)
         #window.setFixedSize(1015,300)
         window.setFixedWidth(1015)
+        window.setMinimumHeight(500)
         main_vertical_layout = QtWidgets.QVBoxLayout(main_widget)
         combo_box_layout = QtWidgets.QHBoxLayout(main_widget)
         main_vertical_layout.addLayout(combo_box_layout)
@@ -1086,9 +1075,7 @@ class UV_SET_EDITOR(object):
         self.texture_based_uv_set_based_combobox = QtWidgets.QComboBox()
         self.texture_based_uv_set_based_combobox.setMaximumWidth(180)
         self.texture_based_uv_set_based_combobox.setMinimumHeight(18)
-        #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{background-color: yellow;}QComboBox{background-color: blue;}QLineEdit{background-color: red;}""")
         self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{color:#a3b3bf;}QLineEdit{color:#a3b3bf;}""")
-        #self.texture_based_uv_set_based_combobox.setStyleSheet("""QWidget{color:#a3b3bf;}QComboBox{color:#a3b3bf;}QLineEdit{color:#a3b3bf;}""")
         combo_box_layout.setAlignment(QtCore.Qt.AlignLeft)
         combo_box_layout.addWidget(self.texture_based_uv_set_based_combobox)
         self.texture_based_uv_set_based_combobox.addItem("texture-centric")
@@ -1127,8 +1114,6 @@ class UV_SET_EDITOR(object):
         self.list_widget_texture_info.setStyleSheet('QListWidget {background-color: #292929; color:#8c4c7f;}')
         self.list_widget_texture_info.setFocusPolicy(QtCore.Qt.NoFocus)
         main_vertical_layout.addWidget(self.list_widget_texture_info)
-        #self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged", self.populate_windows])
-        #self.myScriptJobID = cmds.scriptJob(p = window_name, event=["NameChanged", self.populate_windows])
         self.populate_windows()
         self.right_listWidget_selection_eval()
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
