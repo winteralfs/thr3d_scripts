@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-#print 'monday day'
+print 'monday evening 2'
 
 
 class UV_SET_EDITOR(object):
@@ -98,6 +98,7 @@ class UV_SET_EDITOR(object):
                 item.setFlags(item.flags() | Qt.ItemIsEnabled)
                 item.setFlags(item.flags() | Qt.ItemIsEditable)
             it = it + 1
+        self.deactivate_empty_lines()
 
     def lock_selected_right_QListWidget(self):
         #print 'lock_selected_right_QListWidget()'
@@ -107,6 +108,35 @@ class UV_SET_EDITOR(object):
             item = selected_uv_set_pointer
             item_text = item.text()
             item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+
+    def deactivate_empty_lines(self):
+        #print 'deactivate_empty_lines'
+        if self.centric_state_text == 'texture-centric':
+            it = 0
+            while it < self.number_of_items_in_right_listWidget:
+                item = self.list_widget_right.item(it)
+                item_text = item.text()
+                #print 'item_text = ',item_text
+                item_len = len(item_text)
+                #print 'item_len = ',item_len
+                if item_len == 2:
+                    item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
+                    item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                it = it + 1
+        if self.centric_state_text == 'UV-centric':
+            it = 0
+            while it < self.number_of_items_in_left_listWidget:
+                item = self.list_widget_left.item(it)
+                item_text = item.text()
+                #print 'item_text = ',item_text
+                item_len = len(item_text)
+                #print 'item_len = ',item_len
+                if item_len == 2:
+                    item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
+                    item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                it = it + 1
 
     def populate_windows(self):
         #print 'populate_windows()'
@@ -152,6 +182,7 @@ class UV_SET_EDITOR(object):
                 i = i + 1
             self.activate_right_listWidget()
             self.initial_uv_set_name_to_address_dic_eval()
+            self.deactivate_empty_lines()
         if self.centric_state_text == 'UV-centric':
             self.list_widget_right.setWrapping(True)
             self.list_widget_left.setWrapping(False)
@@ -198,6 +229,7 @@ class UV_SET_EDITOR(object):
                 i = i + 1
             self.initial_uv_set_name_to_address_dic_eval()
             self.activate_right_listWidget()
+            self.deactivate_empty_lines()
 
     def evaluate_textures_in_scene(self):
         #print 'evaluate_textures_in_scene()'
@@ -452,41 +484,40 @@ class UV_SET_EDITOR(object):
                     if item_sub == item_text:
                         item_text = file
                 selected_index = self.list_widget_left.selectedIndexes()
+                #print 'selected_index = ',selected_index
+                selected_row = 0
                 for ind in selected_index:
                     selected_row = ind.row()
                 i = 0
-                while i < self.number_of_items_in_left_listWidget:
-                    item_uv_set = self.list_widget_left.item(i)
-                    item_uv_set_text = item_uv_set.text()
-                    item_uv_set_text = item_uv_set_text.replace(' ','')
-                    item_uv_set_text_split = item_uv_set_text.split('*')
-                    if '*' in item_uv_set_text:
-                        item_object = item_uv_set_text_split[1]
-                    if item_uv_set_text_split[0] != '':
-                        if i == selected_row:
-                            #if item_uv_set_text == self.selected_item_text:
-                                #for file in self.file_to_file_path_dic:
-                                    #item_sub = self.file_to_file_path_dic[file]
-                                    #if item_sub == self.selected_item_text:
-                                        #self.selected_item_text = file
-                                #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-                                item_text_selection_status_dic_key = (item_text + ':|:' + (item_object  + ':|:' + self.selected_item_text))
-                                item_text_selection_status = self.uv_set_selection_status_dic[item_text_selection_status_dic_key]
-                                if item_text_selection_status == 0:
-                                    item.setSelected(False)
-                                if item_text_selection_status == 1:
-                                    item.setSelected(True)
-                                    item_text = item.text()
-                                    self.selected_right_list_textures.append(item_text)
-                                    combined_selected_item_text = item_object + ':|:' + self.selected_item_text
-                                    selected_item_text_split = combined_selected_item_text.split(':|:')
-                                    selected_item_text_uv_set = selected_item_text_split[1]
-                                    selected_item_text_uv_set = selected_item_text_uv_set.replace(' ','')
-                                    if selected_item_text_uv_set == 'map1':
-                                        item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-                    i = i + 1
+                #print 'selected_row = ',selected_row
+                if selected_row != 0:
+                    while i < self.number_of_items_in_left_listWidget:
+                        item_uv_set = self.list_widget_left.item(i)
+                        item_uv_set_text = item_uv_set.text()
+                        item_uv_set_text = item_uv_set_text.replace(' ','')
+                        item_uv_set_text_split = item_uv_set_text.split('*')
+                        if '*' in item_uv_set_text:
+                            item_object = item_uv_set_text_split[1]
+                        if item_uv_set_text_split[0] != '':
+                            if i == selected_row:
+                                if item_uv_set_text == self.selected_item_text:
+                                    item_text_selection_status_dic_key = (item_text + ':|:' + (item_object  + ':|:' + self.selected_item_text))
+                                    item_text_selection_status = self.uv_set_selection_status_dic[item_text_selection_status_dic_key]
+                                    if item_text_selection_status == 0:
+                                        item.setSelected(False)
+                                    if item_text_selection_status == 1:
+                                        item.setSelected(True)
+                                        item_text = item.text()
+                                        self.selected_right_list_textures.append(item_text)
+                                        combined_selected_item_text = item_object + ':|:' + self.selected_item_text
+                                        selected_item_text_split = combined_selected_item_text.split(':|:')
+                                        selected_item_text_uv_set = selected_item_text_split[1]
+                                        selected_item_text_uv_set = selected_item_text_uv_set.replace(' ','')
+                                        if selected_item_text_uv_set == 'map1':
+                                            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                        i = i + 1
                 it = it + 1
-            self.texture_to_object_color_adjust()
+                #self.texture_to_object_color_adjust()
 
     def right_listWidget_selection_eval(self):
         #print 'right_listWidget_selection_eval()'
@@ -850,6 +881,7 @@ class UV_SET_EDITOR(object):
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             it = it + 1
         cmds.select(clear = True)
+        self.deactivate_empty_lines()
         #print 'END texture_to_object_color_adjust'
 
     def connected_materials(self,selected_texture):

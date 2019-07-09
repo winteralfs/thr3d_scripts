@@ -182,7 +182,7 @@ def objectChooseWin():
         object_old_rename_check = 0
         object_new_rename_check = 0
         if number_of_dup_nodes > 0:
-            print 'duplicate_node_names = ',duplicate_node_names
+            #print 'duplicate_node_names = ',duplicate_node_names
             duplicate_node_names.sort(key=len,reverse = True)
             for duplicate_node_name in duplicate_node_names:
                 shapes = cmds.listRelatives(duplicate_node_name,shapes = True,fullPath = True) or []
@@ -194,11 +194,11 @@ def objectChooseWin():
                         shape_name_bar = '|' + shape_name
                         duplicate_node_shape_list.append(shape_name)
                         duplicate_node_shape_list.append(shape_name_bar)
-            print 'duplicate_node_shape_list = ',duplicate_node_shape_list
+            #print 'duplicate_node_shape_list = ',duplicate_node_shape_list
             i = 0
             for duplicate_node_name in duplicate_node_names:
-                print ' '
-                print 'duplicate_node_name = ',duplicate_node_name
+                #print ' '
+                #print 'duplicate_node_name = ',duplicate_node_name
                 if duplicate_node_name not in duplicate_node_shape_list:
                     #print 'not a shape node'
                     duplicate_node_name_split = duplicate_node_name.split('|')
@@ -209,7 +209,7 @@ def objectChooseWin():
                     cmds.lockNode(duplicate_node_name,lock = False)
                     cmds.rename(duplicate_node_name,rename_string)
                     duplicate_node_names_renamed.append(rename_string)
-                    print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+                    #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
                     #print 'object_Old = ',object_Old
                     #print 'object_New = ',object_New
                     if duplicate_node_name == object_Old:
@@ -332,7 +332,7 @@ def objectChooseWin():
             objects_render_layer_compare = []
             objects_render_layer_compare.append(object_Old)
             object_Old_kids = cmds.listRelatives(object_Old,fullPath = True,children = True)
-            print 'object_Old_kids = ',object_Old_kids
+            #print 'object_Old_kids = ',object_Old_kids
             for object in object_Old_kids:
                 object_type = cmds.nodeType(object)
                 if object_type == 'mesh':
@@ -340,7 +340,7 @@ def objectChooseWin():
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        print 'object = ',object
+                        #print 'object = ',object
                         objects_render_layer_compare.append(object)
             object_Old_parents = cmds.listRelatives(object_Old,fullPath = True,parent = True)
             for object in object_Old_parents:
@@ -350,9 +350,9 @@ def objectChooseWin():
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        print 'object = ',object
+                        #print 'object = ',object
                         objects_render_layer_compare.append(object)
-            print 'object_Old_parents = ',object_Old_parents
+            #print 'object_Old_parents = ',object_Old_parents
             object_New = (str(object_New))
             object_in_render_layer_list = []
             size_layers = len(renderLayers)
@@ -361,7 +361,7 @@ def objectChooseWin():
                 number_of_objects_in_render_layer = len(members_in_render_layer)
                 if number_of_objects_in_render_layer > 0:
                     for member_in_render_layer in members_in_render_layer:
-                        print 'objects_render_layer_compare = ',objects_render_layer_compare
+                        #print 'objects_render_layer_compare = ',objects_render_layer_compare
                         if member_in_render_layer in objects_render_layer_compare:
                             object_in_render_layer_list.append(render_layer)
             print 'old_object in render layers, ',object_in_render_layer_list
@@ -729,33 +729,33 @@ def objectChooseWin():
                 objParent = object_Old
             OPlist = []
             OPlist_all = cmds.ls(type = "VRayObjectProperties") or []
-            print 'OPlist_all = ',OPlist_all
+            #print 'OPlist_all = ',OPlist_all
             for op in OPlist_all:
-                print ' '
-                print 'op = ',op
+                #print ' '
+                #print 'op = ',op
                 chilRels = cmds.listRelatives(op) or []
                 chilCons = cmds.listConnections(op) or []
-                print 'chilRels = ',chilRels
+                #print 'chilRels = ',chilRels
                 for chiRel in chilRels:
-                    print 'object_Old = ',object_Old
-                    print 'chiRel = ',chiRel
+                    #print 'object_Old = ',object_Old
+                    #print 'chiRel = ',chiRel
                     if object_Old in chiRel:
-                        print object_Old + ' in ' + chiRel
+                        #print object_Old + ' in ' + chiRel
                         if op not in OPlist:
-                            print '* appending ' + op + ' to OPlist'
+                            #print '* appending ' + op + ' to OPlist'
                             OPlist.append(op)
-                print 'chilCons = ',chilCons
+                #print 'chilCons = ',chilCons
                 for chiCon in chilCons:
-                    print 'object_Old = ',object_Old
-                    print 'chiCon = ',chiCon
+                    #print 'object_Old = ',object_Old
+                    #print 'chiCon = ',chiCon
                     if object_Old in chiCon:
-                        print object_Old + ' in ' + chiCon
+                        #print object_Old + ' in ' + chiCon
                         if op not in OPlist:
-                            print '* appending ' + op + ' to OPlist'
+                            #print '* appending ' + op + ' to OPlist'
                             OPlist.append(op)
             size_OPlist = len(OPlist)
-            print '--'
-            print 'size_OPlist = ',size_OPlist
+            #print '--'
+            #print 'size_OPlist = ',size_OPlist
             if size_OPlist > 0:
                 print 'old_object v-ray object property groups = ',OPlist
             else:
@@ -1886,17 +1886,18 @@ def objectChooseWin():
         def object_New_VRAY_objectPropOverides(OBJ_1_vrayObjProps):
             print 'setting new object v-ray object properties:'
             size_OBJ_1_vrayObjProps = len(OBJ_1_vrayObjProps)
-            print 'size_OBJ_1_vrayObjProps = ',size_OBJ_1_vrayObjProps
+            #print 'size_OBJ_1_vrayObjProps = ',size_OBJ_1_vrayObjProps
             if size_OBJ_1_vrayObjProps > 0:
                 vray_object_props = OBJ_1_vrayObjProps[2]
-                print 'vray_object_props = ',vray_object_props
+                #print 'vray_object_props = ',vray_object_props
                 size_vray_object_props = len(vray_object_props)
-                print 'size_vray_object_props = ',size_vray_object_props
+                #print 'size_vray_object_props = ',size_vray_object_props
                 if size_vray_object_props != 0:
-                    vray_object_props = vray_object_props[0]
-                    print 'vray_object_props = ',vray_object_props
-                    print 'adding ' + object_new_print_temp + ' to ' + vray_object_props
-                    cmds.sets(object_New,addElement = vray_object_props)
+                    for vray_object_prop in vray_object_props:
+                    #vray_object_props = vray_object_props[0]
+                    #print 'vray_object_props = ',vray_object_props
+                        print 'adding ' + object_new_print_temp + ' to ' + vray_object_prop
+                        cmds.sets(object_New,addElement = vray_object_prop)
             else:
                 print 'no v-ray object properties detected for ', object_Old
 
