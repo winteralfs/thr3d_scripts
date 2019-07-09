@@ -331,7 +331,7 @@ def objectChooseWin():
             object_Old = (str(object_Old))
             objects_render_layer_compare = []
             objects_render_layer_compare.append(object_Old)
-            object_Old_kids = cmds.listRelatives(object_Old,fullPath = True,children = True)
+            object_Old_kids = cmds.listRelatives(object_Old,fullPath = True,children = True) or []
             #print 'object_Old_kids = ',object_Old_kids
             for object in object_Old_kids:
                 object_type = cmds.nodeType(object)
@@ -342,7 +342,7 @@ def objectChooseWin():
                         object = object_split[(size_of_list - 1)]
                         #print 'object = ',object
                         objects_render_layer_compare.append(object)
-            object_Old_parents = cmds.listRelatives(object_Old,fullPath = True,parent = True)
+            object_Old_parents = cmds.listRelatives(object_Old,fullPath = True,parent = True) or []
             for object in object_Old_parents:
                 object_type = cmds.nodeType(object)
                 if object_type == 'mesh':
