@@ -56,7 +56,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'tuesday_evening'
+print 'wed day'
 
 def look_for_duplicate_nodes():
     #print ' '
@@ -1321,16 +1321,16 @@ def objectChooseWin():
                         second = firstConList[0]
                         fType = cmds.nodeType(second)
 
-                    if fType == "uvChooser":
-                        secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
-                        UVmapAddressOLD = secondConList[0]
-                        UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
-                        cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
-                    else:
-                        secondConList = cmds.listConnections(second, destination = False) or []
-                    shadEx2 = cmds.objExists("tempShader")
-                    if shadEx2 == 1:
-                        cmds.delete("tempShader")
+                        if fType == "uvChooser":
+                            secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
+                            UVmapAddressOLD = secondConList[0]
+                            UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
+                            cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
+                        else:
+                            secondConList = cmds.listConnections(second, destination = False) or []
+                        shadEx2 = cmds.objExists("tempShader")
+                        if shadEx2 == 1:
+                            cmds.delete("tempShader")
                 if  rampDetect == 1:
                     cmds.select(clear = True)
                     shadEx = cmds.objExists("tempShader")
@@ -1667,7 +1667,6 @@ def objectChooseWin():
                 if default_value != 0.0:
                     xforms_detected = 1
                 i = i + 1
-            print 'xforms_detected = ',xforms_detected
             if xforms_detected == 0:
                 print 'no xforms_detected, matching position to bounding box center'
                 #object_Old_split = object_Old.split('|')
@@ -1681,10 +1680,11 @@ def objectChooseWin():
                 #cmds.xform(object_New,centerPivots = True)
                 #print 'object_New = ',object_New
                 #old_Xforms =  cmds.objectCenter(object_Old)
-                print '2 old_Xforms = ',old_Xforms
+                print 'old_Xforms = ',old_Xforms
                 #old_Xforms = [-13,0,2.2]
                 #print 'moving ' + object_New + ' to ' + str(old_Xforms)
-                cmds.xform(object_New,translation = old_Xforms)
+                cmds.xform(object_New,centerPivots = True)
+                cmds.xform(object_New,translation = old_Xforms,worldSpace = True)
             if siiz < 1:
                 print "no transform render layer overides detected"
 
