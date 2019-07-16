@@ -1,52 +1,38 @@
 """
 object_replace
 ********************************************
-
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui.JPG
    :align: center
    :scale: 75%
-
 object_replace is a tool for swapping one object in the scene with another. It is useful for updating a model to a newer published
 version, or swapping a similar model with a similar asset when setting up a new scene. The tool will do its best to transfer all the connections
 and settings from the old asset to the new one.  object_replace is launched from the lighting_tools_shelf:
-
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_lighting_shelf.JPG
    :align: center
    :scale: 75%
-
 ------
-
 The tool requires that the objects to be swapped not be named the same name.  The best stategy is to add the suffix '_old' to the name of the object to be
 swapped.  Similarly, the suffix '_new' should be added to the name of the new object. It is also important that no group node has the same name as any object
 in the scene and it may be nessisary to add the suffix '_grp' to the name of certain group nodes to avoid this.
-
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_object_old_object_new.JPG
    :align: center
    :scale: 75%
-
 after editing the 'object_old' and 'object_new' fields to reflect the appropriate assets (you can select the name of the new object and then the old object in
 the outliner and the fields will autofill) you press the 'replace' button to initiate the swapping process.
-
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_replace_button.JPG
    :align: center
    :scale: 75%
-
 the script editor will show you information as to what attributes were transfered and when the script is finished running.
-
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_script_editor.JPG
    :align: center
    :scale: 75%
-
 once finished, the tool leaves the 'old_asset' in the outliner, but hidden.  You can delete it if you no longer need it.
 The '_new' suffix can also now be removed from the swapped asset's name.
-
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_outliner.JPG
    :align: center
    :scale: 75%
-
 one common issue occures when the UV sets for the newer object have been renamed.  The script will not find and transfer those assignments. Those
 connections will have to be updated by hand. If the UV set names do not change, the script will pick up and transfer the assignments.
-
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_UV_set_editor.JPG
    :align: center
    :scale: 75%
@@ -56,7 +42,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 from string import digits
 
-print 'Mon'
+print 'monday morning'
 
 def look_for_duplicate_nodes():
     #print ' '
@@ -153,6 +139,9 @@ def objectChooseWin():
     def objects(object_Old,object_New):
         print 'new_object = ',object_New
         print 'old_object = ',object_Old
+        cmds.xform(object_Old,centerPivots = True)
+        cmds.xform(object_New,centerPivots = True)
+        old_Xforms =  cmds.objectCenter(object_Old)
         all_shape_nodes = []
         transform_nodes = cmds.ls(type = 'transform')
         for transform_node in transform_nodes:
@@ -182,7 +171,7 @@ def objectChooseWin():
         object_old_rename_check = 0
         object_new_rename_check = 0
         if number_of_dup_nodes > 0:
-            print 'duplicate_node_names = ',duplicate_node_names
+            #print 'duplicate_node_names = ',duplicate_node_names
             duplicate_node_names.sort(key=len,reverse = True)
             for duplicate_node_name in duplicate_node_names:
                 shapes = cmds.listRelatives(duplicate_node_name,shapes = True,fullPath = True) or []
@@ -194,11 +183,11 @@ def objectChooseWin():
                         shape_name_bar = '|' + shape_name
                         duplicate_node_shape_list.append(shape_name)
                         duplicate_node_shape_list.append(shape_name_bar)
-            print 'duplicate_node_shape_list = ',duplicate_node_shape_list
+            #print 'duplicate_node_shape_list = ',duplicate_node_shape_list
             i = 0
             for duplicate_node_name in duplicate_node_names:
-                print ' '
-                print 'duplicate_node_name = ',duplicate_node_name
+                #print ' '
+                #print 'duplicate_node_name = ',duplicate_node_name
                 if duplicate_node_name not in duplicate_node_shape_list:
                     #print 'not a shape node'
                     duplicate_node_name_split = duplicate_node_name.split('|')
@@ -209,7 +198,7 @@ def objectChooseWin():
                     cmds.lockNode(duplicate_node_name,lock = False)
                     cmds.rename(duplicate_node_name,rename_string)
                     duplicate_node_names_renamed.append(rename_string)
-                    print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
+                    #print 'duplicate_node_names_renamed = ',duplicate_node_names_renamed
                     #print 'object_Old = ',object_Old
                     #print 'object_New = ',object_New
                     if duplicate_node_name == object_Old:
@@ -241,7 +230,43 @@ def objectChooseWin():
                         duplicate_name_dic[rename_string] = object_New
                         object_New = rename_string
                         object_new_rename_check = 1
+                    object_Old_name_split = object_Old.split('|')
+                    object_Old_name_raw = object_Old_name_split[-1]
+                    #print 'object_Old_name_raw = ',object_Old_name_raw
+                    #print 'duplicate_node_name = ',duplicate_node_name
+                    duplicate_node_name_split = duplicate_node_name.split('|')
+                    #io = 0
+                    #renamed_path_number = 0
+                    #for duplicate_node_name_split_item in duplicate_node_name_split:
+                        #print 'duplicate_node_name_split = ',duplicate_node_name_split
+                        #print 'io = ',io
+                        #print 'duplicate_node_name_split_item = ',duplicate_node_name_split_item
+                        #print 'object_Old_name_raw = ',object_Old_name_raw
+                        #if duplicate_node_name_split_item == object_Old_name_raw:
+                            #renamed_path_number = io
+                            #print 'MATCH renamed_path_number = ',renamed_path_number
+                        #io = io + 1
                     i = i + 1
+        #print '1 object_Old = ',object_Old
+        #print '1 object_New = ',object_New
+        object_Old_split = object_Old.split('|')
+        object_Old_raw = object_Old_split[-1]
+        object_New_split = object_New.split('|')
+        object_New_raw = object_New_split[-1]
+        object_Old_full_paths = cmds.ls(object_Old_raw,long = True)
+        #print 'object_Old_full_paths = ',object_Old_full_paths
+        object_New_full_paths = cmds.ls(object_New_raw,long = True)
+        #print 'object_New_full_paths = ',object_New_full_paths
+        for object_Old_full_path in object_Old_full_paths:
+            object_Old_full_path_node_type = cmds.nodeType(object_Old_full_path)
+            if object_Old_full_path_node_type != 'mesh':
+                object_Old = object_Old_full_path
+        for object_New_full_path in object_New_full_paths:
+            object_New_full_path_node_type = cmds.nodeType(object_New_full_path)
+            if object_New_full_path_node_type != 'mesh':
+                object_New = object_New_full_path
+        #print '2 object_Old = ',object_Old
+        #print '2 object_New = ',object_New
         #print ' '
         #print ' '
         #print '--- '
@@ -285,15 +310,18 @@ def objectChooseWin():
         currentRenderLayer = cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
         object_old_print_temp = ''
         object_new_print_temp = ''
+        #print 'object_old_rename_check = ',object_old_rename_check
         if object_old_rename_check == 1:
-            object_old_print_temp = duplicate_name_dic[object_Old]
-            #print "object_old = ",object_old_print_temp
+            if object_Old in duplicate_name_dic:
+                object_old_print_temp = duplicate_name_dic[object_Old]
+                #print "object_old = ",object_old_print_temp
         else:
             object_old_print_temp = object_Old
             #print "object_old = ",object_Old
         if object_new_rename_check ==  1:
-            object_new_print_temp = duplicate_name_dic[object_New]
-            #print "object_new = ",object_new_print_temp
+            if object_New in duplicate_name_dic:
+                object_new_print_temp = duplicate_name_dic[object_New]
+                #print "object_new = ",object_new_print_temp
         else:
             object_new_print_temp = object_New
             #print "object_old = ",object_Old
@@ -331,8 +359,8 @@ def objectChooseWin():
             object_Old = (str(object_Old))
             objects_render_layer_compare = []
             objects_render_layer_compare.append(object_Old)
-            object_Old_kids = cmds.listRelatives(object_Old,fullPath = True,children = True)
-            print 'object_Old_kids = ',object_Old_kids
+            object_Old_kids = cmds.listRelatives(object_Old,fullPath = True,children = True) or []
+            #print 'object_Old_kids = ',object_Old_kids
             for object in object_Old_kids:
                 object_type = cmds.nodeType(object)
                 if object_type == 'mesh':
@@ -340,9 +368,9 @@ def objectChooseWin():
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        print 'object = ',object
+                        #print 'object = ',object
                         objects_render_layer_compare.append(object)
-            object_Old_parents = cmds.listRelatives(object_Old,fullPath = True,parent = True)
+            object_Old_parents = cmds.listRelatives(object_Old,fullPath = True,parent = True) or []
             for object in object_Old_parents:
                 object_type = cmds.nodeType(object)
                 if object_type == 'mesh':
@@ -350,9 +378,9 @@ def objectChooseWin():
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        print 'object = ',object
+                        #print 'object = ',object
                         objects_render_layer_compare.append(object)
-            print 'object_Old_parents = ',object_Old_parents
+            #print 'object_Old_parents = ',object_Old_parents
             object_New = (str(object_New))
             object_in_render_layer_list = []
             size_layers = len(renderLayers)
@@ -361,13 +389,13 @@ def objectChooseWin():
                 number_of_objects_in_render_layer = len(members_in_render_layer)
                 if number_of_objects_in_render_layer > 0:
                     for member_in_render_layer in members_in_render_layer:
-                        print 'objects_render_layer_compare = ',objects_render_layer_compare
+                        #print 'objects_render_layer_compare = ',objects_render_layer_compare
                         if member_in_render_layer in objects_render_layer_compare:
                             object_in_render_layer_list.append(render_layer)
             print 'old_object in render layers, ',object_in_render_layer_list
             return object_in_render_layer_list,object_Old,object_New
 
-        def translations(object_Old,object_New,renderLayers):
+        def translations(object_Old,object_New,renderLayers,old_Xforms):
             print "old object transforms check:"
             transValuesDict = {}
             transX_val = 0
@@ -729,33 +757,33 @@ def objectChooseWin():
                 objParent = object_Old
             OPlist = []
             OPlist_all = cmds.ls(type = "VRayObjectProperties") or []
-            print 'OPlist_all = ',OPlist_all
+            #print 'OPlist_all = ',OPlist_all
             for op in OPlist_all:
-                print ' '
-                print 'op = ',op
+                #print ' '
+                #print 'op = ',op
                 chilRels = cmds.listRelatives(op) or []
                 chilCons = cmds.listConnections(op) or []
-                print 'chilRels = ',chilRels
+                #print 'chilRels = ',chilRels
                 for chiRel in chilRels:
-                    print 'object_Old = ',object_Old
-                    print 'chiRel = ',chiRel
+                    #print 'object_Old = ',object_Old
+                    #print 'chiRel = ',chiRel
                     if object_Old in chiRel:
-                        print object_Old + ' in ' + chiRel
+                        #print object_Old + ' in ' + chiRel
                         if op not in OPlist:
-                            print '* appending ' + op + ' to OPlist'
+                            #print '* appending ' + op + ' to OPlist'
                             OPlist.append(op)
-                print 'chilCons = ',chilCons
+                #print 'chilCons = ',chilCons
                 for chiCon in chilCons:
-                    print 'object_Old = ',object_Old
-                    print 'chiCon = ',chiCon
+                    #print 'object_Old = ',object_Old
+                    #print 'chiCon = ',chiCon
                     if object_Old in chiCon:
-                        print object_Old + ' in ' + chiCon
+                        #print object_Old + ' in ' + chiCon
                         if op not in OPlist:
-                            print '* appending ' + op + ' to OPlist'
+                            #print '* appending ' + op + ' to OPlist'
                             OPlist.append(op)
             size_OPlist = len(OPlist)
-            print '--'
-            print 'size_OPlist = ',size_OPlist
+            #print '--'
+            #print 'size_OPlist = ',size_OPlist
             if size_OPlist > 0:
                 print 'old_object v-ray object property groups = ',OPlist
             else:
@@ -983,6 +1011,7 @@ def objectChooseWin():
         def visibilty(object_Old,object_New,renderLayers):
             print "old object visibility check:"
             visDic = {}
+            print 'object_Old = ',object_Old
             vizPath = object_Old + ".visibility"
             for R in renderLayers:
                 cmds.editRenderLayerGlobals( currentRenderLayer = R)
@@ -1318,16 +1347,16 @@ def objectChooseWin():
                         second = firstConList[0]
                         fType = cmds.nodeType(second)
 
-                    if fType == "uvChooser":
-                        secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
-                        UVmapAddressOLD = secondConList[0]
-                        UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
-                        cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
-                    else:
-                        secondConList = cmds.listConnections(second, destination = False) or []
-                    shadEx2 = cmds.objExists("tempShader")
-                    if shadEx2 == 1:
-                        cmds.delete("tempShader")
+                        if fType == "uvChooser":
+                            secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
+                            UVmapAddressOLD = secondConList[0]
+                            UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
+                            cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
+                        else:
+                            secondConList = cmds.listConnections(second, destination = False) or []
+                        shadEx2 = cmds.objExists("tempShader")
+                        if shadEx2 == 1:
+                            cmds.delete("tempShader")
                 if  rampDetect == 1:
                     cmds.select(clear = True)
                     shadEx = cmds.objExists("tempShader")
@@ -1404,7 +1433,7 @@ def objectChooseWin():
             return(object_Old,object_New,renderLayers)
 
         def old_object_v_ray_subdivisions_check(object_Old,object_New,renderLayers):
-            print object_old_print_temp + " v-ray subdivision attribute check:"
+            print object_old_print_temp + "v-ray subdivision attribute check:"
             v_ray_subdivisions_check = 0
             object_to_check = object_Old[0]
             if 'Shape' in object_Old:
@@ -1447,7 +1476,7 @@ def objectChooseWin():
         OBJ_1_displacementNodes = displacementNodes(object_Old,object_New,renderLayers)
         OBJ_1_newObjectCenter = oldObjectCenter(object_Old,object_New,renderLayers)
         OBJ_1_v_ray_subdivisions_check = old_object_v_ray_subdivisions_check(object_Old,object_New,renderLayers)
-        OBJ_1_translations = translations(object_Old,object_New,renderLayers)
+        OBJ_1_translations = translations(object_Old,object_New,renderLayers,old_Xforms)
         OBJ_1_Path = master_path(object_Old,object_New,renderLayers)
 
         cmds.select(clear = True)
@@ -1501,11 +1530,11 @@ def objectChooseWin():
             if splitPath[sz-3] != curParent[0]:
                 if sz > 3:
                     cmds.parent(OBJ_1_Path[2],splitPath[sz-3],relative = True)
-                    print "parenting " + object_new_print_temp + " to " + splitPath[sz-3]
+                    print "parenting " + object_new_print_temp + "to " + splitPath[sz-3]
                 else:
                     print "object at the root level, no hierarchy detected"
                     if s > 0:
-                        cmds.parent(OBJ_1_Path[2],relative = True)
+                        cmds.parent(OBJ_1_Path[2],splitPath[sz-2],relative = True)
             else:
                 print OBJ_1_Path[2] + " already parented to the correct node."
             newPathChil = cmds.listRelatives(newObjPath,children = True) or []
@@ -1518,6 +1547,20 @@ def objectChooseWin():
                     print 'removing ' + newObjPath[0] + ' from duplicate_node_names_renamed'
                     duplicate_node_names_renamed.remove(newObjPath[0])
                 cmds.delete(newObjPath)
+            object_New_split = object_New.split('|')
+            object_New_raw = object_New_split[-1]
+            object_New_full_path = cmds.ls(object_New_raw,long = True)
+            print 'object_New_full_path = ',object_New_full_path
+            object_Old_split = object_Old.split('|')
+            object_Old_raw = object_Old_split[-1]
+            object_Old_full_path = cmds.ls(object_Old_raw,long = True)
+            print 'object_Old_full_path = ',object_Old_full_path
+            #worldSpace_position_pivots_object_New = cmds.xform(object_New_full_path[0],pivots = True, worldSpace = True,query = True)
+            #print '2 worldSpace_position_pivots_object_New = ',worldSpace_position_pivots_object_New
+            cmds.editRenderLayerGlobals( currentRenderLayer = 'defaultRenderLayer')
+            #cmds.setAttr(object_New_full_path[0] + '.translateX',worldSpace_position_pivots_object_New[3])
+            #cmds.setAttr(object_New_full_path[0] + '.translateZ',worldSpace_position_pivots_object_New[5])
+            cmds.matchTransform(object_New_full_path,object_Old_full_path)
             return(duplicate_node_names_renamed)
 
         def object_New_renderLayers(OBJ_1_renderLayer):
@@ -1531,8 +1574,9 @@ def objectChooseWin():
             else:
                 print object_new_print_temp + " is being added to the default render layer only, " + object_new_print_temp + " not detected in the other layers."
 
-        def object_New_translations(OBJ_1_TX):
+        def object_New_translations(OBJ_1_TX,object_Old,object_New,old_Xforms):
             print "setting new object transforms:"
+            #print '1 old_Xforms = ',old_Xforms
             transX_attr = OBJ_1_TX[2] + ".translateX"
             transY_attr = OBJ_1_TX[2] + ".translateY"
             transZ_attr = OBJ_1_TX[2] + ".translateZ"
@@ -1583,6 +1627,7 @@ def objectChooseWin():
                             ERLAnameTX = OBJ_1_TX[2] + ".translateX"
                             cmds.setAttr(ERLAnameTX, va)
                             print "setting a TX overide value of " + str(va) + " in layer " + L
+                            cmds.matchTransform(object_New,object_Old,pivots = True,position = True, rotation = True, scale = True)
                         if "transY" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "transY"
                             va = transValuesDict[v]
@@ -1592,6 +1637,7 @@ def objectChooseWin():
                             ERLAnameTX = OBJ_1_TX[2] + ".translateY"
                             cmds.setAttr(ERLAnameTX, va)
                             print "setting a TY overide value of " + str(va) + " in layer " + L
+                            cmds.matchTransform(object_New,object_Old,pivots = True,position = True, rotation = True, scale = True)
                         if "transZ" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "transZ"
                             va = transValuesDict[v]
@@ -1601,6 +1647,7 @@ def objectChooseWin():
                             ERLAnameTX = OBJ_1_TX[2] + ".translateZ"
                             cmds.setAttr(ERLAnameTX, va)
                             print "setting a TZ overide value of " + str(va) + " in layer " + L
+                            cmds.matchTransform(object_New,object_Old,pivots = True,position = True, rotation = True, scale = True)
                         if "rotX" in tlo:
                             v = OBJ_1_TX[1] + "_" + '&'+L+'&' + "_" + "rotX"
                             va = transValuesDict[v]
@@ -1655,8 +1702,14 @@ def objectChooseWin():
                             ERLAnameTX = OBJ_1_TX[2] + ".scaleZ"
                             cmds.setAttr(ERLAnameTX, va)
                             print "setting a scaleZ overide value of " + str(va) + " in layer " + L
+            print 'defValList = ',defValList
             if siiz < 1:
                 print "no transform render layer overides detected"
+            print 'moving ' + object_Old + ' to position of ' + object_New
+            cmds.matchTransform(object_New,object_Old,pivots = True,position = True, rotation = True, scale = True)
+            worldSpace_position_pivots_object_New = cmds.xform(object_New,pivots = True, worldSpace = True,query = True)
+            #print '1 worldSpace_position_pivots_object_New = ',worldSpace_position_pivots_object_New
+            cmds.editRenderLayerGlobals( currentRenderLayer = 'defaultRenderLayer')
 
         def object_New_excludeListSets(OBJ_1_ELS):
             print "setting new object exclude list:"
@@ -1886,17 +1939,18 @@ def objectChooseWin():
         def object_New_VRAY_objectPropOverides(OBJ_1_vrayObjProps):
             print 'setting new object v-ray object properties:'
             size_OBJ_1_vrayObjProps = len(OBJ_1_vrayObjProps)
-            print 'size_OBJ_1_vrayObjProps = ',size_OBJ_1_vrayObjProps
+            #print 'size_OBJ_1_vrayObjProps = ',size_OBJ_1_vrayObjProps
             if size_OBJ_1_vrayObjProps > 0:
                 vray_object_props = OBJ_1_vrayObjProps[2]
-                print 'vray_object_props = ',vray_object_props
+                #print 'vray_object_props = ',vray_object_props
                 size_vray_object_props = len(vray_object_props)
-                print 'size_vray_object_props = ',size_vray_object_props
+                #print 'size_vray_object_props = ',size_vray_object_props
                 if size_vray_object_props != 0:
-                    vray_object_props = vray_object_props[0]
-                    print 'vray_object_props = ',vray_object_props
-                    print 'adding ' + object_new_print_temp + ' to ' + vray_object_props
-                    cmds.sets(object_New,addElement = vray_object_props)
+                    for vray_object_prop in vray_object_props:
+                    #vray_object_props = vray_object_props[0]
+                    #print 'vray_object_props = ',vray_object_props
+                        print 'adding ' + object_new_print_temp + ' to ' + vray_object_prop
+                        cmds.sets(object_New,addElement = vray_object_prop)
             else:
                 print 'no v-ray object properties detected for ', object_Old
 
@@ -1992,6 +2046,10 @@ def objectChooseWin():
                             cmds.hyperShade(assign='lambert1')
                             print "assigning " + t + " to " + va
                             cmds.hyperShade(assign=t)
+                            cmds.hyperShade(assign='lambert1')
+                            cmds.hyperShade(assign=t)
+                            cmds.hyperShade(assign='lambert1')
+                            cmds.hyperShade(assign=t)
                             #print cmds.hyperShade(objects = t)
                             #print cmds.ls(sl = True)
                             cmds.select(clear = True)
@@ -2038,11 +2096,11 @@ def objectChooseWin():
                         uvAddDic_NEW[str(setAddressNEW)] = tex
                         uvNameDic_NEW[setName] = setAddressNEW
                         texADDdic_NEW[tex] = setAddressNEW
-            UV_sets_NAME_object_New = cmds.polyUVSet( object_New, query = True, allUVSets = True )
+            UV_sets_NAME_object_New = cmds.polyUVSet( object_New, query = True, allUVSets = True ) or []
             print "UV sets found for " + object_new_print_temp + " : ",UV_sets_NAME_object_New
             setList = []
             NO_setIND_dic = {}
-            NO_indices = cmds.polyUVSet(object_New, query = True, allUVSetsIndices = True )
+            NO_indices = cmds.polyUVSet(object_New, query = True, allUVSetsIndices = True ) or []
             a = 0
             number_of_uv_sets = UV_sets_NAME_object_New
             if number_of_uv_sets > 0:
@@ -2231,7 +2289,7 @@ def objectChooseWin():
             object_New_visibility(OBJ_1_visibility)
             object_New_displacementNode(OBJ_1_displacementNodes)
         if checkTrans == 1:
-            object_New_translations(OBJ_1_translations)
+            object_New_translations(OBJ_1_translations,object_Old,object_New,old_Xforms)
         if checkMats == 1:
             object_New_materials(OBJ_1_objectMaterials)
         if checkUVsets == 1:
@@ -2319,5 +2377,3 @@ def objectChooseWin():
         print ' '
 def main():
     objectChooseWin()
-
-#main()
