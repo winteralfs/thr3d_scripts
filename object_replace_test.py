@@ -126,6 +126,9 @@ def objectChooseWin():
         for mPanel in panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 0)
         #print 'selected_objects = ',selected_objects
+        cmds.select(clear = True)
+        cmds.select(object_New)
+        cmds.select(object_Old,add = True)
         object_New = selected_objects[0]
         object_Old = selected_objects[1]
         objects(object_Old,object_New)
@@ -2330,16 +2333,33 @@ def objectChooseWin():
                 duplicate_node_name_mod = duplicate_node_name_renamed_split[0]
                 #print 'duplicate_node_name_renamed_split = ',duplicate_node_name_renamed_split
                 #print 'duplicate_node_name_mod = ',duplicate_node_name_mod
-                if duplicate_node_name_renamed == object_Old:
+                #print 'object_Old = ',object_Old
+                object_Old_split = object_Old.split('|')
+                object_old_name_raw = object_Old_split[-1]
+                if duplicate_node_name_renamed == object_old_name_raw:
                     #print 'duplicate_node_name_renamed = ',object_Old
                     chosen_object = 1
                     #print 'adding _old to ',duplicate_node_name_mod
                     duplicate_node_name_mod = duplicate_node_name_mod + '_old'
-                if duplicate_node_name_renamed == object_New:
+                    #print 'object_New = ',object_New
+                #if duplicate_node_name_renamed in object_Old:
+                    #print 'duplicate_node_name_renamed = ',object_Old
+                    #chosen_object = 1
+                    #print 'adding _old to ',duplicate_node_name_mod
+                    #duplicate_node_name_mod = duplicate_node_name_mod + '_old'
+                    #print 'object_New = ',object_New
+                object_New_split = object_New.split('|')
+                object_New_name_raw = object_New_split[-1]
+                if duplicate_node_name_renamed == object_New_name_raw:
                     #print 'duplicate_node_name_renamed = ',object_New
                     chosen_object = 1
                     #print 'adding _new to ',duplicate_node_name_mod
                     duplicate_node_name_mod = duplicate_node_name_mod + '_new'
+                #if duplicate_node_name_renamed in object_New:
+                    #print 'duplicate_node_name_renamed = ',object_New
+                    #chosen_object = 1
+                    #print 'adding _new to ',duplicate_node_name_mod
+                    #duplicate_node_name_mod = duplicate_node_name_mod + '_new'
                 cmds.select(clear = True)
                 cmds.select(duplicate_node_name_renamed)
                 #print 'duplicate_node_name_mod = ',duplicate_node_name_mod
