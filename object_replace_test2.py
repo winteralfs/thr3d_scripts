@@ -40,9 +40,10 @@ connections will have to be updated by hand. If the UV set names do not change, 
 
 import maya.cmds as cmds
 import maya.mel as mel
+from functools import partial
 from string import digits
 
-print 'monday morning'
+print 'tuesday2'
 
 def look_for_duplicate_nodes():
     #print ' '
@@ -82,7 +83,8 @@ def look_for_duplicate_nodes():
     return(duplicate_node_names)
 
 def objectChooseWin():
-    name = "object_replace - select both objects, new then old"
+    print 'objectChooseWin'
+    name = "object_replace - select the two object, new then old"
     windowSize = (500,100)
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
@@ -90,21 +92,28 @@ def objectChooseWin():
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "new_object  ")
-    object_new_textfield = cmds.textField(tx = "new_object", width = 250, editable = False)
+    object_new_textfield = cmds.textField(tx = 'selected_new_object', width = 250,editable = False)
     cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "old_object   ")
-    object_old_textfield= cmds.textField(tx = "old_object", width = 250, editable = False)
+    object_old_textfield= cmds.textField(tx = 'selected_old_object', width = 250,editable = False)
     selected_objects = cmds.ls(sl = True,long = True)
     number_of_selected_objects = len(selected_objects)
+    object_New_full_name = ''
+    object_Old_full_name = ''
     if number_of_selected_objects == 2:
+        object_New_full_name = selected_objects[0]
         object_New_short_name_split = selected_objects[0].split('|')
         object_New_short_name = object_New_short_name_split[-1]
+        object_Old_full_name = selected_objects[1]
         object_Old_short_name_split = selected_objects[1].split('|')
         object_Old_short_name = object_Old_short_name_split[-1]
         cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
         cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
+        print '1 object_New_full_name = ',object_New_full_name
+        print '1 object_Old_full_name = ',object_Old_full_name
 
     def text_fields_selected_objects():
+        print 'text_fields_selected_objects'
         selected_objects = cmds.ls(sl = True,long = True)
         number_of_selected_objects = len(selected_objects)
         if number_of_selected_objects == 2:
@@ -126,17 +135,31 @@ def objectChooseWin():
         for mPanel in panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 0)
         #print 'selected_objects = ',selected_objects
-        cmds.select(clear = True)
-        cmds.select(object_New)
-        cmds.select(object_Old,add = True)
+        #cmds.select(clear = True)
+        #print '2 object_New_full_name = ',object_New_full_name
+        #print '2 object_Old_full_name = ',object_Old_full_name
+        number_of_selected_objects = len(selected_objects)
+        print 'number_of_selected_objects = ',number_of_selected_objects
+        if number_of_selected_objects != 2:
+            print 'zero selected objects'
+            cmds.select(clear = True)
+            object_new_text = cmds.textField(object_new_textfield, text = True, query = True)
+            print 'object_new_text = ',object_new_text
+            cmds.select(object_new_text)
+            object_old_text = cmds.textField(object_old_textfield, text = True, query = True)
+            print 'object_old_text = ',object_old_text
+            cmds.select(object_old_text,add = True)
+            selected_objects = cmds.ls(sl = True,long = True)
+        print 'selected_objects = ',selected_objects
         object_New = selected_objects[0]
         object_Old = selected_objects[1]
         objects(object_Old,object_New)
+
     cmds.rowLayout("nameRowLayout2.5", numberOfColumns = 10, parent = "mainColumn")
     cmds.rowLayout("nameRowLayout4.5", numberOfColumns = 10, parent = "mainColumn")
     cmds.rowLayout("nameRowLayout05", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "                   ")
-    cmds.button(label = "replace", width = 150,command = (objects_CB))
+    cmds.button(label = "replace", width = 150,command =  partial(objects_CB, object_New_full_name,object_Old_full_name))
     cmds.showWindow()
 
     def objects(object_Old,object_New):
