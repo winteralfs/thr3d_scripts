@@ -66,77 +66,106 @@ def look_for_duplicate_nodes():
 
 def objectChooseWin():
     name = 'object replacer'
-    windowSize = (500,100)
+    windowSize = (150,100)
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
-    window = cmds.window(name, title = 'object_replacer - select two objects, new than old ', width = 30, height = 10, sizeable = True)
+    window = cmds.window(name, title = 'object_replacer', width = 30, height = 10, sizeable = False)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "new_object  ")
-    object_new_textfield = cmds.textField(tx = 'selected_new_object', width = 250,editable = False)
+    object_new_textfield = cmds.textField(tx = 'select_new_object', width = 250,editable = False)
+    cmds.textField(object_new_textfield,backgroundColor = [.3,.1,.1], edit = True, )
     cmds.rowLayout("nameRowLayout02", numberOfColumns = 2, parent = "mainColumn")
     cmds.text(label = "old_object   ")
-    object_old_textfield= cmds.textField(tx = 'selected_old_object', width = 250,editable = False)
+    object_old_textfield= cmds.textField(tx = 'select_old_object', width = 250,editable = False)
+    cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
     selected_objects = cmds.ls(sl = True,long = True)
     number_of_selected_objects = len(selected_objects)
     object_New_full_name = ''
     object_Old_full_name = ''
     if number_of_selected_objects == 1:
         selections_children = cmds.listRelatives(selected_objects[0], shapes = True) or []
-        print 'selections_children = ', selections_children
         number_children_shapes = len(selections_children)
         if number_children_shapes > 0:
-            object_New_full_name = selected_objects[0]
-            object_New_short_name_split = selected_objects[0].split('|')
-            object_New_short_name = object_New_short_name_split[-1]
-            cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+            for child in selections_children:
+                child_type = cmds.nodeType(child)
+                if child_type == 'mesh':
+                    object_New_full_name = selected_objects[0]
+                    object_New_short_name_split = selected_objects[0].split('|')
+                    object_New_short_name = object_New_short_name_split[-1]
+                    cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+                    cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
     if number_of_selected_objects == 2:
         selections_children = cmds.listRelatives(selected_objects[0], shapes = True) or []
-        print 'selections_children = ', selections_children
         number_children_shapes = len(selections_children)
         if number_children_shapes > 0:
-            object_New_full_name = selected_objects[0]
-            object_New_short_name_split = selected_objects[0].split('|')
-            object_New_short_name = object_New_short_name_split[-1]
-            cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+            for child in selections_children:
+                child_type = cmds.nodeType(child)
+                if child_type == 'mesh':
+                    object_New_full_name = selected_objects[0]
+                    object_New_short_name_split = selected_objects[0].split('|')
+                    object_New_short_name = object_New_short_name_split[-1]
+                    cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+                    cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
         selections_children = cmds.listRelatives(selected_objects[1], shapes = True) or []
-        print 'selections_children = ', selections_children
         number_children_shapes = len(selections_children)
         if number_children_shapes > 0:
-            object_Old_full_name = selected_objects[1]
-            object_Old_short_name_split = selected_objects[1].split('|')
-            object_Old_short_name = object_New_short_name_split[-1]
-            cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
+            for child in selections_children:
+                child_type = cmds.nodeType(child)
+                if child_type == 'mesh':
+                    object_Old_full_name = selected_objects[1]
+                    object_Old_short_name_split = selected_objects[1].split('|')
+                    object_Old_short_name = object_Old_short_name_split[-1]
+                    cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
+                    cmds.textField(object_old_textfield,backgroundColor = [.3,.45,.3], edit = True, )
 
     def text_fields_selected_objects():
         selected_objects = cmds.ls(sl = True,long = True)
         number_of_selected_objects = len(selected_objects)
+        if number_of_selected_objects == 0:
+            cmds.textField(object_new_textfield,text = 'select_new_object', edit = True)
+            cmds.textField(object_new_textfield,backgroundColor = [.3,.1,.1], edit = True, )
+            cmds.textField(object_old_textfield,text = 'select_old_object', edit = True)
+            cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
         if number_of_selected_objects == 1:
             selections_children = cmds.listRelatives(selected_objects[0], shapes = True) or []
             print 'selections_children = ', selections_children
             number_children_shapes = len(selections_children)
             if number_children_shapes > 0:
-                object_New_full_name = selected_objects[0]
-                object_New_short_name_split = selected_objects[0].split('|')
-                object_New_short_name = object_New_short_name_split[-1]
-                cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+                for child in selections_children:
+                    child_type = cmds.nodeType(child)
+                    if child_type == 'mesh':
+                        object_New_full_name = selected_objects[0]
+                        object_New_short_name_split = selected_objects[0].split('|')
+                        object_New_short_name = object_New_short_name_split[-1]
+                        cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+                        cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
+            cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
         if number_of_selected_objects == 2:
             selections_children = cmds.listRelatives(selected_objects[0], shapes = True) or []
             print 'selections_children = ', selections_children
             number_children_shapes = len(selections_children)
             if number_children_shapes > 0:
-                object_New_full_name = selected_objects[0]
-                object_New_short_name_split = selected_objects[0].split('|')
-                object_New_short_name = object_New_short_name_split[-1]
-                cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+                for child in selections_children:
+                    child_type = cmds.nodeType(child)
+                    if child_type == 'mesh':
+                        object_New_full_name = selected_objects[0]
+                        object_New_short_name_split = selected_objects[0].split('|')
+                        object_New_short_name = object_New_short_name_split[-1]
+                        cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+                        cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
             selections_children = cmds.listRelatives(selected_objects[1], shapes = True) or []
             print 'selections_children = ', selections_children
             number_children_shapes = len(selections_children)
             if number_children_shapes > 0:
-                object_Old_full_name = selected_objects[1]
-                object_Old_short_name_split = selected_objects[1].split('|')
-                object_Old_short_name = object_New_short_name_split[-1]
-                cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
+                for child in selections_children:
+                    child_type = cmds.nodeType(child)
+                    if child_type == 'mesh':
+                        object_Old_full_name = selected_objects[1]
+                        object_Old_short_name_split = selected_objects[1].split('|')
+                        object_Old_short_name = object_Old_short_name_split[-1]
+                        cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
+                        cmds.textField(object_old_textfield,backgroundColor = [.3,.45,.3], edit = True, )
     myScriptJobID = cmds.scriptJob(p = window, event=["SelectionChanged", text_fields_selected_objects])
 
     def objects_CB(*args):
@@ -162,7 +191,7 @@ def objectChooseWin():
     cmds.rowLayout("nameRowLayout2.5", numberOfColumns = 10, parent = "mainColumn")
     cmds.rowLayout("nameRowLayout4.5", numberOfColumns = 10, parent = "mainColumn")
     cmds.rowLayout("nameRowLayout05", numberOfColumns = 2, parent = "mainColumn")
-    cmds.text(label = "                   ")
+    cmds.text(label = "                                      ")
     cmds.button(label = "replace", width = 150,command =  partial(objects_CB, object_New_full_name,object_Old_full_name))
     cmds.showWindow()
 
