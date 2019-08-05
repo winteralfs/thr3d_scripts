@@ -120,6 +120,7 @@ def objectChooseWin():
                     cmds.textField(object_old_textfield,backgroundColor = [.3,.45,.3], edit = True, )
 
     def text_fields_selected_objects():
+        print 'text_fields_selected_objects'
         selected_objects = cmds.ls(sl = True,long = True)
         number_of_selected_objects = len(selected_objects)
         if number_of_selected_objects == 0:
@@ -141,6 +142,7 @@ def objectChooseWin():
                         cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
                         cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
             cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
+            cmds.textField(object_old_textfield,text = 'select_old_object', edit = True)
         if number_of_selected_objects == 2:
             selections_children = cmds.listRelatives(selected_objects[0], shapes = True, fullPath = True) or []
             print 'selections_children = ', selections_children
@@ -154,6 +156,7 @@ def objectChooseWin():
                         object_New_short_name = object_New_short_name_split[-1]
                         cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
                         cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
+                        #cmds.textField(object_new_textfield,text = 'select_new_object', edit = True)
             selections_children = cmds.listRelatives(selected_objects[1], shapes = True, fullPath = True) or []
             print 'selections_children = ', selections_children
             number_children_shapes = len(selections_children)
@@ -166,6 +169,7 @@ def objectChooseWin():
                         object_Old_short_name = object_Old_short_name_split[-1]
                         cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
                         cmds.textField(object_old_textfield,backgroundColor = [.3,.45,.3], edit = True, )
+                        #cmds.textField(object_old_textfield,text = 'select_old_object', edit = True)
     myScriptJobID = cmds.scriptJob(p = window, event=["SelectionChanged", text_fields_selected_objects])
 
     def objects_CB(*args):
