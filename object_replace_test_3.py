@@ -69,6 +69,7 @@ def objectChooseWin():
     windowSize = (300,100)
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
+    bad_node_types = ['VRayObjectProperties']
     window = cmds.window(name, title = name, width = 30, height = 10, sizeable = True)
     cmds.columnLayout("mainColumn", adjustableColumn = True)
     cmds.rowLayout("nameRowLayout01", numberOfColumns = 2, parent = "mainColumn")
@@ -84,43 +85,61 @@ def objectChooseWin():
     object_New_full_name = ''
     object_Old_full_name = ''
     if number_of_selected_objects == 1:
-        selections_children = cmds.listRelatives(selected_objects[0], shapes = True, fullPath = True) or []
-        number_children_shapes = len(selections_children)
-        if number_children_shapes > 0:
-            for child in selections_children:
-                child_type = cmds.nodeType(child)
-                if child_type == 'mesh':
-                    object_New_full_name = selected_objects[0]
-                    object_New_short_name_split = selected_objects[0].split('|')
-                    object_New_short_name = object_New_short_name_split[-1]
-                    cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
-                    cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
+        select_one_node_type = cmds.nodeType(selected_objects[0])
+        if select_one_node_type not in bad_node_types:
+            selections_children = cmds.listRelatives(selected_objects[0], shapes = True, fullPath = True) or []
+            number_children_shapes = len(selections_children)
+            if number_children_shapes > 0:
+                for child in selections_children:
+                    child_type = cmds.nodeType(child)
+                    if child_type == 'mesh':
+                        object_New_full_name = selected_objects[0]
+                        object_New_short_name_split = selected_objects[0].split('|')
+                        object_New_short_name = object_New_short_name_split[-1]
+                        cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+                        cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
+        else:
+            cmds.textField(object_new_textfield,text = 'select_new_object', edit = True)
+            cmds.textField(object_new_textfield,backgroundColor = [.3,.1,.1], edit = True, )
+        cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
+        cmds.textField(object_old_textfield,text = 'select_old_object', edit = True)
     if number_of_selected_objects == 2:
-        selections_children = cmds.listRelatives(selected_objects[0], shapes = True, fullPath = True) or []
-        number_children_shapes = len(selections_children)
-        if number_children_shapes > 0:
-            for child in selections_children:
-                child_type = cmds.nodeType(child)
-                if child_type == 'mesh':
-                    object_New_full_name = selected_objects[0]
-                    object_New_short_name_split = selected_objects[0].split('|')
-                    object_New_short_name = object_New_short_name_split[-1]
-                    cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
-                    cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
-        selections_children = cmds.listRelatives(selected_objects[1], shapes = True, fullPath = True) or []
-        number_children_shapes = len(selections_children)
-        if number_children_shapes > 0:
-            for child in selections_children:
-                child_type = cmds.nodeType(child)
-                if child_type == 'mesh':
-                    object_Old_full_name = selected_objects[1]
-                    object_Old_short_name_split = selected_objects[1].split('|')
-                    object_Old_short_name = object_Old_short_name_split[-1]
-                    cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
-                    cmds.textField(object_old_textfield,backgroundColor = [.3,.45,.3], edit = True, )
+        select_one_node_type = cmds.nodeType(selected_objects[0])
+        if select_one_node_type not in bad_node_types:
+            selections_children = cmds.listRelatives(selected_objects[0], shapes = True, fullPath = True) or []
+            number_children_shapes = len(selections_children)
+            if number_children_shapes > 0:
+                for child in selections_children:
+                    child_type = cmds.nodeType(child)
+                    if child_type == 'mesh':
+                        object_New_full_name = selected_objects[0]
+                        object_New_short_name_split = selected_objects[0].split('|')
+                        object_New_short_name = object_New_short_name_split[-1]
+                        cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
+                        cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
+        else:
+            cmds.textField(object_new_textfield,text = 'select_new_object', edit = True)
+            cmds.textField(object_new_textfield,backgroundColor = [.3,.1,.1], edit = True, )
+        select_two_node_type = cmds.nodeType(selected_objects[1])
+        if select_two_node_type not in bad_node_types:
+            selections_children = cmds.listRelatives(selected_objects[1], shapes = True, fullPath = True) or []
+            number_children_shapes = len(selections_children)
+            if number_children_shapes > 0:
+                for child in selections_children:
+                    child_type = cmds.nodeType(child)
+                    if child_type == 'mesh':
+                        object_Old_full_name = selected_objects[1]
+                        object_Old_short_name_split = selected_objects[1].split('|')
+                        object_Old_short_name = object_Old_short_name_split[-1]
+                        cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
+                        cmds.textField(object_old_textfield,backgroundColor = [.3,.45,.3], edit = True, )
+        else:
+            cmds.textField(object_old_textfield,text = 'select_old_object', edit = True)
+            cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
 
     def text_fields_selected_objects():
         print 'text_fields_selected_objects'
+        mesh_found = 0
         bad_node_types = ['VRayObjectProperties']
         selected_objects = cmds.ls(sl = True,long = True)
         number_of_selected_objects = len(selected_objects)
@@ -131,6 +150,7 @@ def objectChooseWin():
             cmds.textField(object_old_textfield,text = 'select_old_object', edit = True)
             cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
         if number_of_selected_objects == 1:
+            print 'mesh_found = ',mesh_found
             select_one_node_type = cmds.nodeType(selected_objects[0])
             if select_one_node_type not in bad_node_types:
                 selections_children = cmds.listRelatives(selected_objects[0], shapes = True, fullPath = True) or []
@@ -140,13 +160,20 @@ def objectChooseWin():
                     for child in selections_children:
                         child_type = cmds.nodeType(child)
                         if child_type == 'mesh':
+                            mesh_found = 1
                             object_New_full_name = selected_objects[0]
                             object_New_short_name_split = selected_objects[0].split('|')
                             object_New_short_name = object_New_short_name_split[-1]
                             cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
                             cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
-                cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
-                cmds.textField(object_old_textfield,text = 'select_old_object', edit = True)
+                if mesh_found == 0:
+                    cmds.textField(object_new_textfield,text = 'select_new_object', edit = True)
+                    cmds.textField(object_new_textfield,backgroundColor = [.3,.1,.1], edit = True, )
+            else:
+                cmds.textField(object_new_textfield,text = 'select_new_object', edit = True)
+                cmds.textField(object_new_textfield,backgroundColor = [.3,.1,.1], edit = True, )
+            cmds.textField(object_old_textfield,text = 'select_old_object', edit = True)
+            cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
         if number_of_selected_objects == 2:
             select_one_node_type = cmds.nodeType(selected_objects[0])
             if select_one_node_type not in bad_node_types:
@@ -162,7 +189,10 @@ def objectChooseWin():
                             object_New_short_name = object_New_short_name_split[-1]
                             cmds.textField(object_new_textfield,text = object_New_short_name, edit = True)
                             cmds.textField(object_new_textfield,backgroundColor = [.3,.45,.3], edit = True, )
-            select_two_node_type = cmds.nodeType(selected_objects[0])
+            else:
+                cmds.textField(object_new_textfield,text = 'select_new_object', edit = True)
+                cmds.textField(object_new_textfield,backgroundColor = [.3,.1,.1], edit = True, )
+            select_two_node_type = cmds.nodeType(selected_objects[1])
             if select_two_node_type not in bad_node_types:
                 selections_children = cmds.listRelatives(selected_objects[1], shapes = True, fullPath = True) or []
                 print 'selections_children = ', selections_children
@@ -176,6 +206,9 @@ def objectChooseWin():
                             object_Old_short_name = object_Old_short_name_split[-1]
                             cmds.textField(object_old_textfield,text = object_Old_short_name, edit = True)
                             cmds.textField(object_old_textfield,backgroundColor = [.3,.45,.3], edit = True, )
+            else:
+                cmds.textField(object_old_textfield,text = 'select_old_object', edit = True)
+                cmds.textField(object_old_textfield,backgroundColor = [.3,.1,.1], edit = True, )
         if number_of_selected_objects > 2:
             print 'num of sel object more than 3 =  ',number_of_selected_objects
             cmds.textField(object_new_textfield,text = 'select_new_object', edit = True)
