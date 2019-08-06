@@ -15,6 +15,7 @@ import webbrowser
 import shiboken2
 
 print 'asset_tracker'
+print 'tuesday'
 
 class ASSET_TRACKER(object):
     def __init__(self):
