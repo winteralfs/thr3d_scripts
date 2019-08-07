@@ -15,7 +15,7 @@ import webbrowser
 import shiboken2
 
 print 'asset_tracker'
-print 'wed'
+#print 'wed'
 
 class ASSET_TRACKER(object):
     def __init__(self):
@@ -38,7 +38,31 @@ class ASSET_TRACKER(object):
         self.entity_name_listWidget.clear()
         self.publish_path_listWidget.clear()
         self.latest_version_path_feedback_listWidget.clear()
-        transforms = cmds.ls(type = 'transform')
+        transforms_all = cmds.ls(type = 'transform')
+        transforms = []
+        #print 'transforms_all = ',transforms_all
+        bad_transform_nodes = []
+        for transform in transforms_all:
+            #print 'transform = ',transform
+            transform_connections = cmds.listConnections(transform) or []
+            #print 'transform_connections  = ',transform_connections
+            number_of_transform_connections = len(transform_connections)
+            if number_of_transform_connections == 0:
+                #print 'num transform connections == 0'
+                if transform not in bad_transform_nodes:
+                    bad_transform_nodes.append(transform)
+            if number_of_transform_connections == 1:
+                #print 'num transform connections == 1'
+                for transform_connection in transform_connections:
+                    #print 'transform_connection = ',transform_connection
+                    if transform_connection == 'hyperGraphLayout':
+                        if transform not in bad_transform_nodes:
+                            bad_transform_nodes.append(transform)
+        #print 'bad_transform_nodes = ',bad_transform_nodes
+        for transform_node in transforms_all:
+            if transform_node not in bad_transform_nodes:
+                transforms.append(transform_node)
+        #print 'transforms = ',transforms
         file_nodes = cmds.ls(type = 'file')
         objects = transforms + file_nodes
         self.trackable_objects = []
@@ -81,15 +105,15 @@ class ASSET_TRACKER(object):
                         product_texture_found = 0
                         Kraft_texture_found = 0
                         Kroger_texture_found = 0
-                        print 'value = ',value
+                        #print 'value = ',value
                         if 'Product' in value:
-                            print 'Product detected'
+                            #print 'Product detected'
                             product_texture_found = 1
                         if 'Kraft' in value:
-                            print 'Kraft detected'
+                            #print 'Kraft detected'
                             Kraft_texture_found = 1
                         if 'Kroger' in value:
-                            print 'Kroger detected'
+                            #print 'Kroger detected'
                             Kroger_texture_found = 1
                         i = 0
                         if node_type != 'file':
@@ -102,23 +126,23 @@ class ASSET_TRACKER(object):
                             publish_path_value_split_length_minus = 9
                         if  node_type == 'file' and product_texture_found == 1 and Kroger_texture_found == 1:
                             publish_path_value_split_length_minus = 10
-                        print 'publish_path_value_split_length_minus = ',publish_path_value_split_length_minus
+                        #print 'publish_path_value_split_length_minus = ',publish_path_value_split_length_minus
                         while i < (publish_path_value_split_length - publish_path_value_split_length_minus):
                             if i == 0:
                                 year_versions_path
                             if i > 0:
                                 year_versions_path = year_versions_path +'\\' + publish_path_value_split[i]
                             i = i + 1
-                        print 'year_versions_path = ',year_versions_path
+                        #print 'year_versions_path = ',year_versions_path
                         eighteen_year_versions = []
                         nineteen_year_versions = []
                         eighteen_version_number_full_string = ''
                         nineteen_version_number_full_string = ''
                         year_versions = cmds.getFileList(folder = year_versions_path) or []
                         highest_version = 0
-                        print 'year_versions = ',year_versions
+                        #print 'year_versions = ',year_versions
                         for year_version in year_versions:
-                            print 'year_version = ',year_version
+                            #print 'year_version = ',year_version
                             publish_path_value_split_length = len(publish_path_value_split)
                             if year_version != '.DS_Store':
                                 if '18' in year_version:
@@ -194,7 +218,7 @@ class ASSET_TRACKER(object):
                                                         self.highest_version_path_dic[object] = highest_path_string
                                                         higher_version_found = 1
                                                         self.highest_value_year = temp_year_used
-                                                        print 'self.highest_value_year = ',self.highest_value_year
+                                                        #print 'self.highest_value_year = ',self.highest_value_year
                                     if node_type == 'file':
                                         #print 'not one of the bad file types'
                                         #print 'node type = file'
@@ -352,13 +376,13 @@ class ASSET_TRACKER(object):
                             publish_path_item.setTextColor('yellow')
                     if '18' in publish_year_value:
                         if '19' in year_exists_list or '20' in year_exists_list:
-                            #print '18 in self.publish_path_year_dic'
+                            #print '19 in self.publish_path_year_dic'
                             highest_version_item.setTextColor('yellow')
                             entity_name_item.setTextColor('yellow')
                             publish_path_item.setTextColor('yellow')
                     if '19' in publish_year_value:
                         if '20' in year_exists_list:
-                        #print '18 in self.publish_path_year_dic'
+                            #print '20 in self.publish_path_year_dic'
                             highest_version_item.setTextColor('yellow')
                             entity_name_item.setTextColor('yellow')
                             publish_path_item.setTextColor('yellow')
