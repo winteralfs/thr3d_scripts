@@ -414,7 +414,8 @@ def objectChooseWin():
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        objects_render_layer_compare.append(object)
+                        if object not in objects_render_layer_compare:
+                            objects_render_layer_compare.append(object)
             object_Old_parents = cmds.listRelatives(object_Old,fullPath = True,parent = True) or []
             for object in object_Old_parents:
                 object_type = cmds.nodeType(object)
@@ -423,7 +424,8 @@ def objectChooseWin():
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        objects_render_layer_compare.append(object)
+                        if object not in objects_render_layer_compare:
+                            objects_render_layer_compare.append(object)
             object_New = (str(object_New))
             object_in_render_layer_list = []
             size_layers = len(renderLayers)
@@ -433,7 +435,8 @@ def objectChooseWin():
                 if number_of_objects_in_render_layer > 0:
                     for member_in_render_layer in members_in_render_layer:
                         if member_in_render_layer in objects_render_layer_compare:
-                            object_in_render_layer_list.append(render_layer)
+                            if render_layer not object_in_render_layer_list:
+                                object_in_render_layer_list.append(render_layer)
             print 'old_object in render layers, ',object_in_render_layer_list
             return object_in_render_layer_list,object_Old,object_New
 
@@ -799,15 +802,23 @@ def objectChooseWin():
                 objParent = object_Old
             OPlist = []
             OPlist_all = cmds.ls(type = "VRayObjectProperties") or []
+            #print 'OPlist_all = ',OPlist_all
+            object_Old_split = object_Old.split('|')
+            object_Old_base_name = object_Old_split[-1]
             for op in OPlist_all:
+                #print 'op = ',op
                 chilRels = cmds.listRelatives(op) or []
                 chilCons = cmds.listConnections(op) or []
                 for chiRel in chilRels:
-                    if object_Old in chiRel:
+                    #print 'object_Old = ',object_Old
+                    #print 'chiRel = ',chiRel
+                    if object_Old in chiRel or object_Old_base_name in chiRel:
                         if op not in OPlist:
                             OPlist.append(op)
                 for chiCon in chilCons:
-                    if object_Old in chiCon:
+                    #print 'object_Old = ',object_Old
+                    #print 'chiCon = ',chiCon
+                    if object_Old in chiCon or object_Old_base_name in chiCon:
                         if op not in OPlist:
                             OPlist.append(op)
             size_OPlist = len(OPlist)
@@ -1559,6 +1570,7 @@ def objectChooseWin():
         def object_New_renderLayers(OBJ_1_renderLayer):
             print "setting new object render layer add:"
             s = len(OBJ_1_renderLayer[0])
+            print 'OBJ_1_renderLayer[0] = ',OBJ_1_renderLayer[0]
             if s > 1:
                 for L in OBJ_1_renderLayer[0]:
                     if L != "defaultRenderLayer":
@@ -1958,7 +1970,13 @@ def objectChooseWin():
                     newVO = oldVO.replace(object_Old, object_New)
                     if newVO not in valNEW:
                         valNEW.append(newVO)
+                #print ' '
+                #print 'valNEW = ',valNEW
+                #print ' '
                 for va in valNEW:
+                    #print ' '
+                    #print 'va = ',va
+                    #print ' '
                     tmp = va.replace(object_New, object_Old)
                     cmds.select(tmp)
                     cmds.hyperShade(smn = True)
@@ -1978,8 +1996,8 @@ def objectChooseWin():
                             cmds.hyperShade(assign='lambert1')
                             if '_XXXXXX_' in va:
                                 va_split = va.split('_XXXXXX_')
-                                va = va_split[0]
-                            print "assigning " + t + " to " + va
+                                va_base_name = va_split[0]
+                            print "assigning " + t + " to " + va_base_name
                             cmds.hyperShade(assign=t)
                             cmds.hyperShade(assign='lambert1')
                             cmds.hyperShade(assign=t)
