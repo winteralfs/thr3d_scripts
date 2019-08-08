@@ -1997,7 +1997,9 @@ def objectChooseWin():
                             if '_XXXXXX_' in va:
                                 va_split = va.split('_XXXXXX_')
                                 va_base_name = va_split[0]
-                            print "assigning " + t + " to " + va_base_name
+                                print "assigning " + t + " to " + va_base_name
+                            else:
+                                print "assigning " + t + " to " + va
                             cmds.hyperShade(assign=t)
                             cmds.hyperShade(assign='lambert1')
                             cmds.hyperShade(assign=t)
