@@ -15,7 +15,7 @@ import webbrowser
 import shiboken2
 
 print 'asset_tracker'
-#print 'wed'
+#print 'fri'
 
 class ASSET_TRACKER(object):
     def __init__(self):
@@ -116,24 +116,17 @@ class ASSET_TRACKER(object):
                             #print 'Kroger detected'
                             Kroger_texture_found = 1
                         i = 0
-                        if node_type != 'file':
-                            publish_path_value_split_length_minus = 6
-                        if node_type == 'file':
-                            publish_path_value_split_length_minus = 9
-                        if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 0:
-                            publish_path_value_split_length_minus = 10
-                        if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 1:
-                            publish_path_value_split_length_minus = 9
-                        if  node_type == 'file' and product_texture_found == 1 and Kroger_texture_found == 1:
-                            publish_path_value_split_length_minus = 10
-                        #print 'publish_path_value_split_length_minus = ',publish_path_value_split_length_minus
-                        while i < (publish_path_value_split_length - publish_path_value_split_length_minus):
+                        publish_path_value_forward_length = 5
+                        while i < publish_path_value_forward_length:
+                            #print 'i = ',i
                             if i == 0:
                                 year_versions_path
                             if i > 0:
                                 year_versions_path = year_versions_path +'\\' + publish_path_value_split[i]
+                                #print 'year_versions_path = ',year_versions_path
                             i = i + 1
-                        #print 'year_versions_path = ',year_versions_path
+                        #year_versions_path = year_versions_path + '\\'
+                        #print 'year_versions_path final = ',year_versions_path
                         eighteen_year_versions = []
                         nineteen_year_versions = []
                         eighteen_version_number_full_string = ''
@@ -162,6 +155,7 @@ class ASSET_TRACKER(object):
                                 publish_path_value_dir = ''
                                 i = 1
                                 #print 'year_version = ',year_version
+                                #print 'publish_path_value_split_length = ',publish_path_value_split_length
                                 while i < publish_path_value_split_length:
                                     if i == 5:
                                             publish_path_value_dir = publish_path_value_dir + '\\' + year_version
@@ -169,7 +163,7 @@ class ASSET_TRACKER(object):
                                         publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
                                     i = i + 1
                                 publish_path_value_dir = publish_path_value_dir + '\\'
-                                #print 'publish_path_value_dir = ',publish_path_value_dir
+                                #print '1 publish_path_value_dir = ',publish_path_value_dir
                                 files = []
                                 files = cmds.getFileList(folder = publish_path_value_dir) or []
                                 #print 'files = ',files
@@ -240,25 +234,36 @@ class ASSET_TRACKER(object):
                                                     self.highest_version_path_dic[object] = highest_path_string
                                                     higher_version_found = 1
                                                     self.highest_value_year = temp_year_used
-                        #print ' '
+                                #else:
+                                    #self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                         publish_path_value_dir = value = cmds.getAttr(object + '.' + attr)
-                        #print 'publish_path_value_dir = ',publish_path_value_dir
+                        #print '2 publish_path_value_dir = ',publish_path_value_dir
+                        #print 'node_type = ',node_type
                         if node_type == 'file':
-                            publish_path_value_split_length = publish_path_value_split_length - 2
+                            if product_texture_found == 0 and Kroger_texture_found == 0:
+                                publish_path_value_split_length = publish_path_value_split_length - 2
+                            if product_texture_found == 1 and Kroger_texture_found == 0:
+                                publish_path_value_split_length = publish_path_value_split_length - 2
+                            if product_texture_found == 1 and Kroger_texture_found == 1:
+                                #print 'product texture found and Kroger texture found'
+                                publish_path_value_split_length = publish_path_value_split_length - 0
                         if node_type != 'file':
                             publish_path_value_split_length = publish_path_value_split_length - 1
                         publish_path_value_dir = ''
                         i = 1
+                        #print 'publish_path_value_split_length = ',publish_path_value_split_length
+                        #publish_path_value_split_length = 13
                         while i < publish_path_value_split_length:
                             publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
                             i = i + 1
                         publish_path_value_dir = publish_path_value_dir + '\\'
+                        #print '3 publish_path_value_dir = ',publish_path_value_dir
                         files = cmds.getFileList(folder = publish_path_value_dir) or []
                         #print 'files = ',files
                         number_of_files= len(files)
                         #print 'number_of_files = ',number_of_files
                         if number_of_files == 0:
-                            #print 'setting X'
+                            #print 'num of files = 0, setting X'
                             self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                         #print 'self.asset_attr_dic = ',self.asset_attr_dic
             for asset_attr in self.asset_attr_dic:

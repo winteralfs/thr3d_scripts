@@ -328,7 +328,8 @@ class UV_SET_EDITOR(object):
         #print 'bad_transform_nodes = ',bad_transform_nodes
         for transform_node in transforms_all:
             if transform_node not in bad_transform_nodes:
-                transorms_objects.append(transform_node)
+                if transform_node not in transorms_objects:
+                    transorms_objects.append(transform_node)
         transorms_objects_tmp = transorms_objects
         for object in transorms_objects:
             object_split = object.split('Shape')
@@ -1160,7 +1161,7 @@ class UV_SET_EDITOR(object):
         self.list_widget_texture_info.setMaximumHeight(40)
         self.list_widget_texture_info.setStyleSheet('QListWidget {background-color: #292929; color:#8c4c7f;}')
         self.list_widget_texture_info.setFocusPolicy(QtCore.Qt.NoFocus)
-        main_vertical_layout.addWidget(self.list_widget_texture_info)
+        #main_vertical_layout.addWidget(self.list_widget_texture_info)
         self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SceneOpened", self.populate_windows])
         self.populate_windows()
         self.right_listWidget_selection_eval()
