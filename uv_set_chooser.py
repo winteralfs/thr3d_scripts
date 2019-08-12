@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-print 'monday evening 2'
+#print 'Mon'
 
 
 class UV_SET_EDITOR(object):
@@ -240,6 +240,7 @@ class UV_SET_EDITOR(object):
         noise_texures_all = cmds.ls(type = 'noise')
         non_file_textures_all = ramp_textures_all + noise_texures_all
         non_file_texture_textures = []
+        non_file_connection_types = ['transform','VRayBumpMtl','VRayBlendMtl']
         for file in file_textures_all:
             valid_file = 0
             if file == 'gi_std_lgt' or file == 'reflection_sdt_lgt' or file == 'refraction_sdt_lgt':
@@ -264,7 +265,7 @@ class UV_SET_EDITOR(object):
                 non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
                 if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
                     light_ramp = 1
-                if non_file_texture_connection_type == 'transform':
+                if non_file_texture_connection_type in non_file_connection_types:
                     non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []
                     for non_file_texture_connection_sub in non_file_texture_connection_subs:
                         non_file_texture_connection_sub_type = cmds.nodeType(non_file_texture_connection_sub)
@@ -306,7 +307,60 @@ class UV_SET_EDITOR(object):
         self.uv_sets_all = []
         self.uv_set_name_to_address_dic = {}
         self.uv_set_selection_status_dic = {}
-        transorms_objects = cmds.ls(type = 'shape')
+        transforms_all = []
+        transforms_all_tmp = cmds.ls(type = 'shape')
+        #print 'transforms_all_tmp = ',transforms_all_tmp
+        transforms_all_tmp_no_shape = []
+        except_nodes = ['std_lgt_core','locator','camera']
+        except_shape_types = ['VRayLightRectShape','locator','camera']
+        shape_name_dic = {}
+        for transform in transforms_all_tmp:
+            if 'polySurface' not in transform:
+                node_type = cmds.nodeType(transform)
+                if node_type not in except_shape_types:
+                    #print 'transform = ',transform
+                    if transform not in except_nodes or 'imagePLane1' not in transform:
+                        transform_split = transform.split('Shape')
+                        shape_name_dic[transform_split[0]] = transform_split[1]
+                    #print 'transform_split',transform_split
+                    if transform not in transforms_all_tmp_no_shape:
+                        #print 'adding ',transform
+                        transforms_all_tmp_no_shape.append(transform_split[0])
+        #print 'transforms_all_tmp_no_shape = ',transforms_all_tmp_no_shape
+        for transform_all_no_shape in transforms_all_tmp_no_shape:
+            #print 'transform_all_no_shape = ',transform_all_no_shape
+            if transform_all_no_shape not in except_nodes:
+                transform_all_no_shape = transform_all_no_shape + 'Shape' + shape_name_dic[transform_all_no_shape]
+            if transform_all_no_shape not in transforms_all:
+                #print 'appendig ',transform_all_no_shape
+                transforms_all.append(transform_all_no_shape)
+        #print 'transforms_all = ',transforms_all
+        transorms_objects = []
+        bad_transform_nodes = []
+        for transform in transforms_all:
+            if 'imagePlane' not in transform:
+                #print 'transform = ',transform
+                transform_connections = cmds.listConnections(transform) or []
+                #print 'transform_connections  = ',transform_connections
+                number_of_transform_connections = len(transform_connections)
+                if number_of_transform_connections == 0:
+                    #print 'num transform connections == 0'
+                    if transform not in bad_transform_nodes:
+                        bad_transform_nodes.append(transform)
+                if number_of_transform_connections == 1:
+                    #print 'num transform connections == 1'
+                    for transform_connection in transform_connections:
+                        #print 'transform_connection = ',transform_connection
+                        if transform_connection == 'hyperGraphLayout':
+                            if transform not in bad_transform_nodes:
+                                bad_transform_nodes.append(transform)
+            #print 'bad_transform_nodes = ',bad_transform_nodes
+        for transform_node in transforms_all:
+            if 'imagePlane' not in transform_node:
+                if transform_node not in bad_transform_nodes:
+                    if transform_node not in transorms_objects:
+                        transorms_objects.append(transform_node)
+        #print 'transorms_objects = ',transorms_objects
         transorms_objects_tmp = transorms_objects
         for object in transorms_objects:
             object_split = object.split('Shape')
@@ -320,7 +374,7 @@ class UV_SET_EDITOR(object):
                                 rename_uv_set = 1
                     if rename_uv_set == 1:
                         uv_set_no_space_name = uv_set.replace(' ','_')
-                        print 'space in name found, renaming ' + uv_set + ' to ' + uv_set_no_space_name
+                        #print 'space in name found, renaming ' + uv_set + ' to ' + uv_set_no_space_name
                         cmds.polyUVSet(object,rename = True, newUVSet = uv_set_no_space_name, uvSet = uv_set)
                 uv_sets = []
                 uv_sets = cmds.polyUVSet(object,allUVSets = True, query = True) or []
@@ -1138,7 +1192,7 @@ class UV_SET_EDITOR(object):
         self.list_widget_texture_info.setMaximumHeight(40)
         self.list_widget_texture_info.setStyleSheet('QListWidget {background-color: #292929; color:#8c4c7f;}')
         self.list_widget_texture_info.setFocusPolicy(QtCore.Qt.NoFocus)
-        main_vertical_layout.addWidget(self.list_widget_texture_info)
+        #main_vertical_layout.addWidget(self.list_widget_texture_info)
         self.myScriptJobID = cmds.scriptJob(p = window_name, event=["SceneOpened", self.populate_windows])
         self.populate_windows()
         self.right_listWidget_selection_eval()
