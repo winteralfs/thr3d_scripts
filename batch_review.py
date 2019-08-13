@@ -6,10 +6,10 @@ batch_review
    :align: center
    :scale: 75%
 
-batch_review is a tool that launches a sequence of renders to the V-ray frame buffer, one for each render layer,
-as a convenient way to visually review each camera angle before publishing.
+Batch_review launches a series of interactice renders, one for each active render layer, and saves them to the V-ray frame buffer.
+This is a convenient way to visually review each camera angle before publishing.
 
-batch_review can be launched in two different ways, either from the lighting_tools_shelf:
+Batch_review can be launched two different ways: either from the lighting_tools_shelf:
 
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_lighting_tools_shelf.JPG
    :align: center
@@ -23,15 +23,15 @@ or from the Thr3d drop down menu in Maya:
 
 ------
 
-the sequence of renders are launched by pressing the button labeled 'render', and you can interupt the sequence by pressing the button labeled 'cancel renders.'
-The frame that is currently rendering will complete, but you can stop that as well by pressing the 'esc' button on the keyboard.
+You start the sequence of renders by pressing the button labeled 'render.'  You can interupt this process at any time by pressing the button labeled 'cancel renders.'
+The frame that is currently rendering will complete before the process stops, but you can prevent that by pressing the 'esc' button on the keyboard.
 
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_render_and_cancel_button.jpg
    :align: center
    :scale: 75%
 
-there are three preset settings available for quickly setting the quality of the renders, and there are also inputs for manually setting the resolution and
-threshold of the renders. The higher the resolution, the higher the quality of the image, and the lower the threshold, the higher the quality of the image.
+There are three quality presets available: low, med, and high.  You can also set the resolution and
+threshold of the sequence manually. The higher the resolution, the higher the quality of the image, and the lower the threshold, the higher the quality of the image.
 
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_presets.jpg
    :align: center
@@ -41,8 +41,8 @@ threshold of the renders. The higher the resolution, the higher the quality of t
    :align: center
    :scale: 75%
 
-batch_review also has a checkbox to utilize the V-ray framebuffer render region function. If the checkbox is switched on, only the region defined by the
-marquee will be rendered for each render layer.
+Batch_review also has a checkbox to utilize the V-ray framebuffer render region. If the checkbox is toggled on, only the region defined by the
+red marquee will be rendered for each render layer.
 
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_render_region.JPG
   :align: center
@@ -52,8 +52,8 @@ marquee will be rendered for each render layer.
   :align: center
   :scale: 60%
 
-lastly, batch_review has a checkbox option to turn on and off the render elements for the frames.  Switching them off will speed up processing time, but you
-will not be able to evaluate the different render passes such as: reflection, refraction, and bump maps.
+Lastly, batch_review has an option to disable the render elements for the frames.  disabling the elements will speed up processing time, but you
+will not be able to evaluate render passes such as: reflection, refraction, and bump_normals, etc...
 
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_elements.JPG
   :align: center
