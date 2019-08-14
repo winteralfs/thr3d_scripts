@@ -46,7 +46,7 @@ Multiple swaps can be loaded into the texture_swap gui and swapped all at once.
 
 No file_in textures are deleted, they have to be deleted manually after the texture swap is complete.
 
-The texture swap icon can be double clicked after the file_in textures have been selected in the hypershade as an alternate way to run the swap.
+The texture swap icon can be double clicked on the lighting shelf after the file_in textures have been selected in the hypershade, as an alternate way to run the swap.
 This bypasses launching the tool's GUI.  This is a faster way to work, but you will not have visual confirmation of what file_in textures will be
 swapped when the action runs.
 
