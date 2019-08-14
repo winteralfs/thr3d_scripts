@@ -6,17 +6,17 @@ texture_swap
    :align: center
    :scale: 75%
 
-texture_swap in a tool that swaps a series of selected file_in textures with another series of selected file_in textures; applying settings and connections from the original
-file_in textures to the new series of file_in textures.
+Texture_swap swaps a series of selected file_in textures with another series of selected file_in textures; applying settings and connections from each original
+file_in texture to its corresponding new file_in texture.
 
-texture_swap can be launched from the lighting_tools_shelf:
+Texture_swap is launched from the lighting_tools_shelf:
 
 .. image:: U:/cwinters/docs/build/html/_images/texture_swap/texture_swap_lighting_shelf.JPG
    :align: center
    :scale: 75%
 
-to swap a series of file_in textures, open the Maya hypershade and select a file_in texture you want to swap and then the file_in texture you want it to replace. As you select
-file_in textures they will appear in the texture_swap tool gui. The order to properly select is always the new file_in texture and then old file_in texture, A then B, A and then B.
+To swap a series of file_in textures, open the Maya hypershade and select the file_in texture you want to swap, and then the file_in texture you want it to replace. As you select
+file_in textures they will appear in the texture_swap tool gui. The order to properly select the file_in textures is always the new file_in texture and then old file_in texture.
 
  .. image:: U:/cwinters/docs/build/html/_images/texture_swap/texture_swap_hypershade_one_selected.JPG
     :align: center
@@ -26,25 +26,29 @@ file_in textures they will appear in the texture_swap tool gui. The order to pro
     :align: center
     :scale: 75%
 
-to activate the swapping action for all the file_in textures in the texture_swap gui, press the button labeled 'swap_textures.'
+To run the swaps, press the button labeled 'swap_textures.'
 
  .. image:: U:/cwinters/docs/build/html/_images/texture_swap/texture_swap_hypershade_two_selected_button_press.JPG
     :align: center
     :scale: 75%
 
-The connections and file_in settings will be transfered to the new file_in texture, including extra attribute links.
+The connections and file_in settings will be transfered to the new file_in texture, including any extra attribute links.
 
  .. image:: U:/cwinters/docs/build/html/_images/texture_swap/texture_swap_after_running.JPG
     :align: center
     :scale: 75%
 
-multiple swaps can be loaded into the texture_swap gui and swapped all at once.
+Multiple swaps can be loaded into the texture_swap gui and swapped all at once.
 
  .. image:: U:/cwinters/docs/build/html/_images/texture_swap/texture_swap_mutiple_selections.JPG
     :align: center
     :scale: 75%
 
-for safety, no file_in textures are deleted, they have to be deleted manually after swapping.
+No file_in textures are deleted, they have to be deleted manually after the texture swap is complete.
+
+The texture swap icon can be double clicked after the file_in textures have been selected in the hypershade as an alternate way to run the swap.
+This bypasses launching the tool's GUI.  This is a faster way to work, but you will not have visual confirmation of what file_in textures will be
+swapped when the action runs.
 
 """
 

@@ -24,14 +24,14 @@ or from the Thr3d drop down menu in Maya:
 ------
 
 You start the sequence of renders by pressing the button labeled 'render.'  You can interupt this process at any time by pressing the button labeled 'cancel renders.'
-The frame that is currently rendering will complete before the process stops, but you can prevent that by pressing the 'esc' button on the keyboard.
+The frame that is currently rendering will complete before the process stops, but you can prevent that by pressing the 'esc' button.
 
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_render_and_cancel_button.jpg
    :align: center
    :scale: 75%
 
-There are three quality presets available: low, med, and high.  You can also set the resolution and
-threshold of the sequence manually. The higher the resolution, the higher the quality of the image, and the lower the threshold, the higher the quality of the image.
+There are three quality presets available: low, med, and high.  You can also set the render resolution and
+threshold manually. The higher the resolution, the higher the quality of the image, and the lower the threshold, the higher the quality of the image.
 
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_presets.jpg
    :align: center
@@ -52,7 +52,7 @@ red marquee will be rendered for each render layer.
   :align: center
   :scale: 60%
 
-Lastly, batch_review has an option to disable the render elements for the frames.  disabling the elements will speed up processing time, but you
+Lastly, batch_review has an option to disable the render elements for the frames.  Disabling the render elements will speed up processing time, but you
 will not be able to evaluate render passes such as: reflection, refraction, and bump_normals, etc...
 
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_elements.JPG
