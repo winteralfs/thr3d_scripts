@@ -1,41 +1,45 @@
 """
 object_replace
 ********************************************
-.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui.JPG
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui_v02.JPG
    :align: center
    :scale: 75%
-object_replace is a tool for swapping one object in the scene with another. It is useful for updating a model to a newer published
-version, or swapping a similar model with a similar asset when setting up a new scene. The tool will do its best to transfer all the connections
-and settings from the old asset to the new one.  object_replace is launched from the lighting_tools_shelf:
+Object_replace is used for swapping one object in the scene with another. It is useful for updating a model to a newer published
+version, or replacing an object with a similar one when setting up a new scene. The tool will do its best to transfer all the connections
+and settings from the old object to the new one.  Object_replace is launched from the lighting_tools_shelf:
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_lighting_shelf.JPG
    :align: center
    :scale: 75%
 ------
-The tool requires that the objects to be swapped not be named the same name.  The best stategy is to add the suffix '_old' to the name of the object to be
-swapped.  Similarly, the suffix '_new' should be added to the name of the new object. It is also important that no group node has the same name as any object
-in the scene and it may be nessisary to add the suffix '_grp' to the name of certain group nodes to avoid this.
-.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_object_old_object_new.JPG
+First, choose the new object and then the asset to be replaced.  If the selected object is a valid object (not a light, camera, group node, or Shape node, etc...),
+the field will turn green.  If the selected object is not valid, the field will be red.  No more than two objects should be selected,
+or both fields will be red.
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui_one_selection_v02.JPG
    :align: center
    :scale: 75%
-after editing the 'object_old' and 'object_new' fields to reflect the appropriate assets (you can select the name of the new object and then the old object in
-the outliner and the fields will autofill) you press the 'replace' button to initiate the swapping process.
-.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_replace_button.JPG
-   :align: center
-   :scale: 75%
-the script editor will show you information as to what attributes were transfered and when the script is finished running.
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui_two_selections_v02.JPG
+  :align: center
+  :scale: 75%
+The script editor will report what attributes were transfered and when the script has finished running.
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_script_editor.JPG
    :align: center
    :scale: 75%
-once finished, the tool leaves the 'old_asset' in the outliner, but hidden.  You can delete it if you no longer need it.
-The '_new' suffix can also now be removed from the swapped asset's name.
+Once finished, the tool hides the old object.  It can be deleted if you no longer need it.
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_outliner.JPG
    :align: center
    :scale: 75%
-one common issue occures when the UV sets for the newer object have been renamed.  The script will not find and transfer those assignments. Those
-connections will have to be updated by hand. If the UV set names do not change, the script will pick up and transfer the assignments.
+One common issue occures when the UV sets for the object are named differently.  The tool will not find and transfer those assignments, those
+connections need to be updated by hand. If the UV set names do not change, the script will transfer the assignments.
 .. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_UV_set_editor.JPG
    :align: center
    :scale: 75%
+Another common issue are the objects not being in the same position in the scene.  The tool does its best to match the orientation and position
+of the new object to the old one, but a manuel adjustment is sometimes required.
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui_objects_not_in_position.JPG
+   :align: center
+   :scale: 75%
+It is best practice to save your scene, and save a render of the original object in the scenein the frame buffer, before running the tool.  This way,
+you have a backup of your scene if needed, and a visual comparison can be made to catch any attributes that need to be adjusted manually.
 """
 
 import maya.cmds as cmds

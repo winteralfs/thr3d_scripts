@@ -96,6 +96,12 @@ def asset_tracker():
     reload(asset_tracker)
     asset_tracker.main()
 
+def object_replace_beta():
+    print "object_replace_beta"
+    import object_replace_beta
+    reload(object_replace_beta)
+    object_replace_beta.main()
+
 def build_custom_shelf():
     main_shelf = mel.eval('$tempMelVar=$gShelfTopLevel')
     name = "Lighting_Tools"
@@ -137,3 +143,5 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/uv_set_editor_logo_small.jpg', command = partial(uv_set_chooser))
     annotation = 'shows the latest version of assets available and your current version'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/asset_tracker_logo_small.jpg', command = partial(asset_tracker))
+    annotation = 'Object Replace_beta: Replaces one object with another, transfering most attributes settings and shader assignments'
+    cmds.shelfButton(annotation  = annotation, image = '', command = partial(object_replace_beta))
