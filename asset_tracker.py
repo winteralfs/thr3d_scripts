@@ -1,6 +1,19 @@
 """
 lighting_shelf: asset_tracker
 ********************************************
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker.JPG
+   :align: center
+   :scale: 75%
+
+Asset tracker is used to track the scene's assets current and latest version numbers, their publish names, and the path to where
+those version exist on the network for easy access:
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_lighting_shelf.JPG
+   :align: center
+   :scale: 75%
+
+------
 """
 
 import maya

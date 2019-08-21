@@ -24,7 +24,7 @@ or from the Thr3d drop down menu in Maya:
 ------
 
 You start the sequence of renders by pressing the button labeled 'render.'  You can interupt this process at any time by pressing the button labeled 'cancel renders.'
-The frame that is currently rendering will complete before the process stops, but you can prevent that by pressing the 'esc' button.
+The frame that is currently rendering will complete before the process stops, but you can interupt that by pressing the 'esc' button.
 
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui_render_and_cancel_button.jpg
    :align: center

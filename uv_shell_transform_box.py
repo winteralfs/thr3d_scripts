@@ -1,6 +1,19 @@
 """
-lighting_shelf: uv_editor
+lighting_shelf: UV shell transform box
 ********************************************
+
+.. image:: U:/cwinters/docs/build/html/_images/UV_shell_transform_box/UV_shell_transform_box_lighting_shelf.JPG
+   :align: center
+   :scale: 75%
+
+The UV shell transform box takes a selected UV shell and creates a GUI for setting translation, rotation, and scale transform values.  This allows
+for the shell to be adjusted by typing in values rather than an interactive widget for greater control.  It allows for the transform numbers to be
+zeroed out as long as the GUI has not been closed.  The tool must be closed and relaunched whenever a new shell is adjusted.
+
+.. image:: U:/cwinters/docs/build/html/_images/UV_shell_transform_box/UV_shell_transform_box_GUI.JPG
+   :align: center
+   :scale: 75%
+
 """
 
 
