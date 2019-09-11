@@ -17,10 +17,16 @@ You can hide, show, and toggle the textures for all the lights in the scene.
    :align: center
    :scale: 50%
 
-You can also set or remove render layer overrides for light transforms and intensity for all the selected lights
-for the current render layer. If there are currently render layer overrides set for any of the selected objects on
+Or just the selected lights.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+   :align: center
+   :scale: 50%
+
+You can also set or remove render layer overrides for light transforms and intensity for all the selected lights,
+for the active render layer. If there are currently render layer overrides set for any of the selected lights on
 the active render layer, the button wil be orange, and clicking it will remove the overrides for those lights. Otherwise,
-it will be grey, and clicking it will set the overrides.
+the button will be grey, and clicking it will set the overrides for all the selected lights on the active render layer.
 
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
    :align: center
@@ -32,9 +38,10 @@ You can hide and display all the lights in the scene.
    :align: center
    :scale: 50%
 
-And you can set or remove a vray smoothing attribute node for the selected objects. Grey means no no vray smoothing
-attribute was detected, and green means at least one of the selected objects currently has a vray smoothing node attached.
-Pressing the button while it is green will remove the node from all the selected objects.
+And you can set or remove a V-ray smoothing attribute node for the selected objects. If the button is grey it means no
+vray smoothing attribute was detected for any selected objects, and if the button is green it means at least one of the
+selected objects currently has a vray smoothing node attached. Pressing the button while it is green will remove the smoothing
+nodes from all the selected objects.
 
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
    :align: center
