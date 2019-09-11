@@ -1,6 +1,18 @@
 """
 lighting_shelf: standard_lighting_tool_rotation_fix
-***************************************************
+********************************************
+
+.. image:: U:/cwinters/docs/build/html/_images/standard_lighting_rig_dome_fix/standard_lighting_rig_dome_repair.JPG
+   :align: center
+   :scale: 75%
+
+Standard_lighting_tool_rotation_fix cleans out all the expressions and render layer overrides for the standard lighting rig, and rebuilds
+them with the default values.  You run the tool by pressing the icon on the lighting shelf.
+
+.. image:: U:/cwinters/docs/build/html/_images/standard_lighting_rig_dome_fix/standard_lighting_rig_dome_repair_window.JPG
+   :align: center
+   :scale: 75%
+
 """
 
 import maya.cmds as cmds

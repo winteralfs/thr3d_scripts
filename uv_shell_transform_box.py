@@ -1,6 +1,4 @@
 """
-lighting_shelf: UV shell transform box
-********************************************
 
 .. image:: U:/cwinters/docs/build/html/_images/UV_shell_transform_box/UV_shell_transform_box_lighting_shelf.JPG
    :align: center

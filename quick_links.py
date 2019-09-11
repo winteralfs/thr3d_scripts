@@ -1,6 +1,14 @@
 """
-lighting_shelf: quick_links
-********************************************
+
+.. image:: U:/cwinters/docs/build/html/_images/quick_links/quick_links_lighting_shelf.JPG
+   :align: center
+   :scale: 75%
+
+.. image:: U:/cwinters/docs/build/html/_images/quick_links/quick_links.JPG
+   :align: center
+   :scale: 75%
+
+Quick_links is a simple GUI to navigate to the 2018 version of brand's Shotgun pages.
 """
 
 

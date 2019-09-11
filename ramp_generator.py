@@ -1,6 +1,72 @@
 """
-lighting_shelf: ramp_generator
-********************************************
+.. image:: U:/cwinters/docs/build/html/_images/ramp_generator/ramp_generatior_GUI.png
+   :align: center
+   :scale: 75%
+
+You launch the ramp_generator from the lighting tools shelf.
+
+.. image:: U:/cwinters/docs/build/html/_images/ramp_generatior_lighting_shelf.png
+   :align: center
+   :scale: 75%
+
+Ramp_generator helps build simple and complex ramp networks for use with lights and materials. The types
+of ramps available are displayed as icons.
+
+.. image:: U:/cwinters/docs/build/html/_images/ramp_generator/ramp_generatior_GUI_icons.png
+   :align: center
+   :scale: 75%
+
+If you provide a name in the name field, a v-ray rect light will be great with the chosen ramp linked to
+its texture attribute.
+
+.. image:: U:/cwinters/docs/build/html/_images/ramp_generator/ramp_generatior_GUI_light_name_used.png
+   :align: center
+   :scale: 75%
+
+you are able to set an interpolation type.
+
+.. image:: U:/cwinters/docs/build/html/_images/ramp_generator/ramp_generatior_GUI_interpolation.png
+   :align: center
+   :scale: 75%
+
+You are also able to set a blur amount.
+
+.. image:: U:/cwinters/docs/build/html/_images/ramp_generator/ramp_generatior_GUI_blur.png
+   :align: center
+   :scale: 75%
+
+And you can set a cutout shape.
+
+.. image:: U:/cwinters/docs/build/html/_images/ramp_generator/ramp_generatior_GUI_cutout.png
+   :align: center
+   :scale: 75%
+
+if a light is selected when a ramp is generated, the new ramp will be linked to the selected light.
+
+.. image:: U:/cwinters/docs/build/html/_images/ramp_generator/ramp_generatior_hypershade_light_connection.png
+   :align: center
+   :scale: 75%
+
+If no light is selected the ramp will still be generated and available, just unlinked.
+
+.. image:: U:/cwinters/docs/build/html/_images/ramp_generator/ramp_generatior_ramp_no_light.png
+   :align: center
+   :scale: 75%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 """
 
 

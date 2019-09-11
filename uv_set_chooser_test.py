@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-print 'wed'
+#print 'Mon'
 
 
 class UV_SET_EDITOR(object):

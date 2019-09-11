@@ -1,3 +1,16 @@
+"""
+.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui.JPG
+   :align: center
+   :scale: 75%
+
+Rebuild_layers is a tool used to rebuild a scene after corruption of the render layers occurs. It can also be 
+used to add the selected objects to all the render layers, and set the visibility of the selected objects for all the render
+layers. It will also repair the render camera and render layer links, unlock camera so they can be deleted if nessisary, and
+tranlate the render layer names from the 'C1N1' syntax to the 'Ft' format.
+
+"""
+
+
 import maya.cmds as cmds
 import maya.mel as mel
 import os

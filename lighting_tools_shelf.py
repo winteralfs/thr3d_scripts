@@ -60,11 +60,11 @@ def rebuild_layers():
     reload(rebuild_layers)
     rebuild_layers.main()
 
-def uv_transforms():
-    print "uv_transforms function"
-    import uv_transforms
-    reload(uv_transforms)
-    uv_transforms.main()
+def uv_shell_transform_box():
+    print "uv_shell_transform_box"
+    import uv_shell_transform_box
+    reload(uv_shell_transform_box)
+    uv_shell_transform_box.main()
 
 def quick_links():
     print "quick_links function"
@@ -131,8 +131,8 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/cleaner_Logo_small.jpg', command = partial(cleaner))
     annotation = 'Ramp Generator: generates a variety of ramp texures'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/ramp_generator_Logo_small.jpg', command = partial(ramp_generator))
-    annotation = 'UV set editor: Allows the manipulation of selected UV shells with transform inputs'
-    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/UV_editor_Logo_small.jpg', command = partial(uv_transforms))
+    annotation = 'UV set uv_shell_transform_box: Allows the manipulation of selected UV shells with transform inputs'
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/UV_editor_Logo_small.jpg', command = partial(uv_shell_transform_box))
     annotation = '18 quick link: Opens up the 2018 link in shotgun for the chosen brand'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/shotgun_links_tool_Logo_small.jpg', command = partial(quick_links))
     annotation = 'rename shading groups, add/delete a postfix to materials nodes'

@@ -1,7 +1,32 @@
 """
-lighting_shelf: renaming_shading_groups
-********************************************
+.. image:: U:/cwinters/docs/build/html/_images/rename_shading_groups/rename_shading_groups_shading_lighting_shelf.JPG
+   :align: center
+   :scale: 75%
+
+.. image:: U:/cwinters/docs/build/html/_images/rename_shading_groups/rename_shading_groups_shading_GUI.JPG
+   :align: center
+   :scale: 75%
+
+Rename_shading_groups is used to rename all the shading groups in the scene with the prefix of the material they are connected to.
+
+.. image:: U:/cwinters/docs/build/html/_images/rename_shading_groups/rename_shading_groups_shading_network_pre.JPG
+   :align: center
+   :scale: 75%
+
+.. image:: U:/cwinters/docs/build/html/_images/rename_shading_groups/rename_shading_groups_shading_GUI_shading_group_renamed.JPG
+   :align: center
+   :scale: 75%
+
+It can also be used to add a postfix to all the materials in the scene. For instance, if you wanted to add 'material'
+
+.. image:: U:/cwinters/docs/build/html/_images/rename_shading_groups/rename_shading_groups_shading_GUI_rename.JPG
+   :align: center
+   :scale: 75%
+
 """
+
+
+
 
 import maya.cmds as cmds
 import os
@@ -242,7 +267,7 @@ class RENAME(object):
         self.bump_material_list = cmds.ls(type = 'VRayBumpMtl')
         self.displacement_list = cmds.ls(type = 'displacementShader')
         self.postfix_master_list = self.VRayMtl_list + self.phong_list + self.lambert_blinn_list + self.surface_shader_list + self.blend_material_list + self.bump_material_list + self.displacement_list
-        for shader in locked_shaders:
+        for shader in self.locked_shaders:
             self.postfix_master_list.remove(shader)
 
     def set_postfix(self):
@@ -265,6 +290,7 @@ class RENAME(object):
         for material in self.postfix_master_list:
             print 'material = ',material
             if self.postfix != 'EMPTY FIELD':
+                #print 'self.postfix = ',self.postfix
                 cmds.rename(material,(material + '_' + self.postfix))
 
     def renamer_window(self):

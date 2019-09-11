@@ -1,3 +1,41 @@
+"""
+
+.. image:: U:/cwinters/docs/build/html/_images/uv_set_chooser/uv_set_chooser_v01.JPG
+   :align: center
+   :scale: 75%
+
+The uv_set_chooser works as an alternative to the traditional Maya relationship editor:uv_editor. It's purpose
+is to function faster, and to be more interactive than the traditional GUI.
+
+You launch the uv_set_chooser from the lighting shelf:
+
+.. image:: U:/cwinters/docs/build/html/_images/uv_set_chooser/uv_set_chooser_lighting_shelf_v01.JPG
+   :align: center
+   :scale: 75%
+
+You can link uv sets and textures from either uv set centric mode, or texture centric mode.
+
+.. image:: U:/cwinters/docs/build/html/_images/uv_set_chooser/uv_set_chooser_texture_picked_UV_CENTRIC_v01.JPG
+   :align: center
+   :scale: 75%
+
+In uv_centric mode, you select the uv set on the left, and choose what textures should use that uv set on the right.
+
+.. image:: U:/cwinters/docs/build/html/_images/uv_set_chooser/uv_set_chooser_texture_picked_UV_CENTRIC_v01.JPG
+   :align: center
+   :scale: 75%
+
+In texure_centric mode, you choose the texture on the left, and choose which uv sets that texture should use, one per object.
+The objects that are currently using the chosen texture will be light blue, and all other objects will be dark grey.
+
+.. image:: U:/cwinters/docs/build/html/_images/uv_set_chooser/uv_set_chooser_texture_picked_TEXTURE_CENTRIC_v01.JPG
+   :align: center
+   :scale: 75%
+
+
+
+"""
+
 import maya
 import maya.cmds as cmds
 import os

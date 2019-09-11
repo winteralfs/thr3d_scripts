@@ -1,8 +1,52 @@
 """
-lighting_shelf: lights_palette
-********************************************
-"""
 
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+   :align: center
+   :scale: 50%
+
+Lights_pallette is a tool to help speed up a few common tasks related to lighting a scene in Maya. It is launched
+from the lighting tools shelf.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+   :align: center
+   :scale: 50%
+
+You can hide, show, and toggle the textures for all the lights in the scene.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+   :align: center
+   :scale: 50%
+
+You can also set or remove render layer overrides for light transforms and intensity for all the selected lights
+for the current render layer. If there are currently render layer overrides set for any of the selected objects on
+the active render layer, the button wil be orange, and clicking it will remove the overrides for those lights. Otherwise,
+it will be grey, and clicking it will set the overrides.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+   :align: center
+   :scale: 50%
+
+You can hide and display all the lights in the scene.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+   :align: center
+   :scale: 50%
+
+And you can set or remove a vray smoothing attribute node for the selected objects. Grey means no no vray smoothing
+attribute was detected, and green means at least one of the selected objects currently has a vray smoothing node attached.
+Pressing the button while it is green will remove the node from all the selected objects.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+   :align: center
+   :scale: 50%
+
+Lastly, you can change render layers using the GUI.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+   :align: center
+   :scale: 50%
+
+ """
 
 import sys
 sys.path.append("C:/Users/Chris.Winters/Desktop/PythonTesting/")
