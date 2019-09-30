@@ -1,15 +1,74 @@
 """
-.. image:: U:/cwinters/docs/build/html/_images/object_replace/object_replace_gui.JPG
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers/rebuild_layers_tool_GUI.png
    :align: center
    :scale: 75%
 
-Rebuild_layers is a tool used to rebuild a scene after corruption of the render layers occurs. It can also be 
-used to add the selected objects to all the render layers, and set the visibility of the selected objects for all the render
-layers. It will also repair the render camera and render layer links, unlock camera so they can be deleted if nessisary, and
-tranlate the render layer names from the 'C1N1' syntax to the 'Ft' format.
+The rebuild_layers tool's main function is to rebuild a maya file after a render layers corruption has occured. It will also add
+and remove selected objects from all the render layers. It can also be used to unlock cameras, to rename render layers, and to assign
+the correct camera to its respective render layer.
+
+You launch the rebuild_layers tool from the lighting tools shelf.
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers/rebuild_layers_tool_GUI_lighting_shelf.png
+   :align: center
+   :scale: 75%
+
+To add and remove selected objects from all the render layers, click the button labeled, 'add selection to all render layers' or
+the button labeled, 'remove selection from all render layers.'
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers_tool_GUI_add_selection_to_all_render_layers.png
+   :align: center
+   :scale: 75%
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers/rebuild_layers_tool_GUI_remove_selection_from_all_render_layers.png
+   :align: center
+   :scale: 75%
+
+To show and hide selected objects from all the render layers, click the button labeled, 'show selection in all render layers' or
+the button labeled, 'hide selection in all render layers.'
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers_tool_GUI_show_selection_to_all_render_layers.png
+   :align: center
+   :scale: 75%
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers/rebuild_layers_tool_GUI_hide_selection_in_all_render_layers.png
+   :align: center
+   :scale: 75%
+
+To convert render layers names from the 'C1N1' format to the 'FtTp' format, click the button labeled, 'convert layer names.'
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers_tool_convert_layer_names.png
+   :align: center
+   :scale: 75%
+
+To unlock all the cameras in the Maya scene, click the button labeled, 'unlock cameras.'
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers/rebuild_layers_tool_unlock_cameras.png
+   :align: center
+   :scale: 75%
+
+To fix the render layer's assigned cameras click the button labeled, '.fix the render camera to render layer assignments.'
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers_tool_OIL_fix_camera_names.png
+   :align: center
+   :scale: 75%
+
+Most importantly, to rebuild the Maya scene after a render layer corruption has occurred, click the button labeled, 'rebuild all render layers.'
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers_tool_GUI_rebuild_layers.png
+   :align: center
+   :scale: 75%
+
+The process of rebuilding the Maya scene can take up to thirty minutes, and you can monitor its process in the script editor. It's best
+practice to save your scene before running the script and to save comparison images to the frame buffer so when the process finishes you
+can compare the rebuilt scene's renders to the original renders to spot any missed attributes.
+
+.. image:: U:/cwinters/docs/build/html/_images/rebuild_layers_tool_GUI_script_editor.png
+   :align: center
+   :scale: 75%
 
 """
-
 
 import maya.cmds as cmds
 import maya.mel as mel
@@ -41,11 +100,11 @@ class LAYERS_WINDOW_TOOL(object):
         self.multiplyDivide = cmds.ls(type = "multiplyDivide")
         self.remapHsv = cmds.ls(type = "remapHsv")
         self.remapColor = cmds.ls(type = "remapColor")
-        self.materials = self.materials_VRayMtl + self.materials_phong + self.materials_blinn + self.materials_lambert + self.materials_surface_shader + self.placement_nodes + self.file_nodes + self.materials_displacement + self.displacement_nodes + self.layeredTexture + self.VRayBlendMtls + self.VRayPlaceEnvTex_nodes + self.ramp_nodes + self.gammaCorrect_nodes + self.multiplyDivide + self.remapHsv + self.remapColor
+        #self.materials = self.materials_VRayMtl + self.materials_phong + self.materials_blinn + self.materials_lambert + self.materials_surface_shader + self.placement_nodes + self.file_nodes + self.materials_displacement + self.displacement_nodes + self.layeredTexture + self.VRayBlendMtls + self.VRayPlaceEnvTex_nodes + self.ramp_nodes + self.gammaCorrect_nodes + self.multiplyDivide + self.remapHsv + self.remapColor
         self.object_check_g = cmds.ls(g = True)
         self.object_check_transform = cmds.ls(type = "transform")
         self.object_check_cameras = cmds.ls(type = "camera")
-        self.object_check = self.object_check_g + self.object_check_transform + self.materials + self.object_check_cameras
+        #self.object_check = self.object_check_g + self.object_check_transform + self.materials + self.object_check_cameras
         self.lites = cmds.ls(lt = True)
         self.vray_lights = []
         self.check_if_standard_lighting_exists = cmds.objExists('place_env_rot_sdt_lgt')
@@ -157,8 +216,8 @@ class LAYERS_WINDOW_TOOL(object):
                             override_split = override.split('.')
                             override_check = override_split[0]
                             override_check_type = cmds.nodeType(override_check)
-                            if override_check_type == 'layeredTexture':
-                                layered_texture_overrides.append(override)
+                            #if override_check_type == 'layeredTexture':
+                                #layered_texture_overrides.append(override)
                         count_overrides_number = 0
                         count_overrides_number = len(layered_texture_overrides)
                         if count_overrides_number > count_overrides_base:

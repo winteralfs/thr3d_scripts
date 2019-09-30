@@ -1,40 +1,42 @@
 """
+Lights_pallette is a tool to help speed up a few common tasks related to lighting a scene in Maya.
 
-.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+.. image:: U:/cwinters/docs/build/html/_images/lights_pallette/lights_pallette_GUI.png
    :align: center
    :scale: 50%
 
-Lights_pallette is a tool to help speed up a few common tasks related to lighting a scene in Maya. It is launched
-from the lighting tools shelf.
+It is launched from the lighting tools shelf.
 
-.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+.. image:: U:/cwinters/docs/build/html/_images/lights_pallette/lights_pallette_GUI_lighting_shelf.png
    :align: center
    :scale: 50%
 
-You can hide, show, and toggle the textures for all the lights in the scene.
+You can hide, show, and toggle the textures for all the lights in the scene, or just the selected lights.
 
-.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+.. image:: U:/cwinters/docs/build/html/_images/lights_pallette/lights_pallette_GUI_lights_ramps_on.png
    :align: center
    :scale: 50%
 
-Or just the selected lights.
-
-.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+.. image:: U:/cwinters/docs/build/html/_images/lights_pallette/lights_pallette_GUI_lights_ramps_off.png
    :align: center
    :scale: 50%
 
-You can also set or remove render layer overrides for light transforms and intensity for all the selected lights,
-for the active render layer. If there are currently render layer overrides set for any of the selected lights on
-the active render layer, the button wil be orange, and clicking it will remove the overrides for those lights. Otherwise,
-the button will be grey, and clicking it will set the overrides for all the selected lights on the active render layer.
+.. image:: U:/cwinters/docs/build/html/_images/lights_pallette/lights_pallette_GUI_lights_ramps_toggle.png
+   :align: center
+   :scale: 50%
 
-.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+You can also set or remove render layer overrides for light transforms and light intensity for all the selected lights on
+the active render layer. If there are currently render layer overrides set for any of the selected lights on the active render
+layer, the button wil be orange, and clicking it will remove the overrides for those lights. Otherwise, the button will be grey,
+and clicking it will set the overrides for all the selected lights on the active render layer.
+
+.. image:: U:/cwinters/docs/build/html/_images/lights_pallette/lights_pallette_GUI_lights_overrides.png
    :align: center
    :scale: 50%
 
 You can hide and display all the lights in the scene.
 
-.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+.. image:: U:/cwinters/docs/build/html/_images/lights_pallette/lights_pallette_GUI_hide_lights.png
    :align: center
    :scale: 50%
 
@@ -43,13 +45,13 @@ vray smoothing attribute was detected for any selected objects, and if the butto
 selected objects currently has a vray smoothing node attached. Pressing the button while it is green will remove the smoothing
 nodes from all the selected objects.
 
-.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+.. image:: U:/cwinters/docs/build/html/_images/lights_pallette/lights_pallette_GUI_smoothing.png
    :align: center
    :scale: 50%
 
 Lastly, you can change render layers using the GUI.
 
-.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+.. image:: U:/cwinters/docs/build/html/_images/lights_pallette/lights_pallette_GUI_render_layers.png
    :align: center
    :scale: 50%
 
