@@ -100,11 +100,11 @@ class LAYERS_WINDOW_TOOL(object):
         self.multiplyDivide = cmds.ls(type = "multiplyDivide")
         self.remapHsv = cmds.ls(type = "remapHsv")
         self.remapColor = cmds.ls(type = "remapColor")
-        #self.materials = self.materials_VRayMtl + self.materials_phong + self.materials_blinn + self.materials_lambert + self.materials_surface_shader + self.placement_nodes + self.file_nodes + self.materials_displacement + self.displacement_nodes + self.layeredTexture + self.VRayBlendMtls + self.VRayPlaceEnvTex_nodes + self.ramp_nodes + self.gammaCorrect_nodes + self.multiplyDivide + self.remapHsv + self.remapColor
+        self.materials = self.materials_VRayMtl + self.materials_phong + self.materials_blinn + self.materials_lambert + self.materials_surface_shader + self.placement_nodes + self.file_nodes + self.materials_displacement + self.displacement_nodes + self.layeredTexture + self.VRayBlendMtls + self.VRayPlaceEnvTex_nodes + self.ramp_nodes + self.gammaCorrect_nodes + self.multiplyDivide + self.remapHsv + self.remapColor
         self.object_check_g = cmds.ls(g = True)
         self.object_check_transform = cmds.ls(type = "transform")
         self.object_check_cameras = cmds.ls(type = "camera")
-        #self.object_check = self.object_check_g + self.object_check_transform + self.materials + self.object_check_cameras
+        self.object_check = self.object_check_g + self.object_check_transform + self.materials + self.object_check_cameras
         self.lites = cmds.ls(lt = True)
         self.vray_lights = []
         self.check_if_standard_lighting_exists = cmds.objExists('place_env_rot_sdt_lgt')

@@ -57,6 +57,8 @@ Lastly, you can change render layers using the GUI.
 
  """
 
+print '10/2_b'
+
 import sys
 sys.path.append("C:/Users/Chris.Winters/Desktop/PythonTesting/")
 import maya.cmds as cmds
@@ -306,6 +308,10 @@ class lightsPalette():
             self.button_Vray_smooth.setChecked(False)
                     #self.button_Vray_smooth.setChecked(False)
 
+    def create_light_blocker(self):
+        pass
+        #print 'create_light_blocker'
+
 # a method to detect render layer names and query for render layer overrides
 
     def render_layers_scan(self):
@@ -409,10 +415,10 @@ class lightsPalette():
         self.grid_layout_top.addWidget(self.button_Vray_smooth,6,0,1,2)
         self.create_light_blocker = QtWidgets.QPushButton("create_light_blocker")
         self.create_light_blocker.setFixedHeight(20)
-        self.create_light_blocker.pressed.connect(partial(self.light_blocker))
-        self.grid_layout_top.addWidget(self.button_Vray_smooth,7,0,1,2)
+        self.create_light_blocker.pressed.connect(partial(self.create_light_blocker))
+        self.grid_layout_top.addWidget(self.create_light_blocker,7,0,1,2)
         render_layers_label = QtWidgets.QLabel("render layers")
-        self.grid_layout_top.addWidget(render_layers_label,7,0)
+        self.grid_layout_top.addWidget(render_layers_label,8,0)
         self.render_layer_QListWidget = QtWidgets.QListWidget()
         self.render_layer_QListWidget.setMinimumHeight(170)
         self.grid_layout_bottom.addWidget(self.render_layer_QListWidget,1,0)
