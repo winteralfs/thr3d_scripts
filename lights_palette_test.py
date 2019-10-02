@@ -57,7 +57,7 @@ Lastly, you can change render layers using the GUI.
 
  """
 
-print '10/2_b'
+print '10/2_c'
 
 import sys
 sys.path.append("C:/Users/Chris.Winters/Desktop/PythonTesting/")
@@ -308,9 +308,8 @@ class lightsPalette():
             self.button_Vray_smooth.setChecked(False)
                     #self.button_Vray_smooth.setChecked(False)
 
-    def create_light_blocker(self):
-        pass
-        #print 'create_light_blocker'
+    def create_light_blocker_method(self):
+        print 'create_light_blocker'
 
 # a method to detect render layer names and query for render layer overrides
 
@@ -413,9 +412,10 @@ class lightsPalette():
         self.button_Vray_smooth.toggled.connect(partial(self.Vray_smooth))
         self.button_Vray_smooth.setStyleSheet("QPushButton::checked{color: rgb(0, 200, 50);""border:1px solid rgb(0, 200, 50)};")
         self.grid_layout_top.addWidget(self.button_Vray_smooth,6,0,1,2)
-        self.create_light_blocker = QtWidgets.QPushButton("create_light_blocker")
+        self.create_light_blocker = QtWidgets.QPushButton('create_light_blocker')
         self.create_light_blocker.setFixedHeight(20)
-        self.create_light_blocker.pressed.connect(partial(self.create_light_blocker))
+        self.create_light_blocker.pressed.connect(partial(self.create_light_blocker_method))
+        #self.create_light_blocker.pressed.connect(partial(self.create_light_blocker))
         self.grid_layout_top.addWidget(self.create_light_blocker,7,0,1,2)
         render_layers_label = QtWidgets.QLabel("render layers")
         self.grid_layout_top.addWidget(render_layers_label,8,0)
