@@ -57,7 +57,7 @@ Lastly, you can change render layers using the GUI.
 
  """
 
-print '10/2_c'
+print 'wed night'
 
 import sys
 sys.path.append("C:/Users/Chris.Winters/Desktop/PythonTesting/")
@@ -310,6 +310,8 @@ class lightsPalette():
 
     def create_light_blocker_method(self):
         print 'create_light_blocker'
+        cmds.polyPlane( sx=10, sy=15, w=15, h=20)
+        light_blocker_node = cmds.createNode("surfaceShader")
 
 # a method to detect render layer names and query for render layer overrides
 
@@ -519,4 +521,4 @@ def main():
     ltv = lightsPalette()
     ltv.lights_palette_window()
 
-#main()
+main()
