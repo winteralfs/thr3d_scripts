@@ -57,7 +57,7 @@ Lastly, you can change render layers using the GUI.
 
  """
 
-print 'wed night'
+print 'thur day'
 
 import sys
 sys.path.append("C:/Users/Chris.Winters/Desktop/PythonTesting/")
