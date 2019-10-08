@@ -1007,19 +1007,34 @@ def objectChooseWin():
             object_Old_smooth_division_level = 0
             object_New_smooth_division_level = 0
             old_object_polysmooth_node = []
+            new_object_smooth_node = 'none'
             smoothNodes = cmds.ls(type = "polySmoothFace") or []
+            #print 'smoothNodes = ',smoothNodes
             for smoothNode in smoothNodes:
-                smooth_node_connections = cmds.listConnections(smoothNode,source = False, destination = True)
+                #print ' '
+                #print 'smoothNode = ',smoothNode
+                smooth_node_connections = cmds.listConnections(smoothNode, destination = True)
+                #print 'smooth_node_connections = ',smooth_node_connections
                 for connection in smooth_node_connections:
+                    #print 'connection = ',connection
+                    #print 'object_Old = ',object_Old
+                    #print 'object_New = ',object_New
                     if connection in object_Old:
+                        #print 'connection found in object_Old'
                         old_object_polysmooth_node.append(smoothNode)
                         object_Old_smooth_node_found = 1
                         object_Old_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
                     if connection in object_New:
+                        #print 'connection found in object_New'
+                        new_object_smooth_node = smoothNode
                         object_New_smooth_division_level = cmds.polySmooth(smoothNode, query = True, divisions = True)
                         object_New_smooth_node_found = 1
+            #print 'xxx'
+            #print 'object_Old_smooth_node_found = ',object_Old_smooth_node_found
+            #print 'object_New_smooth_node_found = ',object_New_smooth_node_found
             print 'old_object polysmooth nodes = ',old_object_polysmooth_node
-            return object_Old,object_New,object_Old_smooth_node_found,object_New_smooth_node_found,object_Old_smooth_division_level,object_New_smooth_division_level
+            print 'new_object polysmooth nodes = ',new_object_smooth_node
+            return object_Old,object_New,object_Old_smooth_node_found,object_New_smooth_node_found,object_Old_smooth_division_level,object_New_smooth_division_level,new_object_smooth_node
 
         def visibilty(object_Old,object_New,renderLayers):
             print "old object visibility check:"
@@ -2088,12 +2103,19 @@ def objectChooseWin():
             object_New_smooth_node_found = OBJ_1_polySmooth[3]
             object_Old_smooth_division_level = OBJ_1_polySmooth[4]
             object_New_smooth_division_level = OBJ_1_polySmooth[5]
+            new_object_smooth_node = OBJ_1_polySmooth[6]
             if object_Old_smooth_node_found == 1:
                 if object_New_smooth_node_found == 0:
+                    #print 'object_New_smooth_node_found = ',object_New_smooth_node_found
                     cmds.polySmooth(object_New ,mth = 0, sdt = 2, ovb = 1, ofb = 1, ofc = 1, ost = 0, ocr = 0, dv = object_Old_smooth_division_level, bnr = 1, c = 1, kb = 1, ksb = 1, khe = 0, kt = 1, kmb = 1, suv = 1, peh = 0, sl = 1, dpe = 1, ps = .1, ro = 1, ch = 1)
                     print "applying a smoothing node to " + object_new_print_temp + " at division level ", object_Old_smooth_division_level
                 else:
-                    print "smoothing node detected for " + object_new_print_temp + ", NO additional smoothing applied"
+                    #print 'object_New_smooth_node_found = ',object_New_smooth_node_found
+                    print 'found an existing smoothing node on new object, deleting ',new_object_smooth_node
+                    print 'adding a smoothing node at smoothing level ',object_Old_smooth_division_level
+                    cmds.delete(new_object_smooth_node)
+                    cmds.polySmooth(object_New ,mth = 0, sdt = 2, ovb = 1, ofb = 1, ofc = 1, ost = 0, ocr = 0, dv = object_Old_smooth_division_level, bnr = 1, c = 1, kb = 1, ksb = 1, khe = 0, kt = 1, kmb = 1, suv = 1, peh = 0, sl = 1, dpe = 1, ps = .1, ro = 1, ch = 1)
+                    #print "smoothing node detected for " + object_new_print_temp + ", NO additional smoothing applied"
             else:
                 print "no smoothing detected for " + object_old_print_temp + ", applying no smoothing to " + object_new_print_temp
 
