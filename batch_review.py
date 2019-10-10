@@ -271,6 +271,15 @@ def cancelOPs(*args):
     cancel = 1
     raise Exception("quitting renders")
 
+def set_threshhold(floatField_thrhld,*args):
+    threshhold_value = cmds.floatField(floatField_thrhld,value = True,query = True)
+    cmds.setAttr('vraySettings.dmcThreshold',threshhold_value)
+
+def set_resolution(intField_res,*args):
+    intField_res_value = cmds.intField(intField_res,value = True,query = True)
+    cmds.setAttr('vraySettings.width',intField_res_value)
+    cmds.setAttr('vraySettings.height',intField_res_value)
+
 def renthumbsWin():
     name = "Batch_Review"
     global gReg
@@ -289,9 +298,12 @@ def renthumbsWin():
     cmds.text(label = "                             ")
     cmds.text(label = "resolution:  ")
     intField_res = cmds.intField(v = 1000,width = 45)
+    #print 'intField_res = ',intField_res
+    cmds.intField(intField_res, changeCommand = partial(set_resolution,intField_res),edit = True)
     cmds.text(label = "  ")
     cmds.text(label = "threshold:  ")
     floatField_thrhld = cmds.floatField(v = .5,width = 45)
+    cmds.floatField(floatField_thrhld, changeCommand = partial(set_threshhold,floatField_thrhld),edit = True)
     cmds.checkBox(checkBoxLow, changeCommand = partial(checkBoxCheckLow,checkBoxLow,checkBoxMid,checkBoxHigh,intField_res,floatField_thrhld), edit = True)
     cmds.checkBox(checkBoxMid, changeCommand = partial(checkBoxCheckMid,checkBoxLow,checkBoxMid,checkBoxHigh,intField_res,floatField_thrhld),edit = True)
     cmds.checkBox(checkBoxHigh, changeCommand = partial(checkBoxCheckHigh,checkBoxLow,checkBoxMid,checkBoxHigh,intField_res,floatField_thrhld),edit = True)
@@ -322,4 +334,4 @@ def renthumbsWin():
 def main():
     renthumbsWin()
 
-#main()
+main()

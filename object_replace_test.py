@@ -2329,5 +2329,8 @@ def objectChooseWin():
         print ' '
         print "*** finished matching object_new to object_old ***"
         print ' '
+
 def main():
     objectChooseWin()
+
+main()
