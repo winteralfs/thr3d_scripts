@@ -1,6 +1,74 @@
 """
 lighting_shelf: asset_tracker
 ********************************************
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
+   :align: center
+   :scale: 50%
+
+Asset tracker is used to track a scene's assets current and latest version numbers, their entity names, and their publish paths. 'C-ver' for
+the current version, 'L-ver' for the latest version:
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_lighting_shelf.JPG
+   :align: center
+   :scale: 50%
+
+Light blue indicates the version of the asset in the scene matches the latest version found on the network. It is up to date.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_teal.jpg
+   :align: center
+   :scale: 50%
+
+Red indicates the version of the asset in the scene is lower than the version found on the network. It is not up to date, and a newer
+version is available.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_red.jpg
+   :align: center
+   :scale: 50%
+
+Yellow indicates a version of the asset was found to exist in a more current year on the network, as in the asset in the scene is from
+2017, but a version exists in the 2019 area of the network. If the asset is also out of date, the 'C-ver' will be red, and if it is
+current, it will be light blue.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_yellow.jpg
+   :align: center
+   :scale: 50%
+
+Orange indicates the publish_path for the asset is not valid, the directory does not exist on the network. If this is the case, an 'X' will
+replace a number in the L-ver collumn as the latest version of the asset can not be determined.
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_orange.jpg
+   :align: center
+   :scale: 50%
+
+Clicking the asset's name will highlight the path to the latest version of the asset: The path can be clicked to open that directory:
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_highlighted.JPG
+   :align: center
+   :scale: 50%
+
+Clicking the publish path of an asset will open that directory:
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_network.JPG
+   :align: center
+   :scale: 50%
+
+Clicking the entity name of the asset will open up the Shotgun page for that asset:
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_shotgun_link.JPG
+   :align: center
+   :scale: 50%
+
+If an asset shows up in the tracker that is not displayed in the outliner, toggle on the 'Hidden in Outliner'
+option under the Display tab at the top of the outliner window:
+
+.. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_Maya_ignore_hidden_in_outliner.JPG
+   :align: center
+   :scale: 50%
+
+
+
+------
 """
 
 import maya
@@ -15,6 +83,7 @@ import webbrowser
 import shiboken2
 
 print 'asset_tracker'
+#print 'fri'
 
 class ASSET_TRACKER(object):
     def __init__(self):
@@ -37,7 +106,31 @@ class ASSET_TRACKER(object):
         self.entity_name_listWidget.clear()
         self.publish_path_listWidget.clear()
         self.latest_version_path_feedback_listWidget.clear()
-        transforms = cmds.ls(type = 'transform')
+        transforms_all = cmds.ls(type = 'transform')
+        transforms = []
+        #print 'transforms_all = ',transforms_all
+        bad_transform_nodes = []
+        for transform in transforms_all:
+            #print 'transform = ',transform
+            transform_connections = cmds.listConnections(transform) or []
+            #print 'transform_connections  = ',transform_connections
+            number_of_transform_connections = len(transform_connections)
+            if number_of_transform_connections == 0:
+                #print 'num transform connections == 0'
+                if transform not in bad_transform_nodes:
+                    bad_transform_nodes.append(transform)
+            if number_of_transform_connections == 1:
+                #print 'num transform connections == 1'
+                for transform_connection in transform_connections:
+                    #print 'transform_connection = ',transform_connection
+                    if transform_connection == 'hyperGraphLayout':
+                        if transform not in bad_transform_nodes:
+                            bad_transform_nodes.append(transform)
+        #print 'bad_transform_nodes = ',bad_transform_nodes
+        for transform_node in transforms_all:
+            if transform_node not in bad_transform_nodes:
+                transforms.append(transform_node)
+        #print 'transforms = ',transforms
         file_nodes = cmds.ls(type = 'file')
         objects = transforms + file_nodes
         self.trackable_objects = []
@@ -80,32 +173,28 @@ class ASSET_TRACKER(object):
                         product_texture_found = 0
                         Kraft_texture_found = 0
                         Kroger_texture_found = 0
+                        #print 'value = ',value
                         if 'Product' in value:
-                            #print 'product file found'
+                            #print 'Product detected'
                             product_texture_found = 1
                         if 'Kraft' in value:
                             #print 'Kraft detected'
                             Kraft_texture_found = 1
                         if 'Kroger' in value:
-                            #print 'Kraft detected'
-                            Kraft_texture_found = 1
+                            #print 'Kroger detected'
+                            Kroger_texture_found = 1
                         i = 0
-                        if node_type != 'file':
-                            publish_path_value_split_length_minus = 6
-                        if node_type == 'file':
-                            publish_path_value_split_length_minus = 9
-                        if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 0:
-                            publish_path_value_split_length_minus = 10
-                        if  node_type == 'file' and product_texture_found == 1 and Kraft_texture_found == 1:
-                            publish_path_value_split_length_minus = 9
-                        if  node_type == 'file' and product_texture_found == 1 and Kroger_texture_found == 1:
-                            publish_path_value_split_length_minus = 9
-                        while i < (publish_path_value_split_length - publish_path_value_split_length_minus):
+                        publish_path_value_forward_length = 5
+                        while i < publish_path_value_forward_length:
+                            #print 'i = ',i
                             if i == 0:
                                 year_versions_path
                             if i > 0:
                                 year_versions_path = year_versions_path +'\\' + publish_path_value_split[i]
+                                #print 'year_versions_path = ',year_versions_path
                             i = i + 1
+                        #year_versions_path = year_versions_path + '\\'
+                        #print 'year_versions_path final = ',year_versions_path
                         eighteen_year_versions = []
                         nineteen_year_versions = []
                         eighteen_version_number_full_string = ''
@@ -134,6 +223,7 @@ class ASSET_TRACKER(object):
                                 publish_path_value_dir = ''
                                 i = 1
                                 #print 'year_version = ',year_version
+                                #print 'publish_path_value_split_length = ',publish_path_value_split_length
                                 while i < publish_path_value_split_length:
                                     if i == 5:
                                             publish_path_value_dir = publish_path_value_dir + '\\' + year_version
@@ -141,7 +231,7 @@ class ASSET_TRACKER(object):
                                         publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
                                     i = i + 1
                                 publish_path_value_dir = publish_path_value_dir + '\\'
-                                #print 'publish_path_value_dir = ',publish_path_value_dir
+                                #print '1 publish_path_value_dir = ',publish_path_value_dir
                                 files = []
                                 files = cmds.getFileList(folder = publish_path_value_dir) or []
                                 #print 'files = ',files
@@ -212,25 +302,36 @@ class ASSET_TRACKER(object):
                                                     self.highest_version_path_dic[object] = highest_path_string
                                                     higher_version_found = 1
                                                     self.highest_value_year = temp_year_used
-                        #print ' '
+                                #else:
+                                    #self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                         publish_path_value_dir = value = cmds.getAttr(object + '.' + attr)
-                        #print 'publish_path_value_dir = ',publish_path_value_dir
+                        #print '2 publish_path_value_dir = ',publish_path_value_dir
+                        #print 'node_type = ',node_type
                         if node_type == 'file':
-                            publish_path_value_split_length = publish_path_value_split_length - 2
+                            if product_texture_found == 0 and Kroger_texture_found == 0:
+                                publish_path_value_split_length = publish_path_value_split_length - 2
+                            if product_texture_found == 1 and Kroger_texture_found == 0:
+                                publish_path_value_split_length = publish_path_value_split_length - 2
+                            if product_texture_found == 1 and Kroger_texture_found == 1:
+                                #print 'product texture found and Kroger texture found'
+                                publish_path_value_split_length = publish_path_value_split_length - 0
                         if node_type != 'file':
                             publish_path_value_split_length = publish_path_value_split_length - 1
                         publish_path_value_dir = ''
                         i = 1
+                        #print 'publish_path_value_split_length = ',publish_path_value_split_length
+                        #publish_path_value_split_length = 13
                         while i < publish_path_value_split_length:
                             publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
                             i = i + 1
                         publish_path_value_dir = publish_path_value_dir + '\\'
+                        #print '3 publish_path_value_dir = ',publish_path_value_dir
                         files = cmds.getFileList(folder = publish_path_value_dir) or []
                         #print 'files = ',files
                         number_of_files= len(files)
                         #print 'number_of_files = ',number_of_files
                         if number_of_files == 0:
-                            #print 'setting X'
+                            #print 'num of files = 0, setting X'
                             self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                         #print 'self.asset_attr_dic = ',self.asset_attr_dic
             for asset_attr in self.asset_attr_dic:
@@ -348,13 +449,13 @@ class ASSET_TRACKER(object):
                             publish_path_item.setTextColor('yellow')
                     if '18' in publish_year_value:
                         if '19' in year_exists_list or '20' in year_exists_list:
-                            #print '18 in self.publish_path_year_dic'
+                            #print '19 in self.publish_path_year_dic'
                             highest_version_item.setTextColor('yellow')
                             entity_name_item.setTextColor('yellow')
                             publish_path_item.setTextColor('yellow')
                     if '19' in publish_year_value:
                         if '20' in year_exists_list:
-                        #print '18 in self.publish_path_year_dic'
+                            #print '20 in self.publish_path_year_dic'
                             highest_version_item.setTextColor('yellow')
                             entity_name_item.setTextColor('yellow')
                             publish_path_item.setTextColor('yellow')
