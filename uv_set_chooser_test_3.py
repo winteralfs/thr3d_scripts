@@ -234,6 +234,7 @@ class UV_SET_EDITOR(object):
     def evaluate_textures_in_scene(self):
         #print 'evaluate_textures_in_scene()'
         self.file_to_file_path_dic = {}
+        valid_connection_types = ['VRayMtl','phong','blinn','lambert','surfaceShader','blend','VRayBlendMtl','layeredTexture','remapHsv','multiplyDivide','remapColor','gammaCorrect']
         file_textures_all = cmds.ls(type = 'file')
         file_textures = []
         ramp_textures_all = cmds.ls(type = 'ramp')
@@ -251,7 +252,7 @@ class UV_SET_EDITOR(object):
                 print 'connection = ',connection
                 connection_type = cmds.nodeType(connection)
                 print 'connection_type = ',connection_type
-                if connection_type == 'VRayMtl' or connection_type == 'phong' or connection_type == 'blend' or connection_type == 'layeredTexture' or connection_type == 'remapHsv' or connection_type == 'multiplyDivide' or connection_type == 'remapColor' or connection_type == 'VRayRenderElement' or connection_type == 'gammaCorrect':
+                if connection_type in valid_connection_types:
                     valid_file = 1
             if valid_file == 1:
                 file_path = cmds.getAttr(file + '.fileTextureName') or 'no valid path'
@@ -263,25 +264,23 @@ class UV_SET_EDITOR(object):
                 file_textures.append(file)
         for non_file_texture in non_file_textures_all:
             print 'non_file_texture = ',non_file_texture
-            light_ramp = 0
+            light_ramp = 1
             non_file_texture_connections = cmds.listConnections(non_file_texture,source = False) or []
             print 'non_file_texture_connections = ',non_file_texture_connections
             for non_file_texture_connection in non_file_texture_connections:
                 print 'non_file_texture_connection = ',non_file_texture_connection
                 non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
                 print 'non_file_texture_connection_type = ',non_file_texture_connection_type
-                if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
-                    print ' -2 setting light_ramp to 1'
-                    light_ramp = 1
+                if non_file_texture_connection_type in valid_connection_types:
+                    print ' -2 setting light_ramp to 0'
+                    light_ramp = 0
                 if non_file_texture_connection_type in non_file_connection_types:
                     non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []
                     for non_file_texture_connection_sub in non_file_texture_connection_subs:
                         print 'non_file_texture_connection_sub = ',non_file_texture_connection_sub
                         non_file_texture_connection_sub_type = cmds.nodeType(non_file_texture_connection_sub)
-                        if non_file_texture_connection_sub_type == 'VRayLightRectShape':
-                            if non_file_texture_connection_sub_type == 'VRayPlaceEnvTex':
-                                print ' -1 setting light_ramp to 1'
-                                light_ramp = 1
+                        if non_file_texture_connection_sub_type in valid_connection_types:
+                            light_ramp = 0
                 else:
                     non_file_texture_connections_1 = cmds.listConnections(non_file_texture_connection,source = False) or []
                     print 'non_file_texture_connections_1 = ',non_file_texture_connections_1
@@ -289,31 +288,28 @@ class UV_SET_EDITOR(object):
                         print 'non_file_texture_connection = ',non_file_texture_connection
                         non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
                         print 'non_file_texture_connection_type = ',non_file_texture_connection_type
-                        if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
-                            print ' 0 setting light_ramp to 1'
-                            light_ramp = 1
+                        if non_file_texture_connection_type in valid_connection_types:
+                            light_ramp = 0
                         if non_file_texture_connection_type == 'transform':
                             non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []
                             for non_file_texture_connection_sub in non_file_texture_connection_subs:
                                 non_file_texture_connection_sub_type = cmds.nodeType(non_file_texture_connection_sub)
-                                if non_file_texture_connection_sub_type == 'VRayLightRectShape':
-                                    if non_file_texture_connection_sub_type == 'VRayPlaceEnvTex':
-                                        print ' 1 setting light_ramp to 1'
-                                        light_ramp = 1
+                                if non_file_texture_connection_sub_type in valid_connection_types:
+                                    print ' 1 setting light_ramp to 0'
+                                    light_ramp = 0
                         else:
                             non_file_texture_connections_2 = cmds.listConnections(non_file_texture_connection,source = False) or []
                             for non_file_texture_connection in non_file_texture_connections_2:
                                 non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
-                                if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
-                                    light_ramp = 1
+                                if non_file_texture_connection_type in valid_connection_types:
+                                    light_ramp = 0
                                 if non_file_texture_connection_type == 'transform':
                                     non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []
                                     for non_file_texture_connection_sub in non_file_texture_connection_subs:
                                         non_file_texture_connection_sub_type = cmds.nodeType(non_file_texture_connection_sub)
-                                        if non_file_texture_connection_sub_type == 'VRayLightRectShape':
-                                            if non_file_texture_connection_sub_type == 'VRayPlaceEnvTex':
-                                                print ' 2 setting light_ramp to 1'
-                                                light_ramp = 1
+                                        if non_file_texture_connection_sub_type in valid_connection_types:
+                                            print ' 2 setting light_ramp to 1'
+                                            light_ramp = 0
             print 'light_ramp = ',light_ramp
             if light_ramp == 0:
                 print 'appending ' + non_file_texture

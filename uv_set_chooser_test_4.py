@@ -11,7 +11,7 @@ import shiboken2
 #lighting_shelf: UV_set_editor
 #********************************************
 #"""
-print 'thurs night'
+print 'fri '
 
 
 class UV_SET_EDITOR(object):
@@ -139,7 +139,7 @@ class UV_SET_EDITOR(object):
                 it = it + 1
 
     def populate_windows(self):
-        #print 'populate_windows()'
+        print 'populate_windows()'
         self.evaluate_textures_in_scene()
         self.evaluate_UV_sets_in_scene()
         self.list_widget_left.clear()
@@ -232,97 +232,54 @@ class UV_SET_EDITOR(object):
             self.deactivate_empty_lines()
 
     def evaluate_textures_in_scene(self):
-        #print 'evaluate_textures_in_scene()'
+        print 'evaluate_textures_in_scene()'
         self.file_to_file_path_dic = {}
+        self.all_textures = []
+        valid_connection_types = ['VRayMtl','phong','blinn','lambert','surfaceShader','blend','VRayBlendMtl','layeredTexture','remapHsv','multiplyDivide','remapColor','gammaCorrect','VRayBumpMtl']
         file_textures_all = cmds.ls(type = 'file')
-        file_textures = []
         ramp_textures_all = cmds.ls(type = 'ramp')
         noise_texures_all = cmds.ls(type = 'noise')
-        non_file_textures_all = ramp_textures_all + noise_texures_all
-        non_file_texture_textures = []
-        non_file_connection_types = ['transform','VRayBumpMtl','VRayBlendMtl']
-        for file in file_textures_all:
-            print 'file = ',file
+        textures_all = file_textures_all + ramp_textures_all + noise_texures_all
+        for texture in textures_all:
+            #print 'texture = ',texture
             valid_file = 0
-            if file == 'gi_std_lgt' or file == 'reflection_sdt_lgt' or file == 'refraction_sdt_lgt':
-                valid_file = 0
-            file_connections = cmds.listConnections(file) or []
-            for connection in file_connections:
-                print 'connection = ',connection
-                connection_type = cmds.nodeType(connection)
-                print 'connection_type = ',connection_type
-                if connection_type == 'VRayMtl' or connection_type == 'phong' or connection_type == 'blend' or connection_type == 'layeredTexture' or connection_type == 'remapHsv' or connection_type == 'multiplyDivide' or connection_type == 'remapColor' or connection_type == 'VRayRenderElement' or connection_type == 'gammaCorrect':
+            texture_connections = cmds.listConnections(texture,source = False) or []
+            #print 'texture_connections = ',texture_connections
+            for texture_connection in texture_connections:
+                #print 'texture_connection = ',texture_connection
+                texture_connection_type = cmds.nodeType(texture_connection)
+                #print 'texture_connection_type = ',texture_connection_type
+                if texture_connection_type in valid_connection_types:
+                    #print ' 0 setting light_ramp to 1'
                     valid_file = 1
-            if valid_file == 1:
-                file_path = cmds.getAttr(file + '.fileTextureName') or 'no valid path'
-                file_path_split = file_path.split('/')
-                file_path_name = file_path_split[-1]
-                file_path_name_split = file_path_name.split('.')
-                file_path_name = file_path_name_split[0]
-                self.file_to_file_path_dic[file] = file + ' ( ' +  file_path_name + ' )'
-                file_textures.append(file)
-        for non_file_texture in non_file_textures_all:
-            print 'non_file_texture = ',non_file_texture
-            light_ramp = 0
-            non_file_texture_connections = cmds.listConnections(non_file_texture,source = False) or []
-            print 'non_file_texture_connections = ',non_file_texture_connections
-            for non_file_texture_connection in non_file_texture_connections:
-                print 'non_file_texture_connection = ',non_file_texture_connection
-                non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
-                print 'non_file_texture_connection_type = ',non_file_texture_connection_type
-                if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
-                    print ' -2 setting light_ramp to 1'
-                    light_ramp = 1
-                if non_file_texture_connection_type in non_file_connection_types:
-                    non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []
-                    for non_file_texture_connection_sub in non_file_texture_connection_subs:
-                        print 'non_file_texture_connection_sub = ',non_file_texture_connection_sub
-                        non_file_texture_connection_sub_type = cmds.nodeType(non_file_texture_connection_sub)
-                        if non_file_texture_connection_sub_type == 'VRayLightRectShape':
-                            if non_file_texture_connection_sub_type == 'VRayPlaceEnvTex':
-                                print ' -1 setting light_ramp to 1'
-                                light_ramp = 1
                 else:
-                    non_file_texture_connections_1 = cmds.listConnections(non_file_texture_connection,source = False) or []
-                    print 'non_file_texture_connections_1 = ',non_file_texture_connections_1
-                    for non_file_texture_connection in non_file_texture_connections_1:
-                        print 'non_file_texture_connection = ',non_file_texture_connection
-                        non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
-                        print 'non_file_texture_connection_type = ',non_file_texture_connection_type
-                        if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
-                            print ' 0 setting light_ramp to 1'
-                            light_ramp = 1
-                        if non_file_texture_connection_type == 'transform':
-                            non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []
-                            for non_file_texture_connection_sub in non_file_texture_connection_subs:
-                                non_file_texture_connection_sub_type = cmds.nodeType(non_file_texture_connection_sub)
-                                if non_file_texture_connection_sub_type == 'VRayLightRectShape':
-                                    if non_file_texture_connection_sub_type == 'VRayPlaceEnvTex':
-                                        print ' 1 setting light_ramp to 1'
-                                        light_ramp = 1
+                    texture_connections_1 = cmds.listConnections(texture_connection,source = False) or []
+                    #print 'texture_connections_1 = ',texture_connections_1
+                    for texture_connection in texture_connections_1:
+                        #print 'texture_connection = ',texture_connection
+                        texture_connection_type = cmds.nodeType(texture_connection)
+                        #print 'texture_connection_type = ',texture_connection_type
+                        if texture_connection_type in valid_connection_types:
+                            valid_file = 1
                         else:
-                            non_file_texture_connections_2 = cmds.listConnections(non_file_texture_connection,source = False) or []
-                            for non_file_texture_connection in non_file_texture_connections_2:
-                                non_file_texture_connection_type = cmds.nodeType(non_file_texture_connection)
-                                if non_file_texture_connection_type == 'VRayLightRectShape' or non_file_texture_connection_type == 'VRayPlaceEnvTex' or non_file_texture_connection_type == 'transform' or non_file_texture_connection_type == 'VRaySettingsNode':
-                                    light_ramp = 1
-                                if non_file_texture_connection_type == 'transform':
-                                    non_file_texture_connection_subs = cmds.listRelatives(non_file_texture_connection,children = True, fullPath = True) or []
-                                    for non_file_texture_connection_sub in non_file_texture_connection_subs:
-                                        non_file_texture_connection_sub_type = cmds.nodeType(non_file_texture_connection_sub)
-                                        if non_file_texture_connection_sub_type == 'VRayLightRectShape':
-                                            if non_file_texture_connection_sub_type == 'VRayPlaceEnvTex':
-                                                print ' 2 setting light_ramp to 1'
-                                                light_ramp = 1
-            print 'light_ramp = ',light_ramp
-            if light_ramp == 0:
-                print 'appending ' + non_file_texture
-                non_file_texture_textures.append(non_file_texture)
-        self.all_textures = file_textures + non_file_texture_textures
-        print 'self.all_textures = ', self.all_textures
+                            texture_connections_2 = cmds.listConnections(texture_connection,source = False) or []
+                            for texture_connection in texture_connections_2:
+                                texture_connection_type = cmds.nodeType(texture_connection)
+                                if texture_connection_type in valid_connection_types:
+                                    valid_file = 1
+                                else:
+                                    texture_connections_3 = cmds.listConnections(texture_connection,source = False) or []
+                                    for texture_connection in texture_connections_3:
+                                        texture_connection_type = cmds.nodeType(texture_connection)
+                                        if texture_connection_type in valid_connection_types:
+                                            valid_file = 1
+            if valid_file == 1:
+                #print 'appending ' + texture
+                self.all_textures.append(texture)
+        #print 'self.all_textures = ', self.all_textures
 
     def evaluate_UV_sets_in_scene(self):
-        #print 'evaluate_UV_sets_in_scene()'
+        print 'evaluate_UV_sets_in_scene()'
         self.uv_sets_all = []
         self.uv_set_name_to_address_dic = {}
         self.uv_set_selection_status_dic = {}
@@ -440,7 +397,7 @@ class UV_SET_EDITOR(object):
                         it = it + 1
 
     def initial_uv_set_name_to_address_dic_eval(self):
-        #print 'initial_uv_set_name_to_address_dic_eval'
+        print 'initial_uv_set_name_to_address_dic_eval'
         assigned_uv_sets = []
         for texture in self.all_textures:
             uv_set_names_linked_to_texture = []
@@ -490,21 +447,32 @@ class UV_SET_EDITOR(object):
 #---------- UV set selection methods ----------
 
     def item_press(self,item):
-        #print 'item_press()'
+        print 'item_press()'
         if self.centric_state_text == 'texture-centric':
             self.deselect_QListWidget(self.list_widget_right)
             self.texture_linked_uv_sets = []
             self.selected_item_text = item.text()
+            print 'self.selected_item_text = ',self.selected_item_text
             self.activate_right_listWidget()
             for file in self.file_to_file_path_dic:
+                print 'file = ',file
                 item = self.file_to_file_path_dic[file]
+                print 'item = ',item
                 if item == self.selected_item_text:
+                    print item + ' ==' + self.selected_item_text
                     self.selected_item_text = file
             uv_set_addresses_linked_to_selected_texture = cmds.uvLink( query = True, texture = self.selected_item_text)
+            print 'uv_set_addresses_linked_to_selected_texture = ',uv_set_addresses_linked_to_selected_texture
             number_of_linked_uv_sets = len(uv_set_addresses_linked_to_selected_texture)
+            print 'number_of_linked_uv_sets = ',number_of_linked_uv_sets
             for uv_set_name_to_address in self.uv_set_name_to_address_dic:
+                print 'uv_set_name_to_address = ',uv_set_name_to_address
                 uv_set_address = self.uv_set_name_to_address_dic[uv_set_name_to_address]
+                print 'uv_set_address = ',uv_set_address
                 if uv_set_address in uv_set_addresses_linked_to_selected_texture:
+                    print 'uv_set_address = ',uv_set_address
+                    print 'uv_set_address in uv_set_addresses_linked_to_selected_texture'
+                    print 'appending ' + uv_set_address + ' to ' + self.texture_linked_uv_sets
                     self.texture_linked_uv_sets.append(uv_set_name_to_address)
             self.update_right_listWidget()
         if self.centric_state_text == 'UV-centric':
@@ -533,29 +501,40 @@ class UV_SET_EDITOR(object):
         selected_item.setSelected(False)
 
     def update_right_listWidget(self):
-        #print 'update_right_listWidget()'
+        print 'update_right_listWidget()'
         if self.centric_state_text == 'texture-centric':
             self.unlock_right_QListWidget()
             it = 0
             while it < self.number_of_items_in_right_listWidget:
                 item = self.list_widget_right.item(it)
                 item_text = item.text()
+                print 'item_text = ',item_text
                 empty_uv_set_detect = len(item_text)
+                print 'empty_uv_set_detect = ',empty_uv_set_detect
                 if empty_uv_set_detect != 2:
                     item_text_split = item_text.split('*')
+                    print 'item_text_split = ',item_text_split
                     if '*' in item_text:
                         item.setTextColor(QtGui.QColor("#c4bebe"))
                         item_object = item_text_split[1]
                         item_object = item_object[1:]
+                        print 'item_object = ',item_object
                     if item_text_split[0] != '':
+                        print item_text_split[0] + 'is not empty'
                         num_of_spaces = len(self.spacer)
+                        print 'num_of_spaces = ',num_of_spaces
                         item_text = item_text[num_of_spaces:]
+                        print 'item_text = ',item_text
                         combined_object_uv_set_name = (self.selected_item_text + ':|:' + (item_object + ':|:' + item_text))
+                        print 'combined_object_uv_set_name = ',combined_object_uv_set_name
                         item_text_selection_status = self.uv_set_selection_status_dic[combined_object_uv_set_name]
+                        print 'item_text_selection_status = ',item_text_selection_status
                         if item_text_selection_status == 1:
+                            print 'item_text_selection_status = 1, setting ' + str(item) + ' to selected'
                             item.setSelected(True)
                             item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                         if item_text_selection_status == 0:
+                            print 'item_text_selection_status = 0, setting ' + str(item) + ' to deselected'
                             item.setSelected(False)
                 it = it + 1
             self.texture_to_object_color_adjust()
@@ -607,9 +586,10 @@ class UV_SET_EDITOR(object):
                 #self.texture_to_object_color_adjust()
 
     def right_listWidget_selection_eval(self):
-        #print 'right_listWidget_selection_eval()'
+        print 'right_listWidget_selection_eval()'
         if self.centric_state_text == 'texture-centric':
             selected_uv_sets_pointers = self.list_widget_right.selectedItems()
+            print 'selected_uv_sets_pointers = ',selected_uv_sets_pointers
             uv_set_pointers = []
             selected_right_pointers = []
             selected_uv_set_names = []
@@ -617,16 +597,22 @@ class UV_SET_EDITOR(object):
             uv_set_pointer_dic = {}
             it = 0
             size_of_left_selection = len(self.selected_item_text)
+            print 'size_of_left_selection = ',size_of_left_selection
             if size_of_left_selection > 0:
                 while it < self.number_of_items_in_right_listWidget:
                     item = self.list_widget_right.item(it)
+                    print 'item = ',item
                     uv_set_pointers.append(item)
                     item_text = item.text()
+                    print 'item_text = ',item_text
                     item_text_split = item_text.split('*')
+                    print 'item_text_split = ',item_text_split
                     if '*' in item_text:
+                        print '* in item_text'
                         item_object = item_text_split[1]
                         item_object = item_object[1:]
                     if item_text_split[0] != '':
+                        print item_text_split[0] + ' != ' + ' empty'
                         uv_set_split = item_text.split(':|:')
                         uv_set_object_name = item_object
                         uv_set_object_name_dic[item_text] = uv_set_object_name
@@ -635,41 +621,67 @@ class UV_SET_EDITOR(object):
                     selected_right_pointers.append(selected_uv_set_pointer)
                     it_text = selected_uv_set_pointer.text()
                     it_text = it_text.replace(' ','')
+                    print 'it_text = ',it_text
                     selected_uv_set_names.append(it_text)
+                    print 'selected_uv_set_names = ',selected_uv_set_names
                     selected_index = self.list_widget_right.selectedIndexes()
+                    print 'selected_index = ',selected_index
                     for ind in selected_index:
                         selected_row = ind.row()
+                        print 'selected_row = ',selected_row
                     i = 0
                     for uv_set_pointer in uv_set_pointers:
                         uv_set_text = uv_set_pointer.text()
+                        print 'uv_set_text = ',uv_set_text
                         item_text_split = uv_set_text.split('*')
                         if '*' in uv_set_text:
+                            print ' * in ',uv_set_text
                             item_object = item_text_split[1]
                             item_object = item_object[1:]
+                            print 'item_object = ',item_object
                         if item_text_split[0] != '':
+                            print ' i = ',i
+                            print 'selected_row = ',selected_row
                             if i == selected_row:
+                                print 'i == ',selected_row
+                                print 'selected_uv_set_object_name = item_object'
                                 selected_uv_set_object_name = item_object
                         i = i + 1
                     for uv_set_pointer in uv_set_pointers:
+                        print 'uv_set_pointer = ',uv_set_pointer
                         if str(uv_set_pointer) != str(selected_uv_set_pointer):
+                            print str(uv_set_pointer) + ' != ' + str(selected_uv_set_pointer)
                             uv_set_name = uv_set_pointer.text()
+                            print 'uv_set_name = ',uv_set_name
                             uv_set_name = uv_set_name.replace(' ','')
+                            print 'uv_set_name = ',uv_set_name
                             item_text_split = uv_set_name.split('*')
+                            print 'item_text_split = ',item_text_split
                             if '*' in uv_set_name:
                                 item_object = item_text_split[1]
+                                print 'item_object = ',item_object
                             if item_text_split[0] != '':
                                 if item_object == selected_uv_set_object_name:
+                                    print item_object + ' == ' + selected_uv_set_object_name
                                     uv_set_pointer.setSelected(False)
+                                    print uv_set_pointer + 'setSelected to ' + 'false'
                                     self.uv_set_selection_status_dic[self.selected_item_text + ':|:' + item_object + ':|:' + uv_set_name] = 0
+                                    print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
                     self.unlock_right_QListWidget()
+                    print selected_uv_set_pointer + ' setSelected to ' + 'true'
                     selected_uv_set_pointer.setSelected(True)
                     it_text_combined =  selected_uv_set_object_name + ':|:' + it_text
+                    print 'it_text_combined = ',it_text_combined
                     self.uv_set_selection_status_dic[self.selected_item_text + ':|:' + it_text_combined] = 1
+                    print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             selected_uv_sets_pointers = self.list_widget_right.selectedItems()
+            print 'selected_uv_sets_pointers = ',selected_uv_sets_pointers
             for selected_uv_sets_pointer in selected_uv_sets_pointers:
                 pointer_text = selected_uv_sets_pointer.text()
+                print 'pointer_text = ',pointer_text
                 selected_uv_sets_pointer.setFlags(selected_uv_sets_pointer.flags() & ~Qt.ItemIsEnabled)
             self.link_texture_to_uv_set()
+        print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         if self.centric_state_text == 'UV-centric':
             size_of_left_selection = len(self.selected_item_text)
             if size_of_left_selection > 0:
@@ -768,7 +780,7 @@ class UV_SET_EDITOR(object):
                 self.link_texture_to_uv_set()
 
     def link_texture_to_uv_set(self):
-        #print 'link_texture_to_uv_set()'
+        print 'link_texture_to_uv_set()'
         for uv_set_selection in self.uv_set_selection_status_dic:
             selection_status = self.uv_set_selection_status_dic[uv_set_selection]
             if selection_status == 0:

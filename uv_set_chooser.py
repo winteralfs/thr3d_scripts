@@ -1240,4 +1240,4 @@ class UV_SET_EDITOR(object):
 def main():
     uv_set_editor = UV_SET_EDITOR()
     uv_set_editor.texture_linker_UI()
-#main()
+main()
