@@ -42,11 +42,11 @@ def attributes_swapper():
     reload(xfer_attrs)
     xfer_attrs.main()
 
-def cleaner():
+def hypershade_cleaner():
     print "cleaner function"
-    import cleaner
-    reload(cleaner)
-    cleaner.main()
+    import hypershade_cleaner
+    reload(hypershade_cleaner)
+    hypershade_cleaner.main()
 
 def ramp_generator():
     print "ramp_generator function"
@@ -128,7 +128,7 @@ def build_custom_shelf():
     annotation = 'Rebuild layers Tool: Many useful tools for render layer management'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/layer_tool_Logo_small.jpg', command = partial(rebuild_layers))
     annotation = 'Hypershade Cleaner: Deletes unused shaders and textures from the hypershade'
-    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/cleaner_Logo_small.jpg', command = partial(cleaner))
+    cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/cleaner_Logo_small.jpg', command = partial(hypershade_cleaner))
     annotation = 'Ramp Generator: generates a variety of ramp texures'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/ramp_generator_Logo_small.jpg', command = partial(ramp_generator))
     annotation = 'UV set uv_shell_transform_box: Allows the manipulation of selected UV shells with transform inputs'
@@ -144,4 +144,4 @@ def build_custom_shelf():
     annotation = 'shows the latest version of assets available and your current version'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/asset_tracker_logo_small.jpg', command = partial(asset_tracker))
     annotation = 'Object Replace_beta: Replaces one object with another, transfering most attributes settings and shader assignments'
-    cmds.shelfButton(annotation  = annotation, image = '', command = partial(object_replace_beta))
+    #cmds.shelfButton(annotation  = annotation, image = '', command = partial(object_replace_beta))

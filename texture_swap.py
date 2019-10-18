@@ -1,7 +1,4 @@
 """
-texture_swap
-********************************************
-
 .. image:: U:/cwinters/docs/build/html/_images/texture_swap/texture_swap_gui.JPG
    :align: center
    :scale: 75%

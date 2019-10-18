@@ -1,7 +1,4 @@
 """
-batch_review
-********************************************
-
 .. image:: U:/cwinters/docs/build/html/_images/batch_review/batch_review_gui.JPG
    :align: center
    :scale: 75%

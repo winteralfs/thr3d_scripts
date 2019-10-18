@@ -1,7 +1,4 @@
 """
-lighting_shelf: standard_lighting_tool_rotation_fix
-********************************************
-
 .. image:: U:/cwinters/docs/build/html/_images/standard_lighting_rig_dome_fix/standard_lighting_rig_dome_repair.JPG
    :align: center
    :scale: 75%

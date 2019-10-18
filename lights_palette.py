@@ -57,6 +57,8 @@ Lastly, you can change render layers using the GUI.
 
  """
 
+print 'tues day'
+
 import sys
 sys.path.append("C:/Users/Chris.Winters/Desktop/PythonTesting/")
 import maya.cmds as cmds
@@ -300,13 +302,41 @@ class lightsPalette():
             node_type = cmds.nodeType(object)
             if node_type == 'mesh':
                 smoothing_exists = cmds.objExists(object + '.vraySubdivUVs')
-        if smoothing_exists == 1:
-            self.button_Vray_smooth.setChecked(True)
-        if smoothing_exists == 0:
-            self.button_Vray_smooth.setChecked(False)
-                    #self.button_Vray_smooth.setChecked(False)
+            print 'smoothing_exists = ',smoothing_exists
+            if smoothing_exists == 0:
+                self.button_Vray_smooth.setChecked(False)
+            if smoothing_exists == 1:
+                self.button_Vray_smooth.setChecked(True)
 
-# a method to detect render layer names and query for render layer overrides
+    def create_light_blocker_method(self):
+        print 'create_light_blocker'
+        plane = cmds.polyPlane( sx=10, sy=15, w=15, h=20)
+        plane_group_exists = cmds.objExists('light_blocker_group')
+        if plane_group_exists == 0:
+            cmds.group( em=True, name='light_blocker_group')
+            cmds.parent(plane,'light_blocker_group')
+        if plane_group_exists == 1:
+            cmds.parent(plane,'light_blocker_group')
+        light_blocker_shader = cmds.shadingNode("VRayMtl", asShader=True, name = 'light_blocker')
+        shading_group = cmds.sets(renderable=True,noSurfaceShader=True,empty=True,name = light_blocker_shader + '_SG')
+        cmds.connectAttr(light_blocker_shader + '.outColor',shading_group + '.surfaceShader')
+        cmds.setAttr(light_blocker_shader + '.color', 0,0,0,type = 'double3')
+        cmds.select(clear = True)
+        plane = plane[0]
+        cmds.select(plane)
+        cmds.hyperShade(assign=light_blocker_shader)
+        cmds.select(plane)
+        vray_props_exists = cmds.objExists('light_blocker_props')
+        if vray_props_exists == 0:
+            props_node = cmds.vray("objectProperties", "add_single")
+            cmds.rename(props_node,'light_blocker_props')
+        if vray_props_exists == 1:
+            cmds.vray("objectProperties", "assign_existing", "VRayObjectProperties", "light_blocker_props")
+        cmds.setAttr("light_blocker_props.receiveShadows",0)
+        cmds.setAttr("light_blocker_props.shadowVisibility",0)
+        cmds.setAttr("light_blocker_props.refractionVisibility",0)
+        cmds.setAttr("light_blocker_props.reflectionVisibility",0)
+        cmds.setAttr("light_blocker_props.primaryVisibility",0)
 
     def render_layers_scan(self):
         self.render_layers = cmds.ls(type = "renderLayer")
@@ -407,12 +437,12 @@ class lightsPalette():
         self.button_Vray_smooth.toggled.connect(partial(self.Vray_smooth))
         self.button_Vray_smooth.setStyleSheet("QPushButton::checked{color: rgb(0, 200, 50);""border:1px solid rgb(0, 200, 50)};")
         self.grid_layout_top.addWidget(self.button_Vray_smooth,6,0,1,2)
-        self.create_light_blocker = QtWidgets.QPushButton("create_light_blocker")
+        self.create_light_blocker = QtWidgets.QPushButton('create_light_blocker')
         self.create_light_blocker.setFixedHeight(20)
-        self.create_light_blocker.pressed.connect(partial(self.light_blocker))
-        self.grid_layout_top.addWidget(self.button_Vray_smooth,7,0,1,2)
+        self.create_light_blocker.pressed.connect(partial(self.create_light_blocker_method))
+        self.grid_layout_top.addWidget(self.create_light_blocker,7,0,1,2)
         render_layers_label = QtWidgets.QLabel("render layers")
-        self.grid_layout_top.addWidget(render_layers_label,7,0)
+        self.grid_layout_top.addWidget(render_layers_label,8,0)
         self.render_layer_QListWidget = QtWidgets.QListWidget()
         self.render_layer_QListWidget.setMinimumHeight(170)
         self.grid_layout_bottom.addWidget(self.render_layer_QListWidget,1,0)
@@ -473,14 +503,14 @@ class lightsPalette():
             node_type = cmds.nodeType(object)
             if node_type == 'mesh':
                 smoothing_exists = cmds.objExists(object + '.vraySubdivUVs')
-        if smoothing_exists == 1:
-            self.button_Vray_smooth.setText("vray smoothing on at least one selected node")
-            self.button_Vray_smooth.setFont(QtGui.QFont('SansSerif', 8))
-            self.button_Vray_smooth.setChecked(True)
-            cmds.setAttr("vraySettings.ddisplac_maxSubdivs",6)
-        if smoothing_exists == 0:
-            self.button_Vray_smooth.setText("no vray smoothing")
-            self.button_Vray_smooth.setChecked(False)
+            if smoothing_exists == 1:
+                self.button_Vray_smooth.setText("vray smoothing on at least one selected node")
+                self.button_Vray_smooth.setFont(QtGui.QFont('SansSerif', 8))
+                self.button_Vray_smooth.setChecked(True)
+                cmds.setAttr("vraySettings.ddisplac_maxSubdivs",6)
+            if smoothing_exists == 0:
+                self.button_Vray_smooth.setText("no vray smoothing")
+                self.button_Vray_smooth.setChecked(False)
 # a method that builds the light pallete window and creates the layouts
 
     def lights_palette_window(self):
@@ -513,4 +543,4 @@ def main():
     ltv = lightsPalette()
     ltv.lights_palette_window()
 
-#main()
+main()
