@@ -7,6 +7,8 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
+print 'wed'
+
 class custom_spin_box(QtWidgets.QDoubleSpinBox):
     def wheelEvent(self, event):
         event.ignore()
@@ -24,6 +26,12 @@ class render_overrides_prop(object):
                     widget.setParent(None)
                 else:
                     self.clearLayout(item.layout())
+
+    def light_color_state(self):
+        pass
+
+    def rect_tex_color_state(self):
+        pass
 
     def light_name_eval(self):
         self.light_names = []
@@ -177,38 +185,24 @@ class render_overrides_prop(object):
         enabled_checkbox = QtWidgets.QCheckBox()
         self.attribute_layout.addWidget(enabled_checkbox)
 
-        self.light_color_layout = QtWidgets.QHBoxLayout(self.scroll)                #---
-        self.light_color_layout.setAlignment(Qt.AlignTop)
-        self.attribute_layout.addLayout(self.light_color_layout)
         self.attribute_label = QtWidgets.QLabel('light_color  ')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
-        self.light_color_layout.addWidget(self.attribute_label)
-        self.light_color_layout_R_spinbox = custom_spin_box()
-        self.light_color_layout_R_spinbox.setMinimum(-100)
-        self.light_color_layout_R_spinbox.setMaximum(10000)
-        self.light_color_layout_R_spinbox.setDecimals(3)
-        self.light_color_layout_R_spinbox.setSingleStep(.1)
-        self.light_color_layout_R_spinbox.setFixedWidth(65)
-        self.light_color_layout_R_spinbox.setKeyboardTracking(False)
-        self.light_color_layout.addWidget(self.light_color_layout_R_spinbox)
-        self.light_color_layout_G_spinbox = custom_spin_box()
-        self.light_color_layout_G_spinbox.setMinimum(-100)
-        self.light_color_layout_G_spinbox.setMaximum(10000)
-        self.light_color_layout_G_spinbox.setDecimals(3)
-        self.light_color_layout_G_spinbox.setSingleStep(.1)
-        self.light_color_layout_G_spinbox.setFixedWidth(65)
-        self.light_color_layout_G_spinbox.setKeyboardTracking(False)
-        self.light_color_layout.addWidget(self.light_color_layout_G_spinbox)
-        self.light_color_layout_B_spinbox = custom_spin_box()
-        self.light_color_layout_B_spinbox.setMinimum(-100)
-        self.light_color_layout_B_spinbox.setMaximum(10000)
-        self.light_color_layout_B_spinbox.setDecimals(3)
-        self.light_color_layout_B_spinbox.setSingleStep(.1)
-        self.light_color_layout_B_spinbox.setFixedWidth(65)
-        self.light_color_layout_B_spinbox.setKeyboardTracking(False)
-        self.light_color_layout.addWidget(self.light_color_layout_B_spinbox)
-        self.light_color_layout_spacer_label = QtWidgets.QLabel('')
-        self.light_color_layout.addWidget(self.light_color_layout_spacer_label)
+        self.attribute_layout.addWidget(self.attribute_label)
+
+        self.light_color_pushbutton = QtWidgets.QPushButton()
+        self.light_color_pushbutton.setMinimumWidth(30)
+        self.light_color_pushbutton.setMaximumWidth(30)
+        self.light_color_pushbutton.setMinimumHeight(30)
+        self.light_color_pushbutton.setMaximumHeight(30)
+        self.light_color_pushbutton.clicked.connect(partial(self.light_color_state))
+        self.attribute_layout.addWidget(self.light_color_pushbutton)
+        self.light_color_r = 100
+        self.light_color_g = 10
+        self.light_color_b = 1
+        color_string = "rgb(" + str(self.light_color_r) + "," + str(self.light_color_g) + "," + str(self.light_color_b) + ")"
+        self.light_color_pushbutton.setStyleSheet("QPushButton { background-color: %s}" %color_string)
+
+
         self.attribute_label = QtWidgets.QLabel('intensity')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
@@ -259,40 +253,21 @@ class render_overrides_prop(object):
         use_rect_tex_checkbox = QtWidgets.QCheckBox()
         self.attribute_layout.addWidget(use_rect_tex_checkbox)
 
-        self.rect_tex_layout = QtWidgets.QHBoxLayout(self.scroll)                #---
-        self.rect_tex_layout.setAlignment(Qt.AlignTop)
-        self.attribute_layout.addLayout(self.rect_tex_layout)
         self.attribute_label = QtWidgets.QLabel('rect_tex     ')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
-        self.rect_tex_layout.addWidget(self.attribute_label)
-        self.rect_tex_layout_R_spinbox = custom_spin_box()
-        self.rect_tex_layout_R_spinbox.setMinimum(-100)
-        self.rect_tex_layout_R_spinbox.setMaximum(10000)
-        self.rect_tex_layout_R_spinbox.setDecimals(3)
-        self.rect_tex_layout_R_spinbox.setSingleStep(.1)
-        self.rect_tex_layout_R_spinbox.setFixedWidth(65)
-        self.rect_tex_layout_R_spinbox.setKeyboardTracking(False)
-        self.rect_tex_layout.addWidget(self.rect_tex_layout_R_spinbox)
-        #self.rect_tex_layout.addWidget(self.spacer_label)
-        self.rect_tex_layout_G_spinbox = custom_spin_box()
-        self.rect_tex_layout_G_spinbox.setMinimum(-100)
-        self.rect_tex_layout_G_spinbox.setMaximum(10000)
-        self.rect_tex_layout_G_spinbox.setDecimals(3)
-        self.rect_tex_layout_G_spinbox.setSingleStep(.1)
-        self.rect_tex_layout_G_spinbox.setFixedWidth(65)
-        self.rect_tex_layout_G_spinbox.setKeyboardTracking(False)
-        self.rect_tex_layout.addWidget(self.rect_tex_layout_G_spinbox)
-        #self.rect_tex_layout.addWidget(self.spacer_label)
-        self.rect_tex_layout_B_spinbox = custom_spin_box()
-        self.rect_tex_layout_B_spinbox.setMinimum(-100)
-        self.rect_tex_layout_B_spinbox.setMaximum(10000)
-        self.rect_tex_layout_B_spinbox.setDecimals(3)
-        self.rect_tex_layout_B_spinbox.setSingleStep(.1)
-        self.rect_tex_layout_B_spinbox.setFixedWidth(65)
-        self.rect_tex_layout_B_spinbox.setKeyboardTracking(False)
-        self.rect_tex_layout.addWidget(self.rect_tex_layout_B_spinbox)
-        self.rect_tex_layout_spacer_label = QtWidgets.QLabel('')
-        self.rect_tex_layout.addWidget(self.rect_tex_layout_spacer_label)
+        self.attribute_layout.addWidget(self.attribute_label)
+        self.rect_text_color_pushbutton = QtWidgets.QPushButton()
+        self.rect_text_color_pushbutton.setMinimumWidth(30)
+        self.rect_text_color_pushbutton.setMaximumWidth(30)
+        self.rect_text_color_pushbutton.setMinimumHeight(30)
+        self.rect_text_color_pushbutton.setMaximumHeight(30)
+        self.rect_text_color_pushbutton.clicked.connect(partial(self.rect_tex_color_state))
+        self.attribute_layout.addWidget(self.rect_text_color_pushbutton)
+        self.light_rect_color_r = 10
+        self.light_rect_color_g = 100
+        self.light_rect_color_b = 1
+        color_string = "rgb(" + str(self.light_rect_color_r) + "," + str(self.light_rect_color_g) + "," + str(self.light_rect_color_b) + ")"
+        self.rect_text_color_pushbutton.setStyleSheet("QPushButton { background-color: %s}" %color_string)
 
         print self.render_layers_in_order
         self.render_layer_layout = QtWidgets.QVBoxLayout(self.main_widget)
@@ -313,10 +288,10 @@ class render_overrides_prop(object):
                 layer_checkbox = QtWidgets.QCheckBox()
                 self.render_layer_checkbox_layout.addWidget(layer_checkbox)
 
-        button_clear_selected_layer_overrides = QtWidgets.QPushButton("clear selected layer overrides")
-        button_clear_all_overrides = QtWidgets.QPushButton("clear all overrides")
-        button_set_selected_layer_overrides = QtWidgets.QPushButton("set selected layer overrides")
-        button_set_all_layer_overrides = QtWidgets.QPushButton("set all layer overrides")
+        button_clear_selected_layer_overrides = QtWidgets.QPushButton("clear overrides in selected layers")
+        button_clear_all_overrides = QtWidgets.QPushButton("clear overrides in all layers")
+        button_set_selected_layer_overrides = QtWidgets.QPushButton("set overrides in selected layers")
+        button_set_all_layer_overrides = QtWidgets.QPushButton("set overrides in all layers")
         #button_set_overrides.setFixedWidth(button_width)
         #button_set_overrides.setFixedHeight(button_height)
         #button_set_overrides.pressed.connect(partial(self.allToggleTexture_off))
@@ -345,7 +320,7 @@ class render_overrides_prop(object):
         self.window.setWindowTitle(window_name)
         #self.window.setFixedSize(1015,300)
         self.window.setFixedWidth(550)
-        self.window.setFixedHeight(575)
+        self.window.setFixedHeight(625)
         self.main_widget = QtWidgets.QWidget()
         self.window.setCentralWidget(self.main_widget)
         self.base_vertical_layout = QtWidgets.QVBoxLayout(self.main_widget)
