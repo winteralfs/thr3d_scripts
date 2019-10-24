@@ -469,7 +469,7 @@ class render_overrides_prop(object):
         self.window.setObjectName(window_name)
         self.window.setWindowTitle(window_name)
         #self.window.setFixedSize(1015,300)
-        self.window.setFixedWidth(750)
+        self.window.setFixedWidth(675)
         self.window.setFixedHeight(850)
         self.main_widget = QtWidgets.QWidget()
         self.window.setCentralWidget(self.main_widget)
