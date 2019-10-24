@@ -64,7 +64,7 @@ class render_overrides_prop(object):
         self.main_horizontal_layout.addLayout(self.light_name_layout)
         self.light_name_layout.setAlignment(Qt.AlignTop)
         self.light_combo_box = QtWidgets.QComboBox()
-        self.light_combo_box.setMaximumWidth(180)
+        self.light_combo_box.setMaximumWidth(280)
         self.light_combo_box.setMinimumHeight(18)
         self.light_name_layout.addWidget(self.light_combo_box)
         for light in self.light_names:
@@ -353,6 +353,26 @@ class render_overrides_prop(object):
     def attribute_analysis(self):
         self.current_chosen_light = self.light_combo_box.currentText()
         #print '2 self.current_chosen_light = ',self.current_chosen_light
+        parent = cmds.listRelatives(self.current_chosen_light, parent = True)
+        #print 'parent = ',parent
+        transform_x = cmds.getAttr(parent[0] + '.translateX')
+        transform_y = cmds.getAttr(parent[0] + '.translateY')
+        transform_z = cmds.getAttr(parent[0] + '.translateZ')
+        rotate_x = cmds.getAttr(parent[0] + '.rotateX')
+        rotate_y = cmds.getAttr(parent[0] + '.rotateY')
+        rotate_z = cmds.getAttr(parent[0] + '.rotateZ')
+        scale_x = cmds.getAttr(parent[0] + '.scaleX')
+        scale_y = cmds.getAttr(parent[0] + '.scaleY')
+        scale_z = cmds.getAttr(parent[0] + '.scaleZ')
+        self.attribute_translateX_float_spinbox.setValue(transform_x)
+        self.attribute_translateY_float_spinbox.setValue(transform_y)
+        self.attribute_translateZ_float_spinbox.setValue(transform_z)
+        self.attribute_rotateX_float_spinbox.setValue(rotate_x)
+        self.attribute_rotateY_float_spinbox.setValue(rotate_y)
+        self.attribute_rotateZ_float_spinbox.setValue(rotate_z)
+        self.attribute_scaleX_float_spinbox.setValue(scale_x)
+        self.attribute_scaleY_float_spinbox.setValue(scale_y)
+        self.attribute_scaleZ_float_spinbox.setValue(scale_z)
 
         enabled_value = cmds.getAttr(self.current_chosen_light + '.enabled')
         #print 'enabled_value = ',enabled_value
@@ -449,7 +469,7 @@ class render_overrides_prop(object):
         self.window.setObjectName(window_name)
         self.window.setWindowTitle(window_name)
         #self.window.setFixedSize(1015,300)
-        self.window.setFixedWidth(550)
+        self.window.setFixedWidth(750)
         self.window.setFixedHeight(850)
         self.main_widget = QtWidgets.QWidget()
         self.window.setCentralWidget(self.main_widget)
@@ -462,10 +482,17 @@ class render_overrides_prop(object):
         self.myScriptJobID = cmds.scriptJob(p = window_name, event=["renderLayerChange", self.populate_gui])
         self.myScriptJobID = cmds.scriptJob(p = window_name, event=["NameChanged", self.populate_gui])
         self.light_name_eval()
-        scriptJob_attrs = ['enabled','lightColor','intensityMult','uSize','vSize','directional','useRectTex','rectTex','affectDiffuse','affectSpecular','affectReflections','diffuseContrib','specularContrib']
+        xforms = ['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ']
+        scriptJob_attrs = ['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ','enabled','lightColor','intensityMult','uSize','vSize','directional','useRectTex','rectTex','affectDiffuse','affectSpecular','affectReflections','diffuseContrib','specularContrib']
         for light in self.light_names:
             for attr in scriptJob_attrs:
                 light_name_attr = light + '.' + attr
+                if attr in xforms:
+                    light_parent = cmds.listRelatives(light,parent = True)
+                    light_parent = light_parent[0]
+                    light_name_attr = light_parent + '.' + attr
+                else:
+                    light_name_attr = light + '.' + attr
                 #print 'light_name_attr = ',light_name_attr
                 self.myScriptJobID = cmds.scriptJob(p = window_name, attributeChange = [light_name_attr, self.populate_gui])
         self.populate_gui()
