@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'wed'
+print 'thur'
 
 class custom_spin_box(QtWidgets.QDoubleSpinBox):
     def wheelEvent(self, event):
