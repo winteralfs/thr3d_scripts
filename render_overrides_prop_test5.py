@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'thur'
+print 'mon'
 
 class custom_spin_box(QtWidgets.QDoubleSpinBox):
     def wheelEvent(self, event):
@@ -16,6 +16,7 @@ class custom_spin_box(QtWidgets.QDoubleSpinBox):
 class render_overrides_prop(object):
     def __init__(self):
         self.current_chosen_light = 'empty'
+        self.render_layers_eval()
 
     def clearLayout(self, layout):
         if layout is not None:
@@ -40,26 +41,27 @@ class render_overrides_prop(object):
 
     def render_layers_eval(self):
         print 'render_layers_eval'
-        self.render_layers = cmds.ls(type = 'renderLayer')
-        render_layer_order_dict = {}
         self.render_layers_in_order = []
-        for layer in self.render_layers:
-            render_layer_order_number = cmds.getAttr(layer + ".displayOrder")
-            render_layer_order_dict[layer] = render_layer_order_number
-        number_of_render_layers = 30
-        i = 0
-        while i <= number_of_render_layers:
-            for layer in render_layer_order_dict:
-                layer_number = render_layer_order_dict[layer]
-                if layer_number == i:
-                    self.render_layers_in_order.append(layer)
-            i = i + 1
-        self.render_layers_in_order.reverse()
+        #self.render_layers = cmds.ls(type = 'renderLayer')
+        #render_layer_order_dict = {}
+        #self.render_layers_in_order = []
+        #for layer in self.render_layers:
+            #render_layer_order_number = cmds.getAttr(layer + ".displayOrder")
+            #render_layer_order_dict[layer] = render_layer_order_number
+        #number_of_render_layers = 30
+        #i = 0
+        #while i <= number_of_render_layers:
+            #for layer in render_layer_order_dict:
+                #layer_number = render_layer_order_dict[layer]
+                #if layer_number == i:
+                    #self.render_layers_in_order.append(layer)
+                #i = i + 1
+        #self.render_layers_in_order.reverse()
 
     def default_Layer_values(self):
         print 'default_Layer_values'
-        self.default_layer_values_dic = {}
-        cmds.editRenderLayerGlobals(currentRenderLayer = 'defaultRenderLayer')
+        #self.default_layer_values_dic = {}
+        #cmds.editRenderLayerGlobals(currentRenderLayer = 'defaultRenderLayer')
         #for attr in self.scriptJob_attrs:
             #if attr in self.xforms:
                 #light_parent = cmds.listRelatives(self.current_chosen_light,parent = True)
@@ -109,7 +111,7 @@ class render_overrides_prop(object):
         self.current_render_layer = cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
         cmds.editRenderLayerGlobals( currentRenderLayer = 'defaultRenderLayer')
         #self.light_name_eval()
-        self.render_layers_eval()
+        #self.render_layers_eval()
         self.clearLayout(self.main_horizontal_layout)
         self.clearLayout(self.button_horizontal_layout)
         #print ' 0 self.current_chosen_light = ',self.current_chosen_light
@@ -132,7 +134,6 @@ class render_overrides_prop(object):
                 #print 'i = i'
                 self.light_combo_box.setCurrentIndex(i)
             i = i + 1
-
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(False)
         self.main_horizontal_layout.addWidget(self.scroll)
@@ -144,7 +145,6 @@ class render_overrides_prop(object):
         self.clearLayout(self.attribute_layout)
         self.attribute_layout.setAlignment(Qt.AlignTop)
         self.main_horizontal_layout.addLayout(self.attribute_layout)
-
         self.translate_layout = QtWidgets.QHBoxLayout(self.scroll)                #---
         self.translate_layout.setAlignment(Qt.AlignTop)
         self.attribute_layout.addLayout(self.translate_layout)
@@ -241,13 +241,11 @@ class render_overrides_prop(object):
         self.scale_layout.addWidget(self.attribute_scaleZ_float_spinbox)
         self.scale_layout_spacer_label = QtWidgets.QLabel('')
         self.scale_layout.addWidget(self.scale_layout_spacer_label)
-
         self.attribute_label = QtWidgets.QLabel('enabled')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
         self.enabled_checkbox = QtWidgets.QCheckBox()
         self.attribute_layout.addWidget(self.enabled_checkbox)
-
         self.attribute_label = QtWidgets.QLabel('light_color  ')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
@@ -258,7 +256,6 @@ class render_overrides_prop(object):
         self.light_color_pushbutton.setMaximumHeight(30)
         self.light_color_pushbutton.clicked.connect(partial(self.light_color_state))
         self.attribute_layout.addWidget(self.light_color_pushbutton)
-
         self.attribute_label = QtWidgets.QLabel('intensity')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
@@ -270,7 +267,6 @@ class render_overrides_prop(object):
         self.attribute_intensityMult_float_spinbox.setFixedWidth(65)
         self.attribute_intensityMult_float_spinbox.setKeyboardTracking(False)
         self.attribute_layout.addWidget(self.attribute_intensityMult_float_spinbox)
-
         self.attribute_label = QtWidgets.QLabel('U size')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
@@ -282,7 +278,6 @@ class render_overrides_prop(object):
         self.attribute_u_size_float_spinbox.setFixedWidth(65)
         self.attribute_u_size_float_spinbox.setKeyboardTracking(False)
         self.attribute_layout.addWidget(self.attribute_u_size_float_spinbox)
-
         self.attribute_label = QtWidgets.QLabel('V size')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
@@ -294,7 +289,6 @@ class render_overrides_prop(object):
         self.attribute_v_size_float_spinbox.setFixedWidth(65)
         self.attribute_v_size_float_spinbox.setKeyboardTracking(False)
         self.attribute_layout.addWidget(self.attribute_v_size_float_spinbox)
-
         self.attribute_label = QtWidgets.QLabel('directional')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
@@ -306,13 +300,11 @@ class render_overrides_prop(object):
         self.attribute_directional_float_spinbox.setFixedWidth(65)
         self.attribute_directional_float_spinbox.setKeyboardTracking(False)
         self.attribute_layout.addWidget(self.attribute_directional_float_spinbox)
-
         self.attribute_label = QtWidgets.QLabel('use rect tex')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
         self.use_rect_tex_checkbox = QtWidgets.QCheckBox()
         self.attribute_layout.addWidget(self.use_rect_tex_checkbox)
-
         self.attribute_label = QtWidgets.QLabel('rect_tex     ')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
@@ -328,25 +320,21 @@ class render_overrides_prop(object):
         self.light_rect_color_b = 1
         color_string = "rgb(" + str(self.light_rect_color_r) + "," + str(self.light_rect_color_g) + "," + str(self.light_rect_color_b) + ")"
         self.rect_text_color_pushbutton.setStyleSheet("QPushButton { background-color: %s}" %color_string)
-
         self.attribute_label = QtWidgets.QLabel('affect diffuse')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
         self.affect_diffuse_checkbox = QtWidgets.QCheckBox()
         self.attribute_layout.addWidget(self.affect_diffuse_checkbox)
-
         self.attribute_label = QtWidgets.QLabel('affect specular')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
         self.affect_specular_checkbox = QtWidgets.QCheckBox()
         self.attribute_layout.addWidget(self.affect_specular_checkbox)
-
         self.attribute_label = QtWidgets.QLabel('affect reflection')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
         self.affect_reflection_checkbox = QtWidgets.QCheckBox()
         self.attribute_layout.addWidget(self.affect_reflection_checkbox)
-
         self.attribute_label = QtWidgets.QLabel('diffuse contribution')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
@@ -358,7 +346,6 @@ class render_overrides_prop(object):
         self.attribute_diffuse_contribution_float_spinbox.setFixedWidth(65)
         self.attribute_diffuse_contribution_float_spinbox.setKeyboardTracking(False)
         self.attribute_layout.addWidget(self.attribute_diffuse_contribution_float_spinbox)
-
         self.attribute_label = QtWidgets.QLabel('specular contribution')
         self.attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(self.attribute_label)
@@ -370,7 +357,6 @@ class render_overrides_prop(object):
         self.attribute_specular_contribution_float_spinbox.setFixedWidth(65)
         self.attribute_specular_contribution_float_spinbox.setKeyboardTracking(False)
         self.attribute_layout.addWidget(self.attribute_specular_contribution_float_spinbox)
-
         #print self.render_layers_in_order
         self.render_layer_layout = QtWidgets.QVBoxLayout(self.main_widget)
         self.clearLayout(self.render_layer_layout)
@@ -382,14 +368,13 @@ class render_overrides_prop(object):
         self.render_layer_checkbox_layout.setAlignment(Qt.AlignTop)
         #self.spacer_label = QtWidgets.QLabel('')
         #self.render_layer_checkbox_layout.addWidget(self.spacer_label)
-        for render_layer in self.render_layers_in_order:
-            if render_layer != 'defaultRenderLayer':
-                self.attribute_label = QtWidgets.QLabel(render_layer)
-                self.attribute_label.setFont(QtGui.QFont('SansSerif', 7))
-                self.render_layer_layout.addWidget(self.attribute_label)
-                layer_checkbox = QtWidgets.QCheckBox()
-                self.render_layer_checkbox_layout.addWidget(layer_checkbox)
-
+        #for render_layer in self.render_layers_in_order:
+            #if render_layer != 'defaultRenderLayer':
+                #self.attribute_label = QtWidgets.QLabel(render_layer)
+                #self.attribute_label.setFont(QtGui.QFont('SansSerif', 7))
+                #self.render_layer_layout.addWidget(self.attribute_label)
+                #layer_checkbox = QtWidgets.QCheckBox()
+                #self.render_layer_checkbox_layout.addWidget(layer_checkbox)
         button_clear_selected_layer_overrides = QtWidgets.QPushButton("clear overrides in selected layers")
         button_clear_all_overrides = QtWidgets.QPushButton("clear overrides in all layers")
         button_set_selected_layer_overrides = QtWidgets.QPushButton("set overrides in selected layers")
@@ -401,7 +386,8 @@ class render_overrides_prop(object):
         self.button_horizontal_layout.addWidget(button_clear_all_overrides)
         self.button_horizontal_layout.addWidget(button_set_selected_layer_overrides)
         self.button_horizontal_layout.addWidget(button_set_all_layer_overrides)
-        self.attribute_analysis()
+        #self.attribute_analysis()
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
     def attribute_analysis(self):
         print 'attribute_analysis'
@@ -427,12 +413,10 @@ class render_overrides_prop(object):
         self.attribute_scaleX_float_spinbox.setValue(scale_x)
         self.attribute_scaleY_float_spinbox.setValue(scale_y)
         self.attribute_scaleZ_float_spinbox.setValue(scale_z)
-
         enabled_value = cmds.getAttr(self.current_chosen_light + '.enabled')
         #print 'enabled_value = ',enabled_value
         #print 'setting ' + str(self.enabled_checkbox) + ' to ' + str(enabled_value)
         self.enabled_checkbox.setChecked(enabled_value)
-
         light_color = cmds.getAttr(self.current_chosen_light + '.lightColor')
         light_color = light_color[0]
         #print 'light_color = ',light_color
@@ -447,32 +431,26 @@ class render_overrides_prop(object):
         #print 'light_color_b = ',light_color_b
         color_string = "rgb(" + str(light_color_r) + "," + str(light_color_g) + "," + str(light_color_b) + ")"
         self.light_color_pushbutton.setStyleSheet("QPushButton { background-color: %s}" %color_string)
-
         intensityMult_value = cmds.getAttr(self.current_chosen_light + '.intensityMult')
         #print 'intensityMult_value = ',intensityMult_value
         #print 'setting ' + str(self.attribute_intensityMult_float_spinbox) + ' to ' + str(intensityMult_value)
         self.attribute_intensityMult_float_spinbox.setValue(intensityMult_value)
-
         u_size_value = cmds.getAttr(self.current_chosen_light + '.uSize')
         #print 'u_size_value = ',u_size_value
         #print 'setting ' + str(self.attribute_u_size_float_spinbox) + ' to ' + str(u_size_value)
         self.attribute_u_size_float_spinbox.setValue(u_size_value)
-
         v_size_value = cmds.getAttr(self.current_chosen_light + '.vSize')
         #print 'v_size_value = ',v_size_value
         #print 'setting ' + str(self.attribute_v_size_float_spinbox) + ' to ' + str(v_size_value)
         self.attribute_v_size_float_spinbox.setValue(v_size_value)
-
         directional_value = cmds.getAttr(self.current_chosen_light + '.directional')
         #print 'directional_value = ',directional_value
         #print 'setting ' + str(self.attribute_directional_float_spinbox) + ' to ' + str(directional_value)
         self.attribute_directional_float_spinbox.setValue(directional_value)
-
         use_rect_tex_value = cmds.getAttr(self.current_chosen_light + '.useRectTex')
         #print 'use_rect_tex_value = ',use_rect_tex_value
         #print 'setting ' + str(self.use_rect_tex_checkbox ) + ' to ' + str(use_rect_tex_value)
         self.use_rect_tex_checkbox.setChecked(use_rect_tex_value)
-
         rect_tex_color = cmds.getAttr(self.current_chosen_light + '.rectTex')
         rect_tex_color = rect_tex_color[0]
         #print 'rect_tex_color = ',rect_tex_color
@@ -487,27 +465,22 @@ class render_overrides_prop(object):
         #print 'rect_tex_color_b = ',rect_tex_color_b
         color_string = "rgb(" + str(rect_tex_color_r) + "," + str(rect_tex_color_g) + "," + str(rect_tex_color_b) + ")"
         self.rect_text_color_pushbutton.setStyleSheet("QPushButton { background-color: %s}" %color_string)
-
         affect_diffuse_value = cmds.getAttr(self.current_chosen_light + '.affectDiffuse')
         #print 'affect_diffuse_value = ',affect_diffuse_value
         #print 'setting ' + str(self.affect_diffuse_checkbox) + ' to ' + str(affect_diffuse_value)
         self.affect_diffuse_checkbox.setChecked(affect_diffuse_value)
-
         affect_specular_value = cmds.getAttr(self.current_chosen_light + '.affectSpecular')
         #print 'affect_specular_value = ',affect_specular_value
         #print 'setting ' + str(self.affect_specular_checkbox) + ' to ' + str(affect_specular_value)
         self.affect_specular_checkbox.setChecked(affect_specular_value)
-
         affect_reflection_value = cmds.getAttr(self.current_chosen_light + '.affectReflections')
         #print 'affect_reflection_value = ',affect_reflection_value
         #print 'setting ' + str(self.affect_reflection_checkbox) + ' to ' + str(affect_reflection_value)
         self.affect_reflection_checkbox.setChecked(affect_reflection_value)
-
         diffuse_contribution_value = cmds.getAttr(self.current_chosen_light + '.diffuseContrib')
         #print 'diffuse_contribution_value = ',diffuse_contribution_value
         #print 'setting ' + str(self.attribute_diffuse_contribution_float_spinbox) + ' to ' + str(diffuse_contribution_value)
         self.attribute_diffuse_contribution_float_spinbox.setValue(diffuse_contribution_value)
-
         specular_contribution_value = cmds.getAttr(self.current_chosen_light + '.specularContrib')
         #print 'specular_contribution_value = ',specular_contribution_value
         #print 'setting ' + str(self.attribute_specular_contribution_float_spinbox) + ' to ' + str(specular_contribution_value)
@@ -515,6 +488,9 @@ class render_overrides_prop(object):
         #self.default_Layer_values()
         #self.detect_overrides()
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
+
+    def inter(self):
+        self.populate_gui()
 
     def render_overrides_prop_UI(self):
         print 'render_overrides_prop_UI'
@@ -538,7 +514,7 @@ class render_overrides_prop(object):
         self.base_vertical_layout.addLayout(self.button_horizontal_layout)
         #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerManagerChange", self.populate_gui])
         #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
-        self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["NameChanged", self.populate_gui])
+        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["NameChanged", self.populate_gui])
         self.light_name_eval()
         self.xforms = ['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ']
         self.scriptJob_attrs = ['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ','enabled','lightColor','intensityMult','uSize','vSize','directional','useRectTex','rectTex','affectDiffuse','affectSpecular','affectReflections','diffuseContrib','specularContrib']
@@ -552,8 +528,9 @@ class render_overrides_prop(object):
                 else:
                     light_name_attr = light + '.' + attr
                 #print 'light_name_attr = ',light_name_attr
-                self.myScriptJobID = cmds.scriptJob(p = self.window_name, attributeChange = [light_name_attr, self.populate_gui])
-        self.populate_gui()
+                self.myScriptJobID = cmds.scriptJob(attributeChange = [light_name_attr, self.populate_gui])
+        self.inter()
+        #self.populate_gui()
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.window.show()
 
