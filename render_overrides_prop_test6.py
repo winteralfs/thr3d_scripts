@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'tues'
+print 'tues 2'
 
 class custom_spin_box(QtWidgets.QDoubleSpinBox):
     def wheelEvent(self, event):
@@ -54,8 +54,9 @@ class render_overrides_prop(object):
                 layer_number = render_layer_order_dict[layer]
                 if layer_number == i:
                     self.render_layers_in_order.append(layer)
-                i = i + 1
+            i = i + 1
         self.render_layers_in_order.reverse()
+        print 'render_layers_in_order = ',self.render_layers_in_order
 
     def default_Layer_values(self):
         print 'default_Layer_values'
@@ -78,8 +79,8 @@ class render_overrides_prop(object):
         print 'detect_overrides '
         self.layer_overrides_dic = {}
         for layer in self.render_layers_in_order:
-            print ' '
-            print 'layer = ',layer
+            #print ' '
+            #print 'layer = ',layer
             cmds.editRenderLayerGlobals( currentRenderLayer = layer)
             for attr in self.scriptJob_attrs:
                 if attr in self.xforms:
@@ -91,16 +92,16 @@ class render_overrides_prop(object):
                 value = cmds.getAttr(light_name_attr)
                 for default_attr in self.default_layer_values_dic:
                     if default_attr == attr:
-                        print 'default_attr = ',default_attr
-                        print cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
-                        print 'attr = ',attr
+                        #print 'default_attr = ',default_attr
+                        #print cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
+                        #print 'attr = ',attr
                         attr_value = cmds.getAttr(light_name_attr)
                         default_attr = self.default_layer_values_dic[attr]
-                        print 'attr_value = ',attr_value
-                        print 'default_attr = ',default_attr
+                        #print 'attr_value = ',attr_value
+                        #print 'default_attr = ',default_attr
                         if attr_value != default_attr:
-                            print 'attr_value = ',attr_value
-                            print 'default_attr = ',default_attr
+                            #print 'attr_value = ',attr_value
+                            #print 'default_attr = ',default_attr
                             self.layer_overrides_dic[attr] = layer
         print 'self.layer_overrides_dic = ',self.layer_overrides_dic
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
@@ -111,9 +112,9 @@ class render_overrides_prop(object):
         cmds.editRenderLayerGlobals( currentRenderLayer = 'defaultRenderLayer')
         self.light_name_eval()
         self.render_layers_eval()
-        self.clearLayout(self.main_horizontal_layout)
-        self.clearLayout(self.button_horizontal_layout)
-        print ' 0 self.current_chosen_light = ',self.current_chosen_light
+        #self.clearLayout(self.main_horizontal_layout)
+        #self.clearLayout(self.button_horizontal_layout)
+        #print ' 0 self.current_chosen_light = ',self.current_chosen_light
         self.light_name_layout = QtWidgets.QVBoxLayout(self.main_widget)
         self.main_horizontal_layout.addLayout(self.light_name_layout)
         self.light_name_layout.setAlignment(Qt.AlignTop)
@@ -141,7 +142,7 @@ class render_overrides_prop(object):
         self.scroll_widget = QtWidgets.QWidget()
         self.scroll.setWidget(self.scroll_widget)
         self.attribute_layout = QtWidgets.QVBoxLayout(self.scroll)
-        self.clearLayout(self.attribute_layout)
+        #self.clearLayout(self.attribute_layout)
         self.attribute_layout.setAlignment(Qt.AlignTop)
         self.main_horizontal_layout.addLayout(self.attribute_layout)
         self.translate_layout = QtWidgets.QHBoxLayout(self.scroll)                #---
@@ -208,7 +209,7 @@ class render_overrides_prop(object):
         self.rotate_layout.addWidget(self.attribute_rotateZ_float_spinbox)
         self.rotate_layout_spacer_label = QtWidgets.QLabel('')
         self.rotate_layout.addWidget(self.rotate_layout_spacer_label)
-        self.scale_layout = QtWidgets.QHBoxLayout(self.scroll)                #---
+        self.scale_layout = QtWidgets.QHBoxLayout(self.scroll)
         self.scale_layout.setAlignment(Qt.AlignTop)
         self.attribute_layout.addLayout(self.scale_layout)
         self.attribute_label = QtWidgets.QLabel('scale         ')
@@ -358,22 +359,22 @@ class render_overrides_prop(object):
         self.attribute_layout.addWidget(self.attribute_specular_contribution_float_spinbox)
         #print self.render_layers_in_order
         self.render_layer_layout = QtWidgets.QVBoxLayout(self.main_widget)
-        self.clearLayout(self.render_layer_layout)
+        #self.clearLayout(self.render_layer_layout)
         self.main_horizontal_layout.addLayout(self.render_layer_layout)
         self.render_layer_layout.setAlignment(Qt.AlignTop)
         self.render_layer_checkbox_layout = QtWidgets.QVBoxLayout(self.main_widget)
-        self.clearLayout(self.render_layer_checkbox_layout)
+        #self.clearLayout(self.render_layer_checkbox_layout)
         self.main_horizontal_layout.addLayout(self.render_layer_checkbox_layout)
         self.render_layer_checkbox_layout.setAlignment(Qt.AlignTop)
         #self.spacer_label = QtWidgets.QLabel('')
         #self.render_layer_checkbox_layout.addWidget(self.spacer_label)
-        #for render_layer in self.render_layers_in_order:
-            #if render_layer != 'defaultRenderLayer':
-                #self.attribute_label = QtWidgets.QLabel(render_layer)
-                #self.attribute_label.setFont(QtGui.QFont('SansSerif', 7))
-                #self.render_layer_layout.addWidget(self.attribute_label)
-                #layer_checkbox = QtWidgets.QCheckBox()
-                #self.render_layer_checkbox_layout.addWidget(layer_checkbox)
+        for render_layer in self.render_layers_in_order:
+            if render_layer != 'defaultRenderLayer':
+                self.render_layer_label = QtWidgets.QLabel(render_layer)
+                self.render_layer_label.setFont(QtGui.QFont('SansSerif', 7))
+                self.render_layer_layout.addWidget(self.render_layer_label)
+                layer_checkbox = QtWidgets.QCheckBox()
+                self.render_layer_checkbox_layout.addWidget(layer_checkbox)
         button_clear_selected_layer_overrides = QtWidgets.QPushButton("clear overrides in selected layers")
         button_clear_all_overrides = QtWidgets.QPushButton("clear overrides in all layers")
         button_set_selected_layer_overrides = QtWidgets.QPushButton("set overrides in selected layers")
@@ -385,8 +386,7 @@ class render_overrides_prop(object):
         self.button_horizontal_layout.addWidget(button_clear_all_overrides)
         self.button_horizontal_layout.addWidget(button_set_selected_layer_overrides)
         self.button_horizontal_layout.addWidget(button_set_all_layer_overrides)
-        #self.attribute_analysis()
-        cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
+        self.attribute_analysis()
 
     def attribute_analysis(self):
         print 'attribute_analysis'
@@ -484,12 +484,9 @@ class render_overrides_prop(object):
         #print 'specular_contribution_value = ',specular_contribution_value
         #print 'setting ' + str(self.attribute_specular_contribution_float_spinbox) + ' to ' + str(specular_contribution_value)
         self.attribute_specular_contribution_float_spinbox.setValue(specular_contribution_value)
-        #self.default_Layer_values()
-        #self.detect_overrides()
+        self.default_Layer_values()
+        self.detect_overrides()
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
-
-    def inter(self):
-        self.populate_gui()
 
     def render_overrides_prop_UI(self):
         print 'render_overrides_prop_UI'
@@ -502,7 +499,7 @@ class render_overrides_prop(object):
         self.window.setObjectName(self.window_name)
         self.window.setWindowTitle(self.window_name)
         #self.window.setFixedSize(1015,300)
-        self.window.setFixedWidth(675)
+        self.window.setFixedWidth(775)
         self.window.setFixedHeight(850)
         self.main_widget = QtWidgets.QWidget()
         self.window.setCentralWidget(self.main_widget)
@@ -528,8 +525,7 @@ class render_overrides_prop(object):
                     light_name_attr = light + '.' + attr
                 #print 'light_name_attr = ',light_name_attr
                 #self.myScriptJobID = cmds.scriptJob(attributeChange = [light_name_attr, self.populate_gui])
-        self.inter()
-        #self.populate_gui()
+        self.populate_gui()
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.window.show()
 
