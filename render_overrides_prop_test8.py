@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'tues 2'
+print 'tues 3'
 
 class custom_spin_box(QtWidgets.QDoubleSpinBox):
     def wheelEvent(self, event):
@@ -28,8 +28,25 @@ class render_overrides_prop(object):
                 else:
                     self.clearLayout(item.layout())
 
-    def light_color_state(self):
-        pass
+    def light_color_state(self,widget,attribute_label_text):
+        cmds.colorEditor()
+        if cmds.colorEditor(query=True, result=True):
+            RGB_values = cmds.colorEditor(query=True, rgb=True)
+            #print "RGB = " + str(RGB_values)
+            r = RGB_values[0]
+            g = RGB_values[1]
+            b = RGB_values[2]
+            RGB_values_tuple = (r,g,b)
+        if attribute_label_text == 'lightColor':
+            cmds.setAttr((self.current_chosen_light + ".lightColor"),r,g,b, type = "double3")
+        if attribute_label_text == 'rectText':
+            cmds.setAttr((self.current_chosen_light + ".rectTex"),r,g,b, type = "double3")
+        r = (r*255)
+        g = (g*255)
+        b = (b*255)
+        color_string = "rgb(" + str(r) + "," + str(g) + "," + str(b) + ")"
+        widget.setStyleSheet("QPushButton { background-color: %s}" %color_string)
+        return(RGB_values_tuple)
 
     def rect_tex_color_state(self):
         pass
@@ -180,9 +197,18 @@ class render_overrides_prop(object):
                 #print 'default_value = ',default_value
                 if attribute_label_text == 'enabled' or attribute_label_text == 'useRectTex' or attribute_label_text == 'affectDiffuse' or attribute_label_text == 'affectSpecular' or attribute_label_text == 'affectReflections':
                     set_value = widget.isChecked()
+                if attribute_label_text == 'lightColor' or attribute_label_text == 'rectTex':
+                    if attribute_label_text == 'rectTex':
+                        widget = self.rect_text_color_pushbutton
+                    else:
+                        widget = self.light_color_pushbutton
+                    RGB_values = self.light_color_state(widget,attribute_label_text)
+                    set_value = RGB_values
+                    default_value = default_value[0]
                 else:
                     set_value = widget.value()
-                #print 'set_value = ',set_value
+                print 'set_value = ',set_value
+                print 'default_value = ',default_value
                 if set_value != default_value:
                     attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
                 else:
@@ -384,10 +410,10 @@ class render_overrides_prop(object):
         self.light_color_pushbutton.setMaximumWidth(30)
         self.light_color_pushbutton.setMinimumHeight(30)
         self.light_color_pushbutton.setMaximumHeight(30)
-        self.light_color_pushbutton.clicked.connect(partial(self.light_color_state))
         self.attribute_layout.addWidget(self.light_color_pushbutton)
         self.attribute_name_pointer_dic['lightColor'] = attribute_label
-        self.light_color_pushbutton.clicked.connect(partial(self.value_set,attribute_label,self.light_color_pushbutton))
+        empty = 'empty'
+        self.light_color_pushbutton.clicked.connect(partial(self.value_set,attribute_label,self.light_color_pushbutton,empty))
         attribute_label = QtWidgets.QLabel('intensity')
         attribute_label.setFont(QtGui.QFont('SansSerif', 10))
         self.attribute_layout.addWidget(attribute_label)
@@ -455,10 +481,10 @@ class render_overrides_prop(object):
         self.rect_text_color_pushbutton.setMaximumWidth(30)
         self.rect_text_color_pushbutton.setMinimumHeight(30)
         self.rect_text_color_pushbutton.setMaximumHeight(30)
-        self.rect_text_color_pushbutton.clicked.connect(partial(self.rect_tex_color_state))
         self.attribute_layout.addWidget(self.rect_text_color_pushbutton)
         self.attribute_name_pointer_dic['rectTex'] = attribute_label
-        self.rect_text_color_pushbutton.clicked.connect(partial(self.value_set,attribute_label,self.rect_text_color_pushbutton))
+        empty = 'empty'
+        self.rect_text_color_pushbutton.clicked.connect(partial(self.value_set,attribute_label,self.light_color_pushbutton,empty))
         self.light_rect_color_r = 10
         self.light_rect_color_g = 100
         self.light_rect_color_b = 1
