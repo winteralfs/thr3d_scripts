@@ -48,8 +48,8 @@ class render_overrides_prop(object):
         widget.setStyleSheet("QPushButton { background-color: %s}" %color_string)
         return(RGB_values_tuple)
 
-    def rect_tex_color_state(self):
-        pass
+    def button_ramp_icon(self):
+        print 'button_ramp_icon'
 
     def light_name_eval(self):
         print 'light_name_eval'
@@ -79,16 +79,16 @@ class render_overrides_prop(object):
     def default_Layer_values(self):
         print 'default_Layer_values'
         self.default_layer_values_dic = {}
-        self.rect_tex_ramp_found  = 0
+        self.rect_tex_ramp_found = 0
         cmds.editRenderLayerGlobals(currentRenderLayer = 'defaultRenderLayer')
         for attr in self.scriptJob_attrs:
             if attr == "rectTex":
-                rect_tex_connections = cmds.listConnections('VRayLightRectShape2', destination = False) or []
+                rect_tex_connections = cmds.listConnections(self.current_chosen_light, destination = False) or []
                 size_rect_tex_connections = len(rect_tex_connections)
                 if size_rect_tex_connections > 1:
                     self.rect_tex_ramp_found = 1
             if attr in self.xforms:
-                light_parent = cmds.listRelatives(self.current_chosen_light,parent = True)
+                light_parent = cmds.listRelatives(self.current_chosen_light,parent = True) or []
                 light_parent = light_parent[0]
                 light_name_attr = light_parent + '.' + attr
             else:
@@ -127,7 +127,7 @@ class render_overrides_prop(object):
                             #print 'attr_value = ',attr_value
                             #print 'default_attr = ',default_attr
                             self.layer_overrides_dic[attr] = layer
-        #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
+        print '11 self.layer_overrides_dic = ',self.layer_overrides_dic
         self.override_color_mod()
 
     def override_color_mod(self):
@@ -149,6 +149,7 @@ class render_overrides_prop(object):
 
     def override_color_mod_single(self,attr):
         print ' '
+        print 'self.layer_overrides_dic = ',self.layer_overrides_dic
         print 'override_color_mod'
         #print 'self.attribute_name_pointer_dic = ',self.attribute_name_pointer_dic
         #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
@@ -204,18 +205,16 @@ class render_overrides_prop(object):
                 #print 'default_value = ',default_value
                 if attribute_label_text == 'enabled' or attribute_label_text == 'useRectTex' or attribute_label_text == 'affectDiffuse' or attribute_label_text == 'affectSpecular' or attribute_label_text == 'affectReflections':
                     set_value = widget.isChecked()
+                else:
+                    set_value = widget.value()
                 if attribute_label_text == 'lightColor' or attribute_label_text == 'rectTex':
                     if attribute_label_text == 'rectTex':
-                        print 'rectTex attr'
-                        print 'self.rect_tex_ramp_found = ', self.rect_tex_ramp_found
                         widget = self.rect_text_color_pushbutton
                     else:
                         widget = self.light_color_pushbutton
                     RGB_values = self.light_color_state(widget,attribute_label_text)
                     set_value = RGB_values
                     default_value = default_value[0]
-                else:
-                    set_value = widget.value()
                 print 'set_value = ',set_value
                 print 'default_value = ',default_value
                 if set_value != default_value:
@@ -582,6 +581,7 @@ class render_overrides_prop(object):
     def attribute_analysis(self):
         print 'attribute_analysis'
         self.current_chosen_light = self.light_combo_box.currentText()
+        self.default_Layer_values()
         #print ' self.current_chosen_light = ',self.current_chosen_light
         parent = cmds.listRelatives(self.current_chosen_light, parent = True)
         transform_x = cmds.getAttr(parent[0] + '.translateX')
@@ -654,6 +654,9 @@ class render_overrides_prop(object):
         #print 'rect_tex_color_b = ',rect_tex_color_b
         color_string = "rgb(" + str(rect_tex_color_r) + "," + str(rect_tex_color_g) + "," + str(rect_tex_color_b) + ")"
         self.rect_text_color_pushbutton.setStyleSheet("QPushButton { background-color: %s}" %color_string)
+        if self.rect_tex_ramp_found == 1:
+            print 'ramp found'
+            self.button_ramp_icon()
         affect_diffuse_value = cmds.getAttr(self.current_chosen_light + '.affectDiffuse')
         #print 'affect_diffuse_value = ',affect_diffuse_value
         #print 'setting ' + str(self.affect_diffuse_checkbox) + ' to ' + str(affect_diffuse_value)
@@ -674,7 +677,6 @@ class render_overrides_prop(object):
         #print 'specular_contribution_value = ',specular_contribution_value
         #print 'setting ' + str(self.attribute_specular_contribution_float_spinbox) + ' to ' + str(specular_contribution_value)
         self.attribute_specular_contribution_float_spinbox.setValue(specular_contribution_value)
-        self.default_Layer_values()
         self.detect_overrides()
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
