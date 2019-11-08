@@ -51,85 +51,6 @@ class render_overrides_prop(object):
     def button_ramp_icon(self):
         print 'button_ramp_icon'
 
-    def light_name_eval(self):
-        print 'light_name_eval'
-        self.light_names = []
-        self.light_names = cmds.ls(type = 'VRayLightRectShape')
-
-    def render_layers_eval(self):
-        print 'render_layers_eval'
-        self.render_layers_in_order = []
-        self.render_layers = cmds.ls(type = 'renderLayer')
-        render_layer_order_dict = {}
-        self.render_layers_in_order = []
-        for layer in self.render_layers:
-            render_layer_order_number = cmds.getAttr(layer + ".displayOrder")
-            render_layer_order_dict[layer] = render_layer_order_number
-        number_of_render_layers = 30
-        i = 0
-        while i <= number_of_render_layers:
-            for layer in render_layer_order_dict:
-                layer_number = render_layer_order_dict[layer]
-                if layer_number == i:
-                    self.render_layers_in_order.append(layer)
-            i = i + 1
-        self.render_layers_in_order.reverse()
-        #print 'render_layers_in_order = ',self.render_layers_in_order
-
-    def default_Layer_values(self):
-        print 'default_Layer_values'
-        self.default_layer_values_dic = {}
-        self.rect_tex_ramp_found = 0
-        cmds.editRenderLayerGlobals(currentRenderLayer = 'defaultRenderLayer')
-        for attr in self.scriptJob_attrs:
-            if attr == "rectTex":
-                rect_tex_connections = cmds.listConnections(self.current_chosen_light, destination = False) or []
-                size_rect_tex_connections = len(rect_tex_connections)
-                if size_rect_tex_connections > 1:
-                    self.rect_tex_ramp_found = 1
-            if attr in self.xforms:
-                light_parent = cmds.listRelatives(self.current_chosen_light,parent = True) or []
-                light_parent = light_parent[0]
-                light_name_attr = light_parent + '.' + attr
-            else:
-                light_name_attr = self.current_chosen_light + '.' + attr
-            value = cmds.getAttr(light_name_attr)
-            if (self.current_chosen_light + '_XXX_' + attr) not in self.default_layer_values_dic:
-                self.default_layer_values_dic[attr] = value
-        #print 'default_layer_values_dic = ',self.default_layer_values_dic
-        cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
-
-    def detect_overrides(self):
-        print 'detect_overrides '
-        self.layer_overrides_dic = {}
-        for layer in self.render_layers_in_order:
-            #print ' '
-            #print 'layer = ',layer
-            cmds.editRenderLayerGlobals( currentRenderLayer = layer)
-            for attr in self.scriptJob_attrs:
-                if attr in self.xforms:
-                    light_parent = cmds.listRelatives(self.current_chosen_light,parent = True)
-                    light_parent = light_parent[0]
-                    light_name_attr = light_parent + '.' + attr
-                else:
-                    light_name_attr = self.current_chosen_light + '.' + attr
-                value = cmds.getAttr(light_name_attr)
-                for default_attr in self.default_layer_values_dic:
-                    if default_attr == attr:
-                        #print 'default_attr = ',default_attr
-                        #print cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
-                        #print 'attr = ',attr
-                        attr_value = cmds.getAttr(light_name_attr)
-                        default_attr = self.default_layer_values_dic[attr]
-                        #print 'attr_value = ',attr_value
-                        #print 'default_attr = ',default_attr
-                        if attr_value != default_attr:
-                            #print 'attr_value = ',attr_value
-                            #print 'default_attr = ',default_attr
-                            self.layer_overrides_dic[attr] = layer
-        print '11 self.layer_overrides_dic = ',self.layer_overrides_dic
-        self.override_color_mod()
-
     def override_color_mod(self):
         print ' '
         print 'override_color_mod'
@@ -164,89 +85,53 @@ class render_overrides_prop(object):
                 pointer.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
-    def value_set(self,attribute_label,widget,args):
-        print 'value_set'
-        #print 'widget = ',widget
-        #print 'self.default_layer_values_dic = ',self.default_layer_values_dic
-        attribute_label_text = attribute_label.text()
-        #print 'attribute_label_text = ',attribute_label_text
-        empty_default_layer_values_dic = len(self.default_layer_values_dic)
-        transforms = ['translate','rotate','scale']
-        if empty_default_layer_values_dic != 0:
-            attribute_label_text = attribute_label_text.replace(' ','')
-            if attribute_label_text not in transforms:
-                #print 'attribute_label_text not in transforms'
-                #print attribute_label_text
-                #print 'transforms = ',transforms
-                if attribute_label_text == 'intensity':
-                    attribute_label_text = 'intensityMult'
-                if attribute_label_text == 'Usize':
-                    attribute_label_text = 'uSize'
-                if attribute_label_text == 'Vsize':
-                    attribute_label_text = 'vSize'
-                if attribute_label_text == 'lightcolor':
-                    attribute_label_text = 'lightColor'
-                if attribute_label_text == 'userecttex':
-                    attribute_label_text = 'useRectTex'
-                if attribute_label_text == 'recttex':
-                    attribute_label_text = 'rectTex'
-                if attribute_label_text == 'affectdiffuse':
-                    attribute_label_text = 'affectDiffuse'
-                if attribute_label_text == 'affectspecular':
-                    attribute_label_text = 'affectSpecular'
-                if attribute_label_text == 'affectreflections':
-                    attribute_label_text = 'affectReflections'
-                if attribute_label_text == 'diffusecontribution':
-                    attribute_label_text = 'diffuseContrib'
-                if attribute_label_text == 'specularcontribution':
-                    attribute_label_text = 'specularContrib'
-                print 'attribute_label_text = ',attribute_label_text
-                default_value = self.default_layer_values_dic[attribute_label_text]
-                #print 'default_value = ',default_value
-                if attribute_label_text == 'enabled' or attribute_label_text == 'useRectTex' or attribute_label_text == 'affectDiffuse' or attribute_label_text == 'affectSpecular' or attribute_label_text == 'affectReflections':
-                    set_value = widget.isChecked()
+#--
+
+    def render_overrides_prop_UI(self):
+        print 'render_overrides_prop_UI'
+        self.window_name = "render_overrides_prop"
+        if cmds.window(self.window_name,exists = True):
+            cmds.deleteUI(self.window_name, wnd = True)
+        pointer = mui.MQtUtil.mainWindow()
+        parent = shiboken2.wrapInstance(long(pointer),QtWidgets.QWidget)
+        self.window = QtWidgets.QMainWindow(parent)
+        self.window.setObjectName(self.window_name)
+        self.window.setWindowTitle(self.window_name)
+        #self.window.setFixedSize(1015,300)
+        self.window.setFixedWidth(550)
+        self.window.setFixedHeight(850)
+        self.main_widget = QtWidgets.QWidget()
+        self.window.setCentralWidget(self.main_widget)
+        self.base_vertical_layout = QtWidgets.QVBoxLayout(self.main_widget)
+        self.main_horizontal_layout = QtWidgets.QHBoxLayout(self.main_widget)
+        self.base_vertical_layout.addLayout(self.main_horizontal_layout)
+        self.button_horizontal_layout = QtWidgets.QVBoxLayout(self.main_widget)
+        self.base_vertical_layout.addLayout(self.button_horizontal_layout)
+        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerManagerChange", self.populate_gui])
+        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
+        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["NameChanged", self.populate_gui])
+        self.light_name_eval()
+        self.xforms = ['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ']
+        self.scriptJob_attrs = ['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ','enabled','lightColor','intensityMult','uSize','vSize','directional','useRectTex','rectTex','affectDiffuse','affectSpecular','affectReflections','diffuseContrib','specularContrib']
+        for light in self.light_names:
+            for attr in self.scriptJob_attrs:
+                light_name_attr = light + '.' + attr
+                if attr in self.xforms:
+                    light_parent = cmds.listRelatives(light,parent = True)
+                    light_parent = light_parent[0]
+                    light_name_attr = light_parent + '.' + attr
                 else:
-                    set_value = widget.value()
-                if attribute_label_text == 'lightColor' or attribute_label_text == 'rectTex':
-                    if attribute_label_text == 'rectTex':
-                        widget = self.rect_text_color_pushbutton
-                    else:
-                        widget = self.light_color_pushbutton
-                    RGB_values = self.light_color_state(widget,attribute_label_text)
-                    set_value = RGB_values
-                    default_value = default_value[0]
-                print 'set_value = ',set_value
-                print 'default_value = ',default_value
-                if set_value != default_value:
-                    attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
-                else:
-                    self.override_color_mod_single(attribute_label_text)
-            else:
-                default_value_X = self.default_layer_values_dic[attribute_label_text + 'X']
-                default_value_Y = self.default_layer_values_dic[attribute_label_text + 'Y']
-                default_value_Z = self.default_layer_values_dic[attribute_label_text + 'Z']
-                default_transform_value = (default_value_X,default_value_Y,default_value_Z)
-                if attribute_label_text == 'translate':
-                    current_value_X = self.attribute_translateX_float_spinbox.value()
-                    current_value_Y = self.attribute_translateY_float_spinbox.value()
-                    current_value_Z = self.attribute_translateZ_float_spinbox.value()
-                if attribute_label_text == 'rotate':
-                    current_value_X = self.attribute_rotateX_float_spinbox.value()
-                    current_value_Y = self.attribute_rotateY_float_spinbox.value()
-                    current_value_Z = self.attribute_rotateZ_float_spinbox.value()
-                if attribute_label_text == 'scale':
-                    current_value_X = self.attribute_scaleX_float_spinbox.value()
-                    current_value_Y = self.attribute_scaleY_float_spinbox.value()
-                    current_value_Z = self.attribute_scaleZ_float_spinbox.value()
-                current_transform_value = (current_value_X,current_value_Y,default_value_Z)
-                #print 'default_transform_value = ',default_transform_value
-                current_transform_value = (current_value_X,current_value_Y,current_value_Z)
-                #print 'current_transform_value = ',current_transform_value
-                if current_transform_value != default_transform_value:
-                    #print 'setting ' + str(widget) + ' to red'
-                    attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
-                else:
-                    attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
+                    light_name_attr = light + '.' + attr
+                #print 'light_name_attr = ',light_name_attr
+                #self.myScriptJobID = cmds.scriptJob(attributeChange = [light_name_attr, self.populate_gui])
+        self.populate_gui()
+        self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.window.show()
+
+    def light_name_eval(self):
+        print 'light_name_eval'
+        self.light_names = []
+        self.light_names = cmds.ls(type = 'VRayLightRectShape')
 
     def populate_gui(self):
         print 'populate_gui'
@@ -578,6 +463,26 @@ class render_overrides_prop(object):
         self.button_horizontal_layout.addWidget(button_set_all_layer_overrides)
         self.attribute_analysis()
 
+    def render_layers_eval(self):
+        print 'render_layers_eval'
+        self.render_layers_in_order = []
+        self.render_layers = cmds.ls(type = 'renderLayer')
+        render_layer_order_dict = {}
+        self.render_layers_in_order = []
+        for layer in self.render_layers:
+            render_layer_order_number = cmds.getAttr(layer + ".displayOrder")
+            render_layer_order_dict[layer] = render_layer_order_number
+        number_of_render_layers = 30
+        i = 0
+        while i <= number_of_render_layers:
+            for layer in render_layer_order_dict:
+                layer_number = render_layer_order_dict[layer]
+                if layer_number == i:
+                    self.render_layers_in_order.append(layer)
+            i = i + 1
+        self.render_layers_in_order.reverse()
+        #print 'render_layers_in_order = ',self.render_layers_in_order
+
     def attribute_analysis(self):
         print 'attribute_analysis'
         self.current_chosen_light = self.light_combo_box.currentText()
@@ -655,7 +560,7 @@ class render_overrides_prop(object):
         color_string = "rgb(" + str(rect_tex_color_r) + "," + str(rect_tex_color_g) + "," + str(rect_tex_color_b) + ")"
         self.rect_text_color_pushbutton.setStyleSheet("QPushButton { background-color: %s}" %color_string)
         if self.rect_tex_ramp_found == 1:
-            print 'ramp found'
+            print 'attribute_analysis: ramp found'
             self.button_ramp_icon()
         affect_diffuse_value = cmds.getAttr(self.current_chosen_light + '.affectDiffuse')
         #print 'affect_diffuse_value = ',affect_diffuse_value
@@ -680,46 +585,145 @@ class render_overrides_prop(object):
         self.detect_overrides()
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
-    def render_overrides_prop_UI(self):
-        print 'render_overrides_prop_UI'
-        self.window_name = "render_overrides_prop"
-        if cmds.window(self.window_name,exists = True):
-            cmds.deleteUI(self.window_name, wnd = True)
-        pointer = mui.MQtUtil.mainWindow()
-        parent = shiboken2.wrapInstance(long(pointer),QtWidgets.QWidget)
-        self.window = QtWidgets.QMainWindow(parent)
-        self.window.setObjectName(self.window_name)
-        self.window.setWindowTitle(self.window_name)
-        #self.window.setFixedSize(1015,300)
-        self.window.setFixedWidth(550)
-        self.window.setFixedHeight(850)
-        self.main_widget = QtWidgets.QWidget()
-        self.window.setCentralWidget(self.main_widget)
-        self.base_vertical_layout = QtWidgets.QVBoxLayout(self.main_widget)
-        self.main_horizontal_layout = QtWidgets.QHBoxLayout(self.main_widget)
-        self.base_vertical_layout.addLayout(self.main_horizontal_layout)
-        self.button_horizontal_layout = QtWidgets.QVBoxLayout(self.main_widget)
-        self.base_vertical_layout.addLayout(self.button_horizontal_layout)
-        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerManagerChange", self.populate_gui])
-        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["renderLayerChange", self.populate_gui])
-        #self.myScriptJobID = cmds.scriptJob(p = self.window_name, event=["NameChanged", self.populate_gui])
-        self.light_name_eval()
-        self.xforms = ['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ']
-        self.scriptJob_attrs = ['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ','enabled','lightColor','intensityMult','uSize','vSize','directional','useRectTex','rectTex','affectDiffuse','affectSpecular','affectReflections','diffuseContrib','specularContrib']
-        for light in self.light_names:
+    def default_Layer_values(self):
+        print 'default_Layer_values'
+        self.rect_tex_ramp_found = 0
+        cmds.editRenderLayerGlobals(currentRenderLayer = 'defaultRenderLayer')
+        for attr in self.scriptJob_attrs:
+            if attr == "rectTex":
+                print 'attr = rectTex'
+                rect_tex_connections = cmds.listConnections(self.current_chosen_light, destination = False) or []
+                size_rect_tex_connections = len(rect_tex_connections)
+                print 'size_rect_tex_connections = ',size_rect_tex_connections
+                if size_rect_tex_connections > 0:
+                    print 'default_Layer_values: setting self.rect_tex_ramp_found to 1'
+                    self.rect_tex_ramp_found = 1
+            if attr in self.xforms:
+                light_parent = cmds.listRelatives(self.current_chosen_light,parent = True) or []
+                light_parent = light_parent[0]
+                light_name_attr = light_parent + '.' + attr
+            else:
+                light_name_attr = self.current_chosen_light + '.' + attr
+            value = cmds.getAttr(light_name_attr)
+            if (self.current_chosen_light + '_XXX_' + attr) not in self.default_layer_values_dic:
+                self.default_layer_values_dic[attr] = value
+        #print 'default_layer_values_dic = ',self.default_layer_values_dic
+        cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
+
+    def value_set(self,attribute_label,widget,args):
+        print 'value_set'
+        #print 'widget = ',widget
+        #print 'self.default_layer_values_dic = ',self.default_layer_values_dic
+        attribute_label_text = attribute_label.text()
+        #print 'attribute_label_text = ',attribute_label_text
+        empty_default_layer_values_dic = len(self.default_layer_values_dic)
+        transforms = ['translate','rotate','scale']
+        if empty_default_layer_values_dic != 0:
+            attribute_label_text = attribute_label_text.replace(' ','')
+            if attribute_label_text not in transforms:
+                #print 'attribute_label_text not in transforms'
+                #print attribute_label_text
+                #print 'transforms = ',transforms
+                if attribute_label_text == 'intensity':
+                    attribute_label_text = 'intensityMult'
+                if attribute_label_text == 'Usize':
+                    attribute_label_text = 'uSize'
+                if attribute_label_text == 'Vsize':
+                    attribute_label_text = 'vSize'
+                if attribute_label_text == 'lightcolor':
+                    attribute_label_text = 'lightColor'
+                if attribute_label_text == 'userecttex':
+                    attribute_label_text = 'useRectTex'
+                if attribute_label_text == 'recttex':
+                    attribute_label_text = 'rectTex'
+                if attribute_label_text == 'affectdiffuse':
+                    attribute_label_text = 'affectDiffuse'
+                if attribute_label_text == 'affectspecular':
+                    attribute_label_text = 'affectSpecular'
+                if attribute_label_text == 'affectreflections':
+                    attribute_label_text = 'affectReflections'
+                if attribute_label_text == 'diffusecontribution':
+                    attribute_label_text = 'diffuseContrib'
+                if attribute_label_text == 'specularcontribution':
+                    attribute_label_text = 'specularContrib'
+                #print 'attribute_label_text = ',attribute_label_text
+                default_value = self.default_layer_values_dic[attribute_label_text]
+                #print 'default_value = ',default_value
+                if attribute_label_text == 'enabled' or attribute_label_text == 'useRectTex' or attribute_label_text == 'affectDiffuse' or attribute_label_text == 'affectSpecular' or attribute_label_text == 'affectReflections':
+                    set_value = widget.isChecked()
+                if attribute_label_text == 'intensityMult' or attribute_label_text == 'directional' or attribute_label_text == 'uSize' or attribute_label_text == 'vSize' or attribute_label_text == 'diffuseContrib' or attribute_label_text == 'specularContrib':
+                    set_value = widget.value()
+                if attribute_label_text == 'lightColor' or attribute_label_text == 'rectTex':
+                    if attribute_label_text == 'rectTex':
+                        widget = self.rect_text_color_pushbutton
+                    else:
+                        widget = self.light_color_pushbutton
+                    RGB_values = self.light_color_state(widget,attribute_label_text)
+                    set_value = RGB_values
+                    default_value = default_value[0]
+                #print 'set_value = ',set_value
+                #print 'default_value = ',default_value
+                if set_value != default_value:
+                    attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
+                else:
+                    self.detect_overrides()
+                    self.override_color_mod_single(attribute_label_text)
+            else:
+                default_value_X = self.default_layer_values_dic[attribute_label_text + 'X']
+                default_value_Y = self.default_layer_values_dic[attribute_label_text + 'Y']
+                default_value_Z = self.default_layer_values_dic[attribute_label_text + 'Z']
+                default_transform_value = (default_value_X,default_value_Y,default_value_Z)
+                if attribute_label_text == 'translate':
+                    current_value_X = self.attribute_translateX_float_spinbox.value()
+                    current_value_Y = self.attribute_translateY_float_spinbox.value()
+                    current_value_Z = self.attribute_translateZ_float_spinbox.value()
+                if attribute_label_text == 'rotate':
+                    current_value_X = self.attribute_rotateX_float_spinbox.value()
+                    current_value_Y = self.attribute_rotateY_float_spinbox.value()
+                    current_value_Z = self.attribute_rotateZ_float_spinbox.value()
+                if attribute_label_text == 'scale':
+                    current_value_X = self.attribute_scaleX_float_spinbox.value()
+                    current_value_Y = self.attribute_scaleY_float_spinbox.value()
+                    current_value_Z = self.attribute_scaleZ_float_spinbox.value()
+                current_transform_value = (current_value_X,current_value_Y,default_value_Z)
+                #print 'default_transform_value = ',default_transform_value
+                current_transform_value = (current_value_X,current_value_Y,current_value_Z)
+                #print 'current_transform_value = ',current_transform_value
+                if current_transform_value != default_transform_value:
+                    #print 'setting ' + str(widget) + ' to red'
+                    attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
+                else:
+                    attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
+
+    def detect_overrides(self):
+        print 'detect_overrides '
+        self.layer_overrides_dic = {}
+        for layer in self.render_layers_in_order:
+            #print ' '
+            #print 'layer = ',layer
+            cmds.editRenderLayerGlobals( currentRenderLayer = layer)
             for attr in self.scriptJob_attrs:
-                light_name_attr = light + '.' + attr
                 if attr in self.xforms:
-                    light_parent = cmds.listRelatives(light,parent = True)
+                    light_parent = cmds.listRelatives(self.current_chosen_light,parent = True)
                     light_parent = light_parent[0]
                     light_name_attr = light_parent + '.' + attr
                 else:
-                    light_name_attr = light + '.' + attr
-                #print 'light_name_attr = ',light_name_attr
-                #self.myScriptJobID = cmds.scriptJob(attributeChange = [light_name_attr, self.populate_gui])
-        self.populate_gui()
-        self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.window.show()
+                    light_name_attr = self.current_chosen_light + '.' + attr
+                value = cmds.getAttr(light_name_attr)
+                for default_attr in self.default_layer_values_dic:
+                    if default_attr == attr:
+                        #print 'default_attr = ',default_attr
+                        #print cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
+                        #print 'attr = ',attr
+                        attr_value = cmds.getAttr(light_name_attr)
+                        default_attr = self.default_layer_values_dic[attr]
+                        #print 'attr_value = ',attr_value
+                        #print 'default_attr = ',default_attr
+                        if attr_value != default_attr:
+                            #print 'attr_value = ',attr_value
+                            #print 'default_attr = ',default_attr
+                            self.layer_overrides_dic[attr] = layer
+        self.override_color_mod()
 
 def main():
     render_overrides_prop_inst = render_overrides_prop()
