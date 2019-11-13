@@ -7,7 +7,7 @@ from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
 import shiboken2
 
-print 'thurs'
+print 'tuesday'
 
 class custom_spin_box(QtWidgets.QDoubleSpinBox):
     def wheelEvent(self, event):
@@ -57,6 +57,7 @@ class render_overrides_prop(object):
         #print 'self.attribute_name_pointer_dic = ',self.attribute_name_pointer_dic
         #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
         for attr in self.attribute_name_pointer_dic:
+            #print attr
             pointer = self.attribute_name_pointer_dic[attr]
             #print 'setting ' + attr + ' to black'
             pointer.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(180,180,180); }");
@@ -69,9 +70,8 @@ class render_overrides_prop(object):
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
     def override_color_mod_single(self,attr):
-        print ' '
-        print 'self.layer_overrides_dic = ',self.layer_overrides_dic
-        print 'override_color_mod'
+        print 'override_color_mod_single'
+        #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
         #print 'self.attribute_name_pointer_dic = ',self.attribute_name_pointer_dic
         #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
         pointer = self.attribute_name_pointer_dic[attr]
@@ -449,18 +449,18 @@ class render_overrides_prop(object):
                 layer_checkbox = QtWidgets.QCheckBox()
                 self.render_layer_checkbox_layout.addWidget(layer_checkbox)
         button_clear_all_layer_overrides_in_all_layers = QtWidgets.QPushButton("clear all light overrides in all layers")
-        button_clear_selected_layer_overrides = QtWidgets.QPushButton("clear selected light overrides in selected layers")
-        button_clear_all_overrides = QtWidgets.QPushButton("clear selected light overrides in all layers")
-        button_set_selected_layer_overrides = QtWidgets.QPushButton("set selected light overrides in selected layers")
-        button_set_all_layer_overrides = QtWidgets.QPushButton("set selected light overrides in all layers")
+        button_clear_all_overrides = QtWidgets.QPushButton("clear all selected light's overrides in all layers")
+        button_set_all_layer_overrides = QtWidgets.QPushButton("set all selected light's overrides in all layers")
+        button_clear_selected_layer_overrides = QtWidgets.QPushButton("clear all selected light's overrides in selected layers")
+        button_set_selected_layer_overrides = QtWidgets.QPushButton("set all selected light's overrides in selected layers")
         #button_set_overrides.setFixedWidth(button_width)
         #button_set_overrides.setFixedHeight(button_height)
         #button_set_overrides.pressed.connect(partial(self.allToggleTexture_off))
         self.button_horizontal_layout.addWidget(button_clear_all_layer_overrides_in_all_layers)
-        self.button_horizontal_layout.addWidget(button_clear_selected_layer_overrides)
         self.button_horizontal_layout.addWidget(button_clear_all_overrides)
-        self.button_horizontal_layout.addWidget(button_set_selected_layer_overrides)
         self.button_horizontal_layout.addWidget(button_set_all_layer_overrides)
+        self.button_horizontal_layout.addWidget(button_clear_selected_layer_overrides)
+        self.button_horizontal_layout.addWidget(button_set_selected_layer_overrides)
         self.attribute_analysis()
 
     def render_layers_eval(self):
@@ -582,7 +582,7 @@ class render_overrides_prop(object):
         #print 'specular_contribution_value = ',specular_contribution_value
         #print 'setting ' + str(self.attribute_specular_contribution_float_spinbox) + ' to ' + str(specular_contribution_value)
         self.attribute_specular_contribution_float_spinbox.setValue(specular_contribution_value)
-        self.detect_overrides()
+        #self.detect_overrides()
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
     def default_Layer_values(self):
@@ -591,12 +591,12 @@ class render_overrides_prop(object):
         cmds.editRenderLayerGlobals(currentRenderLayer = 'defaultRenderLayer')
         for attr in self.scriptJob_attrs:
             if attr == "rectTex":
-                print 'attr = rectTex'
+                #print 'attr = rectTex'
                 rect_tex_connections = cmds.listConnections(self.current_chosen_light, destination = False) or []
                 size_rect_tex_connections = len(rect_tex_connections)
-                print 'size_rect_tex_connections = ',size_rect_tex_connections
+                #print 'size_rect_tex_connections = ',size_rect_tex_connections
                 if size_rect_tex_connections > 0:
-                    print 'default_Layer_values: setting self.rect_tex_ramp_found to 1'
+                    #print 'default_Layer_values: setting self.rect_tex_ramp_found to 1'
                     self.rect_tex_ramp_found = 1
             if attr in self.xforms:
                 light_parent = cmds.listRelatives(self.current_chosen_light,parent = True) or []
@@ -611,11 +611,11 @@ class render_overrides_prop(object):
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
     def value_set(self,attribute_label,widget,args):
+        self.detect_overrides()
         print 'value_set'
         #print 'widget = ',widget
         #print 'self.default_layer_values_dic = ',self.default_layer_values_dic
         attribute_label_text = attribute_label.text()
-        #print 'attribute_label_text = ',attribute_label_text
         empty_default_layer_values_dic = len(self.default_layer_values_dic)
         transforms = ['translate','rotate','scale']
         if empty_default_layer_values_dic != 0:
@@ -661,13 +661,28 @@ class render_overrides_prop(object):
                     RGB_values = self.light_color_state(widget,attribute_label_text)
                     set_value = RGB_values
                     default_value = default_value[0]
-                #print 'set_value = ',set_value
-                #print 'default_value = ',default_value
-                if set_value != default_value:
+                self.override_color_mod_single(attribute_label_text)
+                print 'attribute_label_text = ',attribute_label_text
+                print 'self.layer_overrides_dic = ',self.layer_overrides_dic
+                print 'default_value = ',default_value
+                print 'set_value = ',set_value
+                override_value = ''
+                if attribute_label_text in self.layer_overrides_dic:
+                    override_value = self.layer_overrides_dic[attribute_label_text]
+                if override_value != '':
+                    override_value_split = override_value.split('%%')
+                    override_value = override_value_split[1]
+                print 'override_value = ',override_value
+                if str(set_value) != str(default_value) and str(set_value) != str(override_value):
+                    print 'set_value != default_value and set_value != override_value, turning red '
                     attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
-                else:
+                    #self.override_color_mod_single(attribute_label_text)
+                if set_value == default_value:
+                    print 'set_value == default_value, running override detect'
+                    #attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(180,180,180); }");
                     self.detect_overrides()
-                    self.override_color_mod_single(attribute_label_text)
+                #self.override_color_mod_single(attribute_label_text)
+
             else:
                 default_value_X = self.default_layer_values_dic[attribute_label_text + 'X']
                 default_value_Y = self.default_layer_values_dic[attribute_label_text + 'Y']
@@ -703,6 +718,7 @@ class render_overrides_prop(object):
             #print 'layer = ',layer
             cmds.editRenderLayerGlobals( currentRenderLayer = layer)
             for attr in self.scriptJob_attrs:
+                #print attr
                 if attr in self.xforms:
                     light_parent = cmds.listRelatives(self.current_chosen_light,parent = True)
                     light_parent = light_parent[0]
@@ -722,7 +738,7 @@ class render_overrides_prop(object):
                         if attr_value != default_attr:
                             #print 'attr_value = ',attr_value
                             #print 'default_attr = ',default_attr
-                            self.layer_overrides_dic[attr] = layer
+                            self.layer_overrides_dic[attr] = layer + '%%' + str(attr_value)
         self.override_color_mod()
 
 def main():
