@@ -71,6 +71,7 @@ class render_overrides_prop(object):
 
     def override_color_mod_single(self,attr):
         print 'override_color_mod_single'
+        #self.detect_overrides()
         #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
         #print 'self.attribute_name_pointer_dic = ',self.attribute_name_pointer_dic
         #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
