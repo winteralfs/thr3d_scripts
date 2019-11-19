@@ -5,6 +5,7 @@ import maya.OpenMayaUI as mui
 from functools import partial
 from PySide2 import QtWidgets,QtCore,QtGui
 from PySide2.QtCore import Qt
+import decimal
 import shiboken2
 
 print 'tuesday'
@@ -57,16 +58,22 @@ class render_overrides_prop(object):
         #print 'self.attribute_name_pointer_dic = ',self.attribute_name_pointer_dic
         #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
         for attr in self.attribute_name_pointer_dic:
-            #print attr
             pointer = self.attribute_name_pointer_dic[attr]
-            #print 'setting ' + attr + ' to black'
-            pointer.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(180,180,180); }");
-            for override in self.layer_overrides_dic:
-                #print 'attr = ',attr
-                #print 'override = ',override
-                if attr in override:
-                    #print 'match, turning ' + attr + ' orange'
-                    pointer.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
+            #print 'attr = ',attr
+            #print 'self.red_labels = ',self.red_labels
+            transforms = ['transformX','transformY','transformZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ']
+            if attr in transforms:
+                attr = attr[:-1]
+                print 'new attr = ',attr
+            if attr not in self.red_labels:
+                #print 'setting ' + attr + ' to black'
+                pointer.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(180,180,180); }");
+                for override in self.layer_overrides_dic:
+                    #print 'attr = ',attr
+                    #print 'override = ',override
+                    if attr in override:
+                        #print 'match, turning ' + attr + ' orange'
+                        pointer.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
     def override_color_mod_single(self,attr):
@@ -561,7 +568,7 @@ class render_overrides_prop(object):
         color_string = "rgb(" + str(rect_tex_color_r) + "," + str(rect_tex_color_g) + "," + str(rect_tex_color_b) + ")"
         self.rect_text_color_pushbutton.setStyleSheet("QPushButton { background-color: %s}" %color_string)
         if self.rect_tex_ramp_found == 1:
-            print 'attribute_analysis: ramp found'
+            #print 'attribute_analysis: ramp found'
             self.button_ramp_icon()
         affect_diffuse_value = cmds.getAttr(self.current_chosen_light + '.affectDiffuse')
         #print 'affect_diffuse_value = ',affect_diffuse_value
@@ -589,6 +596,7 @@ class render_overrides_prop(object):
     def default_Layer_values(self):
         print 'default_Layer_values'
         self.rect_tex_ramp_found = 0
+        self.red_labels = []
         cmds.editRenderLayerGlobals(currentRenderLayer = 'defaultRenderLayer')
         for attr in self.scriptJob_attrs:
             if attr == "rectTex":
@@ -664,20 +672,40 @@ class render_overrides_prop(object):
                     default_value = default_value[0]
                 self.override_color_mod_single(attribute_label_text)
                 print 'attribute_label_text = ',attribute_label_text
-                print 'self.layer_overrides_dic = ',self.layer_overrides_dic
-                print 'default_value = ',default_value
-                print 'set_value = ',set_value
-                override_value = ''
+                #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
+                #print 'default_value = ',default_value
+                override_value = ' '
                 if attribute_label_text in self.layer_overrides_dic:
                     override_value = self.layer_overrides_dic[attribute_label_text]
-                if override_value != '':
+                if override_value != ' ':
                     override_value_split = override_value.split('%%')
                     override_value = override_value_split[1]
+                override_value = str(override_value)
+                if isinstance(set_value,float):
+                    set_value = str(set_value)
+                    set_value = set_value[:4]
+                    set_value = set_value.replace(' ','')
+                    set_value_length = len(set_value)
+                    override_value = override_value[:set_value_length]
+                print 'set_value = ',set_value
+                print 'default_value = ',default_value
+                print 'set_value = ',set_value
+                #override_value = override_value.replace(' ','')
                 print 'override_value = ',override_value
+                #print 'override_value_sliced = ',override_value_sliced
                 if str(set_value) != str(default_value) and str(set_value) != str(override_value):
-                    print 'set_value != default_value and set_value != override_value, turning red '
+                    print '1 set_value != default_value and str(set_value) not in str(override_value), turning red '
                     attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
+                    if attribute_label_text not in self.red_labels:
+                        self.red_labels.append(attribute_label_text)
                     #self.override_color_mod_single(attribute_label_text)
+                if attribute_label_text == 'enabled' or attribute_label_text == 'useRectTex' or attribute_label_text == 'affectDiffuse' or attribute_label_text == 'affectSpecular' or attribute_label_text == 'affectReflections':
+                    if str(set_value) == str(default_value) and str(set_value) != str(override_value) and str(override_value) != ' ':
+                        print '2 set_value != default_value and str(set_value) not in str(override_value), turning red '
+                        attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
+                        if attribute_label_text not in self.red_labels:
+                            self.red_labels.append(attribute_label_text)
+                        #self.override_color_mod_single(attribute_label_text)
                 if set_value == default_value:
                     print 'set_value == default_value, running override detect'
                     #attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(180,180,180); }");
@@ -702,12 +730,16 @@ class render_overrides_prop(object):
                     current_value_Y = self.attribute_scaleY_float_spinbox.value()
                     current_value_Z = self.attribute_scaleZ_float_spinbox.value()
                 current_transform_value = (current_value_X,current_value_Y,default_value_Z)
-                #print 'default_transform_value = ',default_transform_value
+                print 'default_transform_value = ',default_transform_value
                 current_transform_value = (current_value_X,current_value_Y,current_value_Z)
-                #print 'current_transform_value = ',current_transform_value
-                if current_transform_value != default_transform_value:
+                print 'current_transform_value = ',current_transform_value
+                print 'self.layer_overrides_dic = ',self.layer_overrides_dic
+                if current_transform_value != default_transform_value and (attribute_label_text + 'X') not in self.layer_overrides_dic and (attribute_label_text + 'Y') not in self.layer_overrides_dic and (attribute_label_text + 'Z') not in self.layer_overrides_dic:
                     #print 'setting ' + str(widget) + ' to red'
+                    print '3 set_value != default_value and str(set_value) not in str(override_value), turning red '
                     attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
+                    if attribute_label_text not in self.red_labels:
+                        self.red_labels.append(attribute_label_text)
                 else:
                     attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
 
