@@ -61,10 +61,10 @@ class render_overrides_prop(object):
             pointer = self.attribute_name_pointer_dic[attr]
             #print 'attr = ',attr
             #print 'self.red_labels = ',self.red_labels
-            transforms = ['transformX','transformY','transformZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ']
+            transforms = ['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ']
             if attr in transforms:
                 attr = attr[:-1]
-                print 'new attr = ',attr
+                #print 'translate attr = ',attr
             if attr not in self.red_labels:
                 #print 'setting ' + attr + ' to black'
                 pointer.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(180,180,180); }");
@@ -72,7 +72,9 @@ class render_overrides_prop(object):
                     #print 'attr = ',attr
                     #print 'override = ',override
                     if attr in override:
-                        #print 'match, turning ' + attr + ' orange'
+                        #print attr
+                        #print 'self.layer_overrides_dic = ',self.layer_overrides_dic
+                        #print 'multi ' + attr + ' in ' + override, ' turning ' + attr + ' orange'
                         pointer.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
@@ -89,7 +91,7 @@ class render_overrides_prop(object):
             #print 'attr = ',attr
             #print 'override = ',override
             if attr in override:
-                #print 'match, turning ' + attr + ' orange'
+                print 'single ' + attr + ' in ' + override, ' turning ' + attr + ' orange'
                 pointer.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
@@ -206,7 +208,7 @@ class render_overrides_prop(object):
         self.attribute_translateY_float_spinbox.setFixedWidth(65)
         self.attribute_translateY_float_spinbox.setKeyboardTracking(False)
         self.translate_layout.addWidget(self.attribute_translateY_float_spinbox)
-        self.attribute_name_pointer_dic['translateY'] = self.attribute_translateY_float_spinbox
+        self.attribute_name_pointer_dic['translateY'] = attribute_label
         self.attribute_translateY_float_spinbox.valueChanged.connect(partial(self.value_set,attribute_label,self.attribute_translateY_float_spinbox))
         self.attribute_translateZ_float_spinbox = custom_spin_box()
         self.attribute_translateZ_float_spinbox.setMinimum(-100)
@@ -216,7 +218,7 @@ class render_overrides_prop(object):
         self.attribute_translateZ_float_spinbox.setFixedWidth(65)
         self.attribute_translateZ_float_spinbox.setKeyboardTracking(False)
         self.translate_layout.addWidget(self.attribute_translateZ_float_spinbox)
-        self.attribute_name_pointer_dic['translateZ'] = self.attribute_translateZ_float_spinbox
+        self.attribute_name_pointer_dic['translateZ'] = attribute_label
         self.attribute_translateZ_float_spinbox.valueChanged.connect(partial(self.value_set,attribute_label,self.attribute_translateZ_float_spinbox))
         self.translate_layout_spacer_label = QtWidgets.QLabel(' ')
         self.translate_layout.addWidget(self.translate_layout_spacer_label)
@@ -514,6 +516,7 @@ class render_overrides_prop(object):
         self.attribute_rotateZ_float_spinbox.setValue(rotate_z)
         self.attribute_scaleX_float_spinbox.setValue(scale_x)
         self.attribute_scaleY_float_spinbox.setValue(scale_y)
+        print 'setting attribute_scaleY_float_spinbox to ', scale_y
         self.attribute_scaleZ_float_spinbox.setValue(scale_z)
         enabled_value = cmds.getAttr(self.current_chosen_light + '.enabled')
         #print 'enabled_value = ',enabled_value
@@ -621,6 +624,7 @@ class render_overrides_prop(object):
 
     def value_set(self,attribute_label,widget,args):
         self.detect_overrides()
+        print ' '
         print 'value_set'
         #print 'widget = ',widget
         #print 'self.default_layer_values_dic = ',self.default_layer_values_dic
@@ -709,10 +713,12 @@ class render_overrides_prop(object):
                 if set_value == default_value:
                     print 'set_value == default_value, running override detect'
                     #attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(180,180,180); }");
-                    self.detect_overrides()
+                    #self.detect_overrides()
                 #self.override_color_mod_single(attribute_label_text)
 
             else:
+                print 'setting ' + attribute_label_text + ' to grey'
+                attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(180,180,180); }");
                 default_value_X = self.default_layer_values_dic[attribute_label_text + 'X']
                 default_value_Y = self.default_layer_values_dic[attribute_label_text + 'Y']
                 default_value_Z = self.default_layer_values_dic[attribute_label_text + 'Z']
@@ -728,20 +734,51 @@ class render_overrides_prop(object):
                 if attribute_label_text == 'scale':
                     current_value_X = self.attribute_scaleX_float_spinbox.value()
                     current_value_Y = self.attribute_scaleY_float_spinbox.value()
+                    print 'current_value_Y = ',current_value_Y
                     current_value_Z = self.attribute_scaleZ_float_spinbox.value()
-                current_transform_value = (current_value_X,current_value_Y,default_value_Z)
-                print 'default_transform_value = ',default_transform_value
                 current_transform_value = (current_value_X,current_value_Y,current_value_Z)
+                print 'attribute_label_text = ',attribute_label_text
+                print 'default_transform_value = ',default_transform_value
                 print 'current_transform_value = ',current_transform_value
                 print 'self.layer_overrides_dic = ',self.layer_overrides_dic
-                if current_transform_value != default_transform_value and (attribute_label_text + 'X') not in self.layer_overrides_dic and (attribute_label_text + 'Y') not in self.layer_overrides_dic and (attribute_label_text + 'Z') not in self.layer_overrides_dic:
-                    #print 'setting ' + str(widget) + ' to red'
-                    print '3 set_value != default_value and str(set_value) not in str(override_value), turning red '
-                    attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
-                    if attribute_label_text not in self.red_labels:
-                        self.red_labels.append(attribute_label_text)
+                if current_transform_value != default_transform_value:
+                    if (attribute_label_text + 'X') not in self.layer_overrides_dic and (attribute_label_text + 'Y') not in self.layer_overrides_dic and (attribute_label_text + 'Z') not in self.layer_overrides_dic:
+                        #print 'setting ' + str(widget) + ' to red'
+                        print '3 current_transform_value != default_transform_value and (attribute_label_text + X,Y,Z) not in self.layer_overrides_dic, turning red '
+                        attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
+                        if attribute_label_text not in self.red_labels:
+                            self.red_labels.append(attribute_label_text)
+                    else:
+                        print 'override dic = ',self.layer_overrides_dic
+                        ovveride_X_value = self.layer_overrides_dic[attribute_label_text + 'X']
+                        ovveride_X_value_split = ovveride_X_value.split("%%")
+                        ovveride_X_value = ovveride_X_value_split[1]
+                        ovveride_Y_value = self.layer_overrides_dic[attribute_label_text + 'Y']
+                        ovveride_Y_value_split = ovveride_Y_value.split("%%")
+                        ovveride_Y_value = ovveride_Y_value_split[1]
+                        ovveride_Z_value = self.layer_overrides_dic[attribute_label_text + 'Z']
+                        ovveride_Z_value_split = ovveride_Z_value.split("%%")
+                        ovveride_Z_value = ovveride_Z_value_split[1]
+                        override_values = (float(ovveride_X_value),float(ovveride_Y_value),float(ovveride_Z_value))
+                        print 'override_values = ',override_values
+                        print type(override_values)
+                        print override_values[0]
+                        print override_values[1]
+                        print override_values[2]
+                        print 'current_transform_value = ',str(current_transform_value)
+                        print type(current_transform_value)
+                        print current_transform_value[0]
+                        print current_transform_value[1]
+                        print current_transform_value[2]
+                        if str(current_transform_value) != str(override_values):
+                            print '4 current_transform_value != default_transform_value, and (attribute_label_text + X,Y,Z) IN self.layer_overrides_dic, AND current value NOT matching override value: turning red'
+                            attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(250,0,0); }");
+                            if attribute_label_text not in self.red_labels:
+                                self.red_labels.append(attribute_label_text)
+                        self.detect_overrides()
                 else:
-                    attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
+                    #attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(225,120,0); }");
+                    self.detect_overrides()
 
     def detect_overrides(self):
         print 'detect_overrides '
