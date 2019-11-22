@@ -727,6 +727,10 @@ class render_overrides_prop(object):
                 if attribute_label_text + 'X' not in self.layer_overrides_dic or attribute_label_text + 'Y' not in self.layer_overrides_dic or attribute_label_text + 'Z' not in self.layer_overrides_dic:
                     #print 'setting ' + attribute_label_text + ' to grey'
                     attribute_label.setStyleSheet("QLabel { background:rgb(65,66,66); color : rgb(180,180,180); }");
+                    if attribute_label in self.layer_overrides_dic:
+                        print 'REMOVING ' +  attribute_label + 'from self.red_labels'
+                        self.red_labels_cut = self.red_labels.remove(attribute_label)
+                        self.red_labels = self.red_labels_cut
                 default_value_X = self.default_layer_values_dic[attribute_label_text + 'X']
                 default_value_Y = self.default_layer_values_dic[attribute_label_text + 'Y']
                 default_value_Z = self.default_layer_values_dic[attribute_label_text + 'Z']
