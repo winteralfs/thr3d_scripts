@@ -39,7 +39,119 @@ class render_overrides_prop(object):
 
     def clear_all_layer_overrides_in_all_layers(self):
         print 'clear_all_layer_overrides_in_all_layers'
+        print self.light_names
+        chosen_light = self.current_chosen_light
         print self.layer_overrides_dic
+        print self.render_layers
+        current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+        for light in self.light_names:
+            self.current_chosen_light = light
+            self.layer_overrides_dic = {}
+            self.detect_overrides()
+            for override in self.layer_overrides_dic:
+                override_value = self.layer_overrides_dic[override]
+                override_value_split = override_value.split('%%')
+                override_layer = override_value_split[0]
+                print 'override_layer = ',override_layer
+                for render_layer in self.render_layers:
+                    if render_layer != 'defaultRenderLayer':
+                        print 'render_layer = ',render_layer
+                        if render_layer == override_layer:
+                            print 'override_layer matches render_layer'
+                            cmds.editRenderLayerGlobals(currentRenderLayer=render_layer)
+                            print cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
+                            override_attr_string = self.current_chosen_light + '.' + override
+                            if 'translate' in override:
+                                override_attr_string = self.current_chosen_light + '.' + 'translate'
+                                override_attr_string = override_attr_string.replace('Shape','')
+                                print 'postReplace',override_attr_string
+                            if 'rotate' in override:
+                                override_attr_string = self.current_chosen_light + '.' + 'rotate'
+                                override_attr_string = override_attr_string.replace('Shape','')
+                            if 'scale' in override:
+                                override_attr_string = self.current_chosen_light + '.' + 'scale'
+                                override_attr_string = override_attr_string.replace('Shape','')
+                            print 'removing ' + override_attr_string
+                            cmds.editRenderLayerAdjustment(override_attr_string, remove = True)
+        cmds.editRenderLayerGlobals(currentRenderLayer=current_render_layer)
+        self.current_chosen_light = chosen_light
+
+    def button_clear_all_overrides(self):
+        print 'button_clear_all_overrides'
+        print self.layer_overrides_dic
+        print self.render_layers
+        current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+        for override in self.layer_overrides_dic:
+            override_value = self.layer_overrides_dic[override]
+            override_value_split = override_value.split('%%')
+            override_layer = override_value_split[0]
+            print 'override_layer = ',override_layer
+            for render_layer in self.render_layers:
+                if render_layer != 'defaultRenderLayer':
+                    print 'render_layer = ',render_layer
+                    if render_layer == override_layer:
+                        print 'override_layer matches render_layer'
+                        cmds.editRenderLayerGlobals(currentRenderLayer=render_layer)
+                        print cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
+                        override_attr_string = self.current_chosen_light + '.' + override
+                        if 'translate' in override:
+                            override_attr_string = self.current_chosen_light + '.' + 'translate'
+                            override_attr_string = override_attr_string.replace('Shape','')
+                            print 'postReplace',override_attr_string
+                        if 'rotate' in override:
+                            override_attr_string = self.current_chosen_light + '.' + 'rotate'
+                            override_attr_string = override_attr_string.replace('Shape','')
+                        if 'scale' in override:
+                            override_attr_string = self.current_chosen_light + '.' + 'scale'
+                            override_attr_string = override_attr_string.replace('Shape','')
+                        print 'removing ' + override_attr_string
+                        cmds.editRenderLayerAdjustment(override_attr_string, remove = True)
+        cmds.editRenderLayerGlobals(currentRenderLayer=current_render_layer)
+
+    def button_clear_selected_layer_overrides(self):
+        print 'button_clear_selected_layer_overrides'
+        print self.layer_overrides_dic
+        print self.render_layers
+        print 'self.render_layer_checkboxes = ',self.render_layer_checkboxes
+        checked_render_layer_checkboxes = []
+        for render_layer_checkbox in self.render_layer_checkboxes:
+            value = render_layer_checkbox.isChecked()
+            print 'value = ',value
+            if value == 1:
+                print 'self.render_layer_checkboxes_label_dic = ',self.render_layer_checkboxes_label_dic
+                render_layer_checkbox_text = self.render_layer_checkboxes_label_dic[render_layer_checkbox]
+                checked_render_layer_checkboxes.append(render_layer_checkbox_text)
+                print 'checked_render_layer_checkboxes = ',checked_render_layer_checkboxes
+        current_render_layer = cmds.editRenderLayerGlobals(query=True, currentRenderLayer=True)
+        print 'self.layer_overrides_dic = ',self.layer_overrides_dic
+        for override in self.layer_overrides_dic:
+            override_value = self.layer_overrides_dic[override]
+            override_value_split = override_value.split('%%')
+            override_layer = override_value_split[0]
+            print 'override_layer = ',override_layer
+            for render_layer in self.render_layers:
+                print 'render_layer = ',render_layer
+                print 'checked_render_layer_checkboxes = ',checked_render_layer_checkboxes
+                if render_layer != 'defaultRenderLayer':
+                    if render_layer == override_layer:
+                        if render_layer in checked_render_layer_checkboxes:
+                            print 'override_layer matches render_layer and in checked_render_layer_checkboxes'
+                            cmds.editRenderLayerGlobals(currentRenderLayer=render_layer)
+                            print cmds.editRenderLayerGlobals(query = True, currentRenderLayer = True)
+                            override_attr_string = self.current_chosen_light + '.' + override
+                            if 'translate' in override:
+                                override_attr_string = self.current_chosen_light + '.' + 'translate'
+                                override_attr_string = override_attr_string.replace('Shape','')
+                                print 'postReplace',override_attr_string
+                            if 'rotate' in override:
+                                override_attr_string = self.current_chosen_light + '.' + 'rotate'
+                                override_attr_string = override_attr_string.replace('Shape','')
+                            if 'scale' in override:
+                                override_attr_string = self.current_chosen_light + '.' + 'scale'
+                                override_attr_string = override_attr_string.replace('Shape','')
+                            print 'removing ' + override_attr_string
+                            cmds.editRenderLayerAdjustment(override_attr_string, remove = True)
+        cmds.editRenderLayerGlobals(currentRenderLayer=current_render_layer)
 
     def light_color_state(self,widget,attribute_label_text):
         cmds.colorEditor()
@@ -514,6 +626,8 @@ class render_overrides_prop(object):
         self.render_layer_checkbox_layout.setAlignment(Qt.AlignTop)
         #self.spacer_label = QtWidgets.QLabel('')
         #self.render_layer_checkbox_layout.addWidget(self.spacer_label)
+        self.render_layer_checkboxes = []
+        self.render_layer_checkboxes_label_dic = {}
         for render_layer in self.render_layers_in_order:
             if render_layer != 'defaultRenderLayer':
                 self.render_layer_label = QtWidgets.QLabel(render_layer)
@@ -521,19 +635,23 @@ class render_overrides_prop(object):
                 self.render_layer_layout.addWidget(self.render_layer_label)
                 layer_checkbox = QtWidgets.QCheckBox()
                 self.render_layer_checkbox_layout.addWidget(layer_checkbox)
+                self.render_layer_checkboxes.append(layer_checkbox)
+                self.render_layer_checkboxes_label_dic[layer_checkbox] = self.render_layer_label.text()
         button_clear_all_layer_overrides_in_all_layers = QtWidgets.QPushButton("clear all light overrides in all layers")
         button_clear_all_layer_overrides_in_all_layers.pressed.connect(partial(self.clear_all_layer_overrides_in_all_layers))
         button_clear_all_overrides = QtWidgets.QPushButton("clear selected light's overrides in all layers")
-        button_set_all_layer_overrides = QtWidgets.QPushButton("set selected light's overrides in all layers")
+        button_clear_all_overrides.pressed.connect(partial(self.button_clear_all_overrides))
         button_clear_selected_layer_overrides = QtWidgets.QPushButton("clear selected light's overrides in selected layers")
+        button_clear_selected_layer_overrides.pressed.connect(partial(self.button_clear_selected_layer_overrides))
+        button_set_all_layer_overrides = QtWidgets.QPushButton("set selected light's overrides in all layers")
         button_set_selected_layer_overrides = QtWidgets.QPushButton("set selected light's overrides in selected layers")
         #button_set_overrides.setFixedWidth(button_width)
         #button_set_overrides.setFixedHeight(button_height)
         #button_set_overrides.pressed.connect(partial(self.allToggleTexture_off))
         self.button_horizontal_layout.addWidget(button_clear_all_layer_overrides_in_all_layers)
         self.button_horizontal_layout.addWidget(button_clear_all_overrides)
-        self.button_horizontal_layout.addWidget(button_set_all_layer_overrides)
         self.button_horizontal_layout.addWidget(button_clear_selected_layer_overrides)
+        self.button_horizontal_layout.addWidget(button_set_all_layer_overrides)
         self.button_horizontal_layout.addWidget(button_set_selected_layer_overrides)
         self.attribute_analysis()
 
@@ -561,7 +679,9 @@ class render_overrides_prop(object):
         print 'attribute_analysis'
         self.current_chosen_light = self.light_combo_box.currentText()
         self.default_Layer_values()
-        #print ' self.current_chosen_light = ',self.current_chosen_light
+        print self.current_chosen_light
+        print cmds.editRenderLayerGlobals( query = True, currentRenderLayer = True)
+        print self.render_layers_in_order
         parent = cmds.listRelatives(self.current_chosen_light, parent = True)
         transform_x = cmds.getAttr(parent[0] + '.translateX')
         transform_y = cmds.getAttr(parent[0] + '.translateY')
@@ -656,7 +776,7 @@ class render_overrides_prop(object):
         #print 'specular_contribution_value = ',specular_contribution_value
         #print 'setting ' + str(self.attribute_specular_contribution_float_spinbox) + ' to ' + str(specular_contribution_value)
         self.attribute_specular_contribution_float_spinbox.setValue(specular_contribution_value)
-        #self.detect_overrides()
+        self.detect_overrides()
         cmds.editRenderLayerGlobals(currentRenderLayer = self.current_render_layer)
 
     def default_Layer_values(self):
@@ -855,7 +975,7 @@ class render_overrides_prop(object):
         self.layer_overrides_dic = {}
         for layer in self.render_layers_in_order:
             #print ' '
-            #print 'layer = ',layer
+            print 'setting current layer to ',layer
             cmds.editRenderLayerGlobals( currentRenderLayer = layer)
             for attr in self.scriptJob_attrs:
                 #print attr
@@ -876,9 +996,11 @@ class render_overrides_prop(object):
                         #print 'attr_value = ',attr_value
                         #print 'default_attr = ',default_attr
                         if attr_value != default_attr:
-                            #print 'attr_value = ',attr_value
-                            #print 'default_attr = ',default_attr
+                            print 'attr_value = ',attr_value
+                            print 'default_attr = ',default_attr
+                            print 'adding ' + attr + ' to self.layer_overrides_dic '
                             self.layer_overrides_dic[attr] = layer + '%%' + str(attr_value)
+        print 'self.layer_overrides_dic = ',self.layer_overrides_dic
         self.override_color_mod()
 
 def main():
