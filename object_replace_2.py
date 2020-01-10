@@ -417,70 +417,87 @@ def objectChooseWin():
             return pathmasterObj,object_Old,object_New,pathOBJ
 
         def renderLayerCheck(object_Old,object_New,renderLayers):
-            print "old object render layers check:"
+            #print ' '
+            #print "old object render layers check:"
             object_Old = (str(object_Old))
-            print 'object_Old = ',object_Old
+            #print ' XXX '
+            #print 'object_Old = ',object_Old
             objects_render_layer_compare = []
             objects_render_layer_compare.append(object_Old)
-            print 'objects_render_layer_compare = ',objects_render_layer_compare
+            #print 'objects_render_layer_compare = ',objects_render_layer_compare
             object_Old_kids = cmds.listRelatives(object_Old,fullPath = True,children = True) or []
-            print 'object_Old_kids = ',object_Old_kids
+            #print 'object_Old_kids = ',object_Old_kids
             for object in object_Old_kids:
-                print 'object = ',object
+                #print 'object = ',object
                 object_type = cmds.nodeType(object)
-                print 'object_type = ',object_type
+                #print 'object_type = ',object_type
                 if object_type == 'mesh':
-                    print 'object type = mesh'
+                    #print 'object type = mesh'
                     if object not in objects_render_layer_compare:
-                        print object + ' not in objects_render_layer_compare'
+                        #print object + ' not in objects_render_layer_compare'
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        print 'object = ',object
+                        #print 'object = ',object
                         if object not in objects_render_layer_compare:
-                            print 'object not in objects_render_layer_compare'
+                            #print 'object not in objects_render_layer_compare'
                             objects_render_layer_compare.append(object)
-                            print 'objects_render_layer_compare = ',objects_render_layer_compare
+                            #print 'objects_render_layer_compare = ',objects_render_layer_compare
             object_Old_parents = cmds.listRelatives(object_Old,fullPath = True,parent = True) or []
-            print 'object_Old_parents = ',object_Old_parents
+            #print 'object_Old_parents = ',object_Old_parents
             for object in object_Old_parents:
-                print 'object = ',object
+                #print 'object = ',object
                 object_type = cmds.nodeType(object)
-                print 'object_type = ',object_type
+                #print 'object_type = ',object_type
                 if object_type == 'mesh':
-                    print 'object_type == 'mesh''
+                    #print 'object_type == mesh'
                     if object not in objects_render_layer_compare:
-                        print 'object not in objects_render_layer_compare'
+                        #print 'object not in objects_render_layer_compare'
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        print 'object = ',object
+                        #print 'object = ',object
                         if object not in objects_render_layer_compare:
-                            print 'object not in objects_render_layer_compare'
+                            #print 'object not in objects_render_layer_compare'
                             objects_render_layer_compare.append(object)
-                            print 'objects_render_layer_compare = ',objects_render_layer_compare
+            #print '1 objects_render_layer_compare = ',objects_render_layer_compare
+            for object in objects_render_layer_compare:
+                #print 'object = ',object
+                object_split = object.split('|')
+                #print 'object_split = ',object_split
+                if len(object_split) > 0:
+                    object_name_isolated = object_split[-1]
+                    if object_name_isolated not in  objects_render_layer_compare:
+                        #print 'adding isolated object name to objects_render_layer_compare'
+                        objects_render_layer_compare.append(object_name_isolated)
+            #print '2 objects_render_layer_compare = ',objects_render_layer_compare
             object_New = (str(object_New))
-            print 'object_New = ',object_New
+            #print ' XXX '
+            #print 'object_New = ',object_New
+            #print ' XXX '
             object_in_render_layer_list = []
             size_layers = len(renderLayers)
             for render_layer in renderLayers:
-                print 'render_layer = ',render_layer
+                #print '******'
+                #print 'render_layer = ',render_layer
                 members_in_render_layer = cmds.editRenderLayerMembers(render_layer, query = True ) or []
-                print 'members_in_render_layer = ',members_in_render_layer
+                #print 'members_in_render_layer = ',members_in_render_layer
                 number_of_objects_in_render_layer = len(members_in_render_layer)
-                print 'number_of_objects_in_render_layer = ',number_of_objects_in_render_layer
+                #print 'number_of_objects_in_render_layer = ',number_of_objects_in_render_layer
                 if number_of_objects_in_render_layer > 0:
-                    print 'number_of_objects_in_render_layer > 0'
+                    #print 'number_of_objects_in_render_layer > 0'
                     for member_in_render_layer in members_in_render_layer:
-                        print 'member_in_render_layer = ',member_in_render_layer
+                        #print 'member_in_render_layer = ',member_in_render_layer
+                        #print 'objects_render_layer_compare = ',objects_render_layer_compare
                         if member_in_render_layer in objects_render_layer_compare:
-                            print 'member_in_render_layer in objects_render_layer_compare'
+                            #print 'member_in_render_layer in objects_render_layer_compare'
                             if render_layer not in object_in_render_layer_list:
                                 object_in_render_layer_list.append(render_layer)
-                                print 'render_layer not in object_in_render_layer_list'
-                                print 'appending ' + render_layer
-                                print 'object_in_render_layer_list = ',object_in_render_layer_list
+                                #print 'render_layer not in object_in_render_layer_list'
+                                #print 'appending ' + render_layer
+                                #print 'object_in_render_layer_list = ',object_in_render_layer_list
             print 'old_object in render layers, ',object_in_render_layer_list
+            print ' '
             return object_in_render_layer_list,object_Old,object_New
 
         def translations(object_Old,object_New,renderLayers,old_Xforms):
@@ -673,7 +690,7 @@ def objectChooseWin():
                     print "sets used by a v-ray Extra_Tex that contain " + object_Old + " = ", setsINC
             else:
                 if object_old_rename_check == 1:
-                    print object_old_print_temp + " detected in no exlude sets"
+                    print object_old_print_temp + "detected in no exlude sets"
                 else:
                     print object_Old + " detected in no exlude sets"
             return setsINC,object_Old,object_New
