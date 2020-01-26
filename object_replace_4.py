@@ -58,7 +58,7 @@ import maya.mel as mel
 from functools import partial
 from string import digits
 
-#print 'tuesday'
+print 'SAT SAT'
 
 def look_for_duplicate_nodes():
     duplicate_node_names = []
@@ -1433,7 +1433,19 @@ def objectChooseWin():
                         if fType == "uvChooser":
                             secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
                             UVmapAddressOLD = secondConList[0]
-                            UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
+                            object_New_shape = cmds.listRelatives(object_New,children = True) or []
+                            #print 'object_New_shape = ',object_New_shape
+                            #print 'UVmapAddressOLD = ',UVmapAddressOLD
+                            UVmapAddressOLD_split = UVmapAddressOLD.split('.')
+                            #print 'UVmapAddressOLD_split = ',UVmapAddressOLD_split
+                            #print 'UVmapAddressOLD_split 0 = ',UVmapAddressOLD_split[0]
+                            #print 'UVmapAddressOLD_split 1 = ',UVmapAddressOLD_split[1]
+                            #print 'UVmapAddressOLD_split 2 = ',UVmapAddressOLD_split[2]
+                            UVmapAddressNEW = object_New_shape[0] + '.' + UVmapAddressOLD_split[1] + '.' + UVmapAddressOLD_split[2]
+                            #print 'UVmapAddressNEW = ',UVmapAddressNEW
+                            #print 'object_Old = ',object_Old
+                            #print 'object_New = ',object_New
+                            print '  '
                             cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
                         else:
                             secondConList = cmds.listConnections(second, destination = False) or []

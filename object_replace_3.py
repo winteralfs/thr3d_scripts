@@ -1434,6 +1434,10 @@ def objectChooseWin():
                             secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
                             UVmapAddressOLD = secondConList[0]
                             UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
+                            print 'UVmapAddressOLD = ',UVmapAddressOLD
+                            print 'object_Old = ',object_Old
+                            print 'object_New = ',object_New
+                            print 'UVmapAddressNEW = ',UVmapAddressNEW
                             cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
                         else:
                             secondConList = cmds.listConnections(second, destination = False) or []
