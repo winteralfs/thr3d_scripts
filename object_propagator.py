@@ -49,7 +49,7 @@ class OBJECT_PROPAGATOR(object):
         self.copy_object_layout = QtWidgets.QHBoxLayout(main_widget)
         main_vertical_layout.addLayout(self.copy_object_layout)
         self.run_duplicate_layout = QtWidgets.QHBoxLayout(main_widget)
-        main_vertical_layout.addLayout(self.run_transform_layout)
+        main_vertical_layout.addLayout(self.run_duplicate_layout)
         self.reference_objects_line_edit = QtWidgets.QLineEdit()
         self.reference_objects_button = QtWidgets.QPushButton()
         self.reference_objects_button.setText("reference_objects")
@@ -67,7 +67,7 @@ class OBJECT_PROPAGATOR(object):
 
         self.run_duplicate_button = QtWidgets.QPushButton()
         self.run_duplicate_button.setText("run_duplicate")
-        self.run_duplicate.pressed.connect(partial(self.run_duplicate))
+        self.run_duplicate_button.pressed.connect(partial(self.run_duplicate))
         self.run_duplicate_layout.addWidget(self.run_duplicate_button)
 
         window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
