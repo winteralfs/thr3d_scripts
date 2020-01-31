@@ -13,20 +13,31 @@ class OBJECT_PROPAGATOR(object):
 
     def reference_objects_detect(self):
         reference_objects_string = ''
-        reference_objects = cmds.ls(sl = True)
-        print 'reference_objects = ',reference_objects
-        for reference_object in reference_objects:
+        self.reference_objects = cmds.ls(sl = True)
+        print 'reference_objects = ',self.reference_objects
+        for reference_object in self.reference_objects:
             reference_objects_string = reference_objects_string + ' ' + reference_object
         self.reference_objects_line_edit.setText(reference_objects_string)
 
     def copy_object_detect(self):
-        copy_object = cmds.ls(sl = True)
-        print 'copy_object = ',copy_object
-        for list_item in copy_object:
+        self.copy_object = cmds.ls(sl = True)
+        print 'copy_object = ',self.copy_object
+        for list_item in self.copy_object:
             self.copy_object_line_edit.setText(list_item)
 
     def run_duplicate(self):
         print 'run_transform_button'
+        for reference_object in self.reference_objects:
+            print 'reference_object = ',reference_object
+            duplicate_copy_object = cmds.duplicate(self.copy_object)
+            print 'duplicate_copy_object = ',duplicate_copy_object
+            world_transforms_reference_object = cmds.xform(reference_object,q = True, ws = True,rotatePivot = True)
+            print 'world_transforms_reference_object = ',world_transforms_reference_object
+            cmds.xform(duplicate_copy_object[0],cp = True)
+            transX = world_transforms_reference_object[0]
+            transY = world_transforms_reference_object[1]
+            transZ = world_transforms_reference_object[2]
+            cmds.xform(duplicate_copy_object[0],r = True, t = (transX,transY,transZ))
 
     def object_propagator_UI(self):
         print 'object_propagator_UI'
