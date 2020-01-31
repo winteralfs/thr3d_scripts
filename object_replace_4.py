@@ -1518,7 +1518,7 @@ def objectChooseWin():
                             UVmapAddressOLD_split = UVmapAddressOLD.split('.')
                             object_New_shape = cmds.listRelatives(parent = False, children = True)
                             UVmapAddressNEW = object_New_shape[0] + '.' + UVmapAddressOLD_split[1] + '.' + UVmapAddressOLD_split[2]
-                            print 'UVmapAddressNEW = ',UVmapAddressNEW
+                            #print 'UVmapAddressNEW = ',UVmapAddressNEW
                             cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
                         else:
                             siz = len(second)
