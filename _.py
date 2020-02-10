@@ -1,12 +1,3 @@
-import maya
-import maya.cmds as cmds
-import os
-import maya.OpenMayaUI as mui
-from functools import partial
-from PySide2 import QtWidgets,QtCore,QtGui
-from PySide2.QtCore import Qt
-import shiboken2
-
 """
 
 .. image:: U:/cwinters/docs/build/html/_images/uv_set_chooser/uv_set_chooser_v01.JPG
@@ -41,10 +32,16 @@ The objects that are currently using the chosen texture will be light blue, and 
    :align: center
    :scale: 75%
 
-
-
 """
-print 'friday day'
+
+import maya
+import maya.cmds as cmds
+import os
+import maya.OpenMayaUI as mui
+from functools import partial
+from PySide2 import QtWidgets,QtCore,QtGui
+from PySide2.QtCore import Qt
+import shiboken2
 
 
 class UV_SET_EDITOR(object):
@@ -405,10 +402,10 @@ class UV_SET_EDITOR(object):
                         self.uv_sets_all.append(uv_sets_all_string)
                         for texture in self.all_textures:
                             if uv_set == 'map1':
-                                #print '1 setting ' + texture + ':|:' + uv_sets_all_string + 'to 1'
+                                #print 'setting ' + texture + ':|:' + uv_sets_all_string + 'to 1'
                                 self.uv_set_selection_status_dic[texture + ':|:' + uv_sets_all_string] = 1
                             else:
-                                #print '2 setting ' + texture + ':|:' + uv_sets_all_string + 'to 0'
+                                #print 'setting ' + texture + ':|:' + uv_sets_all_string + 'to 0'
                                 self.uv_set_selection_status_dic[texture + ':|:' + uv_sets_all_string] = 0
                     self.uv_sets_all.append('  ')
                     number_of_uv_sets_for_object = len(uv_sets)
@@ -430,145 +427,145 @@ class UV_SET_EDITOR(object):
 
     def initial_uv_set_name_to_address_dic_eval(self):
         #print ' '
-        print 'initial_uv_set_name_to_address_dic_eval'
+        #print 'initial_uv_set_name_to_address_dic_eval'
         #print 'start initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         assigned_uv_sets = []
         for texture in self.all_textures:
             #print 'X'
             #print ' '
-            print 'A initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            #print 'A initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             #print 'texture = ',texture
             #print ' '
             uv_set_names_linked_to_texture = []
             uv_sets_linked_to_texture = cmds.uvLink(texture = texture, query = True) or []
-            print 'uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
-            print 'self.uv_sets_all = ',self.uv_sets_all
+            #print 'uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
+            #print 'self.uv_sets_all = ',self.uv_sets_all
             for uv_set_all in self.uv_sets_all:
-                print 'XX'
-                print ' '
-                print '1 uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
-                print ' '
-                print '1 uv_set_all = ',uv_set_all
+                #print 'XX'
+                #print ' '
+                #print '1 uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
+                #print ' '
+                #print 'uv_set_all = ',uv_set_all
                 empty_uv_set_detect = len(uv_sets_linked_to_texture)
                 if empty_uv_set_detect != 2 and empty_uv_set_detect > 0:
-                    print '2 uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
-                    print 'empty_uv_set_detect != 2'
+                    #print '2 uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
+                    #print 'empty_uv_set_detect != 2'
                     #print 'XXX'
                     #print ' '
-                    print '2 uv_set_all = ',uv_set_all
-                    print ' '
+                    #print 'uv_set_all = ',uv_set_all
+                    #print ' '
                     uv_set_all_split = uv_set_all.split('*')
-                    print 'uv_set_all_split = ',uv_set_all_split
+                    #print 'uv_set_all_split = ',uv_set_all_split
                     if uv_set_all_split[0] != '':
-                        print '3 uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
-                        print 'uv_set_all_split[0] not empty'
+                        #print '3 uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
+                        #print 'uv_set_all_split[0] not empty'
                         uv_set_all_split_two = uv_set_all.split(':|:')
-                        print 'uv_set_all_split_two = ',uv_set_all_split_two
+                        #print 'uv_set_all_split_two = ',uv_set_all_split_two
                         uv_set_object = uv_set_all_split_two[0]
-                        print 'uv_set_object = ',uv_set_object
-                        uv_set = uv_set_all
-                        print 'uv_set = ',uv_set
-                        print 'texture = ',texture
-                        uv_set_address_linked_to_object = cmds.uvLink( query=True, texture = texture,queryObject = uv_set_object) or []
-                        print 'uv_set_address_linked_to_object = ',uv_set_address_linked_to_object
-                        uv_set_address_linked_to_object = uv_sets_linked_to_texture
-                        uv_sets_linked_to_texture = uv_sets_linked_to_texture[0]
-                        print 'uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
-                        print 'uv_set_address_linked_to_texture = ',uv_sets_linked_to_texture[0]
+                        #print 'uv_set_object = ',uv_set_object
+                        #uv_set = uv_set_all
+                        #print 'uv_set = ',uv_set
+                        #print 'texture = ',texture
+                        #uv_set_address_linked_to_object = cmds.uvLink( query=True, texture = texture,queryObject = uv_set_object) or []
+                        #print 'uv_set_address_linked_to_object = ',uv_set_address_linked_to_object
+                        #uv_set_address_linked_to_object = uv_sets_linked_to_texture
+                        #uv_sets_linked_to_texture = uv_sets_linked_to_texture[0]
+                        #print 'uv_sets_linked_to_texture = ',uv_sets_linked_to_texture
+                        #print 'uv_set_address_linked_to_texture = ',uv_sets_linked_to_texture[0]
                         uv_sets_linked_to_texture_split = uv_sets_linked_to_texture[0].split('.')
-                        print 'uv_sets_linked_to_texture_split = ',uv_sets_linked_to_texture_split
+                        #print 'uv_sets_linked_to_texture_split = ',uv_sets_linked_to_texture_split
                         len_uv_sets_linked_to_texture = len(uv_sets_linked_to_texture)
                         if len_uv_sets_linked_to_texture > 0:
-                            print 'len_uv_set_address_linked_to_object > 0'
-                            uv_sets_linked_to_texture = uv_sets_linked_to_texture[0]
-                            print '4 uv_sets_linked_to_texture = ',uv_sets_linked_to_texture[0]
+                            #print 'len_uv_set_address_linked_to_object > 0'
+                            #uv_sets_linked_to_texture = uv_sets_linked_to_texture[0]
+                            #print '4 uv_sets_linked_to_texture = ',uv_sets_linked_to_texture[0]
                             for uv_set_name in self.uv_set_name_to_address_dic:
-                                print 'XXX'
-                                print ' '
-                                print 'uv_set_name = ',uv_set_name
-                                print ' '
+                                #print 'XXX'
+                                #print ' '
+                                #print 'uv_set_name = ',uv_set_name
+                                #print ' '
                                 address = self.uv_set_name_to_address_dic[uv_set_name]
-                                print 'address = ',address
+                                #print 'address = ',address
                                 address_split = address.split('.')
-                                print 'address_split = ',address_split
+                                #print 'address_split = ',address_split
                                 address_object = address_split[0]
                                 address_address = address_split[1]
-                                print 'address_object = ',address_object
-                                print 'address_address = ',address_address
-                                print 'address = ',address
-                                address_split = address.split('.')
+                                #print 'address_object = ',address_object
+                                #print 'address_address = ',address_address
+                                #print 'address = ',address
+                                #address_split = address.split('.')
                                 address_object_raw = address_object[:-1]
-                                print 'address_object_raw = ',address_object_raw
+                                #print 'address_object_raw = ',address_object_raw
                                 uv_set_object_plus_address = uv_set_object + '.' + uv_sets_linked_to_texture_split[1]
-                                print 'uv_set_object_plus_address = ',uv_set_object_plus_address
+                                #print 'uv_set_object_plus_address = ',uv_set_object_plus_address
                                 address_object_plus_address = address_object + '.' + address_address
-                                print 'address_object_plus_address = ',address_object_plus_address
+                                #print 'address_object_plus_address = ',address_object_plus_address
                                 address_object_raw_plus_address = address_object_raw + '.' + address_address
-                                print 'address_object_raw_plus_address = ',address_object_raw_plus_address
+                                #print 'address_object_raw_plus_address = ',address_object_raw_plus_address
                                 if uv_set_object_plus_address == address_object_plus_address or uv_set_object_plus_address == address_object_raw_plus_address:
-                                    print '!!!!!'
-                                    print address_object + ' == ' + uv_set_object + ' or ' + address_object_raw + ' == ' + uv_set_object
-                                    print 'uv_set_name = ',uv_set_name
+                                    #print '!!!!!'
+                                    #print address_object + ' == ' + uv_set_object + ' or ' + address_object_raw + ' == ' + uv_set_object
+                                    #print 'uv_set_name = ',uv_set_name
                                     uv_set_name_split = uv_set_name.split(':|:')
-                                    print 'uv_set_name_split = ',uv_set_name_split
+                                    #print 'uv_set_name_split = ',uv_set_name_split
                                     name = uv_set_name_split[1]
-                                    print 'name = ',name
+                                    #print 'name = ',name
                                     if name != 'map1':
-                                        print 'name != map1'
+                                        #print 'name != map1'
                                         uv_set_name_split = uv_set_name.split(':|:')
                                         uv_set_name = uv_set_name_split[1]
-                                        print 'uv_set_name = ',uv_set_name
-                                        print '3 setting '+ texture + ':|:' + uv_set_object + ':|:' + uv_set_name + ' to 1'
+                                        #print 'uv_set_name = ',uv_set_name
+                                        #print 'setting '+ texture + ':|:' + uv_set_object + ':|:' + uv_set_name + ' to 1'
                                         self.uv_set_selection_status_dic[texture + ':|:' + uv_set_object + ':|:' + uv_set_name] = 1
-                                        print '4 setting '+ texture + ':|:' + uv_set_object + ':|:map1 to 0'
+                                        #print 'setting '+ texture + ':|:' + uv_set_object + ':|:map1 to 0'
                                         self.uv_set_selection_status_dic[texture + ':|:' + uv_set_object + ':|:' + 'map1'] = 0
-            print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-            print 'sub initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-        print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-        print 'initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            #print 'A self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            #print 'A sub initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        #print 'B self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        #print 'B initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         for uv_set_all in self.uv_sets_all:
-            print 'oo'
-            print 'uv_set_all = ',uv_set_all
+            #print 'oo'
+            #print 'uv_set_all = ',uv_set_all
             empty_uv_set_detect = len(uv_set_all)
-            print 'empty_uv_set_detect = ',empty_uv_set_detect
+            #print 'empty_uv_set_detect = ',empty_uv_set_detect
             if empty_uv_set_detect != 2:
-                print 'empty_uv_set_detect != 2'
+                #print 'empty_uv_set_detect != 2'
                 uv_set_all_split = uv_set_all.split('*')
                 if uv_set_all_split[0] != '':
-                    print 'uv_set_all_split[0] not empty'
+                    #print 'uv_set_all_split[0] not empty'
                     for texture in self.all_textures:
-                        print 'texture = ',texture
+                        #print 'texture = ',texture
                         dic_string_check = texture + ':|:' + uv_set_all
-                        print 'dic_string_check = ',dic_string_check
+                        #print 'dic_string_check = ',dic_string_check
                         if dic_string_check not in self.uv_set_selection_status_dic:
-                            print 'dic_string_check not in self.uv_set_selection_status_dic'
-                            print '5 adding it and setting it to 0'
+                            #print 'dic_string_check not in self.uv_set_selection_status_dic'
+                            #print 'adding it and setting it to 0'
                             self.uv_set_selection_status_dic[texture + ':|:' + uv_full] = 0
-        print '3 initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        #print 'C initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         for us_set_carry_over in self.uv_set_selection_status_dic_state_change:
-            print 'ooo'
-            print 'us_set_carry_over = ',us_set_carry_over
+            #print 'ooo'
+            #print 'us_set_carry_over = ',us_set_carry_over
             state = self.uv_set_selection_status_dic_state_change[us_set_carry_over]
-            print 'state = ',state
+            #print 'state = ',state
             us_set_carry_over_split = us_set_carry_over.split(':|:')
             us_set_carry_over_texture = us_set_carry_over_split[0]
             us_set_carry_over_object = us_set_carry_over_split[1]
             us_set_carry_uv_set = us_set_carry_over_split[2]
             if state == 1:
-                print 'state == 1'
-                print '6 setting ' + us_set_carry_over + 'to 1'
+                #print 'state == 1'
+                #print 'setting ' + us_set_carry_over + 'to 1'
                 self.uv_set_selection_status_dic[us_set_carry_over] = 1
                 if us_set_carry_uv_set != 'map1':
-                    print 'us_set_carry_uv_set not map1'
-                    print '7 setting ' + us_set_carry_over_texture + ':|:' + us_set_carry_over_object + ':|:' + 'map1 to 0'
+                    #print 'us_set_carry_uv_set not map1'
+                    #print 'setting ' + us_set_carry_over_texture + ':|:' + us_set_carry_over_object + ':|:' + 'map1 to 0'
                     self.uv_set_selection_status_dic[us_set_carry_over_texture + ':|:' + us_set_carry_over_object + ':|:' + 'map1'] = 0
-            print '4 initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-        print 'end initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            #print 'D initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        #print 'end initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
 #---------- UV set selection methods ----------
 
     def item_press(self,item):
-        print 'item_press()'
+        #print 'item_press()'
         if self.centric_state_text == 'texture-centric':
             #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             self.deselect_QListWidget(self.list_widget_right)
@@ -623,7 +620,7 @@ class UV_SET_EDITOR(object):
         selected_item.setSelected(False)
 
     def update_right_listWidget(self):
-        print 'update_right_listWidget()'
+        #print 'update_right_listWidget()'
         #print 'self.uv_set_selection_status_dic = ', self.uv_set_selection_status_dic
         if self.centric_state_text == 'texture-centric':
             self.unlock_right_QListWidget()
@@ -908,7 +905,7 @@ class UV_SET_EDITOR(object):
     def link_texture_to_uv_set(self):
         #print ' '
         #print ' '
-        print 'link_texture_to_uv_set()'
+        #print 'link_texture_to_uv_set()'
         #print 'start link_texture_to_uv_set uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         for uv_set_selection in self.uv_set_selection_status_dic:
             #print ' '
@@ -1421,4 +1418,5 @@ class UV_SET_EDITOR(object):
 def main():
     uv_set_editor = UV_SET_EDITOR()
     uv_set_editor.texture_linker_UI()
+
 #main()
