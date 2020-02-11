@@ -52,6 +52,8 @@ class UV_SET_EDITOR(object):
         self.filepath = cmds.file(q=True, sn=True)
         self.filename = os.path.basename(self.filepath)
         self.raw_name, extension = os.path.splitext(self.filename)
+        self.file_name_on_disk = '/Users/alfredwinters/Desktop/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
+        #self.file_name_on_disk = 'U:/cwinters/uv_set_chooser_temp_files/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
 
 #---------- procedural tools and data gathering methods ----------
 
@@ -317,41 +319,60 @@ class UV_SET_EDITOR(object):
                                                     if texture_connection_type not in bad_connection_types:
                                                         valid_file = 1
             placement_connections = cmds.listConnections(texture, source = True, destination = False)
-            print 'texture = ',texture
+            #print 'texture = ',texture
             #print 'placement_connections = ',placement_connections
             VRayPlaceEnvTex_node_found = 0
             for connection in placement_connections:
                 type = cmds.nodeType(connection)
                 if type == 'VRayPlaceEnvTex':
                     VRayPlaceEnvTex_node_found = 1
-                    print 'VRayPlaceEnvTex_node_found'
+                    #print 'VRayPlaceEnvTex_node_found'
             if valid_file == 1:
                 if VRayPlaceEnvTex_node_found == 0:
                     #print 'appending ' + texture
                     self.all_textures.append(texture)
         #print 'self.all_textures = ', self.all_textures
 
-    def read_in_and_create_UV_sets_state_file(self):
-        #uv_set_status_dic_on_disk = open('/Users/alfredwinters/Desktop/uv_set_status_dic_on_disk.txt','a+')
-        self.file_name_on_disk = 'U:/cwinters/uv_set_chooser_temp_files/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
+    def write_UV_sets_state_file_to_disk(self):
+        #print '* write_UV_sets_state_file_to_disk *'
+        if os.path.isfile(self.file_name_on_disk) and os.access(self.file_name_on_disk, os.R_OK):
+            #print ' removing file!'
+            os.remove(self.file_name_on_disk)
         uv_set_status_dic_on_disk = open(self.file_name_on_disk,'a+')
         for uv_set in self.uv_set_selection_status_dic:
-            self.file_name_on_disk.write(uv_set + '\n')
-            self.file_name_on_disk.write(test_dic[uv_set] + '\n')
-        #self.file_name_on_disk.close()
-        #self.file_name_on_disk = open(self.file_name_on_disk, 'r')
-        #self.file_name_on_disk = open(self.file_name_on_disk, 'r')
-        if self.file_name_on_disk.mode == 'r':
-            file_name_on_disk_contents = self.file_name_on_disk.readlines()
+            redundant = 0
+            file_name_on_disk_contents = uv_set_status_dic_on_disk.readlines()
             file_name_on_disk_contents_size = len(file_name_on_disk_contents)
-            self.uv_set_selection_status_dic_from_disk = {}
             i = 0
             while i < file_name_on_disk_contents_size:
-                file_name_on_disk_contents_replaced_newline = file_name_on_disk_contents[i].replace('\n','')
-                file_name_on_disk_contents_newline_plus_one = file_name_on_disk_contents[i+1].replace('\n','')
-                self.uv_set_selection_status_dic_from_disk[file_name_on_disk_contents_replaced_newline] = file_name_on_disk_contents_newline_plus_one
-                i = i+2
-        print self.uv_set_selection_status_dic_from_disk
+                file_line = file_name_on_disk_contents[i]
+                #print 'file_line = ',file_line
+                #print 'uv_set = ',uv_set
+                if file_line == uv_set:
+                    redundant = 1
+                i = i+1
+            if redundant == 0:
+                uv_set_status_dic_on_disk.write(uv_set + '\n')
+                uv_set_status_dic_on_disk.write(str(self.uv_set_selection_status_dic[uv_set]) + '\n')
+        uv_set_status_dic_on_disk.close()
+
+    def read_UV_sets_state_file_from_disk(self):
+        #print '* read_UV_sets_state_file_from_disk *'
+        file_name_on_disk = open(self.file_name_on_disk)
+        self.uv_set_selection_status_dic_from_disk = {}
+        #if file_name_on_disk == 'r':
+        file_name_on_disk_contents = file_name_on_disk.readlines()
+        #print 'file_name_on_disk_contents = ',file_name_on_disk_contents
+        file_name_on_disk_contents_size = len(file_name_on_disk_contents)
+        #print 'file_name_on_disk_contents_size = ',file_name_on_disk_contents_size
+        i = 0
+        while i < file_name_on_disk_contents_size:
+            file_name_on_disk_contents_replaced_newline = file_name_on_disk_contents[i].replace('\n','')
+            file_name_on_disk_contents_newline_plus_one = file_name_on_disk_contents[i+1].replace('\n','')
+            self.uv_set_selection_status_dic_from_disk[file_name_on_disk_contents_replaced_newline] = file_name_on_disk_contents_newline_plus_one
+            i = i+2
+        file_name_on_disk.close()
+        #print 'end read file self.uv_set_selection_status_dic_from_disk = ', self.uv_set_selection_status_dic_from_disk
 
     def  evaluate_UV_sets_in_scene(self):
         #print ' '
@@ -619,23 +640,34 @@ class UV_SET_EDITOR(object):
             us_set_carry_over_texture = us_set_carry_over_split[0]
             us_set_carry_over_object = us_set_carry_over_split[1]
             us_set_carry_uv_set = us_set_carry_over_split[2]
-            if state == 1:
+            if state == str(1):
                 self.uv_set_selection_status_dic[us_set_carry_over] = 1
                 if us_set_carry_uv_set != 'map1':
                     self.uv_set_selection_status_dic[us_set_carry_over_texture + ':|:' + us_set_carry_over_object + ':|:' + 'map1'] = 0
         #print '1 initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-        path = self.file_name_on_disk
-        if os.path.isfile(path) and os.access(path, os.R_OK):
-            print "File exists and is readable/there"
-            
-        else:
-            print 'file does not exist
+        if os.path.isfile(self.file_name_on_disk) and os.access(self.file_name_on_disk, os.R_OK):
+            #print "File exists and is readable/there"
+            self.read_UV_sets_state_file_from_disk()
+            #print 'self.uv_set_selection_status_dic_from_disk = ', self.uv_set_selection_status_dic_from_disk
+            for uv_set_selection_status in self.uv_set_selection_status_dic:
+                uv_set_selection_status_split = uv_set_selection_status.split(':|:')
+                uv_set_selection_status_texture = uv_set_selection_status_split[0]
+                uv_set_selection_status_texture_linked_UV_sets = cmds.uvLink( query = True, texture = uv_set_selection_status_texture)
+                uv_set_selection_status_texture_linked_UV_sets_size = len(uv_set_selection_status_texture_linked_UV_sets)
+                if uv_set_selection_status_texture_linked_UV_sets_size == 0:
+                    for uv_set_selection_from_disk in self.uv_set_selection_status_dic_from_disk:
+                        if uv_set_selection_status == uv_set_selection_from_disk:
+                            uv_set_selection_status_from_disk = self.uv_set_selection_status_dic_from_disk[uv_set_selection_status]
+                            self.uv_set_selection_status_dic[uv_set_selection_status] = uv_set_selection_status_from_disk
+        #else:
+            #print self.file_name_on_disk + ' does not exist'
+        #print 'after readiing file self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 #---------- UV set selection methods ----------
 
     def item_press(self,item):
         #print 'item_press()'
         if self.centric_state_text == 'texture-centric':
-            #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             self.deselect_QListWidget(self.list_widget_right)
             self.texture_linked_uv_sets = []
             self.selected_item_text = item.text()
@@ -648,19 +680,42 @@ class UV_SET_EDITOR(object):
                 if item == self.selected_item_text:
                     #print item + ' ==' + self.selected_item_text
                     self.selected_item_text = file
-            uv_set_addresses_linked_to_selected_texture = cmds.uvLink( query = True, texture = self.selected_item_text)
-            #print 'uv_set_addresses_linked_to_selected_texture = ',uv_set_addresses_linked_to_selected_texture
+            uv_set_addresses_linked_to_selected_texture = cmds.uvLink( query = True, texture = self.selected_item_text) or []
+            #print '* uv_set_addresses_linked_to_selected_texture = ',uv_set_addresses_linked_to_selected_texture
             number_of_linked_uv_sets = len(uv_set_addresses_linked_to_selected_texture)
-            #print 'number_of_linked_uv_sets = ',number_of_linked_uv_sets
+            #print '* number_of_linked_uv_sets = ',number_of_linked_uv_sets
+            if number_of_linked_uv_sets == 0:
+                #print '* number of linked UV sets = 0, reading file'
+                linked_UV_sets = []
+                #print '* self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+                for uv_set in self.uv_set_selection_status_dic:
+                    #print '* uv_set = ',uv_set
+                    state = self.uv_set_selection_status_dic[uv_set]
+                    #print '* state = ',state
+                    if state == str(1):
+                        #print 'state = 1, adding to linked_UV_sets'
+                        linked_UV_sets.append(uv_set)
+                #print '* linked_UV_sets = ',linked_UV_sets
+                for linked_UV_set in linked_UV_sets:
+                    #print '* linked_UV_set = ',linked_UV_set
+                    #print '* self.uv_set_name_to_address_dic = ',self.uv_set_name_to_address_dic
+                    linked_UV_set_split = linked_UV_set.split(':|:')
+                    linked_UV_set_adjusted = linked_UV_set_split[1] + ':|:' + linked_UV_set_split[2]
+                    #print 'linked_UV_set_adjusted = ',linked_UV_set_adjusted
+                    address = self.uv_set_name_to_address_dic[linked_UV_set_adjusted]
+                    #print '* address = ',address
+                    uv_set_addresses_linked_to_selected_texture.append(address)
+                    #print '* after file read, uv_set_addresses_linked_to_selected_texture = ',uv_set_addresses_linked_to_selected_texture
             for uv_set_name_to_address in self.uv_set_name_to_address_dic:
-                #print 'uv_set_name_to_address = ',uv_set_name_to_address
+                #print '* uv_set_name_to_address = ',uv_set_name_to_address
                 uv_set_address = self.uv_set_name_to_address_dic[uv_set_name_to_address]
-                #print 'uv_set_address = ',uv_set_address
+                #print '* uv_set_address = ',uv_set_address
                 if uv_set_address in uv_set_addresses_linked_to_selected_texture:
-                    #print 'uv_set_address = ',uv_set_address
-                    #print 'uv_set_address in uv_set_addresses_linked_to_selected_texture'
-                    #print 'appending ' + uv_set_address + ' to ' + 'self.texture_linked_uv_sets'
+                    #print '* uv_set_address = ',uv_set_address
+                    #print '* uv_set_address in uv_set_addresses_linked_to_selected_texture'
+                    #print '* appending ' + uv_set_address + ' to ' + 'self.texture_linked_uv_sets'
                     self.texture_linked_uv_sets.append(uv_set_name_to_address)
+            #print '* self.texture_linked_uv_sets = ',self.texture_linked_uv_sets
             self.update_right_listWidget()
         if self.centric_state_text == 'UV-centric':
             self.selected_item_text = item.text()
@@ -689,14 +744,15 @@ class UV_SET_EDITOR(object):
 
     def update_right_listWidget(self):
         #print 'update_right_listWidget()'
-        #print 'self.uv_set_selection_status_dic = ', self.uv_set_selection_status_dic
+        #print 'XX self.uv_set_selection_status_dic = ', self.uv_set_selection_status_dic
         if self.centric_state_text == 'texture-centric':
             self.unlock_right_QListWidget()
             it = 0
+            #print 'XX self.number_of_items_in_right_listWidget = ',self.number_of_items_in_right_listWidget
             while it < self.number_of_items_in_right_listWidget:
                 item = self.list_widget_right.item(it)
                 item_text = item.text()
-                #print 'item_text = ',item_text
+                #print 'XX item_text = ',item_text
                 empty_uv_set_detect = len(item_text)
                 #print 'empty_uv_set_detect = ',empty_uv_set_detect
                 if empty_uv_set_detect != 2:
@@ -716,13 +772,14 @@ class UV_SET_EDITOR(object):
                         combined_object_uv_set_name = (self.selected_item_text + ':|:' + (item_object + ':|:' + item_text))
                         #print 'combined_object_uv_set_name = ',combined_object_uv_set_name
                         item_text_selection_status = self.uv_set_selection_status_dic[combined_object_uv_set_name]
+                        #print 'XX item_text_selection_status = ',item_text_selection_status
                         #print 'item_text_selection_status = ',item_text_selection_status
-                        if item_text_selection_status == 1:
-                            #print 'item_text_selection_status = 1, setting ' + str(item) + ' to selected'
+                        if item_text_selection_status == str(1):
+                            #print 'XX item_text_selection_status = 1, setting ' + str(item) + ' to selected'
                             item.setSelected(True)
                             item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-                        if item_text_selection_status == 0:
-                            #print 'item_text_selection_status = 0, setting ' + str(item) + ' to deselected'
+                        if item_text_selection_status == str(0):
+                            #print 'XX item_text_selection_status = 0, setting ' + str(item) + ' to deselected'
                             item.setSelected(False)
                 it = it + 1
             self.texture_to_object_color_adjust()
@@ -757,9 +814,9 @@ class UV_SET_EDITOR(object):
                                 if item_uv_set_text == self.selected_item_text:
                                     item_text_selection_status_dic_key = (item_text + ':|:' + (item_object  + ':|:' + self.selected_item_text))
                                     item_text_selection_status = self.uv_set_selection_status_dic[item_text_selection_status_dic_key]
-                                    if item_text_selection_status == 0:
+                                    if item_text_selection_status == str(0):
                                         item.setSelected(False)
-                                    if item_text_selection_status == 1:
+                                    if item_text_selection_status == str(1):
                                         item.setSelected(True)
                                         item_text = item.text()
                                         self.selected_right_list_textures.append(item_text)
@@ -777,7 +834,7 @@ class UV_SET_EDITOR(object):
         #print ' '
         #print 'right_listWidget_selection_eval()'
         if self.centric_state_text == 'texture-centric':
-            #print 'start right_listWidget_selection_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+            #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             selected_uv_sets_pointers = self.list_widget_right.selectedItems()
             #print 'selected_uv_sets_pointers = ',selected_uv_sets_pointers
             uv_set_pointers = []
@@ -1041,6 +1098,7 @@ class UV_SET_EDITOR(object):
                 if texture_linked_uv_set_address_minus_post_exists == 1:
                     #print 'linking ' + str(texture_linked_uv_set_address_minus_post) + ' to ' + texture
                     cmds.uvLink(make = True, uvSet = texture_linked_uv_set_address_minus_post,texture = texture)
+        self.write_UV_sets_state_file_to_disk()
         #print 'end link_texture_to_uv_set uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
     def texture_to_object_color_adjust(self):
