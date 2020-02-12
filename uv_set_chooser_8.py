@@ -52,8 +52,8 @@ class UV_SET_EDITOR(object):
         self.filepath = cmds.file(q=True, sn=True)
         self.filename = os.path.basename(self.filepath)
         self.raw_name, extension = os.path.splitext(self.filename)
-        self.file_name_on_disk = '/Users/alfredwinters/Desktop/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
-        #self.file_name_on_disk = 'U:/cwinters/uv_set_chooser_temp_files/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
+        #self.file_name_on_disk = '/Users/alfredwinters/Desktop/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
+        self.file_name_on_disk = 'U:/cwinters/uv_set_chooser_temp_files/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
 
 #---------- procedural tools and data gathering methods ----------
 
@@ -338,22 +338,23 @@ class UV_SET_EDITOR(object):
         if os.path.isfile(self.file_name_on_disk) and os.access(self.file_name_on_disk, os.R_OK):
             #print ' removing file!'
             os.remove(self.file_name_on_disk)
-        uv_set_status_dic_on_disk = open(self.file_name_on_disk,'a+')
+        uv_set_status_dic_on_disk = open(self.file_name_on_disk,'a')
+        #uv_set_status_dic_on_disk_content = uv_set_status_dic_on_disk.readlines()
+        #uv_set_status_dic_on_disk_length = len(file_name_on_disk_contents)
         for uv_set in self.uv_set_selection_status_dic:
-            redundant = 0
-            file_name_on_disk_contents = uv_set_status_dic_on_disk.readlines()
-            file_name_on_disk_contents_size = len(file_name_on_disk_contents)
-            i = 0
-            while i < file_name_on_disk_contents_size:
-                file_line = file_name_on_disk_contents[i]
+            #redundant = 0
+            #print 'uv_set = ',uv_set
+            #i = 0
+            #while i < uv_set_status_dic_on_disk_length:
+                #file_line = uv_set_status_dic_on_disk_content[i]
                 #print 'file_line = ',file_line
                 #print 'uv_set = ',uv_set
-                if file_line == uv_set:
-                    redundant = 1
-                i = i+1
-            if redundant == 0:
-                uv_set_status_dic_on_disk.write(uv_set + '\n')
-                uv_set_status_dic_on_disk.write(str(self.uv_set_selection_status_dic[uv_set]) + '\n')
+                #if file_line == uv_set:
+                    #redundant = 1
+                #i = i+1
+            #if redundant == 0:
+            uv_set_status_dic_on_disk.write(uv_set + '\n')
+            uv_set_status_dic_on_disk.write(str(self.uv_set_selection_status_dic[uv_set]) + '\n')
         uv_set_status_dic_on_disk.close()
 
     def read_UV_sets_state_file_from_disk(self):
@@ -832,7 +833,7 @@ class UV_SET_EDITOR(object):
 
     def right_listWidget_selection_eval(self):
         #print ' '
-        print 'right_listWidget_selection_eval()'
+        #print 'right_listWidget_selection_eval()'
         if self.centric_state_text == 'texture-centric':
             #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             selected_uv_sets_pointers = self.list_widget_right.selectedItems()
@@ -1030,7 +1031,7 @@ class UV_SET_EDITOR(object):
     def link_texture_to_uv_set(self):
         #print ' '
         #print ' '
-        print 'link_texture_to_uv_set()'
+        #print 'link_texture_to_uv_set()'
         #print 'start link_texture_to_uv_set uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         for uv_set_selection in self.uv_set_selection_status_dic:
             #print ' '
