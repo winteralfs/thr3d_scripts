@@ -70,6 +70,7 @@ class texture_replacer_no_gui():
             object_type = cmds.nodeType(texture)
             if object_type in viable_node_types:
                 textures_to_swap.append(texture)
+        print 'textures_to_swap = ',textures_to_swap
         number_of_selected_textures = len(textures_to_swap)
         if number_of_selected_textures > 1:
             i = 0
@@ -88,7 +89,7 @@ class texture_replacer_no_gui():
                               cmds.vray("addAttributesFromGroup", new_fileTex, "vray_file_gamma", 1)
               print " "
               print new_fileTex + " swapping with " + old_fileTex
-              #print "---"
+              print "---"
               #starting the replace
               source_connections_modified = []
               destination_connections_modified = []
@@ -115,7 +116,7 @@ class texture_replacer_no_gui():
               outIter = 1
               while outIter < source_connections_modified_size:
                   if connections_source_old[outIter] != "defaultColorMgtGlobals.cmEnabled" and connections_source_old[outIter] != "defaultColorMgtGlobals.configFileEnabled" and connections_source_old[outIter] != "defaultColorMgtGlobals.configFilePath" and connections_source_old[outIter] != "defaultColorMgtGlobals.workingSpaceName":
-                      #print "connecting " + connections_source_old[outIter] + " to "  + source_connections_modified[inIter]
+                      print "connecting " + connections_source_old[outIter] + " to "  + source_connections_modified[inIter]
                       cmds.connectAttr(connections_source_old[outIter],source_connections_modified[inIter],force = True)
                   outIter = outIter + 2
                   inIter = inIter + 2
@@ -125,7 +126,7 @@ class texture_replacer_no_gui():
               outIter = 1
               while outIter < destination_connections_modified_size:
                   if ".message" not in destination_connections_modified[inIter]:
-                      #print "connecting " + destination_connections_modified[inIter] + " to " + connections_destination_old[outIter]
+                      print "connecting " + destination_connections_modified[inIter] + " to " + connections_destination_old[outIter]
                       cmds.connectAttr(destination_connections_modified[inIter],connections_destination_old[outIter], force = True)
                   outIter = outIter + 2
                   inIter = inIter + 2
@@ -140,27 +141,44 @@ class texture_replacer_no_gui():
               for attr in attrRemove:
                   if attr in old_file_texture_attrs:
                       old_file_texture_attrs.remove(attr)
+              print 'old_file_texture_attrs = ',old_file_texture_attrs
               new_file_texture_attrs = cmds.listAttr(new_fileTex,k = True)
               for attr in attrAppend:
                   new_file_texture_attrs.append(attr)
               for attr in attrRemove:
                   if attr in new_file_texture_attrs:
                       new_file_texture_attrs.remove(attr)
+              print 'old_file_texture_attrs = ',old_file_texture_attrs
+              connected_oldFileAttrs = []
               for oldFileAttr in old_file_texture_attrs:
-                  oldFileAttrValue = cmds.getAttr(old_fileTex + "." + oldFileAttr)
-                  old_file_texture_attr_dic[oldFileAttr] = oldFileAttrValue
+                  print '(old_fileTex + "." + oldFileAttr) = ',(old_fileTex + "." + oldFileAttr)
+                  oldFileAttr_connections = cmds.listConnections((old_fileTex + "." + oldFileAttr)) or []
+                  print 'oldFileAttr_connections = ',oldFileAttr_connections
+                  number_of_old_file_connections = len(oldFileAttr_connections)
+                  print 'number_of_old_file_connections = ',number_of_old_file_connections
+                  if number_of_old_file_connections > 0:
+                      connected_oldFileAttrs.append(oldFileAttr)
+                  if number_of_old_file_connections == 0:
+                      oldFileAttrValue = cmds.getAttr(old_fileTex + "." + oldFileAttr)
+                      old_file_texture_attr_dic[oldFileAttr] = oldFileAttrValue
               for new_fileTexAttr in new_file_texture_attrs:
                   new_fileTexAttr_Value = cmds.getAttr(new_fileTex + "." + new_fileTexAttr)
                   new_file_texture_attr_dic[new_fileTexAttr] = new_fileTexAttr_Value
+              print 'connected_oldFileAttrs = ',connected_oldFileAttrs
+              print 'new_file_texture_attr_dic = ',new_file_texture_attr_dic
               for new_fileTexAttr in new_file_texture_attrs:
-                  if new_fileTexAttr in new_file_texture_attr_dic:
-                      attrExists = cmds.attributeQuery(new_fileTexAttr,node = new_fileTex,exists = True)
-                      if attrExists == 1:
-                          #print "setting " + str(new_fileTex) + "." + str(new_fileTexAttr) + " to " + str(old_file_texture_attr_dic[new_fileTexAttr])
-                          print 'old_file_texture_attr_dic[new_fileTexAttr] = ',old_file_texture_attr_dic[new_fileTexAttr]
-                          cmds.setAttr( old_file_texture_attr_dic[new_fileTexAttr], lock=0 )
-                          cmds.setAttr(new_fileTex + "." + new_fileTexAttr,old_file_texture_attr_dic[new_fileTexAttr])
-              i = i + 2
+                  if new_fileTexAttr not in connected_oldFileAttrs:
+                      print 'new_fileTexAttr = ',new_fileTexAttr
+                      if new_fileTexAttr in new_file_texture_attr_dic:
+                          attrExists = cmds.attributeQuery(new_fileTexAttr,node = new_fileTex,exists = True)
+                          if attrExists == 1:
+                              print 'unlocking, new_fileTex + "." + new_fileTexAttr = ',new_fileTex + "." + new_fileTexAttr
+                              cmds.setAttr(new_fileTex + "." + new_fileTexAttr, lock=0 )
+                              print "setting " + str(new_fileTex) + "." + str(new_fileTexAttr) + " to " + str(old_file_texture_attr_dic[new_fileTexAttr])
+                              cmds.setAttr(new_fileTex + "." + new_fileTexAttr,old_file_texture_attr_dic[new_fileTexAttr])
+                  else:
+                      print '!! found a connection for ' + new_fileTexAttr
+                  i = i + 2
             cmds.select(clear = True)
             new_fileTex = ''
             old_fileTex = ''
