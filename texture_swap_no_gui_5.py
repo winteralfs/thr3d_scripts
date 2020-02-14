@@ -111,15 +111,20 @@ class texture_replacer_no_gui():
                 for attr in attrRemove:
                     if attr in new_file_texture_attrs:
                         new_file_texture_attrs.remove(attr)
+                for new_fileTexAttr in new_file_texture_attrs:
+                    new_fileTexAttr_Value = cmds.getAttr(new_fileTex + "." + new_fileTexAttr)
+                    new_file_texture_attr_dic[new_fileTexAttr] = new_fileTexAttr_Value
                 print 'old_file_texture_attrs = ',old_file_texture_attrs
                 connected_oldFileAttrs = ['defaultColorR','defaultColorG','defaultColorB','colorGainR','colorGainG','colorGainB','colorOffsetR','colorOffsetG','colorOffsetB']
                 oldFileAttr_RGB_list = []
+                oldFileAttr_connections = []
                 for oldFileAttr in old_file_texture_attrs:
-                    oldFileAttr_connections = []
-                    if oldFileAttr in oldFileAttr_RGB_list:
+                    print 'old_fileTex = ',old_fileTex
+                    print 'oldFileAttr = ',oldFileAttr
+                    if oldFileAttr in connected_oldFileAttrs:
                         oldFileAttr_mod = oldFileAttr[:-1]
                         print oldFileAttr_mod
-                        print '(*old_fileTex + "." + oldFileAttr) = ',(old_fileTex + "." + oldFileAttr_mod)
+                        print '(*old_fileTex + "." + oldFileAttr_mod) = ',(old_fileTex + "." + oldFileAttr_mod)
                         oldFileAttr_connections = cmds.listConnections((old_fileTex + "." + oldFileAttr_mod)) or []
                     print '*oldFileAttr_connections = ',oldFileAttr_connections
                     number_oldFileAttr_connections = len(oldFileAttr_connections)
@@ -127,11 +132,8 @@ class texture_replacer_no_gui():
                     if number_oldFileAttr_connections == 0:
                         oldFileAttrValue = cmds.getAttr(old_fileTex + "." + oldFileAttr)
                         old_file_texture_attr_dic[oldFileAttr] = oldFileAttrValue
-                    for new_fileTexAttr in new_file_texture_attrs:
-                        new_fileTexAttr_Value = cmds.getAttr(new_fileTex + "." + new_fileTexAttr)
-                        new_file_texture_attr_dic[new_fileTexAttr] = new_fileTexAttr_Value
                     if number_oldFileAttr_connections > 0:
-                        connected_oldFileAttrs.append(oldFileAttr_mod)
+                        oldFileAttr_RGB_list.append(oldFileAttr_mod)
                         print '* connected_oldFileAttrs = ',connected_oldFileAttrs
                 print '** connected_oldFileAttrs = ',connected_oldFileAttrs
                 source_connections_modified = []
