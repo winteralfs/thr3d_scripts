@@ -54,6 +54,14 @@ class UV_SET_EDITOR(object):
         self.raw_name, extension = os.path.splitext(self.filename)
         #self.file_name_on_disk = '/Users/alfredwinters/Desktop/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
         self.file_name_on_disk = 'U:/cwinters/uv_set_chooser_temp_files/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
+        transforms_all_tmp = cmds.ls(type = 'shape')
+        for shape_transform in transforms_all_tmp:
+            if 'Shape' not in shape_transform:
+                cmds.lockNode(shape_transform,lock = False)
+                shape_parent = cmds.listRelatives(shape_transform,parent = True)
+                print 'shape_parent = ',shape_parent
+                print 'no Shape label, renaming ' + shape_transform + ' to ' + shape_parent[0] + '_Shape'
+                cmds.rename(shape_transform,shape_parent[0] + '_Shape')
 
 #---------- procedural tools and data gathering methods ----------
 
@@ -393,19 +401,18 @@ class UV_SET_EDITOR(object):
         except_shape_types = ['VRayLightRectShape','locator','camera']
         shape_name_dic = {}
         for transform in transforms_all_tmp:
+            if 'Shape' not in transform:
+                cmds.lockNode(transform,lock = False)
+                cmds.rename(transform,transform + '_Shape')
+        for transform in transforms_all_tmp:
             if 'polySurface' not in transform:
                 node_type = cmds.nodeType(transform)
                 if node_type not in except_shape_types:
                     #print 'transform = ',transform
                     if transform not in except_nodes or 'imagePLane1' not in transform:
-                        #print 'transform = ',transform
-                        if 'Shape' in transform:
-                            transform_split = transform.split('Shape')
-                        else:
-                            cmds.rename(transform,transform + '_Shape')
-                            transform_split = transform.split('Shape')
-                        #print 'transform_split',transform_split
+                        transform_split = transform.split('Shape')
                         shape_name_dic[transform_split[0]] = transform_split[1]
+                    #print 'transform_split',transform_split
                     if transform not in transforms_all_tmp_no_shape:
                         #print 'adding ',transform
                         if transform_split[0] not in transforms_all_tmp_no_shape:
