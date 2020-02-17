@@ -249,6 +249,8 @@ class ASSET_TRACKER(object):
         #print 'populate_window'
         for node in self.trackable_objects:
             self.node_name_listWidget.addItem(node)
+            alt_path_highest_version_value = 0
+            highest_version_value = 0
             for asset in self.asset_attr_dic:
                 asset_name_split = asset.split('&&')
                 asset_name = asset_name_split[0]
@@ -258,8 +260,16 @@ class ASSET_TRACKER(object):
                         version_value = self.asset_attr_dic[asset]
                         self.current_version_listWidget.addItem(version_value)
                     if attr == 'highest_version':
-                        highest_version_value = self.asset_attr_dic[asset]
-                        self.highest_version_listWidget.addItem(highest_version_value)
+                        if 'alt_path' in asset:
+                            alt_path_highest_version_value = self.asset_attr_dic[asset]
+                            print 'alt_path_highest_version_value = '.alt_path_highest_version_value
+                        else:
+                            highest_version_value = self.asset_attr_dic[asset]
+                            print 'highest_version_value = ,highest_version_value
+                        if alt_path_highest_version_value > highest_version_value:
+                            self.highest_version_listWidget.addItem(alt_path_highest_version_value)
+                        else:
+                            self.highest_version_listWidget.addItem(highest_version_value)
                     if attr == 'entity_name':
                         entity_name_value = self.asset_attr_dic[asset]
                         self.entity_name_listWidget.addItem(entity_name_value)
