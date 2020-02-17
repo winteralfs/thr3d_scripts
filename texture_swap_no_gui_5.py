@@ -104,7 +104,7 @@ class texture_replacer_no_gui():
                 for attr in attrRemove:
                     if attr in old_file_texture_attrs:
                         old_file_texture_attrs.remove(attr)
-                print 'old_file_texture_attrs = ',old_file_texture_attrs
+                #print 'old_file_texture_attrs = ',old_file_texture_attrs
                 new_file_texture_attrs = cmds.listAttr(new_fileTex,k = True)
                 for attr in attrAppend:
                     new_file_texture_attrs.append(attr)
@@ -114,32 +114,32 @@ class texture_replacer_no_gui():
                 for new_fileTexAttr in new_file_texture_attrs:
                     new_fileTexAttr_Value = cmds.getAttr(new_fileTex + "." + new_fileTexAttr)
                     new_file_texture_attr_dic[new_fileTexAttr] = new_fileTexAttr_Value
-                print 'old_file_texture_attrs = ',old_file_texture_attrs
+                #print 'old_file_texture_attrs = ',old_file_texture_attrs
                 connected_oldFileAttrs = ['exposure','defaultColorR','defaultColorG','defaultColorB','colorGainR','colorGainG','colorGainB','colorOffsetR','colorOffsetG','colorOffsetB','alphaGain','alphaOffset']
                 connected_oldFileAttrs_connected = []
                 RGB_attrs = ['defaultColorR','defaultColorG','defaultColorB','colorGainR','colorGainG','colorGainB','colorOffsetR','colorOffsetG','colorOffsetB']
                 oldFileAttr_RGB_list = []
                 oldFileAttr_connections = []
                 for oldFileAttr in old_file_texture_attrs:
-                    print 'old_fileTex = ',old_fileTex
-                    print 'oldFileAttr = ',oldFileAttr
+                    #print 'old_fileTex = ',old_fileTex
+                    #print 'oldFileAttr = ',oldFileAttr
                     if oldFileAttr in connected_oldFileAttrs:
                         if oldFileAttr in RGB_attrs:
                             oldFileAttr = oldFileAttr[:-1]
-                        print oldFileAttr
-                        print '(*old_fileTex + "." + oldFileAttr) = ',(old_fileTex + "." + oldFileAttr)
+                        #print oldFileAttr
+                        #print '(*old_fileTex + "." + oldFileAttr) = ',(old_fileTex + "." + oldFileAttr)
                         oldFileAttr_connections = cmds.listConnections((old_fileTex + "." + oldFileAttr)) or []
-                    print '*oldFileAttr_connections = ',oldFileAttr_connections
+                    #print '*oldFileAttr_connections = ',oldFileAttr_connections
                     number_oldFileAttr_connections = len(oldFileAttr_connections)
-                    print '*number_oldFileAttr_connections = ',number_oldFileAttr_connections
+                    #print '*number_oldFileAttr_connections = ',number_oldFileAttr_connections
                     if number_oldFileAttr_connections == 0:
                         oldFileAttrValue = cmds.getAttr(old_fileTex + "." + oldFileAttr)
                         old_file_texture_attr_dic[oldFileAttr] = oldFileAttrValue
                     if number_oldFileAttr_connections > 0:
                         oldFileAttr_RGB_list.append(oldFileAttr)
-                        print '* oldFileAttr_RGB_list = ',oldFileAttr_RGB_list
-                print 'connected_oldFileAttrs = ',connected_oldFileAttrs
-                print 'oldFileAttr_RGB_list = ',oldFileAttr_RGB_list
+                        #print '* oldFileAttr_RGB_list = ',oldFileAttr_RGB_list
+                #print 'connected_oldFileAttrs = ',connected_oldFileAttrs
+                #print 'oldFileAttr_RGB_list = ',oldFileAttr_RGB_list
                 source_connections_modified = []
                 destination_connections_modified = []
                 #grab the old texure incoming connections
@@ -181,47 +181,47 @@ class texture_replacer_no_gui():
                     inIter = inIter + 2
                 print 'new_file_texture_attr_dic = ',new_file_texture_attr_dic
                 for new_fileTexAttr in new_file_texture_attrs:
-                    print ' '
-                    print 'new_fileTexAttr = ',new_fileTexAttr
-                    print 'oldFileAttr_RGB_list = ',oldFileAttr_RGB_list
+                    #print ' '
+                    #print 'new_fileTexAttr = ',new_fileTexAttr
+                    #print 'oldFileAttr_RGB_list = ',oldFileAttr_RGB_list
                     if new_fileTexAttr in RGB_attrs:
                         new_fileTexAttr_mod = new_fileTexAttr[:-1]
                     else:
                         new_fileTexAttr_mod = new_fileTexAttr
-                    print 'new_fileTexAttr_mod = ',new_fileTexAttr_mod
+                    #print 'new_fileTexAttr_mod = ',new_fileTexAttr_mod
                     if new_fileTexAttr_mod not in oldFileAttr_RGB_list:
-                        print 'new_file_texture_attr_dic = ',new_file_texture_attr_dic
+                        #print 'new_file_texture_attr_dic = ',new_file_texture_attr_dic
                         #if new_fileTexAttr in new_file_texture_attr_dic:
                         attrExists = cmds.attributeQuery(new_fileTexAttr,node = new_fileTex,exists = True)
                         if attrExists == 1:
-                          print 'unlocking, new_fileTex + "." + new_fileTexAttr = ',new_fileTex + "." + new_fileTexAttr
+                          #print 'unlocking, new_fileTex + "." + new_fileTexAttr = ',new_fileTex + "." + new_fileTexAttr
                           cmds.setAttr(new_fileTex + "." + new_fileTexAttr, lock=0 )
-                          print 'new_fileTexAttr = ',new_fileTexAttr
-                          print 'old_file_texture_attr_dic = ',old_file_texture_attr_dic
+                          #print 'new_fileTexAttr = ',new_fileTexAttr
+                          #print 'old_file_texture_attr_dic = ',old_file_texture_attr_dic
                           print "setting " + str(new_fileTex) + "." + str(new_fileTexAttr) + " to " + str(old_file_texture_attr_dic[new_fileTexAttr_mod])
                           attr_value = old_file_texture_attr_dic[new_fileTexAttr_mod]
-                          print 'attr_value = ',attr_value
+                          #print 'attr_value = ',attr_value
                           if 'defaultColor' in new_fileTexAttr or 'colorGain' in new_fileTexAttr or 'colorOffset' in new_fileTexAttr:
-                              print 'found RGB list attr'
+                              #print 'found RGB list attr'
                               if 'R' == new_fileTexAttr[-1]:
-                                  print 'found R'
+                                  #print 'found R'
                                   attr_value = attr_value[0]
-                                  print 'attr_value = ',attr_value
+                                  #print 'attr_value = ',attr_value
                                   attr_value = attr_value[0]
-                                  print 'attr_value = ',attr_value
+                                  #print 'attr_value = ',attr_value
                               if 'G' == new_fileTexAttr[-1]:
-                                  print 'found G'
+                                  #print 'found G'
                                   attr_value = attr_value[0]
-                                  print 'attr_value = ',attr_value
+                                  #print 'attr_value = ',attr_value
                                   attr_value = attr_value[1]
-                                  print 'attr_value = ',attr_value
+                                  #print 'attr_value = ',attr_value
                               if 'B' == new_fileTexAttr[-1]:
-                                  print 'found B'
+                                  #print 'found B'
                                   attr_value = attr_value[0]
-                                  print 'attr_value = ',attr_value
+                                  #print 'attr_value = ',attr_value
                                   attr_value = attr_value[2]
-                                  print 'attr_value = ',attr_value
-                          print 'attr_value = ',attr_value
+                                  #print 'attr_value = ',attr_value
+                          #print 'attr_value = ',attr_value
                           cmds.setAttr(new_fileTex + "." + new_fileTexAttr,attr_value)
                     else:
                         print '!! found a connection for ' + new_fileTexAttr
