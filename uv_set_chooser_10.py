@@ -47,6 +47,7 @@ import shiboken2
 
 class UV_SET_EDITOR(object):
     def __init__(self):
+        #print 'UV_SET_EDITOR init'
         self.selected_item_text = ''
         self.spacer = '          '
         self.filepath = cmds.file(q=True, sn=True)
@@ -54,19 +55,28 @@ class UV_SET_EDITOR(object):
         self.raw_name, extension = os.path.splitext(self.filename)
         #self.file_name_on_disk = '/Users/alfredwinters/Desktop/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
         self.file_name_on_disk = 'U:/cwinters/uv_set_chooser_temp_files/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
-        transforms_all_tmp = cmds.ls(type = 'shape')
-        for shape_transform in transforms_all_tmp:
+        self.transforms_all_shapes = cmds.ls(type = 'shape')
+        #print 'self.transforms_all_shapes = ',self.transforms_all_shapes
+        for shape_transform in self.transforms_all_shapes:
             if 'Shape' not in shape_transform:
                 cmds.lockNode(shape_transform,lock = False)
                 shape_parent = cmds.listRelatives(shape_transform,parent = True)
-                print 'shape_parent = ',shape_parent
-                print 'no Shape label, renaming ' + shape_transform + ' to ' + shape_parent[0] + '_Shape'
+                #print 'shape_parent = ',shape_parent
+                #print 'no Shape label, renaming ' + shape_transform + ' to ' + shape_parent[0] + '_Shape'
                 cmds.rename(shape_transform,shape_parent[0] + '_Shape')
+        self.transforms_all_shapes = cmds.ls(type = 'shape')
+        self.VRayLightRect_transform_node_list = []
+        for shape_node in self.transforms_all_shapes:
+            shape_node_type = cmds.nodeType(shape_node)
+            if shape_node_type == 'VRayLightRectShape':
+                parent_node = cmds.listRelatives(shape_node,parent = True)
+                self.VRayLightRect_transform_node_list.append(parent_node[0])
+        #print 'self.VRayLightRect_transform_node_list = ',self.VRayLightRect_transform_node_list
 
 #---------- procedural tools and data gathering methods ----------
 
     def centric_state(self):
-        print 'centric_state'
+        #print 'centric_state'
         self.uv_set_selection_status_dic_state_change = self.uv_set_selection_status_dic
         self.centric_state_text = self.texture_based_uv_set_based_combobox.currentText()
         self.right_label.setText('textures')
@@ -81,7 +91,7 @@ class UV_SET_EDITOR(object):
         self.populate_windows()
 
     def selected_items_right_listWidget(self):
-        print 'selected_items_right_listWidget()'
+        #print 'selected_items_right_listWidget()'
         self.selected_items_right_text = []
         self.selected_right_list_pointers = self.list_widget_right.selectedItems()
         for selected_right_list_pointer in self.selected_right_list_pointers:
@@ -99,13 +109,13 @@ class UV_SET_EDITOR(object):
                     pointer_text = file
 
     def deselect_QListWidget(self,listwidget):
-        print 'deselect right list widget items()'
+        #print 'deselect right list widget items()'
         for i in range(listwidget.count()):
             item = listwidget.item(i)
             listwidget.setItemSelected(item, False)
 
     def activate_right_listWidget(self):
-        print 'activate_right_listWidget()'
+        #print 'activate_right_listWidget()'
         self.item_selected_length = len(self.selected_item_text)
         if self.item_selected_length == 0:
             self.list_widget_right.setStyleSheet('QListWidget {background-color: #292929; color: #515151;}')
@@ -125,7 +135,7 @@ class UV_SET_EDITOR(object):
                 it = it + 1
 
     def unlock_right_QListWidget(self):
-        print 'unlock_right_QListWidget()'
+        #print 'unlock_right_QListWidget()'
         it = 0
         while it < self.number_of_items_in_right_listWidget:
             item = self.list_widget_right.item(it)
@@ -142,7 +152,7 @@ class UV_SET_EDITOR(object):
         self.deactivate_empty_lines()
 
     def lock_selected_right_QListWidget(self):
-        print 'lock_selected_right_QListWidget()'
+        #print 'lock_selected_right_QListWidget()'
         self.unlock_right_QListWidget()
         selected_uv_sets_pointers = self.list_widget_right.selectedItems()
         for selected_uv_set_pointer in selected_uv_sets_pointers:
@@ -151,7 +161,7 @@ class UV_SET_EDITOR(object):
             item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
 
     def deactivate_empty_lines(self):
-        print 'deactivate_empty_lines'
+        #print 'deactivate_empty_lines'
         if self.centric_state_text == 'texture-centric':
             it = 0
             while it < self.number_of_items_in_right_listWidget:
@@ -180,7 +190,7 @@ class UV_SET_EDITOR(object):
                 it = it + 1
 
     def populate_windows(self):
-        print 'populate_windows()'
+        #print 'populate_windows()'
         self.evaluate_textures_in_scene()
         self.evaluate_UV_sets_in_scene()
         self.list_widget_left.clear()
@@ -273,59 +283,117 @@ class UV_SET_EDITOR(object):
             self.deactivate_empty_lines()
 
     def evaluate_textures_in_scene(self):
-        print 'evaluate_textures_in_scene()'
+        #print 'evaluate_textures_in_scene()'
         self.file_to_file_path_dic = {}
         self.all_textures = []
-        valid_connection_types = ['VRayMtl','phong','blinn','lambert','surfaceShader','blend','VRayBlendMtl','layeredTexture','remapHsv','multiplyDivide','remapColor','gammaCorrect','VRayBumpMtl']
-        bad_connection_types = ['VRayPlaceEnvTex']
+        #valid_connection_types = ['VRayMtl','phong','blinn','lambert','surfaceShader','blend','VRayBlendMtl','layeredTexture','remapHsv','multiplyDivide','remapColor','gammaCorrect','VRayBumpMtl']
+        valid_connection_types = ['VRayMtl','phong','blinn','lambert','surfaceShader','blend','VRayBlendMtl','remapHsv','multiplyDivide','remapColor','gammaCorrect','VRayBumpMtl']
+        bad_connection_types = ['VRayPlaceEnvTex','VRayLightRectShape','transform']
         file_textures_all = cmds.ls(type = 'file')
         ramp_textures_all = cmds.ls(type = 'ramp')
         noise_texures_all = cmds.ls(type = 'noise')
         textures_all = file_textures_all + ramp_textures_all + noise_texures_all
         for texture in textures_all:
+            #print ' '
             #print 'texture = ',texture
             valid_file = 0
-            texture_connections = cmds.listConnections(texture,source = False) or []
-            #print 'texture_connections = ',texture_connections
-            for texture_connection in texture_connections:
-                #print 'texture_connection = ',texture_connection
-                texture_connection_type = cmds.nodeType(texture_connection)
-                #print 'texture_connection_type = ',texture_connection_type
-                if texture_connection_type in valid_connection_types:
-                    #print ' 0 setting light_ramp to 1'
-                    if texture_connection_type not in bad_connection_types:
-                        valid_file = 1
+            texture_connections_1 = cmds.listConnections(texture,source = False) or []
+            #print 'texture_connections_1 = ',texture_connections_1
+            for texture_connection in texture_connections_1:
+                #print '1 texture_connection = ',texture_connection
+                #print '1 self.VRayLightRect_transform_node_list = ',self.VRayLightRect_transform_node_list
+                if texture_connection in self.VRayLightRect_transform_node_list:
+                    #print '1 VRayLightRectShape FOUND'
+                    pass
                 else:
-                    texture_connections_1 = cmds.listConnections(texture_connection,source = False) or []
-                    #print 'texture_connections_1 = ',texture_connections_1
-                    for texture_connection in texture_connections_1:
-                        #print 'texture_connection = ',texture_connection
-                        texture_connection_type = cmds.nodeType(texture_connection)
-                        #print 'texture_connection_type = ',texture_connection_type
-                        if texture_connection_type in valid_connection_types:
-                            if texture_connection_type not in bad_connection_types:
-                                valid_file = 1
-                        else:
-                            texture_connections_2 = cmds.listConnections(texture_connections_1,source = False) or []
-                            for texture_connection in texture_connections_2:
+                    texture_connection_type = cmds.nodeType(texture_connection)
+                    #print '1 texture_connection_type = ',texture_connection_type
+                    #if texture_connection_type == 'VRayLightRectShape':
+                        #print '1 VRayLightRectShape connection found'
+                    #if texture_connection_type == 'transform':
+                        #print '1 transform connection found'
+                        #print '1 texture_connection = ',texture_connection
+                    if texture_connection_type in valid_connection_types:
+                        #print ' 1 setting light_ramp to 1'
+                        if texture_connection_type not in bad_connection_types:
+                            #print '** 1 setting valid file to 1'
+                            valid_file = 1
+                    else:
+                        texture_connections_2 = cmds.listConnections(texture_connections_1,source = False) or []
+                        #print 'texture_connections_2 = ',texture_connections_2
+                        for texture_connection in texture_connections_2:
+                            #print '2 texture_connection = ',texture_connection
+                            #print '2 self.VRayLightRect_transform_node_list = ',self.VRayLightRect_transform_node_list
+                            if texture_connection in self.VRayLightRect_transform_node_list:
+                                #print '2 VRayLightRectShape FOUND'
+                                pass
+                            else:
                                 texture_connection_type = cmds.nodeType(texture_connection)
+                                #print '2 texture_connection_type = ',texture_connection_type
+                                #if texture_connection_type == 'VRayLightRectShape':
+                                    #print '2 VRayLightRectShape connection found'
+                                #if texture_connection_type == 'transform':
+                                    #print '2 transform connection found'
+                                    #print '2 texture_connection = ',texture_connection
                                 if texture_connection_type in valid_connection_types:
                                     if texture_connection_type not in bad_connection_types:
+                                        #print '** 2 setting valid file to 1'
                                         valid_file = 1
                                 else:
                                     texture_connections_3 = cmds.listConnections(texture_connections_2,source = False) or []
+                                    #print 'texture_connections_3 = ',texture_connections_3
                                     for texture_connection in texture_connections_3:
-                                        texture_connection_type = cmds.nodeType(texture_connection)
-                                        if texture_connection_type in valid_connection_types:
-                                            if texture_connection_type not in bad_connection_types:
-                                                valid_file = 1
+                                        #print '3 texture_connection = ',texture_connection
+                                        #print '3 self.VRayLightRect_transform_node_list = ',self.VRayLightRect_transform_node_list
+                                        if texture_connection in self.VRayLightRect_transform_node_list:
+                                            #print '3 VRayLightRectShape FOUND'
+                                            pass
                                         else:
-                                            texture_connections_4 = cmds.listConnections(texture_connections_3,source = False) or []
-                                            for texture_connection in texture_connections_3:
-                                                texture_connection_type = cmds.nodeType(texture_connection)
-                                                if texture_connection_type in valid_connection_types:
-                                                    if texture_connection_type not in bad_connection_types:
-                                                        valid_file = 1
+                                            texture_connection_type = cmds.nodeType(texture_connection)
+                                            #if texture_connection_type == 'VRayLightRectShape':
+                                                #print '3 VRayLightRectShape connection found'
+                                            #if texture_connection_type == 'transform':
+                                                #print '3 transform connection found'
+                                                #print '3 texture_connection = ',texture_connection
+                                            if texture_connection_type in valid_connection_types:
+                                                if texture_connection_type not in bad_connection_types:
+                                                    #print '** 3 setting valid file to 1'
+                                                    valid_file = 1
+                                            #else:
+                                                #texture_connections_4 = cmds.listConnections(texture_connections_3,source = False) or []
+                                                #print 'texture_connections_4 = ',texture_connections_4
+                                                #for texture_connection in texture_connections_4:
+                                                    #print '4 texture_connection = ',texture_connection
+                                                    #print '4 self.VRayLightRect_transform_node_list = ',self.VRayLightRect_transform_node_list
+                                                    #if texture_connection in self.VRayLightRect_transform_node_list:
+                                                        #print '4 VRayLightRectShape FOUND'
+                                                        #pass
+                                                    #else:
+                                                        #texture_connection_type = cmds.nodeType(texture_connection)
+                                                        #if texture_connection_type == 'VRayLightRectShape':
+                                                            #print '4 VRayLightRectShape connection found'
+                                                        #if texture_connection_type == 'transform':
+                                                            #print '4 transform connection found'
+                                                            #print '4 texture_connection = ',texture_connection
+                                                        #if texture_connection_type in valid_connection_types:
+                                                            #if texture_connection_type not in bad_connection_types:
+                                                                #print '** 4 setting valid file to 1'
+                                                                #valid_file = 1
+                                                        #else:
+                                                            #texture_connections_5 = cmds.listConnections(texture_connections_4,source = False) or []
+                                                            #print 'texture_connections_5 = ',texture_connections_5
+                                                            #for texture_connection in texture_connections_5:
+                                                                #print '5 texture_connection = ',texture_connection
+                                                                #print '5 self.VRayLightRect_transform_node_list = ',self.VRayLightRect_transform_node_list
+                                                                #if texture_connection in self.VRayLightRect_transform_node_list:
+                                                                    #print '1 VRayLightRectShape FOUND'
+                                                                    #pass
+                                                                #else:
+                                                                    #texture_connection_type = cmds.nodeType(texture_connection)
+                                                                    #if texture_connection_type in valid_connection_types:
+                                                                        #if texture_connection_type not in bad_connection_types:
+                                                                            #print '** 5 setting valid file to 1'
+                                                                            #valid_file = 1
             placement_connections = cmds.listConnections(texture, source = True, destination = False)
             #print 'texture = ',texture
             #print 'placement_connections = ',placement_connections
@@ -342,7 +410,7 @@ class UV_SET_EDITOR(object):
         #print 'self.all_textures = ', self.all_textures
 
     def write_UV_sets_state_file_to_disk(self):
-        print '* write_UV_sets_state_file_to_disk *'
+        #print '* write_UV_sets_state_file_to_disk *'
         if os.path.isfile(self.file_name_on_disk) and os.access(self.file_name_on_disk, os.R_OK):
             #print ' removing file!'
             os.remove(self.file_name_on_disk)
@@ -366,7 +434,7 @@ class UV_SET_EDITOR(object):
         uv_set_status_dic_on_disk.close()
 
     def read_UV_sets_state_file_from_disk(self):
-        print '* read_UV_sets_state_file_from_disk *'
+        #print '* read_UV_sets_state_file_from_disk *'
         file_name_on_disk = open(self.file_name_on_disk)
         self.uv_set_selection_status_dic_from_disk = {}
         #if file_name_on_disk == 'r':
@@ -385,7 +453,7 @@ class UV_SET_EDITOR(object):
 
     def evaluate_UV_sets_in_scene(self):
         #print ' '
-        print 'evaluate_UV_sets_in_scene()'
+        #print 'evaluate_UV_sets_in_scene()'
         self.uv_sets_all = []
         #print 'resetting uv_set_selection_status_dic'
         #print 'resetting self.uv_set_selection_status_dic_state_change'
@@ -394,17 +462,17 @@ class UV_SET_EDITOR(object):
         self.uv_set_selection_status_dic_state_change = {}
         #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         transforms_all = []
-        transforms_all_tmp = cmds.ls(type = 'shape')
+        #transforms_all_tmp = cmds.ls(type = 'shape')
         #print 'transforms_all_tmp = ',transforms_all_tmp
         transforms_all_tmp_no_shape = []
         except_nodes = ['std_lgt_core','locator','camera']
         except_shape_types = ['VRayLightRectShape','locator','camera']
         shape_name_dic = {}
-        for transform in transforms_all_tmp:
+        for transform in self.transforms_all_shapes:
             if 'Shape' not in transform:
                 cmds.lockNode(transform,lock = False)
                 cmds.rename(transform,transform + '_Shape')
-        for transform in transforms_all_tmp:
+        for transform in self.transforms_all_shapes:
             if 'polySurface' not in transform:
                 node_type = cmds.nodeType(transform)
                 if node_type not in except_shape_types:
@@ -507,7 +575,7 @@ class UV_SET_EDITOR(object):
         #print ' '
 
     def initial_uv_set_name_to_address_dic_eval(self):
-        print 'initial_uv_set_name_to_address_dic_eval'
+        #print 'initial_uv_set_name_to_address_dic_eval'
         #print 'start initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         assigned_uv_sets = []
         for texture in self.all_textures:
@@ -678,7 +746,7 @@ class UV_SET_EDITOR(object):
 #---------- UV set selection methods ----------
 
     def item_press(self,item):
-        print 'item_press()'
+        #print 'item_press()'
         if self.centric_state_text == 'texture-centric':
         #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             self.deselect_QListWidget(self.list_widget_right)
@@ -756,7 +824,7 @@ class UV_SET_EDITOR(object):
         selected_item.setSelected(False)
 
     def update_right_listWidget(self):
-        print 'update_right_listWidget()'
+        #print 'update_right_listWidget()'
         #print 'XX self.uv_set_selection_status_dic = ', self.uv_set_selection_status_dic
         if self.centric_state_text == 'texture-centric':
             self.unlock_right_QListWidget()
@@ -845,7 +913,7 @@ class UV_SET_EDITOR(object):
 
     def right_listWidget_selection_eval(self):
         #print ' '
-        print 'right_listWidget_selection_eval()'
+        #print 'right_listWidget_selection_eval()'
         if self.centric_state_text == 'texture-centric':
             #print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
             selected_uv_sets_pointers = self.list_widget_right.selectedItems()
@@ -1043,7 +1111,7 @@ class UV_SET_EDITOR(object):
     def link_texture_to_uv_set(self):
         #print ' '
         #print ' '
-        print 'link_texture_to_uv_set()'
+        #print 'link_texture_to_uv_set()'
         #print 'start link_texture_to_uv_set uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
         for uv_set_selection in self.uv_set_selection_status_dic:
             #print ' '
@@ -1115,7 +1183,7 @@ class UV_SET_EDITOR(object):
         #print 'end link_texture_to_uv_set uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 
     def texture_to_object_color_adjust(self):
-        print 'texture_to_object_color_adjust'
+        #print 'texture_to_object_color_adjust'
         linked_objects_to_texture_dic = {}
         object_material_string = ''
         self.list_widget_texture_info.clear()
@@ -1289,7 +1357,7 @@ class UV_SET_EDITOR(object):
         #print 'END texture_to_object_color_adjust'
 
     def connected_materials(self,selected_texture):
-        print '-- connected_materials --'
+        #print '-- connected_materials --'
         #print 'selected_texture = ',selected_texture
         material_types = ['lambert','phong','blinn','surfaceShader','VRayMtl','layeredTexture','VRayBlendMtl','VRayBumpMtl']
         bad_connection_names_list = ['hyperShadePrimaryNodeEditorSavedTabsInfo','materialInfo','defaultShaderList1','defaultTextureList1','initialShadingGroup','particleCloud','initialParticleSE','message']
