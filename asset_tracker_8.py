@@ -406,11 +406,13 @@ class ASSET_TRACKER(object):
                     highest_version_value = 0
                     if attr == 'highest_version':
                         for asset_attr in self.asset_attr_dic:
-                            if 'highest_version' in asset_attr:
+                            if asset_attr == asset_name + '&&highest_version' or asset_attr == 'alt_path_' + asset_name + '&&highest_version':
                                 if 'alt_path_' in asset_attr:
-                                    print 'alt_highest_version_value = ',self.asset_attr_dic[asset]
+                                    print 'ALT PATH'
                                     alt_path_highest_version_value = self.asset_attr_dic[asset_attr]
+                                    print 'alt_path_highest_version_value = ',alt_path_highest_version_value
                                 else:
+                                    print 'REGULAR VERSION'
                                     highest_version_value = self.asset_attr_dic[asset]
                                     print 'highest_version_value = ',highest_version_value
                         if alt_path_highest_version_value > highest_version_value:
