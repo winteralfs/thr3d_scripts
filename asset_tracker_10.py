@@ -179,18 +179,24 @@ class ASSET_TRACKER(object):
                         self.alt_version_higher = 0
                         #print 'value = ',value
                         if 'isln-smb' in value:
+                            print 'isln-smb in ' + value
                             self.alt_path = value.replace('isln-smb','gfs')
                         else:
+                            print 'isln-smb not in ' + value + ' using GFS'
                             self.alt_path = value.replace('gfs','isln-smb')
                         #print 'self.alt_path = ',self.alt_path
                         ii = 0
                         while ii < 2:
-                            #print 'i = ',1
+                            print ' '
+                            print 'ii while loop'
+                            print 'ii = ',ii
+                            print 'value = ',value
                             if ii == 1:
                                 value = self.alt_path
                             self.files_in_19_folder = 0
                             value_split = value.split('\\')
                             self.publish_path_year_dic[object] = value_split[5]
+                            print 'self.publish_path_year_dic[object] = value_split[5] = ', self.publish_path_year_dic[object] = value_split[5]
                             publish_year = value_split[5]
                             publish_path_value_split = value.split('\\')
                             publish_path_value_split_length = len(publish_path_value_split)
@@ -198,7 +204,7 @@ class ASSET_TRACKER(object):
                             product_texture_found = 0
                             Kraft_texture_found = 0
                             Kroger_texture_found = 0
-                            #print 'value = ',value
+                            print 'A value = ',value
                             if 'Product' in value:
                                 #print 'Product detected'
                                 product_texture_found = 1
@@ -210,6 +216,7 @@ class ASSET_TRACKER(object):
                                 Kroger_texture_found = 1
                             i = 0
                             publish_path_value_forward_length = 5
+                            print 'B value = ',value
                             while i < publish_path_value_forward_length:
                                 #print 'i = ',i
                                 if i == 0:
@@ -228,7 +235,10 @@ class ASSET_TRACKER(object):
                             highest_version = 0
                             #print 'year_versions = ',year_versions
                             for year_version in year_versions:
-                                #print 'year_version = ',year_version
+                                print ' '
+                                print 'year verson loop'
+                                print 'year_version = ',year_version
+                                print 'value = ',value
                                 publish_path_value_split_length = len(publish_path_value_split)
                                 if year_version != '.DS_Store':
                                     if '18' in year_version:
