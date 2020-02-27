@@ -316,6 +316,7 @@ class ASSET_TRACKER(object):
                                                                 #print 'C1 publish_path_value_dir = ',publish_path_value_dir
                                                                 self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
                                                                 highest_path_string = (object + ':  ' + publish_path_value_dir + file_full)
+                                                                print '0 highest_path_string = ',highest_path_string
                                                                 self.highest_version_path_dic[object] = highest_path_string
                                                                 higher_version_found = 1
                                                                 self.highest_value_year = temp_year_used
@@ -333,6 +334,7 @@ class ASSET_TRACKER(object):
                                                                 highest_path_string = (object + ':  ' + publish_path_value_dir + file_full)
                                                                 #print 'D2a3 highest_path_string = ',highest_path_string
                                                                 #print 'D2a3 self.highest_version_path_dic = ',self.highest_version_path_dic
+                                                                print '1 highest_path_string = ',highest_path_string
                                                                 self.highest_version_path_dic[object] = highest_path_string
                                                                 #print 'D2a4 self.highest_version_path_dic = ',self.highest_version_path_dic
                                                                 higher_version_found = 1
@@ -410,11 +412,11 @@ class ASSET_TRACKER(object):
                         if check_gfs_value > check_isln_value:
                             self.alt_version_higher = 1
                         if self.alt_version_higher == 0:
-                            print 'end value = ',value
+                            #print 'end value = ',value
                             value = value.replace('gfs','isln-smb')
-                            print '0 self.highest_version_path_dic = ',self.highest_version_path_dic
+                            #print '0 self.highest_version_path_dic = ',self.highest_version_path_dic
                             self.highest_version_path_dic[object] = value
-                            print '1 self.highest_version_path_dic = ',self.highest_version_path_dic
+                            #print '1 self.highest_version_path_dic = ',self.highest_version_path_dic
             #print '2 self.asset_attr_dic = ',self.asset_attr_dic
             #print '1 self.highest_version_path_dic = ',self.highest_version_path_dic
             for asset_attr in self.asset_attr_dic:
@@ -428,7 +430,7 @@ class ASSET_TRACKER(object):
                             if object not in self.bad_publish_path_list:
                                 self.bad_publish_path_list.append(object)
         #print '1 self.asset_attr_dic = ',self.asset_attr_dic
-        print 'end gather_attributes self.highest_version_path_dic = ',self.highest_version_path_dic
+        #print 'end gather_attributes self.highest_version_path_dic = ',self.highest_version_path_dic
         self.populate_window()
 
     def populate_window(self):
@@ -479,7 +481,7 @@ class ASSET_TRACKER(object):
             has_a_higher_version = 0
             item = self.node_name_listWidget.item(i)
             item_text = item.text()
-            print 'self.alt_path_list = ',self.alt_path_list
+            #print 'self.alt_path_list = ',self.alt_path_list
             print 'item_text = ',item_text
             print 'self.highest_version_path_dic = ',self.highest_version_path_dic
             for highest_version_path_item in self.highest_version_path_dic:
@@ -487,7 +489,13 @@ class ASSET_TRACKER(object):
                     if item_text in self.alt_path_list:
                         highest_version_path_item_path = self.highest_version_path_dic[highest_version_path_item]
                         highest_version_path_item_path = highest_version_path_item_path.replace('isln-smb','gfs')
-                    highest_version_path_item_path = self.highest_version_path_dic[highest_version_path_item]
+                        #highest_version_path_item_path_split = highest_version_path_item_path.split(':')
+                        #highest_version_path_item_path = highest_version_path_item_path_split[1]
+                        #highest_version_path_item_path = highest_version_path_item_path.replace(' ','')
+                        print 'highest_version_path_item_path = ',highest_version_path_item_path
+                    else:
+                        highest_version_path_item_path = self.highest_version_path_dic[highest_version_path_item]
+                        print 'highest_version_path_item_path = ',highest_version_path_item_path
                     self.latest_version_path_feedback_listWidget.addItem(highest_version_path_item_path)
                     has_a_higher_version = 1
             if item_text in self.bad_publish_path_list:
@@ -581,14 +589,15 @@ class ASSET_TRACKER(object):
         self.deactivate_listWidget(self.highest_version_listWidget)
 
     def node_name_listWidget_item_pressed(self,item):
-        #print 'node_name_listWidget_item_pressed'
+        print 'node_name_listWidget_item_pressed'
         item_text = item.text()
-        #print 'item_text = ',item_text
+        print 'item_text = ',item_text
         i = 0
         latest_version_path_feedback_listWidget = self.latest_version_path_feedback_listWidget.count()
         while i < latest_version_path_feedback_listWidget:
             latest_version_path_feedback_listWidget_item = self.latest_version_path_feedback_listWidget.item(i)
             latest_version_path_feedback_listWidget_item_text = latest_version_path_feedback_listWidget_item.text()
+            print 'latest_version_path_feedback_listWidget_item_text = ',latest_version_path_feedback_listWidget_item_text
             latest_version_path_feedback_listWidget_item.setTextColor(QtGui.QColor("#5E5E5E"))
             latest_version_path_feedback_listWidget_item_text_split = latest_version_path_feedback_listWidget_item_text.split(':')
             latest_version_path_feedback_listWidget_item_text = latest_version_path_feedback_listWidget_item_text_split[0]
