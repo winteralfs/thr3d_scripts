@@ -153,16 +153,19 @@ class ASSET_TRACKER(object):
         for object in self.trackable_objects:
             higher_version_found = 0
             year_exists_list = []
-            #print ' '
-            #print 'object = ',object
+            print ' '
+            print 'object = ',object
             node_type = cmds.nodeType(object)
             for attr in attrs:
+                print 'attr = ',attr
                 attr_exists = cmds.attributeQuery(attr,node = object,exists = True)
                 if attr_exists == 1:
+                    print 'attr_exists = 1'
                     value = cmds.getAttr(object + '.' + attr)
                     self.asset_attr_dic[object + '&&' + attr] = str(value)
                     if attr == 'publish_path':
-                        #print 'value = ',value
+                        print 'attr = ',attr
+                        #rint 'value = ',value
                         self.alt_version_higher = 0
                         #print 'value = ',value
                         if 'isln-smb' in value:
@@ -175,7 +178,7 @@ class ASSET_TRACKER(object):
                         ii = 0
                         while ii < 2:
                             #print ' '
-                            #print 'ii while loop'
+                            print 'ii while loop'
                             #print 'ii = ',ii
                             #print 'value = ',value
                             if ii == 1:
@@ -225,11 +228,12 @@ class ASSET_TRACKER(object):
                             eighteen_version_number_full_string = ''
                             nineteen_version_number_full_string = ''
                             year_versions = cmds.getFileList(folder = year_versions_path) or []
+                            print 'year_versions = ',year_versions
                             highest_version = 0
                             #print 'year_versions = ',year_versions
                             for year_version in year_versions:
                                 #print ' '
-                                #print 'year verson loop'
+                                print 'year verson loop'
                                 #print 'year_version = ',year_version
                                 #print 'value = ',value
                                 publish_path_value_split_length = len(publish_path_value_split)
@@ -250,7 +254,7 @@ class ASSET_TRACKER(object):
                                         publish_path_value_split_length = publish_path_value_split_length - 1
                                     publish_path_value_dir = ''
                                     i = 1
-                                    #print 'year_version = ',year_version
+                                    print 'year_version = ',year_version
                                     #print 'publish_path_value_split_length = ',publish_path_value_split_length
                                     while i < publish_path_value_split_length:
                                         if i == 5:
@@ -272,12 +276,12 @@ class ASSET_TRACKER(object):
                                     #publish_path_value_dir_split = publish_path_value_dir.split('\\')
                                     temp_year_used = publish_path_value_dir_split[5]
                                     #print 'temp_year_used = ',temp_year_used
-                                    #print '1 publish_path_value_dir = ',publish_path_value_dir
+                                    print '1 publish_path_value_dir = ',publish_path_value_dir
                                     if number_of_files != 0:
                                         bad_file_type_list = ['.DS_Store','workarea','cache','die','photo','scan','_workarea','_cache','_die','_photo','_scan','version']
-                                        #print 'node_type = ',node_type
+                                        print 'node_type = ',node_type
                                         if node_type != 'file':
-                                            #print 'node type != file'
+                                            print 'node type != file'
                                             #print ' '
                                             #print 'files = ',files
                                             for file in files:
@@ -370,11 +374,12 @@ class ASSET_TRACKER(object):
                                                             self.highest_value_year = temp_year_used
                                     #else:
                                         #self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
-                            #print 'end self.highest_version_path_dic = ',self.highest_version_path_dic
+                            print 'end self.highest_version_path_dic = ',self.highest_version_path_dic
                             publish_path_value_dir = value = cmds.getAttr(object + '.' + attr)
                             #print '2 publish_path_value_dir = ',publish_path_value_dir
-                            #print 'node_type = ',node_type
+                            print 'node_type = ',node_type
                             if node_type == 'file':
+                                print 'node_type = file'
                                 if product_texture_found == 0 and Kroger_texture_found == 0:
                                     publish_path_value_split_length = publish_path_value_split_length - 2
                                 if product_texture_found == 1 and Kroger_texture_found == 0:
@@ -420,11 +425,13 @@ class ASSET_TRACKER(object):
                             self.highest_version_path_dic[object] = isln_value
                             #print '1 self.highest_version_path_dic = ',self.highest_version_path_dic
             #print '2 self.asset_attr_dic = ',self.asset_attr_dic
-            #print 'THIS self.highest_version_path_dic = ',self.highest_version_path_dic
+            print 'THIS self.highest_version_path_dic = ',self.highest_version_path_dic
             for asset_attr in self.asset_attr_dic:
+                print 'asset_attr = ',asset_attr
                 if 'alt_path_' not in asset_attr:
-                    #print 'asset_attr = ',asset_attr
+                    print 'alt_path not in asset_attr'
                     if 'highest_version' in asset_attr:
+                        print 'highest version found in asset_attr'
                         print 'object = ',object
                         #print object + '&&' + 'highest_version'
                         #print 'self.asset_attr_dic = ',self.asset_attr_dic
