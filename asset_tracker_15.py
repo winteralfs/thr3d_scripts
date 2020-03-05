@@ -1,49 +1,70 @@
 """
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI.JPG
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
 Asset tracker is used to track a scene's assets current and latest version numbers, their entity names, and their publish paths. 'C-ver' for
 the current version, 'L-ver' for the latest version:
+
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_lighting_shelf.JPG
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
 Light blue indicates the version of the asset in the scene matches the latest version found on the network. It is up to date.
+
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_teal.jpg
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
 Red indicates the version of the asset in the scene is lower than the version found on the network. It is not up to date, and a newer
 version is available.
+
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_red.jpg
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
 Yellow indicates a version of the asset was found to exist in a more current year on the network, as in the asset in the scene is from
 2017, but a version exists in the 2019 area of the network. If the asset is also out of date, the 'C-ver' will be red, and if it is
 current, it will be light blue.
+
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_yellow.jpg
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
 Orange indicates the publish_path for the asset is not valid, the directory does not exist on the network. If this is the case, an 'X' will
 replace a number in the L-ver collumn as the latest version of the asset can not be determined.
+
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_orange.jpg
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
 Clicking the asset's name will highlight the path to the latest version of the asset: The path can be clicked to open that directory:
+
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_highlighted.JPG
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
 Clicking the publish path of an asset will open that directory:
+
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_network.JPG
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
 Clicking the entity name of the asset will open up the Shotgun page for that asset:
+
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_GUI_shotgun_link.JPG
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
 If an asset shows up in the tracker that is not displayed in the outliner, toggle on the 'Hidden in Outliner'
 option under the Display tab at the top of the outliner window:
+
 .. image:: U:/cwinters/docs/build/html/_images/asset_tracker/asset_tracker_Maya_ignore_hidden_in_outliner.JPG
-   :align: center
-   :scale: 50%
+   :align: center
+   :scale: 50%
+
+
+
 ------
 """
 
@@ -62,8 +83,8 @@ import shiboken2
 #print 'sunday'
 
 class ASSET_TRACKER(object):
-    def __init__(self):
-        shape_nodes = cmds.ls(type = 'shape')
+    def __init__(self):
+        shape_nodes = cmds.ls(type = 'shape')
         self.group_nodes = []
         self.valid_transform_objects = []
         bad_file_nodes = ['gi_std_lgt','reflection_sdt_lgt','refraction_sdt_lgt']
