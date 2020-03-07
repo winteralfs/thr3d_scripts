@@ -287,7 +287,7 @@ class UV_SET_EDITOR(object):
         self.file_to_file_path_dic = {}
         self.all_textures = []
         #valid_connection_types = ['VRayMtl','phong','blinn','lambert','surfaceShader','blend','VRayBlendMtl','layeredTexture','remapHsv','multiplyDivide','remapColor','gammaCorrect','VRayBumpMtl']
-        valid_connection_types = ['VRayMtl','phong','blinn','lambert','surfaceShader','blend','VRayBlendMtl','remapHsv','multiplyDivide','remapColor','gammaCorrect','VRayBumpMtl']
+        valid_connection_types = ['VRayMtl','phong','blinn','lambert','surfaceShader','blend','VRayBlendMtl','remapHsv','multiplyDivide','remapColor','gammaCorrect','VRayBumpMtl','VRayDisplacement']
         bad_connection_types = ['VRayPlaceEnvTex','VRayLightRectShape','transform']
         file_textures_all = cmds.ls(type = 'file')
         ramp_textures_all = cmds.ls(type = 'ramp')
