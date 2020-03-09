@@ -53,8 +53,8 @@ class UV_SET_EDITOR(object):
         self.filepath = cmds.file(q=True, sn=True)
         self.filename = os.path.basename(self.filepath)
         self.raw_name, extension = os.path.splitext(self.filename)
-        self.file_name_on_disk = '/Users/alfredwinters/Desktop/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
-        #self.file_name_on_disk = 'U:/cwinters/uv_set_chooser_temp_files/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
+        #self.file_name_on_disk = '/Users/alfredwinters/Desktop/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
+        self.file_name_on_disk = 'U:/cwinters/uv_set_chooser_temp_files/' + self.raw_name + '_uv_set_status_dic_on_disk.txt'
         self.transforms_all_shapes = cmds.ls(type = 'shape')
         #print 'self.transforms_all_shapes = ',self.transforms_all_shapes
         for shape_transform in self.transforms_all_shapes:
@@ -394,7 +394,7 @@ class UV_SET_EDITOR(object):
                                                                         #if texture_connection_type not in bad_connection_types:
                                                                             #print '** 5 setting valid file to 1'
                                                                             #valid_file = 1
-            placement_connections = cmds.listConnections(texture, source = True, destination = False)
+            placement_connections = cmds.listConnections(texture, source = True, destination = False) or []
             #print 'texture = ',texture
             #print 'placement_connections = ',placement_connections
             VRayPlaceEnvTex_node_found = 0
