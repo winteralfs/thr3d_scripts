@@ -439,6 +439,7 @@ class UV_SET_EDITOR(object):
                         it = it + 1
 
     def check_for_displacement_texture(self):
+        #print 'check_for_displacement_texture'
         self.displacement_textures = []
         self.objects_using_displacement_node = []
         self.object_displacement_node_dic = {}
@@ -455,14 +456,11 @@ class UV_SET_EDITOR(object):
                     if displacement_node_connection_type == 'transform':
                         if displacement_node_connection not in self.objects_using_displacement_node:
                             object = displacement_node_connection
-                            #print 'object = ',object
                             self.objects_using_displacement_node.append(displacement_node_connection)
-                            #self.object_displacement_node_dic[displacement_node_connection] = displacement_node
                     displacement_node_connection_split = displacement_node_connection.split('.')
                     for connection in displacement_node_connection_split:
                         if connection == 'displacement':
                             displacement_textures_connected.append(displacement_node_connections[i + 1])
-                            #print 'object = ',object
                             self.displacement_texture_object_dic[displacement_node_connections[i + 1]] = object
                     i = i + 1
             for displacement_texture in displacement_textures_connected:
@@ -505,13 +503,9 @@ class UV_SET_EDITOR(object):
                                                         if connection_type == 'file':
                                                             if connection not in self.displacement_textures:
                                                                 self.displacement_textures.append(connection)
-        #print 'self.objects_using_displacement_node = ',self.objects_using_displacement_node
-        #print 'self.displacement_textures = ',self.displacement_textures
-        #print 'self.displacement_texture_object_dic = ',self.displacement_texture_object_dic
 
     def gather_UV_displacement_links(self):
-        print 'gather_UV_displacement_links'
-        print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        #print 'gather_UV_displacement_links'
         VRayMtl_list = cmds.ls(type = 'VRayMtl')
         phong_list = cmds.ls(type = 'phong')
         blinn_list = cmds.ls(type = 'blinn')
@@ -519,10 +513,7 @@ class UV_SET_EDITOR(object):
         blend_list = cmds.ls(type = 'VRayBlendMtl')
         bump_list = cmds.ls(type = 'VRayBumpMtl')
         materials = VRayMtl_list + phong_list + blinn_list + lambert_list + blend_list + bump_list
-        print 'materials = ',materials
         for material in materials:
-            print ' '
-            print 'material = ',material
             shader_node_type = cmds.nodeType(material)
             if shader_node_type == 'lambert' or shader_node_type == 'blinn' or shader_node_type == 'phong' or shader_node_type == 'VRayMtl':
                 shader_attr = '.transparency'
@@ -533,110 +524,75 @@ class UV_SET_EDITOR(object):
             cmds.select(clear = True)
             cmds.hyperShade(objects = material)
             linked_objects = cmds.ls(sl = True)
-            print 'linked_objects = ',linked_objects
             for linked_object in linked_objects:
-                linked_object_split = linked_object.split('.') or []
+                linked_object_split = linked_object.split('.')
                 linked_object_split_len = len(linked_object_split)
                 if linked_object_split_len == 0:
                     linked_object_compare = linked_object
                 if linked_object_split_len > 0:
                     linked_object_compare = linked_object_split[0]
                 for tex in self.displacement_texture_object_dic:
-                    print ' '
-                    print 'tex = ',tex
                     obj = self.displacement_texture_object_dic[tex]
-                    #print 'obj = ',obj
                     if obj == linked_object_compare:
                         cmds.connectAttr(tex + '.outColor',material + shader_attr, force = True)
                         tex_node_type = cmds.nodeType(tex)
                         if tex_node_type == file:
-                            print 'tex = ',tex
-                            print 'obj = ',obj
-                            print 'connection = ',connection
-                            uv_link = cmds.uvLink( query=True, texture = tex)
-                            for uv_name in self.uv_set_name_to_address_dic:
-                                address = self.uv_set_name_to_address_dic[uv_name]
-                                print ' '
-                                print '0 uv_link = ',uv_link
-                                print '0 address = ',address
-                                if address == uv_link[0]:
-                                    print '0 uv_name',uv_name
-                                    print '0 obj = ',obj
-                                    print '0 connection = ',connection
-                                    print uv_name + ':|:' + connection
-                                    #self.uv_set_selection_status_dic[ uv_name + ':|:' + connection] = 1
-                                    print '0b uv_link = ',uv_link
+                            uv_link = cmds.uvLink( query=True, texture = tex) or []
+                            num_uv_links = len(uv_link)
+                            if num_uv_links > 0:
+                                for uv_name in self.uv_set_name_to_address_dic:
+                                    address = self.uv_set_name_to_address_dic[uv_name]
+                                    if address == uv_link[0]:
+                                        uv_name_split = uv_name.split(':|:')
+                                        uv_name = uv_name_split[1]
+                                        obj = uv_name_split[0]
+                                        self.uv_set_selection_status_dic[connection + ':|:' + obj + ':|:' + uv_name] = 1
                         else:
                             tex_connections_0 = cmds.listConnections(tex, destination = False) or []
                             for connection in tex_connections_0:
-                                #print 'connection = ',connection
                                 connection_node_type = cmds.nodeType(connection)
-                                #print 'connection_node_type = ',connection_node_type
                                 if connection_node_type == 'file':
-                                    print '1 tex = ',tex
-                                    print '1 obj = ',obj
-                                    print '1 connection = ',connection
-                                    uv_link = cmds.uvLink( query=True, texture = connection)
-                                    for uv_name in self.uv_set_name_to_address_dic:
-                                        print ' '
-                                        address = self.uv_set_name_to_address_dic[uv_name]
-                                        print '1 uv_link = ',uv_link
-                                        print 'address = ',address
-                                        if address == uv_link[0]:
-                                            print 'uv_name = ',uv_name
-                                            uv_name_split = uv_name.split(':|:')
-                                            print 'uv_name_split = ',uv_name_split
-                                            uv_name = uv_name_split[1]
-                                            obj = uv_name_split[0]
-                                            print '1 uv_name ',uv_name
-                                            print '1 obj = ',obj
-                                            print '1 connection = ',connection
-                                            print uv_name + ':|:' + obj + ':|:' + connection
-                                            self.uv_set_selection_status_dic[connection + ':|:' + obj + ':|:' + uv_name] = 1
-                                            print '1b uv_link = ',uv_link
+                                    uv_link = cmds.uvLink( query=True, texture = connection) or []
+                                    num_uv_links = len(uv_link)
+                                    if num_uv_links > 0:
+                                        for uv_name in self.uv_set_name_to_address_dic:
+                                            address = self.uv_set_name_to_address_dic[uv_name]
+                                            if address == uv_link[0]:
+                                                uv_name_split = uv_name.split(':|:')
+                                                uv_name = uv_name_split[1]
+                                                obj = uv_name_split[0]
+                                                self.uv_set_selection_status_dic[connection + ':|:' + obj + ':|:' + uv_name] = 1
                                 else:
                                     tex_connections_1 = cmds.listConnections(connection, destination = False) or []
                                     for connection in tex_connections_1:
                                         connection_node_type = cmds.nodeType(connection)
                                         if connection_node_type == 'file':
-                                            print '2 tex = ',tex
-                                            print '2 obj = ',obj
-                                            print '2 connection = ',connection
-                                            uv_link = cmds.uvLink( query=True, texture = connection)
-                                            for uv_name in self.uv_set_name_to_address_dic:
-                                                address = self.uv_set_name_to_address_dic[uv_name]
-                                                print '2 uv_link = ',uv_link
-                                                print '2 address = ',address
-                                                if address == uv_link[0]:
-                                                    print '2 uv_name',uv_name
-                                                    print '2 obj = ',obj
-                                                    print '2 connection = ',connection
-                                                    print uv_name + ':|:' + connection
-                                                    self.uv_set_selection_status_dic[ uv_name + ':|:' + connection] = 1
-                                                    print '2b uv_link = ',uv_link
+                                            uv_link = cmds.uvLink( query=True, texture = connection) or []
+                                            num_uv_links = len(uv_link)
+                                            if num_uv_links > 0:
+                                                for uv_name in self.uv_set_name_to_address_dic:
+                                                    address = self.uv_set_name_to_address_dic[uv_name]
+                                                    if address == uv_link[0]:
+                                                        uv_name_split = uv_name.split(':|:')
+                                                        uv_name = uv_name_split[1]
+                                                        obj = uv_name_split[0]
+                                                        self.uv_set_selection_status_dic[connection + ':|:' + obj + ':|:' + uv_name] = 1
                                         else:
                                             tex_connections_2 = cmds.listConnections(connection, destination = False) or []
                                             for connection in tex_connections_2:
                                                 connection_node_type = cmds.nodeType(connection)
                                                 if connection_node_type == 'file':
-                                                    print '3 tex = ',tex
-                                                    print '3 obj = ',obj
-                                                    print '3 connection = ',connection
-                                                    uv_link = cmds.uvLink( query=True, texture = connection)
-                                                    for uv_name in self.uv_set_name_to_address_dic:
-                                                        address = self.uv_set_name_to_address_dic[uv_name]
-                                                        print '3 uv_link = ',uv_link
-                                                        print '3 address = ',address
-                                                        if address == uv_link[0]:
-                                                            print '3 uv_name',uv_name
-                                                            print '3 obj = ',obj
-                                                            print '3 connection = ',connection
-                                                            print uv_name + ':|:' + connection
-                                                            self.uv_set_selection_status_dic[ uv_name + ':|:' + connection] = 1
-                                                            print '3b uv_link = ',uv_link
+                                                    uv_link = cmds.uvLink( query=True, texture = connection) or []
+                                                    num_uv_links = len(uv_link)
+                                                    if num_uv_links > 0:
+                                                        for uv_name in self.uv_set_name_to_address_dic:
+                                                            address = self.uv_set_name_to_address_dic[uv_name]
+                                                            if address == uv_link[0]:
+                                                                uv_name_split = uv_name.split(':|:')
+                                                                uv_name = uv_name_split[1]
+                                                                obj = uv_name_split[0]
+                                                                self.uv_set_selection_status_dic[connection + ':|:' + obj + ':|:' + uv_name] = 1
                         cmds.disconnectAttr(tex + '.outColor',material + shader_attr)
-            print 'self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-            print ' '
             cmds.select(clear = True)
 
     def initial_uv_set_name_to_address_dic_eval(self):
@@ -723,13 +679,13 @@ class UV_SET_EDITOR(object):
             for uv_set_selection_status in self.uv_set_selection_status_dic:
                 uv_set_selection_status_split = uv_set_selection_status.split(':|:')
                 uv_set_selection_status_texture = uv_set_selection_status_split[0]
-                print 'uv_set_selection_status_texture = ',uv_set_selection_status_texture
                 uv_set_selection_status_texture_linked_UV_sets = cmds.uvLink( query = True, texture = uv_set_selection_status_texture)
                 uv_set_selection_status_texture_linked_UV_sets_size = len(uv_set_selection_status_texture_linked_UV_sets)
                 for uv_set_selection_from_disk in self.uv_set_selection_status_dic_from_disk:
                     if uv_set_selection_status == uv_set_selection_from_disk:
                         uv_set_selection_status_from_disk = self.uv_set_selection_status_dic_from_disk[uv_set_selection_status]
                         self.uv_set_selection_status_dic[uv_set_selection_status] = uv_set_selection_status_from_disk
+
 #---------- UV set selection methods ----------
 
     def item_press(self,item):
