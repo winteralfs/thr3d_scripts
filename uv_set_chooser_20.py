@@ -515,8 +515,6 @@ class UV_SET_EDITOR(object):
         bump_list = cmds.ls(type = 'VRayBumpMtl')
         materials = VRayMtl_list + phong_list + blinn_list + lambert_list + blend_list + bump_list
         for material in materials:
-            print ' '
-            print 'material = ',material
             shader_node_type = cmds.nodeType(material)
             if shader_node_type == 'lambert' or shader_node_type == 'blinn' or shader_node_type == 'phong':
                 mat_attr_out = '.outColor'
@@ -533,7 +531,6 @@ class UV_SET_EDITOR(object):
             cmds.select(clear = True)
             cmds.hyperShade(objects = material)
             linked_objects = cmds.ls(sl = True)
-            print 'linked_objects = ',linked_objects
             for linked_object in linked_objects:
                 linked_object_split = linked_object.split('.')
                 linked_object_split_len = len(linked_object_split)
@@ -542,20 +539,13 @@ class UV_SET_EDITOR(object):
                 if linked_object_split_len > 0:
                     linked_object_compare = linked_object_split[0]
                 for tex in self.displacement_texture_object_dic:
-                    print 'tex = ',tex
                     obj = self.displacement_texture_object_dic[tex]
-                    print 'obj = ',obj
-                    print 'linked_object_compare = ',linked_object_compare
                     if obj == linked_object_compare:
                         cmds.connectAttr(tex + mat_attr_out,material + mat_attr_in, force = True)
                         tex_node_type = cmds.nodeType(tex)
                         tex_node_type = tex_node_type.replace(' ','')
-                        print 'tex_node_type = ',tex_node_type
                         if tex_node_type == 'file':
-                            print '0 tex = ',tex
-                            print '0 tex_node_type = file!'
                             uv_link = cmds.uvLink( query=True, texture = tex) or []
-                            print '0 uv_link = ',uv_link
                             num_uv_links = len(uv_link)
                             if num_uv_links > 0:
                                 for uv_name in self.uv_set_name_to_address_dic:
@@ -564,12 +554,8 @@ class UV_SET_EDITOR(object):
                                         uv_name_split = uv_name.split(':|:')
                                         uv_name = uv_name_split[1]
                                         obj = uv_name_split[0]
-                                        print 'a self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
-                                        print 'setting ' + tex + ':|:' + obj + ':|:' + uv_name + ' to 1'
-                                        print 'setting ' + tex + ':|:' + obj + ':|:' + 'map1' + ' to 0'
                                         self.uv_set_selection_status_dic[tex + ':|:' + obj + ':|:' + uv_name] = 1
                                         self.uv_set_selection_status_dic[tex + ':|:' + obj + ':|:' + 'map1'] = 0
-                                        print 'b self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
                         else:
                             tex_connections_0 = cmds.listConnections(tex, destination = False) or []
                             for connection in tex_connections_0:
@@ -712,7 +698,7 @@ class UV_SET_EDITOR(object):
                         uv_set_selection_status_from_disk = self.uv_set_selection_status_dic_from_disk[uv_set_selection_status]
                         self.uv_set_selection_status_dic[uv_set_selection_status] = uv_set_selection_status_from_disk
 
-        print 'initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
+        #print 'initial_uv_set_name_to_address_dic_eval self.uv_set_selection_status_dic = ',self.uv_set_selection_status_dic
 #---------- UV set selection methods ----------
 
     def item_press(self,item):
