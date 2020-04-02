@@ -715,7 +715,7 @@ class ASSET_TRACKER(object):
         window.setCentralWidget(main_widget)
         window.setFixedWidth(1450)
         self.main_grid_layout = QtWidgets.QGridLayout(main_widget)
-        titles = ['Name (red indicates a newer version of the asset exists)','C-ver','L-ver','Entity Name','Published Path ( yellow indicates a version of this asset exists in a more recent year directory, orange indicates an invalid publish path is linked to the asset)']
+        titles = ['Name (red = a newer version of the asset exists, pink = on GFS)','C-ver','L-ver','Entity Name','Published Path ( yellow = a version of this asset exists in a more recent year directory, orange indicates an invalid publish path is linked to the asset)']
         i = 0
         for title in titles:
             label = QtWidgets.QLabel(title)
