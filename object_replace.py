@@ -57,8 +57,36 @@ import maya.cmds as cmds
 import maya.mel as mel
 from functools import partial
 from string import digits
+import os
+from os import stat
+import os.path
+import maya.OpenMayaUI as mui
+from functools import partial
+from PySide2 import QtWidgets,QtCore,QtGui
+from PySide2.QtCore import Qt
+import shiboken2
+#from pwd import getpwuid
+from datetime import datetime
 
-#print 'tuesday'
+print 'tuesday'
+
+def user_track():
+    path = 'U:/cwinters/object_replace_temp_files/'
+    #path = '/Users/alfredwinters/Desktop/'
+    file_name_on_disk_temp = path + 'temp' + '.txt'
+    file_name_on_disk_temp_open = open(file_name_on_disk_temp,'w')
+    file_name_on_disk_temp_open.close()
+    os.remove(file_name_on_disk_temp)
+    filepath = cmds.file(q=True, sn=True)
+    filename = os.path.basename(filepath)
+    raw_name,extension = os.path.splitext(filename)
+    #date = datetime.today().strftime('%m-%d-%Y')
+    file_name_on_disk = path + raw_name
+    print 'file_name_on_disk = ',file_name_on_disk
+    if os.path.isfile(file_name_on_disk) and os.access(file_name_on_disk, os.R_OK):
+        os.remove(file_name_on_disk)
+    file_name_on_disk_open = open(file_name_on_disk,'w')
+    file_name_on_disk_open.close()
 
 def look_for_duplicate_nodes():
     duplicate_node_names = []
@@ -80,6 +108,7 @@ def look_for_duplicate_nodes():
     return(duplicate_node_names)
 
 def objectChooseWin():
+    user_track()
     name = "object_replace"
     windowSize = (300,100)
     if (cmds.window(name, exists = True)):
@@ -417,70 +446,87 @@ def objectChooseWin():
             return pathmasterObj,object_Old,object_New,pathOBJ
 
         def renderLayerCheck(object_Old,object_New,renderLayers):
-            print "old object render layers check:"
+            #print ' '
+            #print "old object render layers check:"
             object_Old = (str(object_Old))
-            print 'object_Old = ',object_Old
+            #print ' XXX '
+            #print 'object_Old = ',object_Old
             objects_render_layer_compare = []
             objects_render_layer_compare.append(object_Old)
-            print 'objects_render_layer_compare = ',objects_render_layer_compare
+            #print 'objects_render_layer_compare = ',objects_render_layer_compare
             object_Old_kids = cmds.listRelatives(object_Old,fullPath = True,children = True) or []
-            print 'object_Old_kids = ',object_Old_kids
+            #print 'object_Old_kids = ',object_Old_kids
             for object in object_Old_kids:
-                print 'object = ',object
+                #print 'object = ',object
                 object_type = cmds.nodeType(object)
-                print 'object_type = ',object_type
+                #print 'object_type = ',object_type
                 if object_type == 'mesh':
-                    print 'object type = mesh'
+                    #print 'object type = mesh'
                     if object not in objects_render_layer_compare:
-                        print object + ' not in objects_render_layer_compare'
+                        #print object + ' not in objects_render_layer_compare'
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        print 'object = ',object
+                        #print 'object = ',object
                         if object not in objects_render_layer_compare:
-                            print 'object not in objects_render_layer_compare'
+                            #print 'object not in objects_render_layer_compare'
                             objects_render_layer_compare.append(object)
-                            print 'objects_render_layer_compare = ',objects_render_layer_compare
+                            #print 'objects_render_layer_compare = ',objects_render_layer_compare
             object_Old_parents = cmds.listRelatives(object_Old,fullPath = True,parent = True) or []
-            print 'object_Old_parents = ',object_Old_parents
+            #print 'object_Old_parents = ',object_Old_parents
             for object in object_Old_parents:
-                print 'object = ',object
+                #print 'object = ',object
                 object_type = cmds.nodeType(object)
-                print 'object_type = ',object_type
+                #print 'object_type = ',object_type
                 if object_type == 'mesh':
-                    print 'object_type == 'mesh''
+                    #print 'object_type == mesh'
                     if object not in objects_render_layer_compare:
-                        print 'object not in objects_render_layer_compare'
+                        #print 'object not in objects_render_layer_compare'
                         object_split = object.split('|')
                         size_of_list = len(object_split)
                         object = object_split[(size_of_list - 1)]
-                        print 'object = ',object
+                        #print 'object = ',object
                         if object not in objects_render_layer_compare:
-                            print 'object not in objects_render_layer_compare'
+                            #print 'object not in objects_render_layer_compare'
                             objects_render_layer_compare.append(object)
-                            print 'objects_render_layer_compare = ',objects_render_layer_compare
+            #print '1 objects_render_layer_compare = ',objects_render_layer_compare
+            for object in objects_render_layer_compare:
+                #print 'object = ',object
+                object_split = object.split('|')
+                #print 'object_split = ',object_split
+                if len(object_split) > 0:
+                    object_name_isolated = object_split[-1]
+                    if object_name_isolated not in  objects_render_layer_compare:
+                        #print 'adding isolated object name to objects_render_layer_compare'
+                        objects_render_layer_compare.append(object_name_isolated)
+            #print '2 objects_render_layer_compare = ',objects_render_layer_compare
             object_New = (str(object_New))
-            print 'object_New = ',object_New
+            #print ' XXX '
+            #print 'object_New = ',object_New
+            #print ' XXX '
             object_in_render_layer_list = []
             size_layers = len(renderLayers)
             for render_layer in renderLayers:
-                print 'render_layer = ',render_layer
+                #print '******'
+                #print 'render_layer = ',render_layer
                 members_in_render_layer = cmds.editRenderLayerMembers(render_layer, query = True ) or []
-                print 'members_in_render_layer = ',members_in_render_layer
+                #print 'members_in_render_layer = ',members_in_render_layer
                 number_of_objects_in_render_layer = len(members_in_render_layer)
-                print 'number_of_objects_in_render_layer = ',number_of_objects_in_render_layer
+                #print 'number_of_objects_in_render_layer = ',number_of_objects_in_render_layer
                 if number_of_objects_in_render_layer > 0:
-                    print 'number_of_objects_in_render_layer > 0'
+                    #print 'number_of_objects_in_render_layer > 0'
                     for member_in_render_layer in members_in_render_layer:
-                        print 'member_in_render_layer = ',member_in_render_layer
+                        #print 'member_in_render_layer = ',member_in_render_layer
+                        #print 'objects_render_layer_compare = ',objects_render_layer_compare
                         if member_in_render_layer in objects_render_layer_compare:
-                            print 'member_in_render_layer in objects_render_layer_compare'
+                            #print 'member_in_render_layer in objects_render_layer_compare'
                             if render_layer not in object_in_render_layer_list:
                                 object_in_render_layer_list.append(render_layer)
-                                print 'render_layer not in object_in_render_layer_list'
-                                print 'appending ' + render_layer
-                                print 'object_in_render_layer_list = ',object_in_render_layer_list
+                                #print 'render_layer not in object_in_render_layer_list'
+                                #print 'appending ' + render_layer
+                                #print 'object_in_render_layer_list = ',object_in_render_layer_list
             print 'old_object in render layers, ',object_in_render_layer_list
+            print ' '
             return object_in_render_layer_list,object_Old,object_New
 
         def translations(object_Old,object_New,renderLayers,old_Xforms):
@@ -673,7 +719,7 @@ def objectChooseWin():
                     print "sets used by a v-ray Extra_Tex that contain " + object_Old + " = ", setsINC
             else:
                 if object_old_rename_check == 1:
-                    print object_old_print_temp + " detected in no exlude sets"
+                    print object_old_print_temp + "detected in no exlude sets"
                 else:
                     print object_Old + " detected in no exlude sets"
             return setsINC,object_Old,object_New
@@ -1416,7 +1462,19 @@ def objectChooseWin():
                         if fType == "uvChooser":
                             secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
                             UVmapAddressOLD = secondConList[0]
-                            UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
+                            object_New_shape = cmds.listRelatives(object_New,children = True) or []
+                            #print 'object_New_shape = ',object_New_shape
+                            #print 'UVmapAddressOLD = ',UVmapAddressOLD
+                            UVmapAddressOLD_split = UVmapAddressOLD.split('.')
+                            #print 'UVmapAddressOLD_split = ',UVmapAddressOLD_split
+                            #print 'UVmapAddressOLD_split 0 = ',UVmapAddressOLD_split[0]
+                            #print 'UVmapAddressOLD_split 1 = ',UVmapAddressOLD_split[1]
+                            #print 'UVmapAddressOLD_split 2 = ',UVmapAddressOLD_split[2]
+                            UVmapAddressNEW = object_New_shape[0] + '.' + UVmapAddressOLD_split[1] + '.' + UVmapAddressOLD_split[2]
+                            #print 'UVmapAddressNEW = ',UVmapAddressNEW
+                            #print 'object_Old = ',object_Old
+                            #print 'object_New = ',object_New
+                            print '  '
                             cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
                         else:
                             secondConList = cmds.listConnections(second, destination = False) or []
@@ -1485,7 +1543,11 @@ def objectChooseWin():
                         if fType == "uvChooser":
                             secondConList = cmds.listConnections(second, destination = False, plugs = True) or []
                             UVmapAddressOLD = secondConList[0]
-                            UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
+                            #UVmapAddressNEW = UVmapAddressOLD.replace(object_Old, object_New)
+                            UVmapAddressOLD_split = UVmapAddressOLD.split('.')
+                            object_New_shape = cmds.listRelatives(parent = False, children = True)
+                            UVmapAddressNEW = object_New_shape[0] + '.' + UVmapAddressOLD_split[1] + '.' + UVmapAddressOLD_split[2]
+                            #print 'UVmapAddressNEW = ',UVmapAddressNEW
                             cmds.uvLink( uvSet = UVmapAddressNEW, texture = fileName)
                         else:
                             siz = len(second)

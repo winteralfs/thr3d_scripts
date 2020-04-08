@@ -69,11 +69,24 @@ import re
 from functools import partial
 import sys
 from datetime import datetime
+import os
 
 global cancel
 cancel = 0
 
 print 'batch_review'
+
+def user_track():
+    path = 'U:/cwinters/batch_review_temp_files/'
+    #path = '/Users/alfredwinters/Desktop/'
+    filepath = cmds.file(q=True, sn=True)
+    filename = os.path.basename(filepath)
+    raw_name,extension = os.path.splitext(filename)
+    file_name_on_disk = path + raw_name
+    if os.path.isfile(file_name_on_disk) and os.access(file_name_on_disk, os.R_OK):
+        os.remove(file_name_on_disk)
+    file_name_on_disk_open = open(file_name_on_disk,'w')
+    file_name_on_disk_open.close()
 
 def no_cam_window_popup(no_cam_set_list):
     #print no_cam_set_list
@@ -171,8 +184,9 @@ def renderThumbs(checkBoxLow,checkBoxMid,checkBoxHigh,checkBoxRenderRegion,intFi
                         maya.mel.eval(mayaString)
                         cmds.vray("vfbControl", "-historysave")
                         cmds.vray("vfbControl", "-historyselect",0)
-                        dte = datetime.now().strftime('%H:%M:%S')
-                        editStr = dte + " ,render layer: " + rl + " , " + "cam: " + cam
+                        #dte = datetime.now().strftime('%H:%M:%S')
+                        dte = datetime.now().strftime('%H:%M')
+                        editStr = rl + "," + cam
                         cmds.vray("vfbControl", "-historycomment", editStr)
                         print " "
                         found_cam = 1
@@ -191,7 +205,7 @@ def renderThumbs(checkBoxLow,checkBoxMid,checkBoxHigh,checkBoxRenderRegion,intFi
                     cmds.vray("vfbControl", "-historysave")
                     cmds.vray("vfbControl", "-historyselect",0)
                     dte = datetime.now().strftime('%H:%M:%S')
-                    editStr = dte + " ,render layer: " + rl + " , " + "cam: " + cam
+                    editStr = rl + "," + cam
                     cmds.vray("vfbControl", "-historycomment", editStr)
                     popup_win = 1
                     no_cam_set_list.append(rl)
@@ -232,7 +246,7 @@ def checkBoxCheckHigh(checkBoxLow,checkBoxMid,checkBoxHigh,intField_res,floatFie
     cmds.checkBox(checkBoxLow,value = False, edit = True)
     cmds.checkBox(checkBoxMid,value = False, edit = True)
     cmds.intField(intField_res, v = 2000,edit = True)
-    cmds.floatField(floatField_thrhld, v = .008,edit = True )
+    cmds.floatField(floatField_thrhld, v = .5,edit = True )
     cancel = 0
 
 def checkBoxAOVchange(checkBoxAOV,*args):
@@ -278,6 +292,7 @@ def set_resolution(intField_res,*args):
     cmds.setAttr('vraySettings.height',intField_res_value)
 
 def renthumbsWin():
+    user_track()
     name = "Batch_Review"
     global gReg
     gReg = ('0','0','0','0')
