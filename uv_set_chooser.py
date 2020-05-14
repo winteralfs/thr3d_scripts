@@ -60,7 +60,8 @@ class UV_SET_EDITOR(object):
             if 'Shape' not in shape_transform:
                 cmds.lockNode(shape_transform,lock = False)
                 shape_parent = cmds.listRelatives(shape_transform,parent = True)
-                cmds.rename(shape_transform,shape_parent[0] + '_Shape')
+                if 'lgt_core' not in shape_transform:
+                    cmds.rename(shape_transform,shape_parent[0] + '_Shape')
         self.transforms_all_shapes = cmds.ls(type = 'shape')
         self.VRayLightRect_transform_node_list = []
         for shape_node in self.transforms_all_shapes:
@@ -356,23 +357,26 @@ class UV_SET_EDITOR(object):
         self.uv_set_selection_status_dic_state_change = {}
         transforms_all = []
         transforms_all_tmp_no_shape = []
-        except_nodes = ['std_lgt_core','locator','camera']
-        except_shape_types = ['VRayLightRectShape','locator','camera']
+        except_nodes = ['locator','camera','std_lgt_core','lgt_core']
+        except_shape_types = ['VRayLightRectShape','locator','camera','std_lgt_core','lgt_core']
         shape_name_dic = {}
         for transform in self.transforms_all_shapes:
             if 'Shape' not in transform:
                 cmds.lockNode(transform,lock = False)
-                cmds.rename(transform,transform + '_Shape')
+                if 'lgt_core' not in transform:
+                    cmds.rename(transform,transform + '_Shape')
         for transform in self.transforms_all_shapes:
             if 'polySurface' not in transform:
                 node_type = cmds.nodeType(transform)
-                if node_type not in except_shape_types:
-                    if transform not in except_nodes or 'imagePLane1' not in transform:
-                        transform_split = transform.split('Shape')
-                        shape_name_dic[transform_split[0]] = transform_split[1]
-                    if transform not in transforms_all_tmp_no_shape:
-                        if transform_split[0] not in transforms_all_tmp_no_shape:
-                            transforms_all_tmp_no_shape.append(transform_split[0])
+                if 'std_lgt_core' not in transform:
+                    if 'lgt_core' not in transform:
+                        if node_type not in except_shape_types:
+                            if transform not in except_nodes or 'imagePLane1' not in transform:
+                                transform_split = transform.split('Shape')
+                                shape_name_dic[transform_split[0]] = transform_split[1]
+                            if transform not in transforms_all_tmp_no_shape:
+                                if transform_split[0] not in transforms_all_tmp_no_shape:
+                                    transforms_all_tmp_no_shape.append(transform_split[0])
         for transform_all_no_shape in transforms_all_tmp_no_shape:
             if transform_all_no_shape not in except_nodes:
                 transform_all_no_shape = transform_all_no_shape + 'Shape' + shape_name_dic[transform_all_no_shape]
