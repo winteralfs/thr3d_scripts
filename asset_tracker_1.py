@@ -290,7 +290,7 @@ class ASSET_TRACKER(object):
                                     #temp_year_used = publish_path_value_dir_split[9]
                                     temp_year_used = publish_path_value_dir_split[5]
                                     #print 'temp_year_used = ',temp_year_used
-                                    #print '1 publish_path_value_dir = ',publish_path_value_dir
+                                    print '1 publish_path_value_dir = ',publish_path_value_dir
                                     if number_of_files != 0:
                                         bad_file_type_list = ['.DS_Store','workarea','cache','die','photo','scan','_workarea','_cache','_die','_photo','_scan','version']
                                         #print 'node_type = ',node_type
@@ -418,16 +418,18 @@ class ASSET_TRACKER(object):
                                 i = i + 1
                             #publish_path_value_dir = publish_path_value_dir + '/'
                             publish_path_value_dir = publish_path_value_dir + '\\'
-                            #print 'publish_path_value_dir = ',publish_path_value_dir
+                            print 'publish_path_value_dir = ',publish_path_value_dir
                             files = cmds.getFileList(folder = publish_path_value_dir) or []
-                            #print 'files = ',files
+                            print 'files = ',files
                             number_of_files= len(files)
-                            #print 'number_of_files = ',number_of_files
+                            print 'number_of_files = ',number_of_files
                             if number_of_files == 0:
-                                #print 'num of files = 0, setting X'
+                                print 'num of files = 0, setting X'
                                 if ii == 0:
+                                    print '1 setting X for ', object
                                     self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                                 if ii == 1:
+                                    print '2 setting X for ', object
                                     self.asset_attr_dic['alt_path_' + object + '&&' + 'highest_version'] = 'X'
                             #print 'self.asset_attr_dic = ',self.asset_attr_dic
                             ii = ii + 1
@@ -444,12 +446,14 @@ class ASSET_TRACKER(object):
                         if self.alt_version_higher == 0:
                             #print 'end value = ',value
                             print 'object = ',object
-                            print 'highest_version_path_dic = ',highest_version_path_dic
-                            gfs_value = self.highest_version_path_dic[object]
-                            isln_value = gfs_value.replace('gfs','isln-smb')
-                            #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
-                            self.highest_version_path_dic[object] = isln_value
-                            #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
+                            print 'highest_version_path_dic = ',self.highest_version_path_dic
+                            for key in self.highest_version_path_dic:
+                                if key == object:
+                                    gfs_value = self.highest_version_path_dic[object]
+                                    isln_value = gfs_value.replace('gfs','isln-smb')
+                                    #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
+                                    self.highest_version_path_dic[object] = isln_value
+                                    #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
             #print '2 self.asset_attr_dic = ',self.asset_attr_dic
             #print 'THIS self.highest_version_path_dic = ',self.highest_version_path_dic
                 else:

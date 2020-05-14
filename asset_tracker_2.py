@@ -58,8 +58,7 @@ import subprocess
 import webbrowser
 import shiboken2
 
-#print 'asset_tracker'
-print 'Thursday'
+print 'asset_tracker'
 
 class ASSET_TRACKER(object):
     def __init__(self):
@@ -206,6 +205,7 @@ class ASSET_TRACKER(object):
                             product_texture_found = 0
                             Kraft_texture_found = 0
                             Kroger_texture_found = 0
+                            Mars_texture_found = 00
                             #print 'A value = ',value
                             if 'Product' in value:
                                 #print 'Product detected'
@@ -216,6 +216,9 @@ class ASSET_TRACKER(object):
                             if 'Kroger' in value:
                                 #print 'Kroger detected'
                                 Kroger_texture_found = 1
+                            if 'Mars' in value:
+                                #print 'Kroger detected'
+                                Mars_texture_found = 1
                             i = 0
                             publish_path_value_forward_length = 5
                             #publish_path_value_forward_length = 9
@@ -279,7 +282,7 @@ class ASSET_TRACKER(object):
                                         i = i + 1
                                     #publish_path_value_dir = publish_path_value_dir + '/'
                                     publish_path_value_dir = publish_path_value_dir + '\\'
-                                    #print 'publish_path_value_dir = ',publish_path_value_dir
+                                    #print 'MM publish_path_value_dir = ',publish_path_value_dir
                                     files = []
                                     files = cmds.getFileList(folder = publish_path_value_dir) or []
                                     #print 'files = ',files
@@ -287,7 +290,7 @@ class ASSET_TRACKER(object):
                                     #print 'number_of_files = ',number_of_files
                                     #publish_path_value_dir_split = publish_path_value_dir.split('/')
                                     publish_path_value_dir_split = publish_path_value_dir.split('\\')
-                                    #temp_year_used = publish_path_value_dir_split[9]
+                                    temp_year_used = publish_path_value_dir_split[9]
                                     temp_year_used = publish_path_value_dir_split[5]
                                     #print 'temp_year_used = ',temp_year_used
                                     #print '1 publish_path_value_dir = ',publish_path_value_dir
@@ -315,6 +318,7 @@ class ASSET_TRACKER(object):
                                                     version_number = file
                                                     #print 'version_number = ',version_number
                                                     #print 'highest_version = ',highest_version
+                                                    #print '1a publish_path_value_dir = ',publish_path_value_dir
                                                     if version_number in int_check:
                                                         if int(version_number) > int(highest_version) or int(version_number) == int(highest_version) and '17' in publish_year and '18' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '19' in publish_year and '20' in temp_year_used:
                                                             highest_version = str(version_number)
@@ -325,8 +329,10 @@ class ASSET_TRACKER(object):
                                                                 highest_version = highest_version[1:]
                                                                 zero_check_2 = highest_version[0]
                                                                 if zero_check_2 == '0':
+                                                                    #print '1b publish_path_value_dir = ',publish_path_value_dir
                                                                     highest_version = highest_version[1:]
                                                             if ii == 0:
+
                                                                 #print 'C1 self.highest_version_path_dic = ',self.highest_version_path_dic
                                                                 #print 'C1 publish_path_value_dir = ',publish_path_value_dir
                                                                 self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
@@ -358,6 +364,7 @@ class ASSET_TRACKER(object):
                                                                 #print 'D2a4 self.highest_version_path_dic = ',self.highest_version_path_dic
                                                             #print 'self.highest_value_year = ',self.highest_value_year
                                         #print 'end self.highest_version_path_dic = ',self.highest_version_path_dic
+                                        #print '1c publish_path_value_dir = ',publish_path_value_dir
                                         if node_type == 'file':
                                             #print 'node type = file'
                                             folder_files = []
@@ -378,6 +385,7 @@ class ASSET_TRACKER(object):
                                                         #print 'highest_version = ',highest_version
                                                         if ii == 0:
                                                             #print 'ii = ',ii
+                                                            #print '1e publish_path_value_dir = ',publish_path_value_dir
                                                             self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
                                                             highest_path_string = (object + ':  ' + publish_path_value_dir + folder_file)
                                                             self.highest_version_path_dic[object] = highest_path_string
@@ -385,6 +393,7 @@ class ASSET_TRACKER(object):
                                                             self.highest_value_year = temp_year_used
                                                         if ii == 1:
                                                             #print 'ii = ',ii
+                                                            #print '1f publish_path_value_dir = ',publish_path_value_dir
                                                             self.asset_attr_dic['alt_path_' + object + '&&' + 'highest_version'] = highest_version
                                                             highest_path_string = (object + ':  ' + publish_path_value_dir + folder_file)
                                                             self.highest_version_path_dic[object] = highest_path_string
@@ -395,9 +404,12 @@ class ASSET_TRACKER(object):
                             publish_path_value_dir = value = cmds.getAttr(object + '.' + attr)
                             #print '2 publish_path_value_dir = ',publish_path_value_dir
                             #print 'node_type = ',node_type
+                            #print '0 publish_path_value_dir = ',publish_path_value_dir
                             #print 'product_texture_found = ',product_texture_found
+                            #print 'Mars_texture_found = ',Mars_texture_found
                             if node_type == 'file':
                                 #print 'node_type = file'
+                                #print 'file'
                                 if product_texture_found == 0 and Kroger_texture_found == 0:
                                     publish_path_value_split_length = publish_path_value_split_length - 2
                                 if product_texture_found == 1 and Kroger_texture_found == 0:
@@ -406,8 +418,16 @@ class ASSET_TRACKER(object):
                                     #print 'product texture found and Kroger texture found'
                                     publish_path_value_split_length = publish_path_value_split_length - 0
                                 #publish_path_value_split_length = publish_path_value_split_length + 3
+                                if product_texture_found == 0 and Mars_texture_found == 1:
+                                    #print 'file, 0 and Mars found'
+                                    publish_path_value_split_length = publish_path_value_split_length - 1
                             if node_type != 'file':
+                                #print 'not file'
                                 publish_path_value_split_length = publish_path_value_split_length - 1
+                                if product_texture_found == 0 and Mars_texture_found == 1:
+                                    #print 'not file, 0 and Mars found 1'
+                                    publish_path_value_split_length = publish_path_value_split_length + 1
+                            #print '1 publish_path_value_dir = ',publish_path_value_dir
                             publish_path_value_dir = ''
                             i = 1
                             #print 'publish_path_value_split_length = ',publish_path_value_split_length
@@ -418,16 +438,18 @@ class ASSET_TRACKER(object):
                                 i = i + 1
                             #publish_path_value_dir = publish_path_value_dir + '/'
                             publish_path_value_dir = publish_path_value_dir + '\\'
-                            #print 'publish_path_value_dir = ',publish_path_value_dir
+                            print 'publish_path_value_dir = ',publish_path_value_dir
                             files = cmds.getFileList(folder = publish_path_value_dir) or []
-                            #print 'files = ',files
+                            print 'files = ',files
                             number_of_files= len(files)
-                            #print 'number_of_files = ',number_of_files
+                            print 'number_of_files = ',number_of_files
                             if number_of_files == 0:
-                                #print 'num of files = 0, setting X'
+                                print 'num of files = 0, setting X'
                                 if ii == 0:
+                                    print '1 setting X for ', object
                                     self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                                 if ii == 1:
+                                    print '2 setting X for ', object
                                     self.asset_attr_dic['alt_path_' + object + '&&' + 'highest_version'] = 'X'
                             #print 'self.asset_attr_dic = ',self.asset_attr_dic
                             ii = ii + 1
@@ -443,13 +465,15 @@ class ASSET_TRACKER(object):
                             self.alt_version_found_list.append(object)
                         if self.alt_version_higher == 0:
                             #print 'end value = ',value
-                            print 'object = ',object
-                            print 'highest_version_path_dic = ',highest_version_path_dic
-                            gfs_value = self.highest_version_path_dic[object]
-                            isln_value = gfs_value.replace('gfs','isln-smb')
-                            #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
-                            self.highest_version_path_dic[object] = isln_value
-                            #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
+                            #print 'object = ',object
+                            #print 'highest_version_path_dic = ',self.highest_version_path_dic
+                            for key in self.highest_version_path_dic:
+                                if key == object:
+                                    gfs_value = self.highest_version_path_dic[object]
+                                    isln_value = gfs_value.replace('gfs','isln-smb')
+                                    #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
+                                    self.highest_version_path_dic[object] = isln_value
+                                    #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
             #print '2 self.asset_attr_dic = ',self.asset_attr_dic
             #print 'THIS self.highest_version_path_dic = ',self.highest_version_path_dic
                 else:
@@ -457,18 +481,20 @@ class ASSET_TRACKER(object):
             for asset_attr in self.asset_attr_dic:
                 #print 'asset_attr = ',asset_attr
                 if 'alt_path_' not in asset_attr:
-                    #print 'alt_path not in asset_attr'
+                    print 'alt_path not in asset_attr'
                     if 'highest_version' in asset_attr:
-                        #print 'highest version found in asset_attr'
-                        #print 'object = ',object
+                        print 'object = ',object
+                        print 'highest version found in asset_attr'
                         #print object + '&&' + 'highest_version'
                         #print 'self.asset_attr_dic = ',self.asset_attr_dic
                         version = self.asset_attr_dic[object + '&&' + 'highest_version']
                         if 'X' in version:
+                            print 'X is in version'
                             if object not in self.bad_publish_path_list:
+                                print 'adding ' + object + 'to bad_publish_list'
                                 self.bad_publish_path_list.append(object)
-        #print 'gather_attributes self.asset_attr_dic = ',self.asset_attr_dic
-        #print 'gather_attributes self.highest_version_path_dic = ',self.highest_version_path_dic
+        print 'gather_attributes self.asset_attr_dic = ',self.asset_attr_dic
+        print 'gather_attributes self.highest_version_path_dic = ',self.highest_version_path_dic
         self.populate_window()
 
     def populate_window(self):
