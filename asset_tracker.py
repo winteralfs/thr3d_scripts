@@ -58,61 +58,12 @@ import subprocess
 import webbrowser
 import shiboken2
 
-#print 'asset_tracker'
-print 'Thursday'
+print 'asset_tracker'
+#print 'fri'
 
 class ASSET_TRACKER(object):
     def __init__(self):
-        self.user_track()
-        shape_nodes = cmds.ls(type = 'shape')
-        self.group_nodes = []
-        self.valid_transform_objects = []
-        bad_file_nodes = ['gi_std_lgt','reflection_sdt_lgt','refraction_sdt_lgt']
-        self.file_nodes = []
-        transform_nodes = cmds.ls(type = 'transform')
-        #camera_nodes = cmds.ls(type = 'camera')
-        #vray_light_nodes = cmds.ls(type = 'VRayLightRectShape')
-        #print 'transform_nodes = ',transform_nodes
-        #print 'camera_nodes = ',camera_nodes
-        #print 'light_nodes = ',light_nodes
-        for transform_node in transform_nodes:
-            #print 'transform_node = ',transform_node
-            children = cmds.listRelatives(transform_node, children = True) or []
-            #print 'children = ',children
-            group_node = 1
-            for child in children:
-                if child in shape_nodes:
-                    group_node = 0
-                    attrs = cmds.listAttr(transform_node)
-                    for attr in attrs:
-                        if attr == 'entity_id':
-                            if transform_node not in self.valid_transform_objects:
-                                self.valid_transform_objects.append(transform_node)
-            if group_node == 1:
-                self.group_nodes.append(transform_node)
-        file_nodes_raw = cmds.ls(type = 'file')
-        for file_node in file_nodes_raw:
-            if file_node not in bad_file_nodes:
-                attrs = cmds.listAttr(file_node)
-                for attr in attrs:
-                    if attr == 'entity_id':
-                        if file_node not in self.file_nodes:
-                            self.file_nodes.append(file_node)
-        #print 'self.valid_transform_objects = ',self.valid_transform_objects
-        #print 'self.group_nodes = ',self.group_nodes
-        #print 'self.file_nodes = ',self.file_nodes
-
-    def user_track(self):
-        path = 'U:/cwinters/asset_tracker_temp_files/'
-        #path = '/Users/alfredwinters/Desktop/'
-        filepath = cmds.file(q=True, sn=True)
-        filename = os.path.basename(filepath)
-        raw_name,extension = os.path.splitext(filename)
-        file_name_on_disk = path + raw_name
-        if os.path.isfile(file_name_on_disk) and os.access(file_name_on_disk, os.R_OK):
-            os.remove(file_name_on_disk)
-        file_name_on_disk_open = open(file_name_on_disk,'w')
-        file_name_on_disk_open.close()
+        ph = 'chris'
 
     def deactivate_listWidget(self,listWidget):
         listWidget_length = listWidget.count()
@@ -131,17 +82,39 @@ class ASSET_TRACKER(object):
         self.entity_name_listWidget.clear()
         self.publish_path_listWidget.clear()
         self.latest_version_path_feedback_listWidget.clear()
-        #print 'self.valid_transform_objects = ',self.valid_transform_objects
-        #print 'self.file_nodes = ',self.file_nodes
-        objects = self.valid_transform_objects + self.file_nodes
-        #print 'objects = ',objects
+        transforms_all = cmds.ls(type = 'transform')
+        transforms = []
+        #print 'transforms_all = ',transforms_all
+        bad_transform_nodes = []
+        for transform in transforms_all:
+            #print 'transform = ',transform
+            transform_connections = cmds.listConnections(transform) or []
+            #print 'transform_connections  = ',transform_connections
+            number_of_transform_connections = len(transform_connections)
+            if number_of_transform_connections == 0:
+                #print 'num transform connections == 0'
+                if transform not in bad_transform_nodes:
+                    bad_transform_nodes.append(transform)
+            if number_of_transform_connections == 1:
+                #print 'num transform connections == 1'
+                for transform_connection in transform_connections:
+                    #print 'transform_connection = ',transform_connection
+                    if transform_connection == 'hyperGraphLayout':
+                        if transform not in bad_transform_nodes:
+                            bad_transform_nodes.append(transform)
+        #print 'bad_transform_nodes = ',bad_transform_nodes
+        for transform_node in transforms_all:
+            if transform_node not in bad_transform_nodes:
+                transforms.append(transform_node)
+        #print 'transforms = ',transforms
+        file_nodes = cmds.ls(type = 'file')
+        objects = transforms + file_nodes
         self.trackable_objects = []
         for object in objects:
-            if object not in self.group_nodes:
-                self.trackable_objects.append(object)
-        #print 'self.trackable_objects = ',self.trackable_objects
+          entity_id_attr_exists = cmds.attributeQuery('entity_id',node = object,exists = True)
+          if entity_id_attr_exists == 1:
+              self.trackable_objects.append(object)
         self.number_of_trackable_object = len(self.trackable_objects)
-        #print 'self.number_of_trackable_object = ',self.number_of_trackable_object
         self.gather_attributes()
 
     def gather_attributes(self):
@@ -151,8 +124,6 @@ class ASSET_TRACKER(object):
         self.publish_path_year_dic = {}
         self.year_exists_dic = {}
         self.bad_publish_path_list = []
-        self.alt_version_found_list = []
-        self.nodes_no_attrs = []
         int_check = ['0','01','001','1','01','001','2','02','002','03','003','3','04','004','4','05','005','5','06','006','6','07','007','7','08','008','8','09','009','9','010','0010','10','011','0011','11','012','0012','12','013','0013','13','014','0014','14','015','0015','15','016','0016','16','017','0017','17','018','0018','18','019','0019','19','020','0020','20','021','0021','21','022','0022','22','023','0023','23','024','0024','24','025','0025','25']
         attrs = ['publish_type','publish_id','entity_id','version','publish_path','entity_name','task_type','task_id','publish_file']
         for object in self.trackable_objects:
@@ -162,319 +133,197 @@ class ASSET_TRACKER(object):
             #print 'object = ',object
             node_type = cmds.nodeType(object)
             for attr in attrs:
-                #print 'attr = ',attr
                 attr_exists = cmds.attributeQuery(attr,node = object,exists = True)
                 if attr_exists == 1:
-                    #print 'attr_exists = 1'
                     value = cmds.getAttr(object + '.' + attr)
                     self.asset_attr_dic[object + '&&' + attr] = str(value)
                     if attr == 'publish_path':
-                        #print 'attr = ',attr
                         #print 'value = ',value
-                        self.alt_version_higher = 0
+                        self.files_in_19_folder = 0
+                        value_split = value.split('\\')
+                        self.publish_path_year_dic[object] = value_split[5]
+                        publish_year = value_split[5]
+                        publish_path_value_split = value.split('\\')
+                        publish_path_value_split_length = len(publish_path_value_split)
+                        year_versions_path = ''
+                        product_texture_found = 0
+                        Kraft_texture_found = 0
+                        Kroger_texture_found = 0
                         #print 'value = ',value
-                        if 'isln-smb' in value:
-                            #print 'isln-smb in ' + value
-                            self.alt_path = value.replace('isln-smb','gfs')
-                        else:
-                            #print 'isln-smb not in ' + value + ' using GFS'
-                            self.alt_path = value.replace('gfs','isln-smb')
-                        #print 'self.alt_path = ',self.alt_path
-                        ii = 0
-                        while ii < 2:
-                            #print ' '
-                            #print 'ii while loop'
-                            #print 'ii = ',ii
-                            #print 'value = ',value
-                            if ii == 1:
-                                value = self.alt_path
-                            self.files_in_19_folder = 0
-                            #print 'value = ',value
-                            value_split = value.split('\\')
-                            #value_split = value.split('/')
-                            #print 'value_split = ',value_split
-                            #self.publish_path_year_dic[object] = value_split[9]
-                            self.publish_path_year_dic[object] = value_split[5]
-                            #print 'self.publish_path_year_dic = ', self.publish_path_year_dic
-                            #print 'self.publish_path_year_dic[object] = ', self.publish_path_year_dic[object]
-                            #publish_year = value_split[5]
-                            publish_year = value_split[5]
-                            publish_path_value_split = value.split('\\')
-                            #publish_path_value_split = value.split('/')
+                        if 'Product' in value:
+                            #print 'Product detected'
+                            product_texture_found = 1
+                        if 'Kraft' in value:
+                            #print 'Kraft detected'
+                            Kraft_texture_found = 1
+                        if 'Kroger' in value:
+                            #print 'Kroger detected'
+                            Kroger_texture_found = 1
+                        i = 0
+                        publish_path_value_forward_length = 5
+                        while i < publish_path_value_forward_length:
+                            #print 'i = ',i
+                            if i == 0:
+                                year_versions_path
+                            if i > 0:
+                                year_versions_path = year_versions_path +'\\' + publish_path_value_split[i]
+                                #print 'year_versions_path = ',year_versions_path
+                            i = i + 1
+                        #year_versions_path = year_versions_path + '\\'
+                        #print 'year_versions_path final = ',year_versions_path
+                        eighteen_year_versions = []
+                        nineteen_year_versions = []
+                        eighteen_version_number_full_string = ''
+                        nineteen_version_number_full_string = ''
+                        year_versions = cmds.getFileList(folder = year_versions_path) or []
+                        highest_version = 0
+                        #print 'year_versions = ',year_versions
+                        for year_version in year_versions:
+                            #print 'year_version = ',year_version
                             publish_path_value_split_length = len(publish_path_value_split)
-                            year_versions_path = ''
-                            product_texture_found = 0
-                            Kraft_texture_found = 0
-                            Kroger_texture_found = 0
-                            #print 'A value = ',value
-                            if 'Product' in value:
-                                #print 'Product detected'
-                                product_texture_found = 1
-                            if 'Kraft' in value:
-                                #print 'Kraft detected'
-                                Kraft_texture_found = 1
-                            if 'Kroger' in value:
-                                #print 'Kroger detected'
-                                Kroger_texture_found = 1
-                            i = 0
-                            publish_path_value_forward_length = 5
-                            #publish_path_value_forward_length = 9
-                            #print 'B value = ',value
-                            while i < publish_path_value_forward_length:
-                                #print 'i = ',i
-                                if i == 0:
-                                    year_versions_path
-                                if i > 0:
-                                    #print 'i = ',i
-                                    #print 'publish_path_value_split = ',publish_path_value_split
-                                    #year_versions_path = year_versions_path +'/' + publish_path_value_split[i]
-                                    year_versions_path = year_versions_path +'\\' + publish_path_value_split[i]
-                                    #print 'year_versions_path = ',year_versions_path
-                                i = i + 1
-                            year_versions_path = year_versions_path + '\\'
-                            #print 'year_versions_path final = ',year_versions_path
-                            eighteen_year_versions = []
-                            nineteen_year_versions = []
-                            eighteen_version_number_full_string = ''
-                            nineteen_version_number_full_string = ''
-                            year_versions = cmds.getFileList(folder = year_versions_path) or []
-                            #print 'year_versions = ',year_versions
-                            highest_version = 0
-                            #print 'year_versions = ',year_versions
-                            for year_version in year_versions:
-                                #print ' '
-                                #print 'year verson loop'
-                                #print 'year_version = ',year_version
-                                #print 'value = ',value
-                                publish_path_value_split_length = len(publish_path_value_split)
+                            if year_version != '.DS_Store':
+                                if '18' in year_version:
+                                    #print 'adding 18 to year_exists_dic'
+                                    self.year_exists_dic[object] = year_exists_list.append('18')
+                                if '19' in year_version:
+                                    #print 'adding 19 to year_exists_dic'
+                                    self.year_exists_dic[object] = year_exists_list.append('19')
                                 if year_version != '.DS_Store':
-                                    if '18' in year_version:
-                                        #print 'adding 18 to year_exists_dic'
-                                        self.year_exists_dic[object] = year_exists_list.append('18')
-                                    if '19' in year_version:
-                                        #print 'adding 19 to year_exists_dic'
-                                        self.year_exists_dic[object] = year_exists_list.append('19')
-                                    if year_version != '.DS_Store':
-                                        if '20' in year_version:
-                                            #print 'adding 20 to year_exists_dic'
-                                            self.year_exists_dic[object] = year_exists_list.append('20')
-                                    if node_type == 'file':
-                                        #print 'node type = file'
-                                        publish_path_value_split_length = publish_path_value_split_length - 2
-                                        #print 'publish_path_value_split_length = ',publish_path_value_split_length
+                                    if '20' in year_version:
+                                        #print 'adding 20 to year_exists_dic'
+                                        self.year_exists_dic[object] = year_exists_list.append('20')
+                                if node_type == 'file':
+                                    publish_path_value_split_length = publish_path_value_split_length - 2
+                                if node_type != 'file':
+                                    publish_path_value_split_length = publish_path_value_split_length - 1
+                                publish_path_value_dir = ''
+                                i = 1
+                                #print 'year_version = ',year_version
+                                #print 'publish_path_value_split_length = ',publish_path_value_split_length
+                                while i < publish_path_value_split_length:
+                                    if i == 5:
+                                            publish_path_value_dir = publish_path_value_dir + '\\' + year_version
+                                    else:
+                                        publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
+                                    i = i + 1
+                                publish_path_value_dir = publish_path_value_dir + '\\'
+                                #print '1 publish_path_value_dir = ',publish_path_value_dir
+                                files = []
+                                files = cmds.getFileList(folder = publish_path_value_dir) or []
+                                #print 'files = ',files
+                                number_of_files= len(files)
+                                #print 'number_of_files = ',number_of_files
+                                publish_path_value_dir_split = publish_path_value_dir.split('\\')
+                                temp_year_used = publish_path_value_dir_split[5]
+                                #print 'temp_year_used = ',temp_year_used
+                                if number_of_files != 0:
+                                    bad_file_type_list = ['.DS_Store','workarea','cache','die','photo','scan','_workarea','_cache','_die','_photo','_scan','version']
+                                    #print 'node_type = ',node_type
                                     if node_type != 'file':
-                                        publish_path_value_split_length = publish_path_value_split_length - 1
-                                    publish_path_value_dir = ''
-                                    i = 1
-                                    #print 'year_version = ',year_version
-                                    #print 'publish_path_value_split_length = ',publish_path_value_split_length
-                                    while i < publish_path_value_split_length:
-                                        #if i == 9:
-                                        if i == 5:
-                                                #publish_path_value_dir = publish_path_value_dir + '/' + year_version
-                                                publish_path_value_dir = publish_path_value_dir + '\\' + year_version
-                                        else:
-                                            #publish_path_value_dir = publish_path_value_dir + '/' + publish_path_value_split[i]
-                                            publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
-                                        i = i + 1
-                                    #publish_path_value_dir = publish_path_value_dir + '/'
-                                    publish_path_value_dir = publish_path_value_dir + '\\'
-                                    #print 'publish_path_value_dir = ',publish_path_value_dir
-                                    files = []
-                                    files = cmds.getFileList(folder = publish_path_value_dir) or []
-                                    #print 'files = ',files
-                                    number_of_files= len(files)
-                                    #print 'number_of_files = ',number_of_files
-                                    #publish_path_value_dir_split = publish_path_value_dir.split('/')
-                                    publish_path_value_dir_split = publish_path_value_dir.split('\\')
-                                    #temp_year_used = publish_path_value_dir_split[9]
-                                    temp_year_used = publish_path_value_dir_split[5]
-                                    #print 'temp_year_used = ',temp_year_used
-                                    #print '1 publish_path_value_dir = ',publish_path_value_dir
-                                    if number_of_files != 0:
-                                        bad_file_type_list = ['.DS_Store','workarea','cache','die','photo','scan','_workarea','_cache','_die','_photo','_scan','version']
-                                        #print 'node_type = ',node_type
-                                        if node_type != 'file':
-                                            #print 'node type != file'
-                                            #print ' '
-                                            #print 'files = ',files
-                                            for file in files:
+                                        #print 'node type != file'
+                                        #print ' '
+                                        #print 'files = ',files
+                                        for file in files:
+                                            #print 'file = ',file
+                                            if file not in bad_file_type_list:
+                                                #print 'not one of the bad file types'
                                                 #print 'file = ',file
-                                                if file not in bad_file_type_list:
-                                                    #print 'not one of the bad file types'
-                                                    #print 'file = ',file
-                                                    file_full = file
-                                                    file_split = file.split('.')
-                                                    file = file_split[0]
-                                                    file_split_ = file.split('_')
-                                                    number_of_file_splits_ = len(file_split_)
-                                                    number_of_file_splits_ = number_of_file_splits_ - 1
-                                                    #print 'file_split_ = ',file_split_
-                                                    file = file_split_[number_of_file_splits_]
-                                                    #print ' file_split_[number_of_file_splits_] = ', file_split_[number_of_file_splits_]
-                                                    version_number = file
-                                                    #print 'version_number = ',version_number
-                                                    #print 'highest_version = ',highest_version
-                                                    if version_number in int_check:
-                                                        if int(version_number) > int(highest_version) or int(version_number) == int(highest_version) and '17' in publish_year and '18' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '19' in publish_year and '20' in temp_year_used:
-                                                            highest_version = str(version_number)
-                                                            #print 'setting higher version_number = ',version_number
-                                                            #print 'setting higher highest_version = ',highest_version
-                                                            zero_check = highest_version[0]
-                                                            if zero_check == '0':
-                                                                highest_version = highest_version[1:]
-                                                                zero_check_2 = highest_version[0]
-                                                                if zero_check_2 == '0':
-                                                                    highest_version = highest_version[1:]
-                                                            if ii == 0:
-                                                                #print 'C1 self.highest_version_path_dic = ',self.highest_version_path_dic
-                                                                #print 'C1 publish_path_value_dir = ',publish_path_value_dir
-                                                                self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
-                                                                highest_path_string = (object + ':  ' + publish_path_value_dir + file_full)
-                                                                #print 'ii = 0 highest_path_string = ',highest_path_string
-                                                                self.highest_version_path_dic[object] = highest_path_string
-                                                                higher_version_found = 1
-                                                                self.highest_value_year = temp_year_used
-                                                                #print 'C2 self.highest_version_path_dic = ',self.highest_version_path_dic
-                                                                #print 'C2 highest_path_string = ',highest_path_string
-                                                                #print 'C2 publish_path_value_dir = ',publish_path_value_dir
-                                                            if ii == 1:
-                                                                #print 'D2a1 highest_path_string = ',highest_path_string
-                                                                #print 'D2a1 self.highest_version_path_dic = ',self.highest_version_path_dic
-                                                                #print 'D2a1 publish_path_value_dir = ',publish_path_value_dir
-                                                                self.asset_attr_dic['alt_path_' + object + '&&' + 'highest_version'] = highest_version
-                                                                #print 'D2a2 highest_path_string = ',highest_path_string
-                                                                #print 'D2a2 self.highest_version_path_dic = ',self.highest_version_path_dic
-                                                                #print 'D2a2 publish_path_value_dir = ',publish_path_value_dir
-                                                                highest_path_string = (object + ':  ' + publish_path_value_dir + file_full)
-                                                                #print 'D2a3 highest_path_string = ',highest_path_string
-                                                                #print 'D2a3 self.highest_version_path_dic = ',self.highest_version_path_dic
-                                                                #print 'ii = 1 highest_path_string = ',highest_path_string
-                                                                self.highest_version_path_dic[object] = highest_path_string
-                                                                #print 'D2a4 self.highest_version_path_dic = ',self.highest_version_path_dic
-                                                                higher_version_found = 1
-                                                                #print 'D2a4 self.highest_version_path_dic = ',self.highest_version_path_dic
-                                                                self.highest_value_year = temp_year_used
-                                                                #print 'D2a4 self.highest_version_path_dic = ',self.highest_version_path_dic
-                                                            #print 'self.highest_value_year = ',self.highest_value_year
-                                        #print 'end self.highest_version_path_dic = ',self.highest_version_path_dic
-                                        if node_type == 'file':
-                                            #print 'node type = file'
-                                            folder_files = []
-                                            for file in files:
-                                                if file.startswith('v'):
-                                                    folder_files.append(file)
-                                            #print 'folder_files = ',folder_files
-                                            for folder_file in folder_files:
-                                                #print 'folder_file = ',folder_file
-                                                if folder_file not in bad_file_type_list:
-                                                    #print 'not one of the bad file types'
-                                                    version_number = folder_file[-1]
-                                                    #print 'version_number = ',version_number
-                                                    #print 'highest_version = ',highest_version
-                                                    #print 'temp_year_used = ',temp_year_used
+                                                file_full = file
+                                                file_split = file.split('.')
+                                                file = file_split[0]
+                                                file_split_ = file.split('_')
+                                                number_of_file_splits_ = len(file_split_)
+                                                number_of_file_splits_ = number_of_file_splits_ - 1
+                                                #print 'file_split_ = ',file_split_
+                                                file = file_split_[number_of_file_splits_]
+                                                #print ' file_split_[number_of_file_splits_] = ', file_split_[number_of_file_splits_]
+                                                version_number = file
+                                                #print 'version_number = ',version_number
+                                                #print 'highest_version = ',highest_version
+                                                if version_number in int_check:
                                                     if int(version_number) > int(highest_version) or int(version_number) == int(highest_version) and '17' in publish_year and '18' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '19' in publish_year and '20' in temp_year_used:
-                                                        highest_version = version_number
-                                                        #print 'highest_version = ',highest_version
-                                                        if ii == 0:
-                                                            #print 'ii = ',ii
-                                                            self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
-                                                            highest_path_string = (object + ':  ' + publish_path_value_dir + folder_file)
-                                                            self.highest_version_path_dic[object] = highest_path_string
-                                                            higher_version_found = 1
-                                                            self.highest_value_year = temp_year_used
-                                                        if ii == 1:
-                                                            #print 'ii = ',ii
-                                                            self.asset_attr_dic['alt_path_' + object + '&&' + 'highest_version'] = highest_version
-                                                            highest_path_string = (object + ':  ' + publish_path_value_dir + folder_file)
-                                                            self.highest_version_path_dic[object] = highest_path_string
-                                                            higher_version_found = 1
-                                                            self.highest_value_year = temp_year_used
+                                                        highest_version = str(version_number)
+                                                        #print 'setting higher version_number = ',version_number
+                                                        #print 'setting higher highest_version = ',highest_version
+                                                        zero_check = highest_version[0]
+                                                        if zero_check == '0':
+                                                            highest_version = highest_version[1:]
+                                                            zero_check_2 = highest_version[0]
+                                                            if zero_check_2 == '0':
+                                                                highest_version = highest_version[1:]
+                                                        self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
+                                                        highest_path_string = (object + ':  ' + publish_path_value_dir + file_full)
+                                                        self.highest_version_path_dic[object] = highest_path_string
+                                                        higher_version_found = 1
+                                                        self.highest_value_year = temp_year_used
                                                         #print 'self.highest_value_year = ',self.highest_value_year
-                            #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
-                            publish_path_value_dir = value = cmds.getAttr(object + '.' + attr)
-                            #print '2 publish_path_value_dir = ',publish_path_value_dir
-                            #print 'node_type = ',node_type
-                            #print 'product_texture_found = ',product_texture_found
-                            if node_type == 'file':
-                                #print 'node_type = file'
-                                if product_texture_found == 0 and Kroger_texture_found == 0:
-                                    publish_path_value_split_length = publish_path_value_split_length - 2
-                                if product_texture_found == 1 and Kroger_texture_found == 0:
-                                    publish_path_value_split_length = publish_path_value_split_length - 2
-                                if product_texture_found == 1 and Kroger_texture_found == 1:
-                                    #print 'product texture found and Kroger texture found'
-                                    publish_path_value_split_length = publish_path_value_split_length - 0
-                                #publish_path_value_split_length = publish_path_value_split_length + 3
-                            if node_type != 'file':
-                                publish_path_value_split_length = publish_path_value_split_length - 1
-                            publish_path_value_dir = ''
-                            i = 1
-                            #print 'publish_path_value_split_length = ',publish_path_value_split_length
-                            #publish_path_value_split_length = 13
-                            while i < publish_path_value_split_length:
-                                #publish_path_value_dir = publish_path_value_dir + '/' + publish_path_value_split[i]
-                                publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
-                                i = i + 1
-                            #publish_path_value_dir = publish_path_value_dir + '/'
-                            publish_path_value_dir = publish_path_value_dir + '\\'
-                            #print 'publish_path_value_dir = ',publish_path_value_dir
-                            files = cmds.getFileList(folder = publish_path_value_dir) or []
-                            #print 'files = ',files
-                            number_of_files= len(files)
-                            #print 'number_of_files = ',number_of_files
-                            if number_of_files == 0:
-                                #print 'num of files = 0, setting X'
-                                if ii == 0:
-                                    self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
-                                if ii == 1:
-                                    self.asset_attr_dic['alt_path_' + object + '&&' + 'highest_version'] = 'X'
-                            #print 'self.asset_attr_dic = ',self.asset_attr_dic
-                            ii = ii + 1
-                        #print 'object = ',object
-                        #print 'highest_version = ',highest_version
+                                    if node_type == 'file':
+                                        #print 'not one of the bad file types'
+                                        #print 'node type = file'
+                                        folder_files = []
+                                        for file in files:
+                                            if file.startswith('v'):
+                                                folder_files.append(file)
+                                        for folder_file in folder_files:
+                                            #print 'folder_file = ',folder_file
+                                            if folder_file not in bad_file_type_list:
+                                                version_number = folder_file[-1]
+                                                #print 'version_number = ',version_number
+                                                #print 'highest_version = ',highest_version
+                                                #print 'temp_year_used = ',temp_year_used
+                                                if int(version_number) > int(highest_version) or int(version_number) == int(highest_version) and '17' in publish_year and '18' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '17' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '19' in temp_year_used or int(version_number) == int(highest_version) and '18' in publish_year and '20' in temp_year_used or int(version_number) == int(highest_version) and '19' in publish_year and '20' in temp_year_used:
+                                                    highest_version = version_number
+                                                    self.asset_attr_dic[object + '&&' + 'highest_version'] = highest_version
+                                                    highest_path_string = (object + ':  ' + publish_path_value_dir + file)
+                                                    self.highest_version_path_dic[object] = highest_path_string
+                                                    higher_version_found = 1
+                                                    self.highest_value_year = temp_year_used
+                                #else:
+                                    #self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
+                        publish_path_value_dir = value = cmds.getAttr(object + '.' + attr)
+                        #print '2 publish_path_value_dir = ',publish_path_value_dir
+                        #print 'node_type = ',node_type
+                        if node_type == 'file':
+                            if product_texture_found == 0 and Kroger_texture_found == 0:
+                                publish_path_value_split_length = publish_path_value_split_length - 2
+                            if product_texture_found == 1 and Kroger_texture_found == 0:
+                                publish_path_value_split_length = publish_path_value_split_length - 2
+                            if product_texture_found == 1 and Kroger_texture_found == 1:
+                                #print 'product texture found and Kroger texture found'
+                                publish_path_value_split_length = publish_path_value_split_length - 0
+                        if node_type != 'file':
+                            publish_path_value_split_length = publish_path_value_split_length - 1
+                        publish_path_value_dir = ''
+                        i = 1
+                        #print 'publish_path_value_split_length = ',publish_path_value_split_length
+                        #publish_path_value_split_length = 13
+                        while i < publish_path_value_split_length:
+                            publish_path_value_dir = publish_path_value_dir + '\\' + publish_path_value_split[i]
+                            i = i + 1
+                        publish_path_value_dir = publish_path_value_dir + '\\'
+                        #print '3 publish_path_value_dir = ',publish_path_value_dir
+                        files = cmds.getFileList(folder = publish_path_value_dir) or []
+                        #print 'files = ',files
+                        number_of_files= len(files)
+                        #print 'number_of_files = ',number_of_files
+                        if number_of_files == 0:
+                            #print 'num of files = 0, setting X'
+                            self.asset_attr_dic[object + '&&' + 'highest_version'] = 'X'
                         #print 'self.asset_attr_dic = ',self.asset_attr_dic
-                        check_isln_value = self.asset_attr_dic[object + '&&' + 'highest_version']
-                        #print 'check_isln_value = ',check_isln_value
-                        check_gfs_value = self.asset_attr_dic['alt_path_' + object + '&&' + 'highest_version']
-                        #print 'check_gfs_value = ',check_gfs_value
-                        if check_gfs_value > check_isln_value:
-                            self.alt_version_higher = 1
-                            self.alt_version_found_list.append(object)
-                        if self.alt_version_higher == 0:
-                            #print 'end value = ',value
-                            print 'object = ',object
-                            print 'highest_version_path_dic = ',highest_version_path_dic
-                            gfs_value = self.highest_version_path_dic[object]
-                            isln_value = gfs_value.replace('gfs','isln-smb')
-                            #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
-                            self.highest_version_path_dic[object] = isln_value
-                            #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
-            #print '2 self.asset_attr_dic = ',self.asset_attr_dic
-            #print 'THIS self.highest_version_path_dic = ',self.highest_version_path_dic
-                else:
-                    self.nodes_no_attrs.append(object)
             for asset_attr in self.asset_attr_dic:
                 #print 'asset_attr = ',asset_attr
-                if 'alt_path_' not in asset_attr:
-                    #print 'alt_path not in asset_attr'
-                    if 'highest_version' in asset_attr:
-                        #print 'highest version found in asset_attr'
-                        #print 'object = ',object
-                        #print object + '&&' + 'highest_version'
-                        #print 'self.asset_attr_dic = ',self.asset_attr_dic
-                        version = self.asset_attr_dic[object + '&&' + 'highest_version']
-                        if 'X' in version:
-                            if object not in self.bad_publish_path_list:
-                                self.bad_publish_path_list.append(object)
-        #print 'gather_attributes self.asset_attr_dic = ',self.asset_attr_dic
-        #print 'gather_attributes self.highest_version_path_dic = ',self.highest_version_path_dic
+                if 'highest_version' in asset_attr:
+                    #print object + '&&' + 'highest_version'
+                    #print 'self.asset_attr_dic = ',self.asset_attr_dic
+                    version = self.asset_attr_dic[object + '&&' + 'highest_version']
+                    if 'X' in version:
+                        if object not in self.bad_publish_path_list:
+                            self.bad_publish_path_list.append(object)
+        #print 'self.asset_attr_dic = ',self.asset_attr_dic
         self.populate_window()
 
     def populate_window(self):
-        #print ' '
         #print 'populate_window'
-        self.alt_path_list = []
         for node in self.trackable_objects:
             self.node_name_listWidget.addItem(node)
             for asset in self.asset_attr_dic:
@@ -485,24 +334,8 @@ class ASSET_TRACKER(object):
                     if attr == 'version':
                         version_value = self.asset_attr_dic[asset]
                         self.current_version_listWidget.addItem(version_value)
-                    alt_path_highest_version_value = 0
-                    highest_version_value = 0
                     if attr == 'highest_version':
-                        for asset_attr in self.asset_attr_dic:
-                            if asset_attr == asset_name + '&&highest_version' or asset_attr == 'alt_path_' + asset_name + '&&highest_version':
-                                if 'alt_path_' in asset_attr:
-                                    #print 'ALT PATH'
-                                    alt_path_highest_version_value = self.asset_attr_dic[asset_attr]
-                                    #print 'alt_path_highest_version_value = ',alt_path_highest_version_value
-                                else:
-                                    #print 'REGULAR VERSION'
-                                    highest_version_value = self.asset_attr_dic[asset]
-                                    #print 'highest_version_value = ',highest_version_value
-                        if alt_path_highest_version_value > highest_version_value:
-                            #print 'alt_path is higher than regular path, using ' + alt_path_highest_version_value
-                            highest_version_value = alt_path_highest_version_value
-                            self.alt_path_list.append(asset_name)
-                        #print 'END highest_version_value = ',highest_version_value
+                        highest_version_value = self.asset_attr_dic[asset]
                         self.highest_version_listWidget.addItem(highest_version_value)
                     if attr == 'entity_name':
                         entity_name_value = self.asset_attr_dic[asset]
@@ -513,28 +346,15 @@ class ASSET_TRACKER(object):
         self.evaluate_versions()
 
     def latest_version_path_feedback_listWidget_populate(self):
-        #print 'latest_version_path_feedback_listWidget_populate'
         number_of_objects = self.node_name_listWidget.count()
         i = 0
         while i < number_of_objects:
             has_a_higher_version = 0
             item = self.node_name_listWidget.item(i)
             item_text = item.text()
-            #print 'self.alt_path_list = ',self.alt_path_list
-            #print 'item_text = ',item_text
-            #print 'self.highest_version_path_dic = ',self.highest_version_path_dic
             for highest_version_path_item in self.highest_version_path_dic:
                 if highest_version_path_item == item_text:
-                    if item_text in self.alt_path_list:
-                        highest_version_path_item_path = self.highest_version_path_dic[highest_version_path_item]
-                        highest_version_path_item_path = highest_version_path_item_path.replace('isln-smb','gfs')
-                        #highest_version_path_item_path_split = highest_version_path_item_path.split(':')
-                        #highest_version_path_item_path = highest_version_path_item_path_split[1]
-                        #highest_version_path_item_path = highest_version_path_item_path.replace(' ','')
-                        #print 'highest_version_path_item_path = ',highest_version_path_item_path
-                    else:
-                        highest_version_path_item_path = self.highest_version_path_dic[highest_version_path_item]
-                        #print 'highest_version_path_item_path = ',highest_version_path_item_path
+                    highest_version_path_item_path = self.highest_version_path_dic[highest_version_path_item]
                     self.latest_version_path_feedback_listWidget.addItem(highest_version_path_item_path)
                     has_a_higher_version = 1
             if item_text in self.bad_publish_path_list:
@@ -551,7 +371,6 @@ class ASSET_TRACKER(object):
         #self.deactivate_listWidget(self.latest_version_path_feedback_listWidget)
 
     def evaluate_versions(self):
-        #print ' '
         #print 'evaluate_versions'
         i = 0
         while i < self.number_of_trackable_object:
@@ -559,9 +378,7 @@ class ASSET_TRACKER(object):
             object_item = self.node_name_listWidget.item(i)
             object_item_text = object_item.text()
             #print 'object_item_text = ',object_item_text
-            #print 'self.alt_version_higher = ', self.alt_version_higher
             current_version_item = self.current_version_listWidget.item(i)
-            #print 'current_version_item = ',current_version_item
             current_version_item_text = current_version_item.text()
             current_version_item_int = int(current_version_item_text)
             highest_version_item = self.highest_version_listWidget.item(i)
@@ -578,13 +395,6 @@ class ASSET_TRACKER(object):
                         current_version_item.setTextColor('red')
                         entity_name_item.setTextColor('red')
                         publish_path_item.setTextColor('red')
-                        #print 'object_item_text = ',object_item_text
-                        #print 'self.alt_version_found_list = ',self.alt_version_found_list
-                        if object_item_text in self.alt_version_found_list:
-                            object_item.setTextColor('pink')
-                            current_version_item.setTextColor('pink')
-                            entity_name_item.setTextColor('pink')
-                            publish_path_item.setTextColor('pink')
                     else:
                         object_item.setTextColor('light blue')
                         current_version_item.setTextColor('light blue')
@@ -640,13 +450,12 @@ class ASSET_TRACKER(object):
     def node_name_listWidget_item_pressed(self,item):
         #print 'node_name_listWidget_item_pressed'
         item_text = item.text()
-    #    print 'item_text = ',item_text
+        #print 'item_text = ',item_text
         i = 0
         latest_version_path_feedback_listWidget = self.latest_version_path_feedback_listWidget.count()
         while i < latest_version_path_feedback_listWidget:
             latest_version_path_feedback_listWidget_item = self.latest_version_path_feedback_listWidget.item(i)
             latest_version_path_feedback_listWidget_item_text = latest_version_path_feedback_listWidget_item.text()
-            #print 'latest_version_path_feedback_listWidget_item_text = ',latest_version_path_feedback_listWidget_item_text
             latest_version_path_feedback_listWidget_item.setTextColor(QtGui.QColor("#5E5E5E"))
             latest_version_path_feedback_listWidget_item_text_split = latest_version_path_feedback_listWidget_item_text.split(':')
             latest_version_path_feedback_listWidget_item_text = latest_version_path_feedback_listWidget_item_text_split[0]
@@ -671,19 +480,15 @@ class ASSET_TRACKER(object):
         self.entity_name_listWidget.setCurrentIndex(QtCore.QModelIndex())
 
     def publish_path_item_press(self,item):
-        #print 'publish_path_item_press = '
         item_text = item.text()
-        #item_text_split = item_text.split('/')
         item_text_split = item_text.split('\\')
         item_text_split_length = len(item_text_split)
         i = 1
         item_path = ''
         while i < (item_text_split_length - 1):
-            #item_path = item_path + '/' + item_text_split[i]
             item_path = item_path + '\\' + item_text_split[i]
             i = i + 1
         subprocess_string = 'explorer ' + item_path
-        #print 'subprocess_string = ',subprocess_string
         subprocess.Popen(subprocess_string)
         self.publish_path_listWidget.clearSelection()
         self.publish_path_listWidget.setCurrentIndex(QtCore.QModelIndex())
@@ -696,18 +501,14 @@ class ASSET_TRACKER(object):
         #print 'item_text_split = ',item_text_split
         item_text_path = item_text_split[1]
         #print 'item_text_path = ',item_text_path
-        #item_text_path_split = item_text_path.split('/')
         item_text_path_split = item_text_path.split('\\')
-        #print 'item_text_path_split = ',item_text_path_split
         item_text_split_length = len(item_text_path_split)
         i = 1
         item_path = ''
         while i < (item_text_split_length - 1):
-            #item_path = item_path + '/' + item_text_path_split[i]
             item_path = item_path + '\\' + item_text_path_split[i]
             i = i + 1
         subprocess_string = 'explorer ' + item_path
-        #print 'subprocess_string = ',subprocess_string
         subprocess.Popen(subprocess_string)
         for i in range(self.latest_version_path_feedback_listWidget.count()):
             item = self.latest_version_path_feedback_listWidget.item(i)
@@ -730,7 +531,7 @@ class ASSET_TRACKER(object):
         window.setCentralWidget(main_widget)
         window.setFixedWidth(1450)
         self.main_grid_layout = QtWidgets.QGridLayout(main_widget)
-        titles = ['Name (red = a newer version of the asset exists, pink = on GFS)','C-ver','L-ver','Entity Name','Published Path ( yellow = a version of this asset exists in a more recent year directory, orange indicates an invalid publish path is linked to the asset)']
+        titles = ['Name (red indicates a newer version of the asset exists)','C-ver','L-ver','Entity Name','Published Path ( yellow indicates a version of this asset exists in a more recent year directory, orange indicates an invalid publish path is linked to the asset)']
         i = 0
         for title in titles:
             label = QtWidgets.QLabel(title)

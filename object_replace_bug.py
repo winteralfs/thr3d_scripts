@@ -68,7 +68,7 @@ import shiboken2
 #from pwd import getpwuid
 from datetime import datetime
 
-print 'bug fix'
+print 'tuesday'
 
 def user_track():
     path = 'U:/cwinters/object_replace_temp_files/'
@@ -109,7 +109,7 @@ def look_for_duplicate_nodes():
 
 def objectChooseWin():
     #user_track()
-    name = "object_replace"
+    name = "object_replace_bug"
     windowSize = (300,100)
     if (cmds.window(name, exists = True)):
         cmds.deleteUI(name)
@@ -336,9 +336,7 @@ def objectChooseWin():
                     object_name = duplicate_node_name_split[-1]
                     rename_string = object_name + '_XXXXXX__duplicate_name' + str(i)
                     cmds.lockNode(duplicate_node_name,lock = False)
-                    if 'lgt_core' not in duplicate_node_name:
-                        if 'std_lgt_core' not in duplicate_node_name:
-                            cmds.rename(duplicate_node_name,rename_string)
+                    cmds.rename(duplicate_node_name,rename_string)
                     duplicate_node_names_renamed.append(rename_string)
                     if duplicate_node_name == object_Old:
                         duplicate_name_dic[rename_string] = object_Old
@@ -391,9 +389,7 @@ def objectChooseWin():
             for transform_node_shape in transform_node_shapes:
                 if 'Shape' not in transform_node_shape:
                     cmds.lockNode(transform_node_shape,lock = False)
-                    if 'lgt_core' not in transform_node_shape:
-                        if 'std_lgt_core' not in transform_node_shape:
-                            cmds.rename(transform_node_shape,transform_node_shape + 'Shape')
+                    cmds.rename(transform_node_shape,transform_node_shape + 'Shape')
                     if transform_node_shape in duplicate_node_names_renamed:
                         duplicate_node_names_renamed.remove(transform_node_shape)
         obj_kids_old = cmds.listRelatives(object_Old, children = True) or []
@@ -2423,22 +2419,10 @@ def objectChooseWin():
                     if number_of_kids_node_original == 0:
                         shape_node_mod =  duplicate_node_name_mod + 'Shape'
                         cmds.lockNode(shape_node_original,lock = False)
-                        if 'lgt_core' not in shape_node_original:
-                            if 'std_lgt_core' not in shape_node_original:
-                                cmds.rename(shape_node_original,shape_node_mod)
+                        cmds.rename(shape_node_original,shape_node_mod)
                 print 'renaming ' + duplicate_node_name_renamed + ' to ' + duplicate_node_name_mod
                 cmds.lockNode(duplicate_node_name_renamed,lock = False)
-                if 'lgt_core' not in duplicate_node_name_renamed:
-                    if 'lgt_core' not in duplicate_node_name_renamed:
-                        cmds.rename(duplicate_node_name_renamed,duplicate_node_name_mod)
-                all_shape_nodes = cmds.ls(shapes = True)
-                for all_shape_node in all_shape_nodes:
-                    if '_XXXXXX__duplicate_nam' in all_shape_node:
-                        shape_node_name_split = all_shape_node.split('_XXXXXX__duplicate_nam')
-                        shape_name_fixed = shape_node_name_split[0] + 'Shape'
-                        if 'lgt_core' not in duplicate_node_name_renamed:
-                            if 'std_lgt_core' not in duplicate_node_name_renamed:
-                                cmds.rename(all_shape_node, shape_name_fixed)
+                cmds.rename(duplicate_node_name_renamed,duplicate_node_name_mod)
         panels = cmds.getPanel( type = "modelPanel" )
         for mPanel in panels:
             cmds.modelEditor(mPanel, edit = True, allObjects = 1)

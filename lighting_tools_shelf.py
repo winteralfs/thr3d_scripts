@@ -141,7 +141,7 @@ def build_custom_shelf():
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/standard_lighting_tool_rotation_fix_thumb.jpg', command = partial(standard_lighting_tool_rotation_fix))
     annotation = 'UV set uv_set_chooser, not object selection based, runs faster'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/uv_set_editor_logo_small.jpg', command = partial(uv_set_chooser))
-    annotation = 'shows the latest version of assets available and your current version'
+    #annotation = 'shows the latest version of assets available and your current version'
     cmds.shelfButton(annotation  = annotation, image = 'U:/cwinters/thumbnails/asset_tracker_logo_small.jpg', command = partial(asset_tracker))
     annotation = 'Object Replace_beta: Replaces one object with another, transfering most attributes settings and shader assignments'
     #cmds.shelfButton(annotation  = annotation, image = '', command = partial(object_replace_beta))
