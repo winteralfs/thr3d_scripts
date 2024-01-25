@@ -1,0 +1,265 @@
+import maya.cmds as cmds
+import os
+import maya.OpenMayaUI as mui
+from PySide2 import QtWidgets,QtCore,QtGui
+from PySide2.QtCore import Qt
+import shiboken2
+from functools import partial
+
+print('')
+print ('ramp preset tool')
+
+def create_ramp_presets_directoty():
+  desktop_path = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop')
+  ramp_preset_directory_path = desktop_path + '/' + 'Maya_ramp_presets_directory'
+  ramp_preset_directoryExists = os.path.exists(ramp_preset_directory_path)
+  if not ramp_preset_directoryExists:
+      print('None found. Creating the Maya ramp preset directory')
+      os.makedirs(ramp_preset_directory_path)
+  return(ramp_preset_directory_path)
+
+def reading_ramp_presets_directoty(ramp_preset_directory_path):
+  existing_ramp_presets = os.listdir(ramp_preset_directory_path)   
+  for ramp_preset in existing_ramp_presets:
+      if ramp_preset[0] is '.':
+         existing_ramp_presets.remove(ramp_preset)
+  return(existing_ramp_presets)
+
+def populate_ramp_preset_listWidget(ramp_preset_directory_path,existing_ramp_presets,window, ramp_preset_listWidget):
+  existing_ramp_presets = os.listdir(ramp_preset_directory_path)   
+
+  window.ramp_preset_listWidget.clear()   
+  for ramp_preset in existing_ramp_presets:
+      if ramp_preset[0] is '.':
+         existing_ramp_presets.remove(ramp_preset)
+  for ramp_preset in existing_ramp_presets:
+      window.ramp_preset_listWidget.addItem(ramp_preset)
+  return(existing_ramp_presets)
+
+def ramp_preset_listWidget_selected(self):
+  global selected_ramp_preset
+  selected_ramp_preset = self.text()
+  return(selected_ramp_preset)
+
+def save_ramp_preset(ramp_preset_directory_path,existing_ramp_presets,window, ramp_preset_listWidget):
+
+  ramp_nodes = []
+
+  selected_nodes = cmds.ls(sl = True)
+  for node in selected_nodes:
+      type = cmds.nodeType(node)
+      if type == 'ramp':
+         ramp_nodes.append(node)
+  i = 0      
+  for ramp in ramp_nodes:
+      print('')
+      print('saving a preset for ramp: ',ramp)
+      print('')   
+      ramp = ramp_nodes[i]
+      ramp_preset_full_path = ramp_preset_directory_path + '/'+ ramp  
+      ramp_preset_file = open(ramp_preset_full_path, 'w+')
+      ramp_node_connections = cmds.listConnections(ramp)
+      ramp_node_connection = ramp_node_connections[-1]
+      coord_attrs = cmds.listAttr(ramp_node_connection)
+      skip_2dAttrs = ['message','binMembership','textures']
+      for attr in coord_attrs:
+          if attr not in skip_2dAttrs:
+              attr_value = cmds.getAttr(ramp_node_connection + '.' + attr)     
+              ramp_preset_text = 'placeTex ' + attr + ':' + str(attr_value) + '\n'
+              ramp_preset_file.write(ramp_preset_text)
+      attributes = cmds.listAttr(ramp)
+      bad_attrs = ['message','colorEntryList','colorEntryList.position','colorEntryList.color','colorEntryList.colorR','colorEntryList.colorG','colorEntryList.colorB']
+      for attr in bad_attrs:
+          attributes.remove(attr)
+      for attr in attributes:
+          attr_value = cmds.getAttr(ramp + '.' + attr)        
+          ramp_preset_text = attr + ':' + str(attr_value) + '\n'
+          ramp_preset_file.write(ramp_preset_text)
+      if cmds.attributeQuery('colorEntryList',node = ramp, ex = True ):
+          ramp_index_numbers = cmds.getAttr(ramp + '.colorEntryList', mi = True)
+          number_of_entries = len(ramp_index_numbers)
+          number_of_entries_text = 'entry number:' + '*' + str(number_of_entries) + '*' + '\n'
+          ramp_preset_file.write(number_of_entries_text)
+          for index in ramp_index_numbers:              
+              entry_position = cmds.getAttr(ramp + '.colorEntryList[' + str(index) + '].position')               
+              entry_color = cmds.getAttr(ramp + '.colorEntryList[' + str(index) + '].color')                          
+              entry_preset_text = ('entry#' + str(index) + '# ' + ' position:' + str(entry_position) + ' color:' + str(entry_color) + '\n')
+              ramp_preset_file.write(entry_preset_text)             
+      i = i + 1
+      ramp_preset_file.close()
+  existing_ramp_presets = reading_ramp_presets_directoty(ramp_preset_directory_path)
+  reading_ramp_presets_directoty(ramp_preset_directory_path)
+  populate_ramp_preset_listWidget(ramp_preset_directory_path,existing_ramp_presets,window, ramp_preset_listWidget)
+
+def load_ramp_preset(ramp_preset_directory_path,selected_ramp_preset):        
+    ramp_preset_full_path = ramp_preset_directory_path + '/'+ selected_ramp_preset
+    ramp_preset_file = open(ramp_preset_full_path, 'r')
+    ramp_preset_file_text = ramp_preset_file.read()
+    ramp_preset_file.close()       
+    selected_ramps = cmds.ls(sl = True)        
+    skip_attrs = ['binMembership','uvCoord','uCoord','vCoord','uvFilterSize','uvFilterSizeX','uvFilterSizeY']
+    
+    for node in selected_ramps:
+        type = cmds.nodeType(node)
+        if type != 'ramp':
+            selected_ramps.remove(node)
+    for ramp in selected_ramps:
+        ramp_index_numbers = cmds.getAttr(ramp + '.colorEntryList', mi = True)
+        for index in ramp_index_numbers:
+            cmds.removeMultiInstance(ramp + '.colorEntryList[' + str(index) + ']')
+    
+    with open(ramp_preset_full_path, 'r') as ramp_preset_file:
+    
+      print('')
+      print('copying values from the ramp preset ' + selected_ramp_preset + ', to ramps: ' + str(selected_ramps))
+      print('')     
+    
+      for line in ramp_preset_file:
+          line_split = line.split(':')
+          attr = line_split[0]
+          value_new_line = line_split[1]
+          value = value_new_line.replace('\n','')
+    
+          for ramp in selected_ramps:
+              attr_full = ramp + '.' + attr
+              if 'placeTex' not in line:
+                  if attr not in skip_attrs and 'entry' not in attr:
+                      for ramp in selected_ramps:
+                          attr_full = ramp + '.' + attr
+                          attr_type = (cmds.attributeQuery(attr,node = ramp,at = True))
+                          if attr_type == 'float3':
+                              value_double3 = value.replace('[(','').replace(')]','')
+                              value_double3_split = value_double3.split(',')
+                              value_double3_a = float(value_double3_split[0])
+                              value_double3_b = float(value_double3_split[1])
+                              value_double3_c = float(value_double3_split[2])
+                              print('setting',attr_full,value_double3_a,value_double3_b,value_double3_c)            
+                              cmds.setAttr(attr_full,value_double3_a,value_double3_b,value_double3_c, type = 'double3')
+                          elif attr_type == 'float2':
+                              value_double3 = value.replace('[(','').replace(')]','')
+                              value_double3_split = value_double3.split(',')
+                              value_double3_a = float(value_double3_split[0])
+                              value_double3_b = float(value_double3_split[1])
+                              print('setting',attr_full,value_double3_a,value_double3_b)           
+                              cmds.setAttr(attr_full,value_double3_a,value_double3_b, type = 'double2')                   
+                          elif attr_type == 'bool':
+                              if value == 'False':
+                                value = 0
+                              if value == 'True':
+                                value = 1
+                              print('setting',attr_full,value)  
+                              cmds.setAttr(attr_full,value)
+                          elif attr_type == 'float' or attr_type == 'enum':
+                              print('setting',attr_full,value)   
+                              cmds.setAttr(attr_full,float(value))
+              if 'entry' in attr:
+                  if 'placeTex' not in line:
+                      if 'position'in line and 'color' in line:
+                          line_split_for_color = line.split(':')
+                          color_value = line_split_for_color[2]
+                          color_value_double3 = color_value.replace('[(','').replace(')]','').replace('\n','')
+                          color_value_double3_split = color_value_double3.split(',')
+                          color_value_double3_a = float(color_value_double3_split[0])
+                          color_value_double3_b = float(color_value_double3_split[1])
+                          color_value_double3_c = float(color_value_double3_split[2])             
+                      if '*' in value:
+                          entry_number_split = value.split('*')
+                          entry_number_total = entry_number_split[1]
+                      if '#' in attr:
+                          entry_index_split = attr.split('#')
+                          entry_index = entry_index_split[1]
+                      if 'position' in attr:
+                          position_value = value.replace('color','')
+                          print(ramp + '.colorEntryList[' + str(entry_index) + '].position: ' + str(position_value))
+                          print(ramp + '.colorEntryList[' + str(entry_index) + '].color: ' + str(color_value_double3_a) + ',' + str(color_value_double3_b) + ',' + str(color_value_double3_c)) 
+                          cmds.setAttr(ramp + '.colorEntryList[' + str(entry_index) + '].position',float(position_value))
+                          cmds.setAttr(ramp + '.colorEntryList[' + str(entry_index) + '].color',color_value_double3_a,color_value_double3_b,color_value_double3_c, type = 'double3')          
+    
+              ramp_node_connections = cmds.listConnections(ramp)
+              ramp_node_connection = ramp_node_connections[-1]          
+              if 'placeTex ' in attr:
+                  attr_stripped = attr.replace('placeTex ','')
+                  attr_full = ramp_node_connection + '.' + attr_stripped
+                  attr_type = (cmds.attributeQuery(attr_stripped,node = ramp_node_connection,at = True))
+                  if attr_type == 'float3':
+                      value_double3 = value.replace('[(','').replace(')]','')
+                      value_double3_split = value_double3.split(',')
+                      value_double3_a = float(value_double3_split[0])
+                      value_double3_b = float(value_double3_split[1])
+                      value_double3_c = float(value_double3_split[2]) 
+                      print('setting',attr_full,value_double3_a,value_double3_b,value_double3_c)          
+                      cmds.setAttr(attr_full,value_double3_a,value_double3_b,value_double3_c, type = 'double3')            
+                  elif attr_type == 'float2':
+                      value_double3 = value.replace('[(','').replace(')]','')
+                      value_double3_split = value_double3.split(',')
+                      value_double3_a = float(value_double3_split[0])
+                      value_double3_b = float(value_double3_split[1])
+                      print('setting',attr_full,value_double3_a,value_double3_b)             
+                      cmds.setAttr(attr_full,value_double3_a,value_double3_b, type = 'double2')                   
+                  elif attr_type == 'bool':
+                      if value == 'False':
+                        value = 0
+                      if value == 'True':
+                        value = 1
+                      print('setting',attr_full,value)  
+                      cmds.setAttr(attr_full,value)
+                  elif attr_type == 'float' or attr_type == 'enum':
+                      print('setting',attr_full,value)
+                      cmds.setAttr(attr_full,float(value))
+                  elif attr_type == 'doubleAngle':  
+                      print('setting',attr_full,value)
+                      cmds.setAttr(attr_full,float(value))
+      ramp_preset_file.close()
+
+
+def ramp_preset_tool_gui(ramp_preset_directory_path, existing_ramp_presets):
+  window_name = "ramp presets tool"
+  if cmds.window(window_name,exists = True):
+      cmds.deleteUI(window_name, wnd = True)
+  pointer = mui.MQtUtil.mainWindow()
+  parent = shiboken2.wrapInstance(int(pointer),QtWidgets.QWidget)    
+  window = QtWidgets.QMainWindow(parent)    
+  window.setObjectName(window_name)
+  window.setWindowTitle(window_name)
+  main_widget = QtWidgets.QWidget()
+  window.setCentralWidget(main_widget)
+  window.setFixedWidth(350)
+  window.setFixedHeight(550)
+  window.main_box_layout = QtWidgets.QVBoxLayout(main_widget)
+  window.main_box_layout.setAlignment(QtCore.Qt.AlignTop)
+  window.list_layout = QtWidgets.QVBoxLayout(main_widget)
+  window.button_grid_layout = QtWidgets.QGridLayout(main_widget)
+  window.main_box_layout.addLayout(window.list_layout)
+  window.main_box_layout.addLayout(window.button_grid_layout)    
+  spacing = 1
+  window.ramp_preset_listWidget = QtWidgets.QListWidget()
+  window.ramp_preset_listWidget.setSpacing(spacing)
+  window.ramp_preset_listWidget.setMaximumHeight(500)
+  window.ramp_preset_listWidget.setMaximumWidth(325)
+  window.ramp_preset_listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+  window.ramp_preset_listWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+  window.ramp_preset_listWidget.itemClicked.connect(partial(ramp_preset_listWidget_selected))
+
+  window.list_layout.addWidget(window.ramp_preset_listWidget)
+  ramp_preset_listWidget = window.list_layout.addWidget
+  populate_ramp_preset_listWidget(ramp_preset_directory_path,existing_ramp_presets,window, ramp_preset_listWidget)
+
+  button_load_ramp = QtWidgets.QPushButton("Load Ramp")
+  window.button_grid_layout.addWidget(button_load_ramp,0,0)
+  button_load_ramp.pressed.connect(lambda:load_ramp_preset(ramp_preset_directory_path,selected_ramp_preset)) 
+
+  button_save_ramp = QtWidgets.QPushButton("Save Ramp")
+  window.button_grid_layout.addWidget(button_save_ramp,0,1)
+  button_save_ramp.pressed.connect(lambda:save_ramp_preset(ramp_preset_directory_path,existing_ramp_presets,window, ramp_preset_listWidget))
+
+  myScriptJobID = cmds.scriptJob(p = window_name, event=["SelectionChanged",lambda:populate_ramp_preset_listWidget(ramp_preset_directory_path,existing_ramp_presets,window, ramp_preset_listWidget)])
+
+  window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+  window.show()      
+
+def ramp_preset_tool():
+  ramp_preset_directory_path = create_ramp_presets_directoty()
+  existing_ramp_presets = reading_ramp_presets_directoty(ramp_preset_directory_path)
+  ramp_preset_tool_gui(ramp_preset_directory_path, existing_ramp_presets)
+
+ramp_preset_tool()
